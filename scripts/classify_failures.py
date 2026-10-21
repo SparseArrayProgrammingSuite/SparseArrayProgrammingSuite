@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classify SAPS competition failures from combined results.json.
 
-Uses result["status"] first, then diagnostics errcode + stderr regexes.
+Uses result["status"] first, then each dataset's stderr regexes and errcode.
 """
 
 from __future__ import annotations
@@ -55,28 +55,20 @@ def latest_results() -> Path | None:
     return max(runs, key=lambda path: int(path.name[4:])) / "results.json"
 
 
-def _pick_field(run: dict, dataset_name: str, generator_name: str, field: str):
-    params = run.get("parameters") or []
-    value = run.get(field)
-    want = f"{generator_name}.{dataset_name}"
-    idx = None
-    for i, param in enumerate(params):
-        flat = param[0] if isinstance(param, (list, tuple)) and param else param
-        if flat == want or (isinstance(flat, str) and flat.endswith(dataset_name)):
-            idx = i
-            break
-    if idx is None and len(params) == 1:
-        idx = 0
-    if isinstance(value, list):
-        if idx is not None and idx < len(value):
-            return value[idx]
-        if field == "stderr":
-            return "\n".join(item or "" for item in value)
-        return next(
-            (item for item in value if item not in (None, 0)),
-            value[0] if value else None,
-        )
-    return value
+def failure_output(run: dict | None, parameter: str) -> tuple[str, int | None]:
+    if not run:
+        return "", None
+    stderr = run.get("stderr") or ""
+    if len(run.get("parameters") or []) <= 1:
+        return stderr, run.get("errcode")
+    sections: dict[str, list[str]] = {}
+    lines: list[str] = []
+    for line in stderr.splitlines():
+        if line.startswith("For parameters: "):
+            lines = sections.setdefault(line.removeprefix("For parameters: "), [])
+        else:
+            lines.append(line)
+    return "\n".join(sections.get(parameter, [])), None
 
 
 def classify_failure(stderr: str | None, errcode) -> str:
@@ -101,24 +93,64 @@ def iter_rows(doc: dict):
             for dataset in generator["datasets"]:
                 for result in dataset["results"]:
                     status = result["status"]
-                    row = {
+                    if status.endswith("_timeout"):
+                        outcome = "timeout"
+                    elif status != "failed":
+                        outcome = status
+                    elif result.get("reason") == "nonfinite":
+                        outcome = "nonfinite"
+                    else:
+                        stderr, errcode = failure_output(
+                            diagnostics.get(result.get("diagnostics")),
+                            f"{generator['name']}.{dataset['name']}",
+                        )
+                        outcome = classify_failure(stderr, errcode)
+                    yield {
                         "framework": frameworks[result["framework"]],
                         "status": status,
-                        "class": status,
+                        "class": outcome,
                     }
-                    if status != "failed":
-                        yield row
-                        continue
-                    run = diagnostics[result["diagnostics"]]
-                    stderr = (
-                        _pick_field(run, dataset["name"], generator["name"], "stderr")
-                        or ""
-                    )
-                    errcode = _pick_field(
-                        run, dataset["name"], generator["name"], "errcode"
-                    )
-                    row["class"] = classify_failure(stderr, errcode)
-                    yield row
+
+
+# Stack order
+OUTCOME_ORDER = (
+    "ok",
+    "not_implemented",
+    "attribute_error",
+    "type_error",
+    "value_error",
+    "runtime_error",
+    "assertion",
+    "import_error",
+    "killed_sigkill",
+    "oom",
+    "timeout",
+    "skipped",
+    "nonfinite",
+    "empty_stderr",
+    "log_only_then_fail",
+    "other",
+)
+OUTCOME_COLORS = {
+    "ok": "#08519C",
+    "not_implemented": "#E31A1C",
+    "attribute_error": "#6A3D9A",
+    "type_error": "#FF7F00",
+    "value_error": "#8C510A",
+    "runtime_error": "#33A02C",
+    "killed_sigkill": "#F781BF",
+    "oom": "#FFD92F",
+    "timeout": "#1F9E89",
+    "assertion": "#000000",
+    "import_error": "#A6CEE3",
+    "skipped": "#BDBDBD",
+    "nonfinite": "#636363",
+    "empty_stderr": "#FB9A99",
+    "log_only_then_fail": "#80B1D3",
+    "other": "#B3DE69",
+}
+FRAMEWORK_ORDER = ("numpy", "scipy", "sparse", "smart", "pytorch")
+NOT_FAILURES = ("ok", "skipped")
 
 
 def _pie(counts: Counter[str], title: str, path: Path) -> None:
@@ -157,12 +189,16 @@ def plot_pies(
     by_framework: dict[str, Counter[str]],
     output_dir: Path,
 ) -> list[Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
     failure_types = Counter(
-        {name: count for name, count in overall.items() if name != "ok"}
+        {name: count for name, count in overall.items() if name not in NOT_FAILURES}
     )
     by_framework_totals = Counter(
-        {name: sum(counts.values()) for name, counts in by_framework.items()}
+        {
+            name: sum(
+                count for label, count in counts.items() if label not in NOT_FAILURES
+            )
+            for name, counts in by_framework.items()
+        }
     )
     paths = [
         output_dir / "failures_by_framework.pdf",
@@ -171,6 +207,67 @@ def plot_pies(
     _pie(by_framework_totals, "Failures by framework", paths[0])
     _pie(failure_types, "Failures by type", paths[1])
     return paths
+
+
+def _outcome_label(name: str) -> str:
+    return "success" if name == "ok" else name.replace("_", " ")
+
+
+def plot_outcomes(
+    by_framework: dict[str, Counter[str]],
+    path: Path,
+    *,
+    include_success: bool = True,
+) -> None:
+
+    import matplotlib.pyplot as plt
+
+    frameworks = [name for name in FRAMEWORK_ORDER if name in by_framework]
+    frameworks += sorted(set(by_framework) - set(frameworks))
+    present = {name for counts in by_framework.values() for name in counts}
+    if not include_success:
+        present -= set(NOT_FAILURES)
+    outcomes = [name for name in OUTCOME_ORDER if name in present]
+    outcomes += sorted(present - set(outcomes))
+
+    figure, axes = plt.subplots(figsize=(8, 5))
+    bottoms = [0.0] * len(frameworks)
+    for outcome in outcomes:
+        heights = []
+        for framework in frameworks:
+            counts = by_framework[framework]
+            total = sum(counts.values())
+            heights.append(counts[outcome] / total if total else 0.0)
+        axes.bar(
+            frameworks,
+            heights,
+            bottom=bottoms,
+            width=0.72,
+            color=OUTCOME_COLORS.get(outcome, "#B0B0B0"),
+            edgecolor="white",
+            linewidth=0.6,
+            label=_outcome_label(outcome),
+        )
+        bottoms = [
+            bottom + height for bottom, height in zip(bottoms, heights, strict=True)
+        ]
+    axes.set_ylim(0, 1)
+    axes.set_ylabel("Fraction of results")
+    axes.set_xlabel("Framework")
+    axes.set_title(
+        "Outcomes by framework" if include_success else "Failures by framework"
+    )
+    axes.yaxis.set_major_formatter(
+        plt.FuncFormatter(lambda value, _pos: f"{value:.0%}")
+    )
+    axes.legend(
+        title="Outcome",
+        loc="center left",
+        bbox_to_anchor=(1.02, 0.5),
+        frameon=False,
+    )
+    figure.savefig(path, bbox_inches="tight")
+    plt.close(figure)
 
 
 def main() -> int:
@@ -186,7 +283,10 @@ def main() -> int:
         nargs="?",
         const="",
         metavar="DIR",
-        help="Write pie charts (default directory: <run>/plots)",
+        help=(
+            "Write pie charts and both stacked bar charts "
+            "(default directory: <run>/plots)"
+        ),
     )
     args = parser.parse_args()
     path = args.results or latest_results()
@@ -196,16 +296,21 @@ def main() -> int:
     overall: Counter[str] = Counter()
     by_framework: dict[str, Counter[str]] = defaultdict(Counter)
     for row in iter_rows(doc):
-        if row["status"] != "failed":
-            overall[row["status"]] += 1
-            continue
         overall[row["class"]] += 1
         by_framework[row["framework"]][row["class"]] += 1
     print(f"results: {path}")
     print("counts:", dict(overall))
     if args.plot is not None:
         output_dir = Path(args.plot) if args.plot else path.parent / "plots"
-        for plot_path in plot_pies(overall, by_framework, output_dir):
+        output_dir.mkdir(parents=True, exist_ok=True)
+        plot_paths = [
+            *plot_pies(overall, by_framework, output_dir),
+            output_dir / "outcomes_by_framework.pdf",
+            output_dir / "failures_by_framework_stacked.pdf",
+        ]
+        plot_outcomes(by_framework, plot_paths[-2])
+        plot_outcomes(by_framework, plot_paths[-1], include_success=False)
+        for plot_path in plot_paths:
             print(f"wrote {plot_path}")
     return 0
 
