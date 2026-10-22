@@ -149,7 +149,7 @@ OUTCOME_COLORS = {
     "log_only_then_fail": "#80B1D3",
     "other": "#B3DE69",
 }
-FRAMEWORK_ORDER = ("numpy", "scipy", "sparse", "smart", "pytorch")
+FRAMEWORK_ORDER = ("numpy", "scipy", "sparse", "pytorch", "smart")
 NOT_FAILURES = ("ok", "skipped")
 
 
