@@ -2,6 +2,7 @@ import math
 from typing import Any
 
 import numpy as np
+from scipy.spatial import cKDTree
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_sparse
@@ -280,6 +281,56 @@ def _mass_values(particle_mass, n_particles):
     if getattr(particle_mass, "ndim", 0) == 0:
         return np.full(n_particles, float(particle_mass), dtype=np.float64)
     return particle_mass
+
+
+def fast_ref_particle_sim(x, y, z, vx, vy, vz, mass, size, steps, parameters):
+    """Equivalent to reference_particle_sim except uses a kd tree to find close pairs"""
+    cutoff = parameters["cutoff"]
+    softening = parameters["softening"]
+    dt = parameters["dt"]
+    g = parameters["gravitational_constant"]
+    pos = np.stack([x, y, z], axis=1).astype(np.float64)
+    vel = np.stack([vx, vy, vz], axis=1).astype(np.float64)
+    m = _mass_values(mass, len(pos))
+
+    for _ in range(steps):
+        # Particles in adjacent buckets are under 2 * sqrt(3) * cutoff apart.
+        pairs = cKDTree(pos).query_pairs(
+            2 * math.sqrt(3) * cutoff, output_type="ndarray"
+        )
+        i, j = pairs[:, 0], pairs[:, 1]
+        buckets = np.floor(pos / cutoff)
+        adjacent = np.all(np.abs(buckets[i] - buckets[j]) <= 1, axis=1)
+        i, j = i[adjacent], j[adjacent]
+        d = pos[j] - pos[i]
+        r2 = np.maximum(np.sum(d * d, axis=1), softening * softening)
+        r = np.sqrt(r2)
+        acc = np.zeros_like(pos)
+        if parameters["force_model"] == "newtonian_gravity":
+            np.add.at(acc, i, (g * m[j] / (r2 * r))[:, None] * d)
+            np.add.at(acc, j, -(g * m[i] / (r2 * r))[:, None] * d)
+        else:
+            force = (g * (1 - cutoff / r) / r2)[:, None] * d
+            np.add.at(acc, i, force / m[i, None])
+            np.add.at(acc, j, -force / m[j, None])
+        vel += acc * dt
+        pos += vel * dt
+        if parameters["boundary_model"] == "reflective_box":
+            vel = np.where((pos < 0) | (pos > size), -vel, vel)
+            pos = np.where(pos > size, 2 * size - pos, np.abs(pos))
+    return [*pos.T.copy(), *vel.T.copy()]
+
+
+def _with_reference(inputs, meta):
+    values = [to_numpy(item) for item in inputs]
+    expected = fast_ref_particle_sim(
+        *values, meta["size"], meta["steps"], meta["parameters"]
+    )
+    return DataInstance(
+        inputs=inputs,
+        meta=meta,
+        ref_outputs=[from_numpy(value) for value in expected],
+    )
 
 
 class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
@@ -803,7 +854,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             num_steps=dataset.num_steps,
         )
         meta["parameters"] = dataset.parameters
-        return DataInstance(inputs=inputs, meta=meta)
+        return _with_reference(inputs, meta)
 
 
 class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
@@ -991,7 +1042,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
             include_mass="mass" in dataset.source_columns,
         )
         meta["parameters"] = dataset.parameters
-        return DataInstance(inputs=inputs, meta=meta)
+        return _with_reference(inputs, meta)
 
 
 class ParticleSimulationBenchmark(Benchmark):
@@ -1199,21 +1250,28 @@ class ParticleSimulationBenchmark(Benchmark):
         return x, y, z, vx, vy, vz
 
     def check(self, param):
+        actual = []
         for item in self._output:
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
+            try:
+                actual.append(to_numpy(item))
+            except TypeError:
+                actual.append(to_sparse(item).todense())
+        assert all(np.all(np.isfinite(values)) for values in actual), (
+            f"Particle simulation produced non-finite values for {param.dataset.name}"
+        )
         if self._ref_outputs is None:
             return
-
-        for i, (actual, expected) in enumerate(
-            zip(self._output, self._ref_outputs, strict=True)
+        for i, (actual_values, expected) in enumerate(
+            zip(actual, self._ref_outputs, strict=True)
         ):
-            try:
-                actual_values = to_numpy(actual)
-            except TypeError:
-                actual_values = to_sparse(actual).todense()
             expected_values = to_numpy(expected)
-            assert np.all(actual_values == expected_values), (
-                f"Particle simulation output {i} mismatch for {param.dataset.name}"
-            )
+            # Allow rounding differences in case the frameworks sum forces differently
+            assert np.allclose(
+                actual_values,
+                expected_values,
+                rtol=1e-9,
+                atol=1e-12 * np.max(np.abs(expected_values), initial=0.0),
+            ), f"Particle simulation output {i} mismatch for {param.dataset.name}"
