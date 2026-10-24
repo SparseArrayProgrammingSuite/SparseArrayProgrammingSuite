@@ -39,6 +39,14 @@ _MODEL_DATA_URL = (
     "https://zenodo.org/records/22650920/files/conv2_pruned_dense.onnx.data?download=1"
 )
 
+# The model classifies this many CIFAR-10 test images in one batch.
+_BATCH_SIZE = 1000
+# OpenML's CIFAR-10 lists the 50000 training images before the 10000 test images.
+_CIFAR10_TEST_START = 50_000
+# The per-channel statistics OpenLTH normalizes CIFAR-10 images with.
+_CIFAR10_MEAN = (0.4914, 0.4822, 0.4465)
+_CIFAR10_STD = (0.2023, 0.1994, 0.2010)
+
 
 def _references() -> list[Ref]:
     return [
@@ -77,6 +85,19 @@ def _references() -> list[Ref]:
             url="https://zenodo.org/records/22650920",
         ),
     ]
+
+
+def _cifar10_test_images(count: int) -> np.ndarray:
+    """The first ``count`` CIFAR-10 test images, normalized, as (count, 3, 32, 32)."""
+    from saps.benchmarks.openml import fetch_openml_features
+
+    features, _ = fetch_openml_features("cifar10")
+    rows = features[_CIFAR10_TEST_START : _CIFAR10_TEST_START + count]
+    # Each row holds the red, green and blue 32x32 planes, scaled to [0, 1].
+    images = rows.reshape(count, 3, 32, 32)
+    mean = np.asarray(_CIFAR10_MEAN, dtype=np.float32)[:, None, None]
+    std = np.asarray(_CIFAR10_STD, dtype=np.float32)[:, None, None]
+    return (images - mean) / std
 
 
 def _default_data_dir() -> Path:
@@ -155,7 +176,8 @@ class LTHConv2Dataset(Dataset):
         return (
             "Pruned CIFAR-10 Conv-2 model with approximately 87.84% zero-valued "
             "parameters, archived with its ONNX external data in Zenodo record "
-            "22650920."
+            f"22650920, classifying the first {_BATCH_SIZE} CIFAR-10 test images "
+            "in one batch."
         )
 
     @property
@@ -180,9 +202,10 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
     def description(self) -> str:
         return (
             "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, "
-            "imports its trained parameters and pruning-induced zeros, and "
-            "generates a deterministic input and inline NumPy benchmark function "
-            "with ONNXPY during setup."
+            "imports its trained parameters and pruning-induced zeros, widens it "
+            f"to a batch of {_BATCH_SIZE} CIFAR-10 test images from the shared "
+            "OpenML copy, and generates an inline NumPy benchmark function with "
+            "ONNXPY during setup."
         )
 
     @property
@@ -259,8 +282,29 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
             onnx.helper.tensor_dtype_to_np_dtype(input_info.type.tensor_type.elem_type)
         )
 
-        rng = np.random.default_rng(0)
-        model_input = rng.standard_normal(tuple(shape)).astype(dtype)
+        model_input = _cifar10_test_images(_BATCH_SIZE).astype(dtype)
+        if model_input.shape[1:] != tuple(shape[1:]):
+            raise ValueError(
+                f"Input {input_info.name!r} of shape {tuple(shape)} doesn't take "
+                f"images of shape {model_input.shape[1:]}."
+            )
+        # The model is exported for one image. Widen its batch, including the
+        # constant shape its flatten reshapes to, and drop the stale shapes
+        # inferred for one image.
+        batch = shape[0]
+        for value_info in (input_info, *model.graph.output):
+            value_info.type.tensor_type.shape.dim[0].dim_value = _BATCH_SIZE
+        del model.graph.value_info[:]
+        reshapes = {
+            node.input[1] for node in model.graph.node if node.op_type == "Reshape"
+        }
+        for tensor in model.graph.initializer:
+            if tensor.name in reshapes:
+                target = onnx.numpy_helper.to_array(tensor).copy()
+                if target[0] == batch:
+                    target[0] = _BATCH_SIZE
+                    tensor.CopyFrom(onnx.numpy_helper.from_array(target, tensor.name))
+
         model_source, tensor_inputs = compile_to_source(
             model, function_name="benchmark", extra_parameters=("meta",)
         )

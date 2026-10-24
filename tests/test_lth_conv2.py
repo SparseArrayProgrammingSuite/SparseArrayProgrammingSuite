@@ -12,6 +12,7 @@ from binsparse.conversions import to_numpy
 from onnx import TensorProto, helper, numpy_helper
 
 from frameworks.saps_numpy import NumpyFramework
+from saps.benchmarks import lth_conv2
 from saps.benchmarks.lth_conv2 import LTHConv2Benchmark
 
 
@@ -73,6 +74,14 @@ def conv_model(tmp_path, monkeypatch):
         size_threshold=0,
     )
     monkeypatch.setenv("LTH_CONV2_ONNX", str(model_path))
+    # Stand in for CIFAR-10 with images this model takes.
+    monkeypatch.setattr(
+        lth_conv2,
+        "_cifar10_test_images",
+        lambda count: np.random.default_rng(0)
+        .standard_normal((count, 1, 4, 4))
+        .astype(np.float32),
+    )
     return model_path
 
 
