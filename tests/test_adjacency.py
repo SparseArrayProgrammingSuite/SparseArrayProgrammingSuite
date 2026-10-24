@@ -10,6 +10,9 @@ from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance
 from saps.util.adjacency import zero_one_adjacency
 
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
+
 
 def _signed_graph():
     """Edges 0->1 and 1->2, a weighted self-loop at 2, and an explicit zero 2->0.

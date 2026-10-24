@@ -4,6 +4,16 @@ import pytest
 
 from numpy.random import default_rng
 
+from saps.benchmark import ReferenceGenerator
+
+
+@pytest.fixture
+def uncached_references(monkeypatch):
+    """Compute reference generators' outputs instead of reading the dataset cache."""
+    monkeypatch.setattr(
+        ReferenceGenerator, "cached_generate", ReferenceGenerator.generate
+    )
+
 
 @pytest.fixture(scope="session")
 def lazy_datadir() -> Path:

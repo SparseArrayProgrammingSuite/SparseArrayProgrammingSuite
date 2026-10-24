@@ -14,6 +14,8 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import (
@@ -425,9 +427,19 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
         # fmt: on
 
     def generate(self, dataset: MSBFSDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MSBFSDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.source_name)
         sources = np.unique(raw.meta["sources"]).tolist()
-        problem = multi_source_bfs_instance(raw.inputs[0], sources)
+        return multi_source_bfs_instance(raw.inputs[0], sources)
+
+    def generate_reference(self, dataset: MSBFSDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -447,7 +459,18 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "msbfs",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class MSBFSSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(MSBFSSNAPGenerator())
 
 
 class MSBFSGAPGenerator(Generator[MSBFSDataset]):
@@ -518,8 +541,18 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
         # fmt: on
 
     def generate(self, dataset: MSBFSDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MSBFSDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.source_name)
-        problem = multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
+        return multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
+
+    def generate_reference(self, dataset: MSBFSDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -539,7 +572,18 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "msbfs",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class MSBFSGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(MSBFSGAPGenerator())
 
 
 class MSBFSBenchmark(Benchmark):

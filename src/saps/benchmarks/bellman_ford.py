@@ -14,6 +14,8 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
@@ -705,16 +707,26 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
         # fmt: on
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: BellmanFordDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.source_name)
         seed = dataset.source_seed
         if seed is None or not 0 <= seed < len(raw.meta["sources"]):
             raise ValueError(
                 f"Source seed is outside the graph's available sources: {seed}"
             )
-        problem = DataInstance(
+        return DataInstance(
             inputs=[distance_matrix(raw.inputs[0])],
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
+
+    def generate_reference(self, dataset: BellmanFordDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
         graph = ig.Graph(
@@ -736,7 +748,18 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "bellman_ford",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class BellmanFordSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(BellmanFordSNAPGenerator())
 
 
 class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
@@ -822,15 +845,25 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
         # fmt: on
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: BellmanFordDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.source_name)
         if dataset.src not in raw.meta["sources"]:
             raise ValueError(
                 f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        problem = DataInstance(
+        return DataInstance(
             inputs=[distance_matrix(raw.inputs[0], keep_weights=True)],
             meta={**raw.meta, "src": dataset.src},
         )
+
+    def generate_reference(self, dataset: BellmanFordDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
         graph = ig.Graph(
@@ -852,7 +885,18 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "bellman_ford",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class BellmanFordGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(BellmanFordGAPGenerator())
 
 
 class BellmanFordBenchmark(Benchmark):

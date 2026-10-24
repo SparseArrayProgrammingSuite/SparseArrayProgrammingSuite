@@ -9,7 +9,7 @@ import numpy as np
 
 from binsparse.conversions import to_numpy, to_scipy, to_sparse
 
-from saps.benchmark import Generator
+from saps.benchmark import Generator, ReferenceGenerator
 from saps.benchmarks.bfs import (
     BFSDataset,
     BFSSNAPGenerator,
@@ -177,9 +177,20 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", source_download)
     assert backend.upload_dataset(shell, source)
     source_download.assert_called_once_with(f"SNAP/{slug}", data_dir=None)
-    # Simulate another worker with only the manifest and remote prepared object.
+    referenced = hasattr(consumer, "generate_reference")
+    reference = ReferenceGenerator(consumer)
+    if referenced:
+        # References for every dataset of this graph are prepared once too.
+        for prepared in reference.datasets:
+            if getattr(prepared.dataset, "source_name", prepared.name) == getattr(
+                dataset, "source_name", dataset.name
+            ):
+                assert backend.upload_dataset(reference, prepared)
+    # Simulate another worker with only the manifest and remote prepared objects.
     shutil.rmtree(backend.cache_dir)
     forbidden = Mock(side_effect=AssertionError("Unexpected source download"))
+    if referenced:
+        monkeypatch.setattr(consumer, "generate_reference", forbidden)
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", forbidden)
     monkeypatch.setattr(
         "saps.benchmarks.suitesparse.load_suitesparse_matrix", forbidden
@@ -191,6 +202,8 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
 
     problem = consumer.cached_generate(dataset)
     assert len(problem.inputs) == (2 if module_name in _MULTI_SOURCE else 1)
+    if referenced:
+        assert problem.ref_outputs is not None
     if getattr(dataset, "source_seed", None) is not None:
         assert problem.meta["seed"] == 0
         assert problem.meta["src"] == int(
@@ -281,11 +294,20 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         "max_degree": _MAX_DEGREES[f"SNAP/{slug}"],
         "sources": _seeded_sources(raw.inputs[0]),
     }
-    download.assert_called_once()
-    assert download.call_args.args[0].startswith(f"suitesparse_matrix/SNAP/{slug}/")
+    # The shared graph downloads once; everything else is a prepared reference.
+    downloaded = [call.args[0] for call in download.call_args_list]
+    graph = f"suitesparse_matrix/SNAP/{slug}/"
+    assert sum(path.startswith(graph) for path in downloaded) == 1
+    assert all(path.startswith((graph, f"{reference.name}/")) for path in downloaded)
     forbidden.assert_not_called()
     assert backend.manifest_path.read_bytes() == manifest
-    assert len(list(backend.cache_dir.rglob("*.bsp.h5"))) == 1
+    cached = [
+        path.relative_to(backend.cache_dir).parts[0]
+        for path in backend.cache_dir.rglob("*.bsp.h5")
+    ]
+    # The graph is cached once; the other objects are its consumer's references.
+    assert cached.count("suitesparse_matrix") == 1
+    assert set(cached) <= {"suitesparse_matrix", reference.name}
 
 
 def test_each_gap_graph_problem_has_an_explicit_snap_generator():
@@ -304,6 +326,7 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
     assert len(problems) == 13
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
     from scipy.sparse import coo_array
 
@@ -518,6 +541,7 @@ def test_snap_generator_rejects_seeds_without_a_source(monkeypatch, seed):
         BFSSNAPGenerator().generate(dataset)
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     from scipy.sparse import coo_array
 
@@ -536,6 +560,7 @@ def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     assert raw.meta == {"max_degree": 3, "sources": sources}
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
     from scipy.sparse import coo_array
 
@@ -553,6 +578,7 @@ def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
     assert problem.inputs[1].shape == (3, 3)
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_msbfs_snap_problems_use_deduplicated_shell_sources_and_edge_pattern(
     monkeypatch,
 ):

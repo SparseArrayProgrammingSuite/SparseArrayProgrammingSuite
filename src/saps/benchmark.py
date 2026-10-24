@@ -551,3 +551,112 @@ class ShellBenchmark(Benchmark, ABC):
 
     def check(self, param):
         pass
+
+
+class ReferenceDataset(Dataset):
+    """A dataset whose reference outputs are cached apart from its inputs.
+
+    It keeps the dataset's name and freshness, so its cache key and staleness
+    match the dataset's, but joins no suites: it exists only to prepare caches.
+    """
+
+    def __init__(self, dataset: Dataset):
+        self.dataset = dataset
+
+    @property
+    def name(self) -> str:
+        return self.dataset.name
+
+    @property
+    def pretty_name(self) -> str:
+        return self.dataset.pretty_name
+
+    @property
+    def description(self) -> str:
+        return self.dataset.description
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return self.dataset.concepts
+
+    @property
+    def file(self) -> str:
+        return self.dataset.file
+
+    @property
+    def freshness(self) -> str:
+        return self.dataset.freshness
+
+
+class ReferenceGenerator(Generator[ReferenceDataset]):
+    """Caches the expensive reference outputs of an uncached generator.
+
+    A generator whose inputs come from cached shell generators stays uncached,
+    so each shared input is stored once. It defines `generate_reference`, which
+    returns a `DataInstance` with no inputs, and its `generate` takes the
+    reference from `ReferenceGenerator(self).cached_generate(dataset)`. Wrap
+    each in a `ShellBenchmark` so that dataset caching prepares it.
+    """
+
+    def __init__(self, generator: Any):
+        self.generator = generator
+
+    @property
+    def name(self) -> str:
+        return f"{self.generator.name}_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return f"{self.generator.pretty_name} Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            f"Reference outputs for {self.generator.pretty_name}, cached without the"
+            " inputs that its shell generators already cache."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return ""
+
+    @property
+    def motivation(self) -> str:
+        return ""
+
+    @property
+    def file(self) -> str:
+        return self.generator.file
+
+    @property
+    def freshness(self) -> str:
+        return self.generator.freshness
+
+    @property
+    def datasets(self) -> list[ReferenceDataset]:
+        return [ReferenceDataset(dataset) for dataset in self.generator.datasets]
+
+    def generate(self, dataset: Dataset) -> DataInstance:
+        if isinstance(dataset, ReferenceDataset):
+            dataset = dataset.dataset
+        return self.generator.generate_reference(dataset)

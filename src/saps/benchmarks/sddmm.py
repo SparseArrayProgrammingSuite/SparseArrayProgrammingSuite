@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -12,6 +12,8 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.util.error_bounds import operation_error_bound, summation_error_bound
@@ -190,12 +192,26 @@ class SDDMMSuiteSparseGenerator(Generator):
         ]
 
     def generate(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
-        S_bin = fetch_suitesparse_matrix(dataset.matrix_name).inputs[0]
-        sample_matrix = to_scipy(S_bin).tocoo()
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
 
+    def generate_inputs(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
+        S_bin = fetch_suitesparse_matrix(dataset.matrix_name).inputs[0]
         gen = np.random.Generator(np.random.PCG64(42))
-        A = gen.random((sample_matrix.shape[0], dataset.middle_dim))
-        B = gen.random((dataset.middle_dim, sample_matrix.shape[1]))
+        A = gen.random((S_bin.shape[0], dataset.middle_dim))
+        B = gen.random((dataset.middle_dim, S_bin.shape[1]))
+        return DataInstance(
+            [S_bin, from_numpy(A), from_numpy(B)], meta={"dataset": dataset.name}
+        )
+
+    def generate_reference(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
+        S_bin, A_bin, B_bin = self.generate_inputs(dataset).inputs
+        sample_matrix = to_scipy(S_bin).tocoo()
+        A = to_numpy(A_bin)
+        B = to_numpy(B_bin)
         expected = sampled_product(sample_matrix, A, B)
         abs_sum = sampled_product(np.abs(sample_matrix), np.abs(A), np.abs(B))
         scale = abs_sum.max() if abs_sum.size else 0
@@ -207,11 +223,17 @@ class SDDMMSuiteSparseGenerator(Generator):
         # Include propagated error in the scale for the final multiplication.
         bound += operation_error_bound(np, scale + bound, expected.dtype)
         return DataInstance(
-            [S_bin, from_numpy(A), from_numpy(B)],
-            meta={"dataset": dataset.name},
+            [],
+            meta={},
             ref_outputs=[from_scipy(expected)],
             ref_meta={"error_bound": float(bound)},
         )
+
+
+class SDDMMSuiteSparseReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(SDDMMSuiteSparseGenerator())
 
 
 # Nonzeros per row of the sampling matrix, the sweep Bharadwaj et al. use for

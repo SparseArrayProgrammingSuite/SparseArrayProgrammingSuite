@@ -32,6 +32,8 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.suitesparse import (
     _LPNETLIB_PROBLEMS,
@@ -162,6 +164,18 @@ def _standard_form_from_bounds(A, b, c, lo, hi):
     b_std = np.concatenate([b, uppers[bounded]])
     c_std = np.concatenate([costs, np.zeros(n_bounded)])
     return A_std, b_std, c_std, float(offset)
+
+
+def _dense_lpnetlib_problem(source_name):
+    """Return an LPnetlib problem's dense A, b, c, bounds, and metadata."""
+    raw = fetch_suitesparse_matrix(source_name)
+    A_bin, b_bin, c_bin, lo_bin, hi_bin = raw.inputs
+    try:
+        A_dense = to_scipy(A_bin).toarray()
+    except TypeError:
+        A_dense = to_numpy(A_bin)
+    b, c, lo, hi = (to_numpy(vector) for vector in (b_bin, c_bin, lo_bin, hi_bin))
+    return A_dense, b, c, lo, hi, raw.meta
 
 
 def _reference_solution(A, b, c, lo, hi):
@@ -572,28 +586,15 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
         ]
 
     def generate(self, dataset: LPSimplexLPnetlibDataset) -> DataInstance:
-        raw = fetch_suitesparse_matrix(dataset.source_name)
-        A_bin, b_bin, c_bin, lo_bin, hi_bin = raw.inputs
-        try:
-            A_dense = to_scipy(A_bin).toarray()
-        except TypeError:
-            A_dense = to_numpy(A_bin)
-        b, c, lo, hi = (to_numpy(vector) for vector in (b_bin, c_bin, lo_bin, hi_bin))
-        meta = raw.meta
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: LPSimplexLPnetlibDataset) -> DataInstance:
+        A_dense, b, c, lo, hi, meta = _dense_lpnetlib_problem(dataset.source_name)
         A_std, b_std, c_std, offset = _standard_form_from_bounds(A_dense, b, c, lo, hi)
-        reference_status, reference_objective = _reference_solution(
-            A_dense, b, c, lo, hi
-        )
-
-        ref_outputs = None
-        if dataset.expected_status != _STATUS_OPTIMAL:
-            # The lpi_ problems are the infeasible members of the collection, so
-            # the status is known ahead of the run even though no solution is.
-            ref_outputs = [
-                from_numpy(np.zeros(A_std.shape[1])),
-                from_numpy(np.array([dataset.expected_status])),
-            ]
-
         return DataInstance(
             inputs=[
                 from_numpy(A_std),
@@ -606,6 +607,27 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
                 "standard_form_shape": A_std.shape,
                 "objective_offset": offset,
             },
+        )
+
+    def generate_reference(self, dataset: LPSimplexLPnetlibDataset) -> DataInstance:
+        A_dense, b, c, lo, hi, _ = _dense_lpnetlib_problem(dataset.source_name)
+        reference_status, reference_objective = _reference_solution(
+            A_dense, b, c, lo, hi
+        )
+
+        ref_outputs = None
+        if dataset.expected_status != _STATUS_OPTIMAL:
+            # The lpi_ problems are the infeasible members of the collection, so
+            # the status is known ahead of the run even though no solution is.
+            width = self.generate_inputs(dataset).meta["standard_form_shape"][1]
+            ref_outputs = [
+                from_numpy(np.zeros(width)),
+                from_numpy(np.array([dataset.expected_status])),
+            ]
+
+        return DataInstance(
+            inputs=[],
+            meta={},
             ref_outputs=ref_outputs,
             ref_meta={
                 "check_solution": True,
@@ -616,6 +638,12 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
                 "reference_objective": reference_objective,
             },
         )
+
+
+class LPSimplexLPnetlibReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(LPSimplexLPnetlibGenerator())
 
 
 class LPSimplexBenchmark(Benchmark):
