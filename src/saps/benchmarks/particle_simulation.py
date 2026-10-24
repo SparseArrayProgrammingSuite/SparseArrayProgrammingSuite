@@ -19,7 +19,7 @@ from saps.benchmark import (
 )
 from saps.downloaders.ewap import download_ewap_dataset
 from saps.downloaders.nemo import download_nemo_dataset
-from saps.util.interval import Interval, maximum, minimum
+from saps.util.interval import Interval, add, maximum, minimum
 
 
 def particle_density_box_size(n_particles: int, density: float) -> float:
@@ -144,7 +144,7 @@ def _may_interact(position, width, cells):
     high = np.stack([np.floor(p.hi / width) for p in position]).astype(np.int64)
     assert np.all(high - low <= 1), "Interval bounds grew wider than a cell"
     if cells is None:
-        # Enough cells that wrapping never meets a cell within two of another.
+        # Enough cells that wrapping never folds together cells near particles.
         shape = tuple(high.max(axis=1) - low.min(axis=1) + 5)
     else:
         shape = (cells, cells, cells)
@@ -197,7 +197,7 @@ def particle_sim_bounds(x, y, z, vx, vy, vz, particle_mass, size, steps, paramet
         delta = [p[j] - p[i] for p in position]
         if periodic:
             delta = [d - size * (d / size).round() for d in delta]
-        r2 = delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
+        r2 = add(delta[0] * delta[0], delta[1] * delta[1], delta[2] * delta[2])
         r2 = maximum(r2, softening * softening)
         r = r2.sqrt()
 
@@ -553,6 +553,9 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
             vy[i] = rng.uniform(-1.0, 1.0)
             vz[i] = rng.uniform(-1.0, 1.0)
 
+        bounds = particle_sim_bounds(
+            x, y, z, vx, vy, vz, mass, size, dataset.num_steps, parameters
+        )
         return DataInstance(
             inputs=[
                 from_numpy(x),
@@ -574,6 +577,9 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
                 "source_dimensions": 3,
                 "simulation_dimensions": 3,
             },
+            # Every output's lower bound, then every output's upper bound.
+            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+            + [from_numpy(bound.hi) for bound in bounds],
         )
 
 
@@ -729,7 +735,17 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             num_steps=dataset.num_steps,
         )
         meta["parameters"] = dataset.parameters
-        return DataInstance(inputs=inputs, meta=meta)
+        x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
+        bounds = particle_sim_bounds(
+            x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], dataset.parameters
+        )
+        return DataInstance(
+            inputs=inputs,
+            meta=meta,
+            # Every output's lower bound, then every output's upper bound.
+            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+            + [from_numpy(bound.hi) for bound in bounds],
+        )
 
 
 class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):

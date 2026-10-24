@@ -5,8 +5,9 @@ An Interval holds arrays lo <= hi. Each operation rounds NumPy's
 round-to-nearest endpoints outward by one ulp, so the result encloses the exact
 result for every input in the operands. Rounding is monotone, so this also
 encloses every float64 evaluation of the same expression, including ones that
-fuse a multiply and an add. Sums are widened to hold in any order. Only the
-operations the particle simulation reference uses are defined.
+fuse a multiply and an add. Sums from `add` and `Interval.sum_by` are widened
+to hold in any order. Only the operations the particle simulation reference
+uses are defined.
 """
 
 from functools import reduce
@@ -97,13 +98,29 @@ class Interval:
         """Bound the sum of each index's values in any order of up to `terms`
         terms, since frameworks may reorder sums or add explicit zeros.
         """
-        magnitude = np.bincount(index, np.maximum(-self.lo, self.hi), size)
-        # One bound covers the framework's rounding and one covers ours.
-        slack = _up(2 * summation_error_bound(np, terms, magnitude, np.float64))
-        return Interval(
-            _down(np.bincount(index, self.lo, size) - slack),
-            _up(np.bincount(index, self.hi, size) + slack),
+        return _any_order(
+            np.bincount(index, self.lo, size),
+            np.bincount(index, self.hi, size),
+            np.bincount(index, np.maximum(-self.lo, self.hi), size),
+            terms,
         )
+
+
+def _any_order(lo, hi, magnitude, terms):
+    """Widen sums of lower and upper bounds to cover any order of the terms."""
+    # One bound covers the framework's rounding and one covers ours.
+    slack = _up(2 * summation_error_bound(np, terms, magnitude, np.float64))
+    return Interval(_down(lo - slack), _up(hi + slack))
+
+
+def add(*terms):
+    """Bound the sum of the terms in any order, since frameworks may reorder it."""
+    return _any_order(
+        sum(term.lo for term in terms),
+        sum(term.hi for term in terms),
+        sum(np.maximum(-term.lo, term.hi) for term in terms),
+        len(terms),
+    )
 
 
 def maximum(a, b):

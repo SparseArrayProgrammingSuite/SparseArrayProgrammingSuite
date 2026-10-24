@@ -1,3 +1,4 @@
+import itertools
 import operator
 from fractions import Fraction
 
@@ -5,7 +6,7 @@ import pytest
 
 import numpy as np
 
-from saps.util.interval import Interval, maximum, minimum
+from saps.util.interval import Interval, add, maximum, minimum
 
 
 def exact(x):
@@ -66,6 +67,15 @@ def test_bounds_cover_fused_multiply_add():
 def test_division_rejects_divisors_that_may_be_zero():
     with pytest.raises(AssertionError):
         Interval(a) / Interval(-b, b)
+
+
+def test_add_covers_every_order():
+    terms = [a, -c, 1e-8 * b]
+    total = add(*map(Interval, terms))
+    assert_encloses(total, [sum(map(exact, t)) for t in zip(*terms, strict=True)])
+    for first, second, third in itertools.permutations(terms):
+        running = first + second + third
+        assert np.all((total.lo <= running) & (running <= total.hi))
 
 
 def test_grouped_sum_covers_every_order():

@@ -87,7 +87,7 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
     def fake_download(scene, *, num_steps):
         calls.append((scene, num_steps))
         inputs = [
-            from_numpy(np.array([0.0, 1.0], dtype=np.float64)),
+            from_numpy(np.array([0.0, 0.5], dtype=np.float64)),
             from_numpy(np.array([0.0, 0.0], dtype=np.float64)),
             from_numpy(np.zeros(2, dtype=np.float64)),
             from_numpy(np.zeros(2, dtype=np.float64)),
