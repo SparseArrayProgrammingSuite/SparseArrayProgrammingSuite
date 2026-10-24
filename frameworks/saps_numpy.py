@@ -73,11 +73,27 @@ class NumpyFramework(Framework):
                     if i in b_idxs
                 )
             ):
-                A, B = kwargs[a], kwargs[b]
+                (A, a_idxs), (B, b_idxs) = sorted(
+                    [(kwargs[a], a_idxs), (kwargs[b], b_idxs)], key=lambda x: -x[0].size
+                )
                 batch = [i for i in c_idxs if i in a_idxs and i in b_idxs]
+                inner = [i for i in a_idxs if i not in c_idxs]
+                # Copying A into a matrix is fastest when its densest axis stays
+                # innermost. The left matrix ends in the summed indices and the
+                # right one in its free indices, so A goes right unless its
+                # densest axis is summed.
+                _, _, densest = min(
+                    zip(A.strides, A.shape, a_idxs, strict=True),
+                    key=lambda axis: (
+                        abs(axis[0]) if axis[1] > 1 else np.inf,
+                        -axis[1],
+                    ),
+                    default=(0, 0, None),
+                )
+                if densest not in inner:
+                    (A, a_idxs), (B, b_idxs) = (B, b_idxs), (A, a_idxs)
                 rows = [i for i in c_idxs if i in a_idxs and i not in b_idxs]
                 cols = [i for i in c_idxs if i in b_idxs and i not in a_idxs]
-                inner = [i for i in a_idxs if i not in c_idxs]
                 sizes = dict(zip(a_idxs + b_idxs, A.shape + B.shape, strict=True))
                 batch_shape = [sizes[i] for i in batch]
                 m, k, n = (prod(sizes[i] for i in idxs) for idxs in (rows, inner, cols))
