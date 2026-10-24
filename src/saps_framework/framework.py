@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
 
 from saps_framework.einsum import nary_ops, reduction_ops
-from saps_framework.unfold import normalize_pad_width, normalize_unfold_args
+from saps_framework.unfold import (
+    normalize_pad_width,
+    normalize_unfold_args,
+    normalize_unfold_padding,
+)
 
 
 class Framework(ABC):
@@ -32,13 +36,15 @@ class Framework(ABC):
     def einsum(self, prgm, **kwargs):
         pass
 
-    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
-        """Pad ``axes`` of x (default: all axes) with ``fill_value``.
+    def pad_constant(self, x, pad_width, *, fill_value=0):
+        """Pad x with ``fill_value``.
 
-        ``padding`` is an int, one int or ``(before, after)`` pair per axis, or
-        ONNX-style ``(begin_0, ..., begin_n, end_0, ..., end_n)``.
+        ``pad_width`` is ``((before_1, after_1), ... (before_N, after_N))``, the
+        number of values padded to the edges of each of x's N axes, as in
+        numpy.pad. ``(before, after)`` pads every axis the same way, and an int
+        ``pad`` is a shortcut for ``(pad, pad)``.
         """
-        pad_width = normalize_pad_width(x.ndim, padding, axes)
+        pad_width = normalize_pad_width(x.ndim, pad_width)
         for axis, (before, after) in enumerate(pad_width):
             if before or after:
                 shape = list(x.shape)
@@ -49,9 +55,9 @@ class Framework(ABC):
                 x = self.concat([head, x, tail], axis=axis)
         return x
 
-    def pad_reflect(self, x, padding, *, axes=None):
+    def pad_reflect(self, x, pad_width):
         """Pad by mirroring about the edge, which isn't repeated: 2 1|0 1 2 3|2 1."""
-        pad_width = normalize_pad_width(x.ndim, padding, axes)
+        pad_width = normalize_pad_width(x.ndim, pad_width)
         for axis, (before, after) in enumerate(pad_width):
             if before or after:
                 size = x.shape[axis]
@@ -64,9 +70,9 @@ class Framework(ABC):
                 x = self._periodic_window(period, axis, -before, size + after)
         return x
 
-    def pad_edge(self, x, padding, *, axes=None):
+    def pad_edge(self, x, pad_width):
         """Pad by repeating the edge value: 0 0|0 1 2 3|3 3."""
-        pad_width = normalize_pad_width(x.ndim, padding, axes)
+        pad_width = normalize_pad_width(x.ndim, pad_width)
         for axis, (before, after) in enumerate(pad_width):
             if before or after:
                 size = x.shape[axis]
@@ -82,9 +88,9 @@ class Framework(ABC):
                 )
         return x
 
-    def pad_wrap(self, x, padding, *, axes=None):
+    def pad_wrap(self, x, pad_width):
         """Pad periodically: 2 3|0 1 2 3|0 1."""
-        pad_width = normalize_pad_width(x.ndim, padding, axes)
+        pad_width = normalize_pad_width(x.ndim, pad_width)
         for axis, (before, after) in enumerate(pad_width):
             if before or after:
                 x = self._periodic_window(x, axis, -before, x.shape[axis] + after)
@@ -102,14 +108,15 @@ class Framework(ABC):
         return self.concat([x] * (last - first), axis=axis)[tuple(index)]
 
     def _pad(self, x, padding, axes, padding_mode, fill_value):
+        pad_width = normalize_unfold_padding(x.ndim, padding, axes)
         if padding_mode == "constant":
-            return self.pad_constant(x, padding, axes=axes, fill_value=fill_value)
+            return self.pad_constant(x, pad_width, fill_value=fill_value)
         if padding_mode == "reflect":
-            return self.pad_reflect(x, padding, axes=axes)
+            return self.pad_reflect(x, pad_width)
         if padding_mode == "edge":
-            return self.pad_edge(x, padding, axes=axes)
+            return self.pad_edge(x, pad_width)
         if padding_mode == "wrap":
-            return self.pad_wrap(x, padding, axes=axes)
+            return self.pad_wrap(x, pad_width)
         raise ValueError(
             "padding_mode must be 'constant', 'reflect', 'edge' or 'wrap', "
             f"got {padding_mode!r}"
@@ -138,6 +145,8 @@ class Framework(ABC):
     ):
         """Pad ``axes`` of x, then unfold them.
 
+        ``padding`` is a ``(before, after)`` pair for each of ``axes``, one pair
+        for all of them, or an int ``pad`` for ``(pad, pad)``.
         ``padding_mode`` is "constant" (with ``fill_value``), "reflect", "edge"
         or "wrap". Backends override this to avoid building the padded input.
         """

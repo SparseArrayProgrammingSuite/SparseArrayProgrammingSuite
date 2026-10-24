@@ -10,6 +10,7 @@ from saps_framework import (
     Framework,
     normalize_pad_width,
     normalize_unfold_args,
+    normalize_unfold_padding,
 )
 from saps_framework.einsum import Access, nary_ops, parse_einsum, reduction_ops
 
@@ -175,29 +176,29 @@ class PytorchFramework(Framework):
         result = torch.einsum(equation, *(operand.to(dtype) for operand in operands))
         return result != 0 if logical_reduction else result
 
-    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
+    def pad_constant(self, x, pad_width, *, fill_value=0):
         x = x.to_dense() if _is_sparse_tensor(x) else x
-        pad_width = normalize_pad_width(x.ndim, padding, axes)
+        pad_width = normalize_pad_width(x.ndim, pad_width)
         if torch.is_tensor(fill_value):
             fill_value = fill_value.detach().cpu().item()
         # F.pad lists (before, after) pairs starting from the last axis.
         pad = [width for pair in reversed(pad_width) for width in pair]
         return F.pad(x, pad, mode="constant", value=float(fill_value))
 
-    def pad_reflect(self, x, padding, *, axes=None):
+    def pad_reflect(self, x, pad_width):
         x = x.to_dense() if _is_sparse_tensor(x) else x
-        padded = _f_pad(x, normalize_pad_width(x.ndim, padding, axes), "reflect")
-        return super().pad_reflect(x, padding, axes=axes) if padded is None else padded
+        padded = _f_pad(x, normalize_pad_width(x.ndim, pad_width), "reflect")
+        return super().pad_reflect(x, pad_width) if padded is None else padded
 
-    def pad_edge(self, x, padding, *, axes=None):
+    def pad_edge(self, x, pad_width):
         x = x.to_dense() if _is_sparse_tensor(x) else x
-        padded = _f_pad(x, normalize_pad_width(x.ndim, padding, axes), "replicate")
-        return super().pad_edge(x, padding, axes=axes) if padded is None else padded
+        padded = _f_pad(x, normalize_pad_width(x.ndim, pad_width), "replicate")
+        return super().pad_edge(x, pad_width) if padded is None else padded
 
-    def pad_wrap(self, x, padding, *, axes=None):
+    def pad_wrap(self, x, pad_width):
         x = x.to_dense() if _is_sparse_tensor(x) else x
-        padded = _f_pad(x, normalize_pad_width(x.ndim, padding, axes), "circular")
-        return super().pad_wrap(x, padding, axes=axes) if padded is None else padded
+        padded = _f_pad(x, normalize_pad_width(x.ndim, pad_width), "circular")
+        return super().pad_wrap(x, pad_width) if padded is None else padded
 
     def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         x = x.to_dense() if _is_sparse_tensor(x) else x
@@ -273,7 +274,7 @@ class PytorchFramework(Framework):
             _, strides_t, dilations_t = normalize_unfold_args(
                 x.ndim, w.shape[2:], axes, strides, dilations
             )
-            pad_width = normalize_pad_width(x.ndim, padding, axes)
+            pad_width = normalize_unfold_padding(x.ndim, padding, axes)
             if any(pair != (0, 0) for pair in pad_width):
                 x = self.pad_constant(x, pad_width, fill_value=fill_value)
             conv = (F.conv1d, F.conv2d, F.conv3d)[x.ndim - 3]

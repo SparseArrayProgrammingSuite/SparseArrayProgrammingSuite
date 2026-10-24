@@ -999,19 +999,19 @@ class TaggerFramework(Framework):
             elementwise_ops_since_reduction=result_lineage,
         )
 
-    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
+    def pad_constant(self, x, pad_width, *, fill_value=0):
         return self._call_wrapped(
-            "pad_constant", (x, padding), {"axes": axes, "fill_value": fill_value}
+            "pad_constant", (x, pad_width), {"fill_value": fill_value}
         )
 
-    def pad_reflect(self, x, padding, *, axes=None):
-        return self._call_wrapped("pad_reflect", (x, padding), {"axes": axes})
+    def pad_reflect(self, x, pad_width):
+        return self._call_wrapped("pad_reflect", (x, pad_width), {})
 
-    def pad_edge(self, x, padding, *, axes=None):
-        return self._call_wrapped("pad_edge", (x, padding), {"axes": axes})
+    def pad_edge(self, x, pad_width):
+        return self._call_wrapped("pad_edge", (x, pad_width), {})
 
-    def pad_wrap(self, x, padding, *, axes=None):
-        return self._call_wrapped("pad_wrap", (x, padding), {"axes": axes})
+    def pad_wrap(self, x, pad_width):
+        return self._call_wrapped("pad_wrap", (x, pad_width), {})
 
     def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         return self._call_wrapped(

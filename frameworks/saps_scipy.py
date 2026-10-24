@@ -242,26 +242,26 @@ class SciPyFramework(Framework):
 
     # scipy.sparse can't pad, so sparse arrays fall back to concatenation.
 
-    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
+    def pad_constant(self, x, pad_width, *, fill_value=0):
         if sps.issparse(x):
-            return super().pad_constant(x, padding, axes=axes, fill_value=fill_value)
-        pad_width = normalize_pad_width(np.ndim(x), padding, axes)
+            return super().pad_constant(x, pad_width, fill_value=fill_value)
+        pad_width = normalize_pad_width(np.ndim(x), pad_width)
         return np.pad(x, pad_width, mode="constant", constant_values=fill_value)
 
-    def pad_reflect(self, x, padding, *, axes=None):
+    def pad_reflect(self, x, pad_width):
         if sps.issparse(x):
-            return super().pad_reflect(x, padding, axes=axes)
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="reflect")
+            return super().pad_reflect(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="reflect")
 
-    def pad_edge(self, x, padding, *, axes=None):
+    def pad_edge(self, x, pad_width):
         if sps.issparse(x):
-            return super().pad_edge(x, padding, axes=axes)
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="edge")
+            return super().pad_edge(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="edge")
 
-    def pad_wrap(self, x, padding, *, axes=None):
+    def pad_wrap(self, x, pad_width):
         if sps.issparse(x):
-            return super().pad_wrap(x, padding, axes=axes)
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="wrap")
+            return super().pad_wrap(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="wrap")
 
     def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         kernel_t = tuple(int(size) for size in kernel_shape)

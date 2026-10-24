@@ -120,7 +120,7 @@ def test_pad_functions_handle_wide_padding_and_short_axes(framework_cls, padding
     for size in [1, 2, 3, 4]:
         x = np.arange(1, 2 * size + 1, dtype=np.float32).reshape(2, size)
         for padding in [(0, 0), (1, 2), (3, 0), (9, 7)]:
-            actual = pad(_sparse_input(framework_cls, x), [padding], axes=1)
+            actual = pad(_sparse_input(framework_cls, x), [(0, 0), padding])
             expected = _expected_pad(x, [padding], axes=(1,), padding_mode=padding_mode)
             np.testing.assert_array_equal(_as_numpy(actual), expected)
 
@@ -149,7 +149,7 @@ def test_shared_concat_fallback_pads_every_framework(framework_name, padding_mod
                 x_in = torch.asarray(x)
             else:
                 x_in = _sparse_input(type(xp), x)
-            actual = fallback(xp, x_in, [padding], axes=1)
+            actual = fallback(xp, x_in, [(0, 0), padding])
             expected = _expected_pad(x, [padding], axes=(1,), padding_mode=padding_mode)
             np.testing.assert_array_equal(_as_numpy(actual), expected)
 
@@ -159,9 +159,9 @@ def test_pad_functions_reject_padding_empty_axes(padding_mode):
     xp = NumpyFramework()
     pad = getattr(xp, f"pad_{padding_mode}")
     with pytest.raises(ValueError, match="empty axis"):
-        pad(np.zeros((0, 2)), 1, axes=0)
-    assert pad(np.zeros((0, 2)), 0, axes=0).shape == (0, 2)
-    assert xp.pad_constant(np.zeros((0, 2)), 1, axes=0).shape == (2, 2)
+        pad(np.zeros((0, 2)), [(1, 1), (0, 0)])
+    assert pad(np.zeros((0, 2)), [(0, 0), (0, 0)]).shape == (0, 2)
+    assert xp.pad_constant(np.zeros((0, 2)), [(1, 1), (0, 0)]).shape == (2, 2)
 
 
 @pytest.mark.parametrize("padding_mode", PADDING_MODES)
@@ -174,21 +174,35 @@ def test_pad_functions_match_numpy_pad(framework_cls, padding_mode):
     x = _sparse_array(0, (3, 4, 5))
     pad = getattr(xp, f"pad_{padding_mode}")
 
-    actual = pad(_sparse_input(framework_cls, x), ((2, 0), (1, 5)), axes=(0, 2))
-    expected = _expected_pad(
-        x, ((2, 0), (1, 5)), axes=(0, 2), padding_mode=padding_mode
-    )
+    for pad_width in [2, (1, 2), ((2, 0), (0, 0), (1, 5))]:
+        actual = pad(_sparse_input(framework_cls, x), pad_width)
+        expected = np.pad(x, pad_width, mode=padding_mode)
 
-    if framework_cls is not NumpyFramework:
-        assert not isinstance(actual, np.ndarray)
-    np.testing.assert_array_equal(_as_numpy(actual), expected)
+        if framework_cls is not NumpyFramework:
+            assert not isinstance(actual, np.ndarray)
+        np.testing.assert_array_equal(_as_numpy(actual), expected)
+
+
+@pytest.mark.parametrize(
+    ("pad_width", "match"),
+    [
+        ((1, 2, 3), "pair for each of 2 axes"),
+        (((1, 2),), "pair for each of 2 axes"),
+        (((1, 2, 3), (0, 0)), "pair for each of 2 axes"),
+        (-1, "non-negative"),
+        (((0, 0), (0, -1)), "non-negative"),
+    ],
+)
+def test_pad_functions_reject_other_pad_widths(pad_width, match):
+    with pytest.raises(ValueError, match=match):
+        NumpyFramework().pad_constant(np.zeros((2, 2)), pad_width)
 
 
 @pytest.mark.parametrize(
     "framework_cls",
     [NumpyFramework, SciPyFramework, PyDataSparseFramework],
 )
-def test_pad_constant_pads_every_axis_by_default(framework_cls):
+def test_pad_constant_pads_with_fill_value(framework_cls):
     xp = framework_cls()
     x = _sparse_array(1, (2, 3))
 
@@ -207,7 +221,7 @@ def test_pytorch_pad_functions_pad_leading_axes(padding_mode):
     pad = getattr(xp, f"pad_{padding_mode}")
 
     # F.pad's non-constant modes can't pad the leading axis of a 3D tensor.
-    actual = pad(torch.asarray(x), (4, 1), axes=0)
+    actual = pad(torch.asarray(x), [(4, 1), (0, 0), (0, 0)])
     expected = _expected_pad(x, [(4, 1)], axes=(0,), padding_mode=padding_mode)
 
     np.testing.assert_array_equal(_as_numpy(actual), expected)
@@ -224,7 +238,7 @@ def test_pytorch_pad_functions_pad_trailing_axes(padding_mode):
     for size in [1, 2, 3, 4]:
         x = np.arange(2 * 3 * size * 4, dtype=np.float32).reshape(2, 3, size, 4)
         for padding in [(0, 0), (1, 2), (3, 0), (9, 7)]:
-            actual = pad(torch.asarray(x), [padding, (1, 1)], axes=(2, 3))
+            actual = pad(torch.asarray(x), [(0, 0), (0, 0), padding, (1, 1)])
             expected = _expected_pad(
                 x, [padding, (1, 1)], axes=(2, 3), padding_mode=padding_mode
             )

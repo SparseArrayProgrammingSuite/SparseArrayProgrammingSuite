@@ -50,18 +50,18 @@ class NumpyFramework(Framework):
     def einsum(self, prgm, **kwargs):
         return native_einsum(np, prgm, **kwargs)
 
-    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
-        pad_width = normalize_pad_width(np.ndim(x), padding, axes)
+    def pad_constant(self, x, pad_width, *, fill_value=0):
+        pad_width = normalize_pad_width(np.ndim(x), pad_width)
         return np.pad(x, pad_width, mode="constant", constant_values=fill_value)
 
-    def pad_reflect(self, x, padding, *, axes=None):
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="reflect")
+    def pad_reflect(self, x, pad_width):
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="reflect")
 
-    def pad_edge(self, x, padding, *, axes=None):
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="edge")
+    def pad_edge(self, x, pad_width):
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="edge")
 
-    def pad_wrap(self, x, padding, *, axes=None):
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="wrap")
+    def pad_wrap(self, x, pad_width):
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="wrap")
 
     def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         array = np.asarray(x)

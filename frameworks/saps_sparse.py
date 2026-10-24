@@ -386,32 +386,32 @@ class PyDataSparseFramework(Framework):
         }
         return native_einsum(sp, prgm, **kwargs)
 
-    def pad_constant(self, x, padding, *, axes=None, fill_value=0):
-        pad_width = normalize_pad_width(np.ndim(x), padding, axes)
+    def pad_constant(self, x, pad_width, *, fill_value=0):
+        pad_width = normalize_pad_width(np.ndim(x), pad_width)
         if not isinstance(x, sp.SparseArray):
             return np.pad(x, pad_width, mode="constant", constant_values=fill_value)
         # pydata/sparse only pads with the array's fill value.
         if np.asarray(fill_value) == x.fill_value:
             return sp.pad(x.asformat("coo"), pad_width, constant_values=fill_value)
-        return super().pad_constant(x, padding, axes=axes, fill_value=fill_value)
+        return super().pad_constant(x, pad_width, fill_value=fill_value)
 
     # pydata/sparse.pad only supports constant mode, so sparse arrays fall back
     # to concatenating slices.
 
-    def pad_reflect(self, x, padding, *, axes=None):
+    def pad_reflect(self, x, pad_width):
         if isinstance(x, sp.SparseArray):
-            return super().pad_reflect(x, padding, axes=axes)
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="reflect")
+            return super().pad_reflect(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="reflect")
 
-    def pad_edge(self, x, padding, *, axes=None):
+    def pad_edge(self, x, pad_width):
         if isinstance(x, sp.SparseArray):
-            return super().pad_edge(x, padding, axes=axes)
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="edge")
+            return super().pad_edge(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="edge")
 
-    def pad_wrap(self, x, padding, *, axes=None):
+    def pad_wrap(self, x, pad_width):
         if isinstance(x, sp.SparseArray):
-            return super().pad_wrap(x, padding, axes=axes)
-        return np.pad(x, normalize_pad_width(np.ndim(x), padding, axes), mode="wrap")
+            return super().pad_wrap(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="wrap")
 
     def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         kernel_t = tuple(int(size) for size in kernel_shape)

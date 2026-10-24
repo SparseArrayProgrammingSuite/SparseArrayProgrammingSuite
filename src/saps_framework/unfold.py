@@ -37,20 +37,24 @@ def normalize_unfold_args(
 
 def normalize_pad_width(
     ndim: int,
-    padding: Sequence[int | Sequence[int]] | int | None,
-    axes: Sequence[int] | int | None,
+    pad_width: Sequence[Sequence[int]] | Sequence[int] | int,
 ) -> list[tuple[int, int]]:
-    """Return a (before, after) pair for every axis, like numpy.pad's pad_width.
+    """Return a (before, after) pair for each of the ndim axes from pad_width."""
+    return _normalize_pad_pairs(pad_width, ndim, "pad_width")
 
-    ``padding`` applies to ``axes`` (default: all axes).
-    """
-    axes_t = _normalize_axes(ndim, range(ndim) if axes is None else axes)
-    padding_t = _normalize_padding(padding, len(axes_t))
-    if any(before < 0 or after < 0 for before, after in padding_t):
-        raise ValueError("padding values must be non-negative")
+
+def normalize_unfold_padding(
+    ndim: int,
+    padding: Sequence[Sequence[int]] | Sequence[int] | int | None,
+    axes: Sequence[int] | int,
+) -> list[tuple[int, int]]:
+    """Return the pad_width that pads each of ``axes`` by its pair in ``padding``."""
+    axes_t = _normalize_axes(ndim, axes)
     pad_width = [(0, 0)] * ndim
-    for axis, pad_pair in zip(axes_t, padding_t, strict=True):
-        pad_width[axis] = pad_pair
+    if padding is not None:
+        pairs = _normalize_pad_pairs(padding, len(axes_t), "padding")
+        for axis, pair in zip(axes_t, pairs, strict=True):
+            pad_width[axis] = pair
     return pad_width
 
 
@@ -110,40 +114,34 @@ def _normalize_axis_values(
     return values_t
 
 
-def _normalize_padding(
-    padding: Sequence[int | Sequence[int]] | int | None,
-    rank: int,
-) -> tuple[tuple[int, int], ...]:
-    if padding is None:
-        return ((0, 0),) * rank
-    if isinstance(padding, Integral):
-        pad = int(padding)
-        return ((pad, pad),) * rank
-
-    padding_t = tuple(cast(Sequence[int | Sequence[int]], padding))
-    if len(padding_t) == rank:
-        pairs = []
-        for value in padding_t:
-            if isinstance(value, Integral):
-                pad = int(value)
-                pairs.append((pad, pad))
-            else:
-                pair = tuple(int(item) for item in cast(Sequence[int], value))
-                if len(pair) != 2:
-                    raise ValueError("padding pairs must contain two values")
-                pairs.append(pair)
-        return tuple(pairs)
-
-    flat_padding = []
-    for value in padding_t:
-        if not isinstance(value, Integral):
-            break
-        flat_padding.append(int(value))
-    else:
-        if len(flat_padding) == 2 * rank:
-            return tuple((flat_padding[i], flat_padding[i + rank]) for i in range(rank))
-
-    raise ValueError(
-        "padding must be an int, one value per axis, one pair per axis, "
-        "or ONNX-style begin/end values"
+def _normalize_pad_pairs(
+    pairs: Sequence[Sequence[int]] | Sequence[int] | int,
+    count: int,
+    name: str,
+) -> list[tuple[int, int]]:
+    message = (
+        f"{name} must be an int, a (before, after) pair, or one pair for each "
+        f"of {count} axes, got {pairs!r}"
     )
+    if isinstance(pairs, Integral):
+        pairs_t = [(int(pairs), int(pairs))] * count
+    elif (
+        isinstance(pairs, Sequence)
+        and len(pairs) == 2
+        and all(isinstance(width, Integral) for width in pairs)
+    ):
+        before, after = cast(Sequence[int], pairs)
+        pairs_t = [(int(before), int(after))] * count
+    else:
+        try:
+            pairs_t = [
+                (int(before), int(after))
+                for before, after in cast(Sequence[Sequence[int]], pairs)
+            ]
+        except (TypeError, ValueError):
+            raise ValueError(message) from None
+    if len(pairs_t) != count:
+        raise ValueError(message)
+    if any(before < 0 or after < 0 for before, after in pairs_t):
+        raise ValueError(f"{name} values must be non-negative")
+    return pairs_t
