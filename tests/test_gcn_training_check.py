@@ -7,10 +7,11 @@ import scipy.sparse as sps
 
 from binsparse.conversions import from_numpy, from_scipy
 
+from saps.benchmarks.gcn import _SIGMAS
 from saps.benchmarks.gcn_backward import (
     GCNBackwardBenchmark,
     _gcn_loss,
-    _loss_and_roundoff,
+    _loss_and_sigma,
     _training_meta,
 )
 
@@ -32,13 +33,13 @@ def _random_gcn(seed, n=120, features=12, hidden=8, outputs=2):
 
 
 @pytest.mark.parametrize("seed", range(5))
-def test_loss_roundoff_bounds_float32_in_either_order(seed):
+def test_loss_sigma_bounds_float32_in_either_order(seed):
     adjacency, x, w1, b1, w2, b2, targets = _random_gcn(seed)
     exact = _gcn_loss(
         adjacency.astype(np.float64),
         *(a.astype(np.float64) for a in (x, w1, b1, w2, b2, targets)),
     )
-    loss, bound = _loss_and_roundoff(adjacency, x, w1, b1, w2, b2, targets)
+    loss, sigma = _loss_and_sigma(adjacency, x, w1, b1, w2, b2, targets)
     assert loss == pytest.approx(exact, rel=1e-12)
     h = np.maximum(adjacency @ (x @ w1) + b1, 0)
     for predictions in (
@@ -47,7 +48,7 @@ def test_loss_roundoff_bounds_float32_in_either_order(seed):
     ):
         assert predictions.dtype == np.float32
         float32 = np.sum((predictions - targets) ** 2, dtype=np.float32) / len(targets)
-        assert abs(float32 - exact) <= bound
+        assert abs(float32 - exact) <= _SIGMAS * sigma
 
 
 def _checked(arrays, meta, output):

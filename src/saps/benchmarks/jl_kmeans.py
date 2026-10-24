@@ -2,9 +2,10 @@ import math
 from typing import Any
 
 import numpy as np
+import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -17,6 +18,60 @@ from saps.benchmark import (
 )
 from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
 from saps.benchmarks.openml import fetch_openml_features
+
+# The check allows a clustering to cost this much more than the same algorithm
+# run in float64: rounding can move a few points to another cluster, while a
+# clustering stopped after one Lloyd step costs about 10% more on MNIST.
+_COST_REL_TOL = 0.01
+
+
+def _matrix(array):
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return to_scipy(array).tocsr()
+
+
+def _cost(A, labels, k) -> float:
+    """The k-means cost of labeling A's rows: their squared distance to their
+    cluster's mean, summed. Works on sparse A without densifying it."""
+    n = A.shape[0]
+    A = A.astype(np.float64)
+    clusters = sps.csr_array((np.ones(n), (np.arange(n), labels)), shape=(n, k))
+    sums = clusters.T @ A
+    sums = sums.toarray() if sps.issparse(sums) else sums
+    counts = np.bincount(labels, minlength=k)
+    squares = A.multiply(A).sum() if sps.issparse(A) else np.sum(A * A)
+    used = counts > 0
+    return float(squares - np.sum(sums[used] ** 2 / counts[used, None]))
+
+
+def _reference_cost(A, R, k, max_iter) -> float:
+    """The cost of the benchmark's own clustering, run in float64."""
+    projected = np.asarray(A.astype(np.float64) @ R.astype(np.float64))
+    centroids = projected[:k].copy()
+    labels = np.zeros(projected.shape[0], dtype=np.int64)
+    for _ in range(max_iter):
+        old_labels = labels
+        distances = (
+            np.sum(projected**2, axis=1)[:, None]
+            - 2 * projected @ centroids.T
+            + np.sum(centroids**2, axis=1)
+        )
+        labels = np.argmin(distances, axis=1)
+        counts = np.bincount(labels, minlength=k)
+        for cluster in np.nonzero(counts)[0]:
+            centroids[cluster] = projected[labels == cluster].mean(axis=0)
+        if np.array_equal(labels, old_labels):
+            break
+    return _cost(A, labels, k)
+
+
+def _cost_ref_meta(A, R, dataset) -> dict[str, Any]:
+    return {
+        "reference_cost": _reference_cost(A, R, dataset.k, dataset.max_iter),
+        "rel_tol": _COST_REL_TOL,
+    }
 
 
 class JLKMeansTestDataset(Dataset):
@@ -183,7 +238,10 @@ class JLKMeansTestGenerator(Generator[JLKMeansTestDataset]):
                 "c": dataset.c,
                 "max_iter": dataset.max_iter,
             },
-            ref_meta=dataset.ref_meta,
+            ref_meta={
+                **(dataset.ref_meta or {}),
+                **_cost_ref_meta(dataset.points, R, dataset),
+            },
         )
 
 
@@ -353,6 +411,7 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 "source_num_rows": source_meta["num_rows"],
                 "source_num_features": source_meta["num_features"],
             },
+            ref_meta=_cost_ref_meta(training, R, dataset),
         )
 
 
@@ -443,6 +502,7 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
                 "source_num_movies": source_meta["num_movies"],
                 "source_num_ratings": source_meta["num_ratings"],
             },
+            ref_meta=_cost_ref_meta(data.tocsr(), R, dataset),
         )
 
 
@@ -598,13 +658,13 @@ Dimensionality reduction</concept_desc>
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
         if self._ref_meta is None:
             return
 
-        labels = to_numpy(self._output[0])
+        labels = to_numpy(self._output[0]).astype(np.int64)
 
         for left, right in self._ref_meta.get("same", []):
             assert labels[left] == labels[right]
@@ -612,3 +672,13 @@ Dimensionality reduction</concept_desc>
             assert labels[left] != labels[right]
         if "cluster_count" in self._ref_meta:
             assert len(set(labels.tolist())) == self._ref_meta["cluster_count"]
+
+        A = _matrix(self._input[0])
+        k = self._meta["k"]
+        assert labels.shape == (A.shape[0],), "Expected one label per point"
+        assert np.all((labels >= 0) & (labels < k)), f"Labels must be in [0, {k})"
+        cost = _cost(A, labels, k)
+        limit = (1 + self._ref_meta["rel_tol"]) * self._ref_meta["reference_cost"]
+        assert (
+            cost <= limit
+        ), f"k-means cost too high for {param.dataset.name}: {cost} > {limit}"

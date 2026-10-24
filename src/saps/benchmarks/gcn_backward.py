@@ -15,6 +15,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.gcn import _SIGMAS, _UNIT_ROUNDOFF, gcn_reference
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps.downloaders.ogb import normalized_undirected_adjacency
@@ -37,42 +38,20 @@ def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
     return np.sum(diff * diff) / predictions.shape[0]
 
 
-def _gamma(count, dtype):
-    """Higham's gamma_n = n u / (1 - n u), with u = eps as in saps.util.error_bounds."""
-    eps = np.finfo(dtype).eps
-    return count * eps / (1 - count * eps)
-
-
-def _loss_and_roundoff(adjacency, features, weights1, bias1, weights2, bias2, targets):
-    """The exact MSE loss of these weights, and a bound on the error of computing
-    it in their dtype, whichever order each layer multiplies in.
-
-    A layer A @ X @ W + b rounds at most d_i + f + 1 times into row i, for d_i
-    entries in row i of A and f rows of W, so it errs by at most
-    gamma_{d_i + f + 1} (|A| |X| |W| + |b|). ReLU never grows an error.
-    """
-    dtype = np.result_type(features, weights1, weights2)
-    features, weights1, bias1, weights2, bias2, targets = (
-        np.asarray(array, dtype=np.float64)
-        for array in (features, weights1, bias1, weights2, bias2, targets)
+def _loss_and_sigma(adjacency, features, weights1, bias1, weights2, bias2, targets):
+    """The exact MSE loss of these weights, and the standard deviation of the
+    error float32 rounding adds to computing it (see gcn.gcn_reference)."""
+    predictions, sigma = gcn_reference(
+        adjacency, features, weights1, bias1, weights2, bias2
     )
-    rounds = np.diff(adjacency.indptr)[:, None]
-    pre = adjacency @ features @ weights1 + bias1
-    error = _gamma(rounds + weights1.shape[0] + 1, dtype) * (
-        abs(adjacency) @ np.abs(features) @ np.abs(weights1) + np.abs(bias1)
-    )
-    hidden = np.maximum(pre, 0)
-    predictions = adjacency @ hidden @ weights2 + bias2
-    error = abs(adjacency) @ error @ np.abs(weights2) + _gamma(
-        rounds + weights2.shape[0] + 1, dtype
-    ) * (abs(adjacency) @ (hidden + error) @ np.abs(weights2) + np.abs(bias2))
-    diff = np.abs(predictions - targets)
+    diff = predictions - np.asarray(targets, dtype=np.float64)
     n = predictions.shape[0]
     loss = np.sum(diff * diff) / n
-    # Squaring, summing and dividing the rounded differences.
-    bound = np.sum(2 * diff * error + error * error) / n
-    bound += _gamma(diff.size + 2, dtype) * np.sum((diff + error) ** 2) / n
-    return float(loss), float(bound)
+    # Errors in the predictions reach the loss through 2 diff / n, and
+    # squaring and summing round diff.size + 2 more times.
+    variance = np.sum((2 * diff * sigma / n) ** 2)
+    variance += _UNIT_ROUNDOFF**2 * (diff.size + 2) * loss**2
+    return float(loss), float(np.sqrt(variance))
 
 
 def _training_meta(
@@ -933,17 +912,13 @@ Each iteration:
         initial = [to_numpy(item) for item in initial]
         targets = to_numpy(targets)
         _, *final = outputs
-        initial_loss, initial_roundoff = _loss_and_roundoff(
-            adjacency, *initial, targets
-        )
-        loss, roundoff = _loss_and_roundoff(adjacency, initial[0], *final, targets)
-        assert np.isfinite(loss) and np.isfinite(
-            roundoff
-        ), "Non-finite loss or error bound"
+        initial_loss, initial_sigma = _loss_and_sigma(adjacency, *initial, targets)
+        loss, sigma = _loss_and_sigma(adjacency, initial[0], *final, targets)
+        assert np.isfinite(loss) and np.isfinite(sigma), "Non-finite loss"
         # Training stops once its rounded loss is below rel_tol times its
-        # rounded initial loss.
+        # rounded initial loss; allow _SIGMAS standard deviations of rounding.
         rel_tol = self._meta["rel_tol"]
-        limit = rel_tol * (initial_loss + initial_roundoff) + roundoff
+        limit = rel_tol * (initial_loss + _SIGMAS * initial_sigma) + _SIGMAS * sigma
         assert (
             loss <= limit
         ), f"GCN training loss too high for {param.dataset.name}: {loss} > {limit}"
