@@ -10,7 +10,6 @@ from saps_framework import (
     Framework,
     normalize_pad_width,
     normalize_unfold_args,
-    normalize_unfold_padding,
 )
 from saps_framework.einsum import Access, nary_ops, parse_einsum, reduction_ops
 
@@ -262,7 +261,6 @@ class PytorchFramework(Framework):
         if (
             nary_ops[combine] == "multiply"
             and reduction_ops[reduce] == "sum"
-            and padding_mode == "constant"
             and 1 <= x.ndim - 2 <= 3
             and x.ndim == w.ndim
             and x.dtype == w.dtype
@@ -274,9 +272,7 @@ class PytorchFramework(Framework):
             _, strides_t, dilations_t = normalize_unfold_args(
                 x.ndim, w.shape[2:], axes, strides, dilations
             )
-            pad_width = normalize_unfold_padding(x.ndim, padding, axes)
-            if any(pair != (0, 0) for pair in pad_width):
-                x = self.pad_constant(x, pad_width, fill_value=fill_value)
+            x = self._pad(x, padding, axes, padding_mode, fill_value)
             conv = (F.conv1d, F.conv2d, F.conv3d)[x.ndim - 3]
             return conv(x, w, stride=strides_t, dilation=dilations_t, groups=group)
         return super().conv(
@@ -307,7 +303,7 @@ class PytorchFramework(Framework):
         rank = len(kernel_shape)
         operation = reduction_ops[reduce]
         if (
-            operation in ("max", "mean")
+            operation in ("max", "min", "mean")
             and 1 <= rank <= 3
             and x.ndim == rank + 2
             and x.dtype.is_floating_point
@@ -317,13 +313,17 @@ class PytorchFramework(Framework):
                 x.ndim, kernel_shape, axes, strides, dilations
             )
             # avg_pool has no dilation.
-            if operation == "max" or all(dilation == 1 for dilation in dilations_t):
+            if operation != "mean" or all(dilation == 1 for dilation in dilations_t):
                 x = x.to_dense() if _is_sparse_tensor(x) else x
                 x = self._pad(x, padding, axes, padding_mode, fill_value)
                 kernel_t = tuple(int(size) for size in kernel_shape)
+                max_pool = (F.max_pool1d, F.max_pool2d, F.max_pool3d)[rank - 1]
                 if operation == "max":
-                    max_pool = (F.max_pool1d, F.max_pool2d, F.max_pool3d)[rank - 1]
                     return max_pool(x, kernel_t, stride=strides_t, dilation=dilations_t)
+                if operation == "min":
+                    return -max_pool(
+                        -x, kernel_t, stride=strides_t, dilation=dilations_t
+                    )
                 avg_pool = (F.avg_pool1d, F.avg_pool2d, F.avg_pool3d)[rank - 1]
                 return avg_pool(x, kernel_t, stride=strides_t)
         return super().pool(

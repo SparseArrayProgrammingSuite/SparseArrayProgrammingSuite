@@ -542,7 +542,7 @@ def test_conv_with_other_operators(combine, reduce, combine_op, reduce_op, group
         np.testing.assert_allclose(_as_numpy(actual), expected, rtol=1e-5, atol=1e-5)
 
 
-def test_pytorch_conv_falls_back_for_other_padding_modes():
+def test_pytorch_conv_matches_numpy_for_other_padding_modes():
     torch = pytest.importorskip("torch")
     from frameworks.saps_pytorch import PytorchFramework
 
