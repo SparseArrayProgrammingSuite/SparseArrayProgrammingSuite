@@ -1,6 +1,7 @@
+import keyword
 from abc import ABC, abstractmethod
 
-from saps_framework.einsum import nary_ops, reduction_ops
+from saps_framework.einsum import reduction_ops
 from saps_framework.unfold import (
     normalize_pad_width,
     normalize_unfold_args,
@@ -174,12 +175,13 @@ class Framework(ABC):
     ):
         """Convolve x of shape (N, C, *spatial) with w of shape (M, C / group, *kernel).
 
-        Returns shape (N, M, *windows), where with one group
+        Returns shape (N, M, *windows), computed as the einsum
 
-            Y[n, m, s] reduce= P[n, c, s, k] combine W[m, c, k]
+            Y[n, g, m, s] reduce= P[n, g, c, s, k] combine W[g, m, c, k]
 
-        and P is ``padded_unfold`` of x's spatial axes. ``combine`` and
-        ``reduce`` are einsum operators, e.g. combine="+", reduce="max".
+        where x's channels and w's filters are split into ``group`` groups and P
+        is ``padded_unfold`` of x's spatial axes. ``combine`` and ``reduce`` are
+        einsum operators, e.g. combine="+", reduce="max".
         """
         batch, channels, *spatial_shape = x.shape
         out_channels, group_channels, *kernel_shape = w.shape
@@ -191,54 +193,30 @@ class Framework(ABC):
                 f"conv with group={group} can't apply weights of shape {w.shape} "
                 f"to input of shape {x.shape}"
             )
-        combine_op = getattr(self, nary_ops[combine])
-        reduce_op = getattr(self, reduction_ops[reduce])
-        window_args = {
-            "strides": strides,
-            "dilations": dilations,
-            "padding": padding,
-            "padding_mode": padding_mode,
-            "fill_value": fill_value,
-        }
-
-        if (
-            group == 1
-            and nary_ops[combine] == "multiply"
-            and reduction_ops[reduce] == "sum"
-        ):
-            # Contract (C, *kernel) without materializing every product.
-            patches = self.padded_unfold(
-                x, kernel_shape, axes=tuple(range(2, 2 + rank)), **window_args
-            )
-            y = self.tensordot(
-                patches,
-                w,
-                axes=(
-                    (1, *range(2 + rank, 2 + 2 * rank)),
-                    (1, *range(2, 2 + rank)),
-                ),
-            )
-            return self.permute_dims(y, (0, rank + 1, *range(1, rank + 1)))
-
         x = self.reshape(x, (batch, group, group_channels, *spatial_shape))
         patches = self.padded_unfold(
-            x, kernel_shape, axes=tuple(range(3, 3 + rank)), **window_args
+            x,
+            kernel_shape,
+            axes=tuple(range(3, 3 + rank)),
+            strides=strides,
+            dilations=dilations,
+            padding=padding,
+            padding_mode=padding_mode,
+            fill_value=fill_value,
         )
-        # Broadcast (N, G, 1, C, *windows, *kernel) against
-        # (1, G, M, C, *ones, *kernel), then reduce C and the kernel.
-        patches = self.reshape(patches, (batch, group, 1, *patches.shape[2:]))
         w = self.reshape(
-            w,
-            (
-                1,
-                group,
-                out_channels // group,
-                group_channels,
-                *((1,) * rank),
-                *kernel_shape,
-            ),
+            w, (group, out_channels // group, group_channels, *kernel_shape)
         )
-        y = reduce_op(combine_op(patches, w), axis=(3, *range(4 + rank, 4 + 2 * rank)))
+        windows = ",".join(f"s{i}" for i in range(rank))
+        kernel = ",".join(f"k{i}" for i in range(rank))
+        p = f"P[n,g,c,{windows},{kernel}]"
+        q = f"W[g,m,c,{kernel}]"
+        # Name operators like "max" are calls; symbols, "and" and "or" are infix.
+        if combine.isidentifier() and not keyword.iskeyword(combine):
+            expr = f"{combine}({p}, {q})"
+        else:
+            expr = f"{p} {combine} {q}"
+        y = self.einsum(f"Y[n,g,m,{windows}] {reduce}= {expr}", P=patches, W=w)
         return self.reshape(y, (batch, out_channels, *y.shape[3:]))
 
     def pool(

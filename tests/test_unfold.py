@@ -515,19 +515,21 @@ def test_pytorch_conv_matches_reference(rank):
         ("-", "+", np.subtract, np.sum),
     ],
 )
-def test_conv_with_other_operators(combine, reduce, combine_op, reduce_op):
+@pytest.mark.parametrize("group", [1, 2])
+def test_conv_with_other_operators(combine, reduce, combine_op, reduce_op, group):
     torch = pytest.importorskip("torch")
     from frameworks.saps_pytorch import PytorchFramework
 
-    x = _sparse_array(8, (1, 2, 5, 5))
-    w = _sparse_array(9, (3, 2, 2, 3))
-    kwargs = {"strides": 1, "dilations": 1, "padding": 1}
+    x = _sparse_array(8, (1, 4, 5, 5))
+    w = _sparse_array(9, (6, 4 // group, 2, 3))
+    kwargs = {"strides": 1, "dilations": 1, "padding": 1, "group": group}
     expected = _expected_conv(
         x,
         w,
         strides=(1, 1),
         dilations=(1, 1),
         padding=((1, 1), (1, 1)),
+        group=group,
         combine=combine_op,
         reduce=reduce_op,
     )
