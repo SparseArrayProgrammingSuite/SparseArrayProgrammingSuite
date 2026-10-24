@@ -79,9 +79,11 @@ def conv_model(tmp_path, monkeypatch):
     monkeypatch.setattr(
         lth_conv2,
         "_cifar10_test_images",
-        lambda count: np.random.default_rng(0)
-        .standard_normal((count, 1, 4, 4))
-        .astype(np.float32),
+        lambda count: (
+            np.random.default_rng(0)
+            .standard_normal((count, 1, 4, 4))
+            .astype(np.float32)
+        ),
     )
     return model_path
 
