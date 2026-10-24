@@ -155,7 +155,7 @@ def _is_sparse(array):
 class SciPyFramework(Framework):
     def __init__(self):
         self._modules = [sps, compat_np, sp, np]
-        self._dense = NumpyFramework()
+        self._numpy = NumpyFramework()
 
     @staticmethod
     def _array_namespace(*arrays):
@@ -202,19 +202,19 @@ class SciPyFramework(Framework):
     def einsum(self, prgm, **kwargs):
         if any(_is_sparse(arg) for arg in kwargs.values()):
             return einsum(self, prgm, **kwargs)
-        return self._dense.einsum(prgm, **kwargs)
+        return self._numpy.einsum(prgm, **kwargs)
 
     # SciPy has no sparse convolution, so only dense inputs have a fast path.
 
     def conv(self, x, w, **kwargs):
         if _is_sparse(x) or _is_sparse(w):
             return super().conv(x, w, **kwargs)
-        return self._dense.conv(x, w, **kwargs)
+        return self._numpy.conv(x, w, **kwargs)
 
     def pool(self, x, kernel_shape, **kwargs):
         if _is_sparse(x):
             return super().pool(x, kernel_shape, **kwargs)
-        return self._dense.pool(x, kernel_shape, **kwargs)
+        return self._numpy.pool(x, kernel_shape, **kwargs)
 
     def permute_dims(self, a, axes):
         if sps.issparse(a):

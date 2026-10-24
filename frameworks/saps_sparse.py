@@ -26,6 +26,12 @@ from saps_framework import (
 )
 from saps_framework.einsum import native_einsum
 
+# Tests import frameworks as a package; the harness loads them from their folder.
+try:
+    from frameworks.saps_numpy import NumpyFramework
+except ImportError:
+    from saps_numpy import NumpyFramework  # type: ignore[no-redef]
+
 
 class PyDataSparseLinalg:
     @staticmethod
@@ -293,6 +299,7 @@ class PyDataSparseFramework(Framework):
 
     def __init__(self):
         self._modules = [sp, compat_np, np]
+        self._numpy = NumpyFramework()
 
     @staticmethod
     def _is_sparse(arg):
@@ -378,13 +385,24 @@ class PyDataSparseFramework(Framework):
         return array
 
     def einsum(self, prgm, **kwargs):
-        if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
-            xp = self._array_namespace(*kwargs.values())
-            return native_einsum(xp, prgm, **kwargs)
+        if not self._has_sparse_arg(**kwargs):
+            return self._numpy.einsum(prgm, **kwargs)
         kwargs = {
             key: self._sparse_compatible_arg(value) for key, value in kwargs.items()
         }
         return native_einsum(sp, prgm, **kwargs)
+
+    # pydata/sparse has no convolution, so only dense inputs have a fast path.
+
+    def conv(self, x, w, **kwargs):
+        if self._has_sparse_arg(x, w):
+            return super().conv(x, w, **kwargs)
+        return self._numpy.conv(x, w, **kwargs)
+
+    def pool(self, x, kernel_shape, **kwargs):
+        if self._has_sparse_arg(x):
+            return super().pool(x, kernel_shape, **kwargs)
+        return self._numpy.pool(x, kernel_shape, **kwargs)
 
     def pad_constant(self, x, pad_width, *, fill_value=0):
         pad_width = normalize_pad_width(np.ndim(x), pad_width)
