@@ -25,12 +25,22 @@ from saps_framework import (
     Framework,
     normalize_pad_width,
     normalize_unfold_args,
+    normalize_unfold_padding,
     unfold_output_shape,
 )
-from saps_framework.einsum import Access, native_einsum, parse_einsum
+from saps_framework.einsum import Access, nary_ops, parse_einsum, reduction_ops
+
+# Tests import frameworks as a package; the harness loads them from their folder.
+try:
+    from frameworks.saps_numpy import NumpyFramework
+except ImportError:
+    from saps_numpy import NumpyFramework  # type: ignore[no-redef]
 
 _EINSUM_BLOCK_SIZE = 65_536
 _EINSUM_DENSE_BYTES = 64 * 1024**2
+# Convolve a sparse input site by site when at most this fraction of its
+# (batch, *spatial) sites store a value; denser inputs are densified.
+_CONV_SITE_DENSITY = 0.25
 
 
 class SmartSparseLinalg:
@@ -339,6 +349,7 @@ class SmartSparseKernels(Framework):
 
     def __init__(self):
         self._modules = [sp, compat_np, np]
+        self._numpy = NumpyFramework()
 
     @staticmethod
     def _is_sparse(arg):
@@ -479,9 +490,8 @@ class SmartSparseKernels(Framework):
         return compat_np.where(condition, x, y)
 
     def einsum(self, prgm, **kwargs):
-        if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
-            xp = self._array_namespace(*kwargs.values())
-            return native_einsum(xp, prgm, **kwargs)
+        if not self._has_sparse_arg(**kwargs):
+            return self._numpy.einsum(prgm, **kwargs)
         parsed = parse_einsum(prgm)
         result = self._blocked_einsum(parsed, kwargs)
         if result is not NotImplemented:
@@ -587,6 +597,148 @@ class SmartSparseKernels(Framework):
                 else:
                     result[target] += values.sum(dtype=output_dtype)
         return result
+
+    def conv(self, x, w, **kwargs):
+        # Weights are small next to activations, and dense weights let a
+        # dense input use BLAS even when most of them are zero.
+        w = self._dense(w)
+        if not isinstance(x, sp.SparseArray):
+            return self._numpy.conv(x, w, **kwargs)
+        result = self._sparse_conv(x, w, **kwargs)
+        if result is not NotImplemented:
+            return result
+        if x.nnz > _CONV_SITE_DENSITY * x.size:
+            return self._numpy.conv(self._dense(x), w, **kwargs)
+        return super().conv(x, w, **kwargs)
+
+    def _sparse_conv(
+        self,
+        x,
+        w,
+        *,
+        strides=None,
+        dilations=None,
+        padding=None,
+        padding_mode="constant",
+        fill_value=0,
+        group=1,
+        combine="*",
+        reduce="+",
+    ):
+        """Convolve the stored sites of x, a zero-fill sparse (N, C, *spatial).
+
+        Each kernel offset maps every stored input site to at most one output
+        site, so the offset contributes one matmul of the stored sites' channels
+        with its weights. Summing the contributions per output site gives a
+        sparse output.
+        """
+        batch, channels, *spatial = x.shape
+        out_channels, group_channels, *kernel = w.shape
+        axes = tuple(range(2, x.ndim))
+        pad_width = normalize_unfold_padding(x.ndim, padding, axes)[2:]
+        if (
+            nary_ops[combine] != "multiply"
+            or reduction_ops[reduce] != "sum"
+            or x.ndim != w.ndim
+            or x.ndim < 3
+            or channels != group * group_channels
+            or out_channels % group != 0
+            or not self._fill_value_is_zero(x)
+            or np.result_type(x.dtype, w.dtype).kind not in "fc"
+            or (padding_mode != "constant" or fill_value != 0)
+            and any(pair != (0, 0) for pair in pad_width)
+        ):
+            return NotImplemented
+        _, strides_t, dilations_t = normalize_unfold_args(
+            x.ndim, kernel, axes, strides, dilations
+        )
+        x = x.asformat("coo")
+        n, c, *s = x.coords
+        sites, site = np.unique(
+            np.ravel_multi_index((n, *s), (batch, *spatial)), return_inverse=True
+        )
+        if len(sites) > _CONV_SITE_DENSITY * batch * prod(spatial):
+            return NotImplemented
+        dtype = np.result_type(x.dtype, w.dtype)
+        values = np.zeros((group, len(sites), group_channels), dtype=dtype)
+        values[c // group_channels, site, c % group_channels] = x.data
+        n, *s = np.unravel_index(sites, (batch, *spatial))
+        out_spatial = unfold_output_shape(
+            [
+                size + before + after
+                for size, (before, after) in zip(spatial, pad_width, strict=True)
+            ],
+            kernel,
+            range(len(kernel)),
+            strides_t,
+            dilations_t,
+        )[: len(kernel)]
+        # (G, M / G, C / G, *kernel), with each offset's weights as (C / G, M / G).
+        w = w.reshape(group, out_channels // group, group_channels, *kernel)
+        targets = []
+        contributions = []
+        for offset in np.ndindex(*kernel):
+            # Input s feeds output o where o * stride = s + before - k * dilation.
+            o = [
+                si + before - k * dilation
+                for si, (before, _), k, dilation in zip(
+                    s, pad_width, offset, dilations_t, strict=True
+                )
+            ]
+            hit = np.ones(len(sites), dtype=bool)
+            for oi, stride, size in zip(o, strides_t, out_spatial, strict=True):
+                hit &= (oi >= 0) & (oi < size * stride) & (oi % stride == 0)
+            targets.append(
+                np.ravel_multi_index(
+                    (
+                        n[hit],
+                        *(
+                            oi[hit] // stride
+                            for oi, stride in zip(o, strides_t, strict=True)
+                        ),
+                    ),
+                    (batch, *out_spatial),
+                )
+            )
+            product = np.matmul(values[:, hit], np.swapaxes(w[(..., *offset)], 1, 2))
+            contributions.append(np.swapaxes(product, 0, 1).reshape(-1, out_channels))
+        targets = np.concatenate(targets)
+        out_sites, target = np.unique(targets, return_inverse=True)
+        # Sum the contributions landing on each output site.
+        scatter = sps.csr_array(
+            (np.ones(len(targets), dtype=dtype), (target, np.arange(len(targets)))),
+            shape=(len(out_sites), len(targets)),
+        )
+        out_values = scatter @ np.concatenate(contributions)
+        n, *o = np.unravel_index(out_sites, (batch, *out_spatial))
+        # The sites are sorted by batch, then position. COO order puts the
+        # channel between them, so site u of a batch whose sites start at
+        # `start` and number `count` holds channel m at
+        # start * M + m * count + (u - start).
+        start = np.searchsorted(n, n)
+        count = np.bincount(n, minlength=batch)[n]
+        order = (
+            (start * out_channels)[:, None]
+            + np.arange(out_channels) * count[:, None]
+            + (np.arange(len(out_sites)) - start)[:, None]
+        )
+        coords = np.empty((x.ndim, order.size), dtype=np.intp)
+        for axis, index in enumerate((n, np.arange(out_channels), *o)):
+            coords[axis, order] = index[:, None] if axis != 1 else index
+        data = np.empty(order.size, dtype=out_values.dtype)
+        data[order] = out_values
+        return sp.COO(
+            coords,
+            data,
+            shape=(batch, out_channels, *out_spatial),
+            has_duplicates=False,
+            sorted=True,
+        )
+
+    def pool(self, x, kernel_shape, **kwargs):
+        if isinstance(x, sp.SparseArray):
+            return super().pool(x, kernel_shape, **kwargs)
+        return self._numpy.pool(x, kernel_shape, **kwargs)
 
     def pad_constant(self, x, pad_width, *, fill_value=0):
         pad_width = normalize_pad_width(np.ndim(x), pad_width)
@@ -935,6 +1087,7 @@ _ELEMENTWISE = {
 }
 
 _CONTRACTIONS = {
+    "conv",
     "dot",
     "einsum",
     "inner",
@@ -1539,6 +1692,12 @@ class SmartSparseFramework(Framework):
         return self.call(
             "padded_unfold", self.kernels.padded_unfold, (x, kernel_shape), kwargs
         )
+
+    def conv(self, x, w, **kwargs):
+        return self.call("conv", self.kernels.conv, (x, w), kwargs)
+
+    def pool(self, x, kernel_shape, **kwargs):
+        return self.call("pool", self.kernels.pool, (x, kernel_shape), kwargs)
 
     def replace(self, arr, old, new):
         return self.call("replace", self.kernels.replace, (arr, old, new), {})
