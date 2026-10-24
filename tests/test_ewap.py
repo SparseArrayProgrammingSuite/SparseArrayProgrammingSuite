@@ -13,7 +13,7 @@ from saps.downloaders.ewap import load_toy_ewap_dataset
 def _toy_parameters():
     return {
         "force_model": "cs267_repulsive",
-        "boundary_model": "reflective_box",
+        "boundary_model": "periodic_box",
         "cutoff": 0.01,
         "softening": 0.0001,
         "dt": 0.0005,
