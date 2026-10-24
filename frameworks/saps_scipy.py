@@ -33,6 +33,12 @@ from saps_framework import (
     unfold_output_shape,
 )
 
+# Tests import frameworks as a package; the harness loads them from their folder.
+try:
+    from frameworks.saps_numpy import NumpyFramework
+except ImportError:
+    from saps_numpy import NumpyFramework  # type: ignore[no-redef]
+
 
 class ScipyLinalg:
     @staticmethod
@@ -142,9 +148,14 @@ def _sparse_unfold_with_diagonals(
     return pydata_sparse.COO(output_coords, output_data, shape=output_shape)
 
 
+def _is_sparse(array):
+    return sps.issparse(array) or isinstance(array, pydata_sparse.SparseArray)
+
+
 class SciPyFramework(Framework):
     def __init__(self):
         self._modules = [sps, compat_np, sp, np]
+        self._dense = NumpyFramework()
 
     @staticmethod
     def _array_namespace(*arrays):
@@ -189,7 +200,21 @@ class SciPyFramework(Framework):
         return array
 
     def einsum(self, prgm, **kwargs):
-        return einsum(self, prgm, **kwargs)
+        if any(_is_sparse(arg) for arg in kwargs.values()):
+            return einsum(self, prgm, **kwargs)
+        return self._dense.einsum(prgm, **kwargs)
+
+    # SciPy has no sparse convolution, so only dense inputs have a fast path.
+
+    def conv(self, x, w, **kwargs):
+        if _is_sparse(x) or _is_sparse(w):
+            return super().conv(x, w, **kwargs)
+        return self._dense.conv(x, w, **kwargs)
+
+    def pool(self, x, kernel_shape, **kwargs):
+        if _is_sparse(x):
+            return super().pool(x, kernel_shape, **kwargs)
+        return self._dense.pool(x, kernel_shape, **kwargs)
 
     def permute_dims(self, a, axes):
         if sps.issparse(a):
