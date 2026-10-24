@@ -1,6 +1,7 @@
 from typing import Any, cast
 
 import numpy as np
+import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
@@ -111,6 +112,52 @@ class GCNOGBDataset(Dataset):
             }
         )
         return data
+
+
+# The check models each float32 rounding as an independent, mean-zero relative
+# error of at most u, so rounding errors add in quadrature rather than in the
+# worst case (Higham and Mary, "A New Approach to Probabilistic Rounding Error
+# Analysis", 2019). Each output must be within _SIGMAS standard deviations of
+# its exact value.
+_UNIT_ROUNDOFF = 2.0**-24
+_SIGMAS = 8
+# Rows of the reference computed at once, to bound its float64 temporaries.
+_REFERENCE_ROWS = 65_536
+
+
+def _layer(adjacency, x, variance, weights, bias):
+    """Exact adjacency @ x @ weights + bias, with the variance float32 rounding adds.
+
+    Whichever product a framework computes first, under the rounding model the
+    roundings of output (i, j) have variance at most
+    u^2 (d_i + f + 1) (|A| |x| |W| + |b|)_ij^2, for d_i stored entries in row i
+    of A and f rows of W. Errors already in x reach it through A^2 and W^2.
+    """
+    y = np.empty((adjacency.shape[0], weights.shape[1]))
+    v = np.empty_like(y)
+    for start in range(0, adjacency.shape[0], _REFERENCE_ROWS):
+        rows = slice(start, start + _REFERENCE_ROWS)
+        a = adjacency[rows]
+        y[rows] = (a @ x) @ weights + bias
+        magnitude = (abs(a) @ np.abs(x)) @ np.abs(weights) + np.abs(bias)
+        count = np.diff(a.indptr)[:, None] + weights.shape[0] + 1
+        v[rows] = _UNIT_ROUNDOFF**2 * count * magnitude**2
+        if variance is not None:
+            v[rows] += (a.power(2) @ variance) @ (weights * weights)
+    return y, v
+
+
+def gcn_reference(adjacency, features, weights1, bias1, weights2, bias2):
+    """The exact GCN output, with the standard deviation of the error float32
+    rounding adds to it. ReLU never grows an error, so it passes through."""
+    adjacency = sps.csr_array(adjacency, dtype=np.float64)
+
+    def exact(array):
+        return np.asarray(array, dtype=np.float64)
+
+    h1, v1 = _layer(adjacency, exact(features), None, exact(weights1), exact(bias1))
+    out, v2 = _layer(adjacency, np.maximum(h1, 0), v1, exact(weights2), exact(bias2))
+    return out, np.sqrt(v2)
 
 
 def gcn_reference_np(adjacency, features, weights1, bias1, weights2, bias2):
@@ -229,15 +276,16 @@ class GCNTestGenerator(Generator[GCNDataset]):
             raise ValueError("GCN test datasets must define all input arrays.")
 
         arrays = tuple(cast(np.ndarray, item) for item in required)
-        expected = dataset.expected
-        expected = gcn_reference_np(*arrays) if expected is None else expected
+        exact, sigma = gcn_reference(*arrays)
+        if dataset.expected is not None:
+            exact = dataset.expected.astype(np.float64)
 
         inputs = [from_numpy(item) for item in arrays]
         return DataInstance(
             inputs=inputs,
             meta={},
-            ref_outputs=[from_numpy(expected)],
-            ref_meta={"rtol": 1e-10},
+            ref_outputs=[from_numpy(exact), from_numpy(sigma)],
+            ref_meta={"sigmas": _SIGMAS},
         )
 
 
@@ -326,7 +374,7 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     @property
     def datasets(self) -> list[GCNDataset]:
@@ -414,9 +462,12 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
         bias1_b = from_numpy(bias1)
         weights2_b = from_numpy(weights2)
         bias2_b = from_numpy(bias2)
+        exact, sigma = gcn_reference(coo, features, weights1, bias1, weights2, bias2)
         return DataInstance(
             inputs=[A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b],
             meta={},
+            ref_outputs=[from_numpy(exact), from_numpy(sigma)],
+            ref_meta={"sigmas": _SIGMAS},
         )
 
 
@@ -461,14 +512,14 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
     def motivation(self) -> str:
         return (
             "Uses complete real-world node features and graph structure from the "
-            "Open Graph Benchmark instead of synthesized GCN inputs. SAPS caching is "
-            "disabled because its JSON/hex representation would expand these very "
-            "large graphs substantially; OGB maintains the source-data cache instead."
+            "Open Graph Benchmark instead of synthesized GCN inputs. SAPS caches the "
+            "inputs with their exact float64 reference output, which is costly to "
+            "compute on these large graphs."
         )
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     @property
     def datasets(self) -> list[GCNOGBDataset]:
@@ -511,14 +562,19 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
             (feature_dim, dataset.hidden_dim), dtype=np.float32
         )
         weights2 = rng.standard_normal((dataset.hidden_dim, out_dim), dtype=np.float32)
+        bias1 = np.zeros(dataset.hidden_dim, dtype=np.float32)
+        bias2 = np.zeros(out_dim, dtype=np.float32)
+        exact, sigma = gcn_reference(
+            to_scipy(graph.adjacency), graph.features, weights1, bias1, weights2, bias2
+        )
         return DataInstance(
             inputs=[
                 graph.adjacency,
                 from_numpy(graph.features),
                 from_numpy(weights1),
-                from_numpy(np.zeros(dataset.hidden_dim, dtype=np.float32)),
+                from_numpy(bias1),
                 from_numpy(weights2),
-                from_numpy(np.zeros(out_dim, dtype=np.float32)),
+                from_numpy(bias2),
             ],
             meta={
                 **graph.metadata,
@@ -526,6 +582,8 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
                 "num_outputs": out_dim,
                 "hidden_dim": dataset.hidden_dim,
             },
+            ref_outputs=[from_numpy(exact), from_numpy(sigma)],
+            ref_meta={"sigmas": _SIGMAS},
         )
 
 
@@ -649,20 +707,26 @@ class GCNBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
 
         if self._ref_outputs is None:
             return
 
-        result = to_numpy(self._output[0])
-        expected = to_numpy(self._ref_outputs[0])
-        np.testing.assert_allclose(
-            result,
-            expected,
-            rtol=self._ref_meta["rtol"],
-            err_msg=f"GCN output mismatch for {param.dataset.name}",
+        result = to_numpy(self._output[0]).astype(np.float64)
+        exact, sigma = (to_numpy(array) for array in self._ref_outputs)
+        assert result.shape == exact.shape, (
+            f"GCN output for {param.dataset.name} has shape {result.shape}, "
+            f"expected {exact.shape}"
+        )
+        sigmas = self._ref_meta["sigmas"]
+        error = np.abs(result - exact)
+        worst = np.unravel_index(np.argmax(error - sigmas * sigma), error.shape)
+        assert error[worst] <= sigmas * sigma[worst], (
+            f"GCN output {tuple(map(int, worst))} for {param.dataset.name} is off "
+            f"by {error[worst]:.3g}, more than {sigmas} standard deviations "
+            f"({sigma[worst]:.3g}) of float32 rounding error"
         )
 
     """
@@ -692,7 +756,6 @@ class GCNBenchmark(Benchmark):
     def benchmark(
         self, xp, meta: dict, adjacency, features, weights1, bias1, weights2, bias2
     ):
-
         # Layer 1: adjacency @ features -> linear transform -> ReLU
         h1 = adjacency @ features
         h1 = h1 @ weights1 + bias1
