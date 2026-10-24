@@ -4,7 +4,7 @@ import numpy as np
 import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -17,6 +17,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.downloaders.ogb import normalized_undirected_adjacency
 
 
 class GCNDataset(SuiteSparseDataset):
@@ -455,14 +456,16 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
         weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
         bias2 = np.zeros((out_dim,), dtype=np.float32)
 
-        coo.data = coo.data.astype(np.float32, copy=False)
-        A_bin = from_scipy(coo)
+        # Normalize the graph's structure as OGB's GCNs do.
+        A_bin = normalized_undirected_adjacency(np.stack([coo.row, coo.col]), n)
         features_b = from_numpy(features)
         weights1_b = from_numpy(weights1)
         bias1_b = from_numpy(bias1)
         weights2_b = from_numpy(weights2)
         bias2_b = from_numpy(bias2)
-        exact, sigma = gcn_reference(coo, features, weights1, bias1, weights2, bias2)
+        exact, sigma = gcn_reference(
+            to_scipy(A_bin), features, weights1, bias1, weights2, bias2
+        )
         return DataInstance(
             inputs=[A_bin, features_b, weights1_b, bias1_b, weights2_b, bias2_b],
             meta={},

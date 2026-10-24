@@ -44,7 +44,7 @@ def test_ogb_gcn_backward_generator_derives_dimensions_and_targets(monkeypatch):
 
     instance = generator.generate(dataset)
 
-    assert not generator.cacheable
+    assert generator.cacheable
     assert len(instance.inputs) == 7
     assert instance.inputs[2].shape == (4, 5)
     assert instance.inputs[4].shape == (5, 2)
