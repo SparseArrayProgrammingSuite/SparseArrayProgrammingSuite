@@ -1,6 +1,7 @@
 from math import prod
 
 import numpy as np
+from scipy import ndimage, signal
 
 from binsparse import (
     CSRMatrix,
@@ -14,7 +15,14 @@ from binsparse import (
 from binsparse.conversions import from_numpy, to_numpy, to_scipy, to_sparse
 
 from saps_framework import Framework, normalize_pad_width, normalize_unfold_args
-from saps_framework.einsum import Access, Call, Einsum, parse_einsum
+from saps_framework.einsum import (
+    Access,
+    Call,
+    Einsum,
+    nary_ops,
+    parse_einsum,
+    reduction_ops,
+)
 
 
 class NumpyFramework(Framework):
@@ -125,6 +133,106 @@ class NumpyFramework(Framework):
         for window_axis, dilation in enumerate(dilations_t, start=array.ndim):
             slices[window_axis] = slice(None, None, dilation)
         return windows[tuple(slices)]
+
+    def conv(
+        self,
+        x,
+        w,
+        *,
+        strides=None,
+        dilations=None,
+        padding=None,
+        padding_mode="constant",
+        fill_value=0,
+        group=1,
+        combine="*",
+        reduce="+",
+    ):
+        if (
+            nary_ops[combine] == "multiply"
+            and reduction_ops[reduce] == "sum"
+            and x.ndim == w.ndim > 2
+            and x.shape[1] == w.shape[1] == 1
+            and np.result_type(x, w).kind == "f"
+        ):
+            axes = tuple(range(2, x.ndim))
+            _, strides_t, dilations_t = normalize_unfold_args(
+                x.ndim, w.shape[2:], axes, strides, dilations
+            )
+            if all(step == 1 for step in strides_t + dilations_t):
+                x = self._pad(x, padding, axes, padding_mode, fill_value)
+                # FFTs only beat matmul when each output sums one input channel.
+                return np.concatenate(
+                    [
+                        signal.correlate(x, f[None], mode="valid", method="fft")
+                        for f in w
+                    ],
+                    axis=1,
+                )
+        return super().conv(
+            x,
+            w,
+            strides=strides,
+            dilations=dilations,
+            padding=padding,
+            padding_mode=padding_mode,
+            fill_value=fill_value,
+            group=group,
+            combine=combine,
+            reduce=reduce,
+        )
+
+    def pool(
+        self,
+        x,
+        kernel_shape,
+        *,
+        reduce,
+        strides=None,
+        dilations=None,
+        padding=None,
+        padding_mode="constant",
+        fill_value=0,
+    ):
+        filters = {
+            "max": ndimage.maximum_filter,
+            "min": ndimage.minimum_filter,
+            "mean": ndimage.uniform_filter,
+        }
+        operation = reduction_ops[reduce]
+        if (
+            operation in filters
+            and x.ndim == len(kernel_shape) + 2
+            and x.dtype.kind == "f"
+        ):
+            axes = tuple(range(2, x.ndim))
+            _, strides_t, dilations_t = normalize_unfold_args(
+                x.ndim, kernel_shape, axes, strides, dilations
+            )
+            # The filters compute every window, so they only win at stride 1.
+            if all(step == 1 for step in strides_t + dilations_t):
+                x = self._pad(x, padding, axes, padding_mode, fill_value)
+                y = filters[operation](x, size=(1, 1, *kernel_shape))
+                # A size k filter centers each window on its (k // 2)th entry.
+                return y[
+                    (
+                        ...,
+                        *(
+                            slice(k // 2, n - (k - 1 - k // 2))
+                            for k, n in zip(kernel_shape, x.shape[2:], strict=True)
+                        ),
+                    )
+                ]
+        return super().pool(
+            x,
+            kernel_shape,
+            reduce=reduce,
+            strides=strides,
+            dilations=dilations,
+            padding=padding,
+            padding_mode=padding_mode,
+            fill_value=fill_value,
+        )
 
     def replace(self, arr, old, new):
         return np.where(np.isnan(arr) if old != old else arr == old, new, arr)
