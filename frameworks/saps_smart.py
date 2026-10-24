@@ -39,8 +39,9 @@ except ImportError:
 _EINSUM_BLOCK_SIZE = 65_536
 _EINSUM_DENSE_BYTES = 64 * 1024**2
 # Convolve a sparse input site by site when at most this fraction of its
-# (batch, *spatial) sites store a value; denser inputs are densified.
-_CONV_SITE_DENSITY = 0.25
+# (batch, *spatial) sites store a value. Measured against densifying and using
+# BLAS, site by site wins below 3-10% depending on the channels and kernel.
+_CONV_SITE_DENSITY = 0.05
 
 
 class SmartSparseLinalg:
@@ -605,11 +606,9 @@ class SmartSparseKernels(Framework):
         if not isinstance(x, sp.SparseArray):
             return self._numpy.conv(x, w, **kwargs)
         result = self._sparse_conv(x, w, **kwargs)
-        if result is not NotImplemented:
-            return result
-        if x.nnz > _CONV_SITE_DENSITY * x.size:
+        if result is NotImplemented:
             return self._numpy.conv(self._dense(x), w, **kwargs)
-        return super().conv(x, w, **kwargs)
+        return result
 
     def _sparse_conv(
         self,
