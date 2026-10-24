@@ -1,3 +1,5 @@
+from math import prod
+
 import numpy as np
 
 from binsparse import (
@@ -12,7 +14,7 @@ from binsparse import (
 from binsparse.conversions import from_numpy, to_numpy, to_scipy, to_sparse
 
 from saps_framework import Framework, normalize_pad_width, normalize_unfold_args
-from saps_framework.einsum import native_einsum
+from saps_framework.einsum import Access, Call, Einsum, parse_einsum
 
 
 class NumpyFramework(Framework):
@@ -48,7 +50,41 @@ class NumpyFramework(Framework):
         return array
 
     def einsum(self, prgm, **kwargs):
-        return native_einsum(np, prgm, **kwargs)
+        match parse_einsum(prgm):
+            # A two-array sum of products over floats, where every summed index
+            # is in both arrays, is one batched matmul.
+            case Einsum(
+                Call("*", [Access(a, a_idxs), Access(b, b_idxs)]), "+", _, c_idxs
+            ) if (
+                np.result_type(kwargs[a], kwargs[b]).kind in "fc"
+                and set(a_idxs) <= set(b_idxs) | set(c_idxs)
+                and set(b_idxs) <= set(a_idxs) | set(c_idxs)
+                and all(
+                    kwargs[b].shape[b_idxs.index(i)] == n
+                    for i, n in zip(a_idxs, kwargs[a].shape, strict=True)
+                    if i in b_idxs
+                )
+            ):
+                A, B = kwargs[a], kwargs[b]
+                batch = [i for i in c_idxs if i in a_idxs and i in b_idxs]
+                rows = [i for i in c_idxs if i in a_idxs and i not in b_idxs]
+                cols = [i for i in c_idxs if i in b_idxs and i not in a_idxs]
+                inner = [i for i in a_idxs if i not in c_idxs]
+                sizes = dict(zip(a_idxs + b_idxs, A.shape + B.shape, strict=True))
+                batch_shape = [sizes[i] for i in batch]
+                m, k, n = (prod(sizes[i] for i in idxs) for idxs in (rows, inner, cols))
+                A = np.transpose(A, [a_idxs.index(i) for i in batch + rows + inner])
+                B = np.transpose(B, [b_idxs.index(i) for i in batch + inner + cols])
+                C = np.matmul(
+                    A.reshape(*batch_shape, m, k), B.reshape(*batch_shape, k, n)
+                )
+                labels = batch + rows + cols
+                C = C.reshape([sizes[i] for i in labels])
+                return np.transpose(C, [labels.index(i) for i in c_idxs])
+            # Other sums of products go to np.einsum, the rest to the interpreter.
+            case parsed:
+                result = parsed.run_native(np, kwargs)
+                return parsed.run(np, kwargs) if result is NotImplemented else result
 
     def pad_constant(self, x, pad_width, *, fill_value=0):
         pad_width = normalize_pad_width(np.ndim(x), pad_width)
