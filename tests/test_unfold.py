@@ -557,6 +557,32 @@ def test_pytorch_conv_matches_numpy_for_other_padding_modes():
     np.testing.assert_allclose(_as_numpy(actual), expected, rtol=1e-5, atol=1e-5)
 
 
+@pytest.mark.parametrize(("rank", "size"), [(1, 40), (2, 10), (3, 6)])
+@pytest.mark.parametrize("group", [1, 2])
+def test_smart_conv_keeps_sparse_sites_sparse(rank, size, group):
+    rng = np.random.default_rng(17)
+    shape = (2, 4, *((size,) * rank))
+    # Store every channel at a few (batch, *spatial) sites.
+    sites = np.zeros((2, 1, *shape[2:]), dtype=bool)
+    sites.flat[rng.choice(sites.size, sites.size // 25, replace=False)] = True
+    x = np.where(sites, rng.standard_normal(shape), 0).astype(np.float32)
+    w = _sparse_array(18, (6, 4 // group, *((3,) * rank)))
+    kwargs = {"strides": 2, "dilations": 2, "padding": 2, "group": group}
+
+    xp = SmartSparseFramework()
+    actual = xp.conv(
+        xp.wrap(sp.COO.from_numpy(x)), xp.wrap(sp.COO.from_numpy(w)), **kwargs
+    )
+
+    assert isinstance(xp.unwrap(actual), sp.COO)
+    np.testing.assert_allclose(
+        xp.asnumpy(actual),
+        NumpyFramework().conv(x, w, **kwargs),
+        rtol=1e-5,
+        atol=1e-5,
+    )
+
+
 def test_conv_rejects_mismatched_groups():
     xp = NumpyFramework()
     with pytest.raises(ValueError, match="group=2"):
