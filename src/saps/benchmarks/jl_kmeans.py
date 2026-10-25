@@ -365,7 +365,7 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     @property
     def datasets(self) -> list[JLKMeansDataset]:
@@ -476,7 +476,7 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     def generate(self, dataset: JLKMeansDataset) -> DataInstance:
         data, source_meta = fetch_netflixprize_matrix()
