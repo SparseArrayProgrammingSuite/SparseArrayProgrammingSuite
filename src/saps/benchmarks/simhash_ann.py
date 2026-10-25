@@ -173,7 +173,7 @@ class SimHashANNGeneratorMixin(ABC):
     def projection(self, n_features: int, target_dim: int, seed: int):
         """Return the scalar projections defining each hash hyperplane."""
 
-    def _instance(self, dataset, data, query, source_meta=None, nearest=None):
+    def _instance(self, dataset, data, query, source_meta=None):
         from scipy.sparse import issparse
 
         if dataset.max_tables < 1 or dataset.max_projections < 1:
@@ -200,23 +200,21 @@ class SimHashANNGeneratorMixin(ABC):
         def as_binsparse(array):
             return from_scipy(array) if issparse(array) else from_numpy(array)
 
+        meta = {
+            **_lsh_meta(dataset),
+            "n_projections": n_projections,
+            "n_tables": n_tables,
+            "estimated_retrieval_probability": probability,
+            "projection_kind": self.projection_kind,
+            **(source_meta or {}),
+        }
+        # Each query's radius is the distance of its k-th nearest neighbor in
+        # the reference search; check grades answers against it.
+        _, distances = _simhash_reference(data, query, projection, meta)
         return DataInstance(
             inputs=[as_binsparse(x) for x in (data, query, projection)],
-            meta={
-                **_lsh_meta(dataset),
-                "n_projections": n_projections,
-                "n_tables": n_tables,
-                "estimated_retrieval_probability": probability,
-                "projection_kind": self.projection_kind,
-                **(source_meta or {}),
-            },
-            ref_outputs=[
-                from_numpy(
-                    _nearest_cosine_distances(data, query)
-                    if nearest is None
-                    else nearest
-                )
-            ],
+            meta=meta,
+            ref_outputs=[from_numpy(distances[:, -1])],
         )
 
 
@@ -435,16 +433,79 @@ def _unit_rows(x):
     return sps.diags_array(scale) @ x if sps.issparse(x) else x * scale[:, None]
 
 
-def _nearest_cosine_distances(data, query, chunk=1024):
-    """Each query's exact cosine distance to its nearest data point."""
-    data, query = _unit_rows(data), _unit_rows(query)
-    nearest = np.empty(query.shape[0])
-    for start in range(0, query.shape[0], chunk):
-        similarity = query[start : start + chunk] @ data.T
-        if sps.issparse(similarity):
-            similarity = similarity.toarray()
-        nearest[start : start + chunk] = 1 - similarity.max(axis=1)
-    return nearest
+def _pair_distances(unit_query, unit_data, rows, cols):
+    """Cosine distances between rows of unit_query and unit_data, pair by pair."""
+    distances = np.empty(len(rows))
+    width = unit_data.shape[1]
+    if sps.issparse(unit_data):
+        width = unit_data.nnz / max(unit_data.shape[0], 1)
+    step = max(1, int(2**25 // max(width, 1)))
+    for start in range(0, len(rows), step):
+        x = unit_query[rows[start : start + step]]
+        y = unit_data[cols[start : start + step]]
+        if sps.issparse(y):
+            x, y = y, x
+        if sps.issparse(x):
+            similarity = np.asarray(x.multiply(y).sum(axis=1)).ravel()
+        else:
+            similarity = np.einsum("pk,pk->p", x, y)
+        distances[start : start + step] = 1 - similarity
+    return distances
+
+
+def _simhash_reference(data, query, projection, meta):
+    """SimHashANNBenchmark.benchmark inlined with NumPy and SciPy, as saps_smart
+    runs it: sparse bucket indicators, a sparse candidate mask, distances only
+    at candidate pairs, and the k nearest of each query's candidates.
+
+    Returns each query's k nearest indices and their distances, in float64.
+    """
+    k, n_projections, n_tables = meta["k"], meta["n_projections"], meta["n_tables"]
+    n_samples, n_queries = data.shape[0], query.shape[0]
+    candidate_target = min(n_samples, max(k, meta["candidate_target"]))
+    weights = 1 << np.arange(n_projections, dtype=np.int64)
+
+    def codes(x):
+        projected = x @ projection
+        if sps.issparse(projected):
+            projected = projected.toarray()
+        signs = np.asarray(projected).reshape(x.shape[0], n_tables, n_projections)
+        return (signs > 0).astype(np.int64) @ weights
+
+    def indicator(columns, width):
+        rows = np.repeat(np.arange(columns.shape[0]), n_tables)
+        ones = np.ones(rows.size, dtype=np.int32)
+        return sps.csr_array(
+            (ones, (rows, columns.ravel())), shape=(len(columns), width)
+        )
+
+    data_codes, query_codes = codes(data), codes(query)
+    candidates = sps.csr_array((n_queries, n_samples), dtype=np.int8)
+    required_projections = n_projections
+    while True:
+        active = np.diff(candidates.indptr) < candidate_target
+        if not active.any():
+            break
+        n_buckets = 1 << max(required_projections, 0)
+        offsets = np.arange(n_tables) * (n_buckets + 1)
+        width = n_tables * (n_buckets + 1)
+        # Queries with enough candidates look up the spare bucket n_buckets.
+        query_columns = (
+            np.where(active[:, None], query_codes & (n_buckets - 1), n_buckets)
+            + offsets
+        )
+        data_columns = (data_codes & (n_buckets - 1)) + offsets
+        matches = indicator(query_columns, width) @ indicator(data_columns, width).T
+        candidates = ((candidates + matches) > 0).astype(np.int8)
+        required_projections -= 1
+
+    rows, cols = candidates.nonzero()
+    distances = _pair_distances(_unit_rows(query), _unit_rows(data), rows, cols)
+    # Each query has at least k candidates; ties keep index order.
+    order = np.lexsort((cols, distances, rows))
+    starts = np.searchsorted(rows[order], np.arange(n_queries))
+    picks = order[starts[:, None] + np.arange(k)]
+    return cols[picks].astype(np.int64), distances[picks]
 
 
 def _lsh_meta(dataset):
@@ -538,7 +599,7 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     def generate(self, dataset: SimHashANNDataset) -> DataInstance:
         train, test, source_meta = fetch_openml_train_test_features(dataset.name)
@@ -617,17 +678,15 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     def generate(self, dataset: SimHashANNDataset) -> DataInstance:
         data, source_meta = fetch_netflixprize_matrix()
 
-        # Each query is a data point, so its nearest neighbor is itself.
         return self._instance(
             dataset,
             data,
             data,
-            nearest=np.zeros(data.shape[0]),
             source_meta={
                 "num_train": int(data.shape[0]),
                 "num_query": int(data.shape[0]),
@@ -1331,19 +1390,20 @@ Nearest neighbor algorithms</concept_desc>
                 return np.asarray(to_sparse(array).todense())
 
         data, query = (_unit_rows(matrix(array)) for array in self._input[:2])
-        nearest = to_numpy(self._ref_outputs[0])
-        top = dense(self._output[0])[:, 0].astype(np.int64)
-        similarity = (
-            query.multiply(data[top]) if sps.issparse(query) else query * data[top]
-        )
-        returned = 1 - np.asarray(similarity.sum(axis=1)).ravel()
-        # An answer is (1 + eps)-approximate when it is at most 1 + eps times
-        # as far as the nearest data point; a tiny absolute slack lets
-        # duplicates of the query count when the nearest distance is zero.
-        eps = self._meta["eps"]
-        fraction = np.mean(returned <= (1 + eps) * nearest + 1e-9)
+        radius = to_numpy(self._ref_outputs[0])
+        indices = dense(self._output[0]).astype(np.int64)
+        assert indices.shape == (query.shape[0], self._meta["k"])
+        assert np.all((indices >= 0) & (indices < data.shape[0]))
+        rows = np.repeat(np.arange(indices.shape[0]), indices.shape[1])
+        distances = _pair_distances(query, data, rows, indices.ravel())
+        # Grade each returned neighbor by whether it is no farther than the
+        # reference search's k-th neighbor for its query. 1e-9 absorbs
+        # computing the same float64 distance two ways.
+        within = distances.reshape(indices.shape) <= radius[:, None] + 1e-9
+        fraction = np.mean(within)
         target = self._meta["target_probability"]
         assert fraction >= target, (
-            f"Only {fraction:.1%} of queries for {param.dataset.name} found a "
-            f"(1 + {eps})-approximate nearest neighbor, fewer than {target:.0%}"
+            f"Only {fraction:.1%} of the neighbors returned for "
+            f"{param.dataset.name} are within the reference radius, fewer than "
+            f"{target:.0%}"
         )
