@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import gzip
 
+import pytest
+
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -134,6 +136,7 @@ def test_download_nemo_dataset_can_include_particle_mass(tmp_path):
     assert meta["source_mass_sum"] == 1.0
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_particle_sim_real_generator_uses_nemo(monkeypatch):
     calls = []
 

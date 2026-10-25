@@ -592,7 +592,7 @@ class ReferenceDataset(Dataset):
         return self.dataset.freshness
 
 
-class ReferenceGenerator(Generator[ReferenceDataset]):
+class ReferenceGenerator(Generator[Any]):
     """Caches the expensive reference outputs of an uncached generator.
 
     A generator whose inputs come from cached shell generators stays uncached,

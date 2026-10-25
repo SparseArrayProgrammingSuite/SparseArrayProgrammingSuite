@@ -16,6 +16,9 @@ from saps.benchmarks.gcn import (
 from saps.benchmarks.ogb import OGBGraphGenerator, fetch_ogb_nodeprop_dataset
 from saps.downloaders.ogb import OGBNodePropData, normalized_undirected_adjacency
 
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
+
 
 def test_ogb_gcn_generator_derives_dimensions_from_real_features(monkeypatch):
     features = np.arange(12, dtype=np.float32).reshape(3, 4)

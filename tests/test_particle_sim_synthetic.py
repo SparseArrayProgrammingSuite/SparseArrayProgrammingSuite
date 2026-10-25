@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import math
 
+import pytest
+
 import numpy as np
 
 from binsparse.conversions import to_numpy
@@ -11,6 +13,9 @@ from saps.benchmarks.particle_simulation import (
     ParticleSimulationCS267Generator,
     particle_density_box_size,
 )
+
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
 
 
 def test_synthetic_berkeley_cs267_particle_generator_has_one_dataset():

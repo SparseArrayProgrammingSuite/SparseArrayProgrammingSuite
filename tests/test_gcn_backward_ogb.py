@@ -1,3 +1,5 @@
+import pytest
+
 import numpy as np
 
 from binsparse.conversions import to_numpy
@@ -8,6 +10,9 @@ from saps.benchmarks.gcn_backward import (
     _targets_from_ogb_labels,
 )
 from saps.downloaders.ogb import OGBNodePropData, normalized_undirected_adjacency
+
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
 
 
 def test_ogb_gcn_backward_generator_derives_dimensions_and_targets(monkeypatch):
@@ -44,7 +49,7 @@ def test_ogb_gcn_backward_generator_derives_dimensions_and_targets(monkeypatch):
 
     instance = generator.generate(dataset)
 
-    assert generator.cacheable
+    assert not generator.cacheable
     assert len(instance.inputs) == 7
     assert instance.inputs[2].shape == (4, 5)
     assert instance.inputs[4].shape == (5, 2)
