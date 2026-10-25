@@ -1175,9 +1175,9 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         super().check(param)
         time = to_numpy(self._output[0])
         y_out = to_numpy(self._output[1])
-        assert np.all(
-            np.isfinite(y_out)
-        ), f"Non-finite ODE output at step={self._meta['step']}"
+        assert np.all(np.isfinite(y_out)), (
+            f"Non-finite ODE output at step={self._meta['step']}"
+        )
         span, step, y0 = self._meta["span"], self._meta["step"], self._meta["y0"]
         grid = []
         curr = span[0]

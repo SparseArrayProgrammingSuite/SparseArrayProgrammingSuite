@@ -501,9 +501,9 @@ class _DescriptorDAEBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
         inputs = [_matrix(item) for item in self._input]
         E, A, B, jac_y, jac_yp = inputs[:5]
         startup, bdf2 = inputs[5:9], inputs[9:13]
@@ -540,9 +540,9 @@ class _DescriptorDAEBenchmark(Benchmark):
                 (3 * np.abs(y[i]) + 4 * np.abs(y[i - 1]) + np.abs(y[i - 2])) / (2 * dt)
             )
         error = np.abs(yp[1:] - np.array(differences))
-        assert np.all(
-            error <= 2 * _gamma(4) * np.array(magnitudes)
-        ), f"yp isn't the backward difference of y for {param.dataset.name}"
+        assert np.all(error <= 2 * _gamma(4) * np.array(magnitudes)), (
+            f"yp isn't the backward difference of y for {param.dataset.name}"
+        )
 
         # Each step solves its implicit equation with one correction through
         # the given LU factors of its matrix. Its residual can be no larger
