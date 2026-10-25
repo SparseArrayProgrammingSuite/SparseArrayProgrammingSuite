@@ -73,9 +73,17 @@ class PyDataSparseLinalg:
 
     @staticmethod
     def solve(A, b):
-        A = PyDataSparseLinalg._scipy_sparse(A).tocsc()
+        A = PyDataSparseLinalg._scipy_sparse(A).tocsr()
         b = PyDataSparseLinalg._scipy_sparse(b)
-        x = spla.spsolve(A, b)
+        # A triangular system, like an LU factor, needs only substitution.
+        # spsolve would factor it again, with pivoting that loses accuracy.
+        for lower, outside in ((True, sps.triu(A, 1)), (False, sps.tril(A, -1))):
+            if outside.count_nonzero() == 0:
+                x = spla.spsolve_triangular(A, b.toarray(), lower=lower)
+                return PyDataSparseLinalg._wrap_result(
+                    x.ravel() if x.shape[1] == 1 else x
+                )
+        x = spla.spsolve(A.tocsc(), b)
         return PyDataSparseLinalg._wrap_result(x)
 
     @staticmethod

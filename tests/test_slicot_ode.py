@@ -97,7 +97,7 @@ def test_slicot_generator_preserves_stored_sparse_matrices(monkeypatch):
     np.testing.assert_array_equal(to_scipy(instance.inputs[0]).toarray(), A.toarray())
     np.testing.assert_array_equal(to_scipy(instance.inputs[1]).toarray(), B.toarray())
     np.testing.assert_array_equal(
-        ode._dense_binsparse_array(instance.inputs[0]), A.toarray()
+        ode._matrix(instance.inputs[0]).toarray(), A.toarray()
     )
 
 
@@ -249,51 +249,37 @@ def test_slicot_check_preserves_complex_reference(drop_imaginary):
         states = states.real
     benchmark._output = [from_numpy(time), from_numpy(states)]
 
+    param = SimpleNamespace(dataset=SimpleNamespace(name="complex"))
     if drop_imaginary:
-        with pytest.raises(AssertionError, match="maximum absolute error"):
-            benchmark.check(None)
+        with pytest.raises(AssertionError, match="more than rounding allows"):
+            benchmark.check(param)
     else:
-        benchmark.check(None)
+        benchmark.check(param)
 
 
-def test_slicot_check_still_rejects_unstable_steps():
-    benchmark = ForwardEulerBenchmark()
-    data = [np.array([[-1000.0]]), np.array([[1.0]])]
+@pytest.mark.parametrize(
+    "benchmark_cls", [ForwardEulerBenchmark, BackwardEulerBenchmark, RK4Benchmark]
+)
+def test_slicot_check_verifies_every_step(benchmark_cls):
+    # Even an unstable step size is checked step by step, not against the ODE's
+    # solution: the check verifies the method's arithmetic, not its accuracy.
+    benchmark = benchmark_cls()
+    data = [np.array([[-1000.0, 1.0], [0.5, -2.0]]), np.array([[1.0], [0.0]])]
     benchmark._input = [from_numpy(item) for item in data]
     benchmark._ref_meta = None
     benchmark._meta = {
         "problem_name": "ode_slicot",
         "span": (0.0, 0.1),
-        "y0": [0.0],
+        "y0": [0.0, 1.0],
         "step": 0.01,
         "input_value": 1.0,
     }
-    benchmark._output = [
-        from_numpy(item) for item in _run_slicot(benchmark, benchmark._meta, *data)
-    ]
+    time, states = _run_slicot(benchmark, benchmark._meta, *data)
+    benchmark._output = [from_numpy(time), from_numpy(states)]
+    benchmark.check(None)
 
-    with pytest.raises(AssertionError, match="exceeds tolerance 0.05 at step=0.01"):
-        benchmark.check(None)
-
-
-def test_slicot_check_reports_reference_failure(monkeypatch):
-    benchmark = RK4Benchmark()
-    benchmark._input = [from_numpy(np.eye(1)), from_numpy(np.ones((1, 1)))]
-    benchmark._ref_meta = None
-    benchmark._meta = {
-        "problem_name": "ode_slicot",
-        "span": (0.0, 0.1),
-        "y0": [0.0],
-        "step": 0.01,
-        "input_value": 1.0,
-    }
-    benchmark._output = [from_numpy(np.array([0.0])), from_numpy(np.zeros((1, 1)))]
-    monkeypatch.setattr(
-        "scipy.integrate.solve_ivp",
-        lambda *args, **kwargs: SimpleNamespace(success=False, message="test failure"),
-    )
-
-    with pytest.raises(
-        AssertionError, match="ODE reference integration failed: test failure"
-    ):
-        benchmark.check(None)
+    states = states.copy()
+    states[5, 1] *= 1 + 1e-9
+    benchmark._output = [from_numpy(time), from_numpy(states)]
+    with pytest.raises(AssertionError, match="step 5 of .* more than rounding"):
+        benchmark.check(SimpleNamespace(dataset=SimpleNamespace(name="tiny")))

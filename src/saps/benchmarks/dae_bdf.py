@@ -9,7 +9,7 @@ from scipy.sparse.linalg import splu
 
 import sparse as pydata_sparse
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_sparse
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -291,11 +291,6 @@ class DAEBDFTestGenerator(_DescriptorDAEGenerator):
                 u=[1.0],
                 t_max=0.4,
                 step=0.1,
-                ref_meta={
-                    "check_discrete_residual": True,
-                    "check_jacobians": True,
-                    "residual_tol": 1e-7,
-                },
             )
         ]
 
@@ -407,6 +402,46 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
         ]
 
 
+_EPS = np.finfo(np.float64).eps
+# Each rounding can also lose this much to underflow (Higham, section 2.1).
+_UNDERFLOW = np.finfo(np.float64).smallest_subnormal
+
+
+def _gamma(n):
+    """Higham's gamma_n, with eps as in saps.util.error_bounds."""
+    return n * _EPS / (1 - n * _EPS)
+
+
+def _matrix(array: BinsparseTensor):
+    """A dense array as NumPy, or a sparse matrix as SciPy CSR."""
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return to_scipy(array).tocsr()
+
+
+def _step_magnitude(abs_E, abs_A, forcing_abs, coefficients, scale, states):
+    """|E| sum |c_j| |y_j| + |scale| (|A| |y_0| + |B| |u|): the terms of a step's
+    residual E sum c_j y_j - scale (A y_0 + B u), made nonnegative."""
+    weighted = sum(
+        abs(c) * np.abs(state) for c, state in zip(coefficients, states, strict=True)
+    )
+    return abs_E @ weighted + abs(scale) * (abs_A @ np.abs(states[0]) + forcing_abs)
+
+
+def _dense(array: BinsparseTensor):
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return np.asarray(to_sparse(array).todense())
+
+
+def _row_counts(matrix):
+    if scipy_sparse.issparse(matrix):
+        return np.diff(scipy_sparse.csr_array(matrix).indptr)
+    return np.count_nonzero(matrix, axis=-1)
+
+
 class _DescriptorDAEBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
@@ -466,47 +501,99 @@ class _DescriptorDAEBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-        if not self._ref_meta:
-            return
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
+        inputs = [_matrix(item) for item in self._input]
+        E, A, B, jac_y, jac_yp = inputs[:5]
+        startup, bdf2 = inputs[5:9], inputs[9:13]
+        assert abs(jac_y + A).max() == 0, "jac_y must be -A"
+        assert abs(jac_yp - E).max() == 0, "jac_yp must be E"
 
-        matrices = []
-        for item in self._input[:5]:
-            try:
-                matrices.append(to_numpy(item))
-            except TypeError:
-                matrices.append(np.asarray(to_sparse(item).todense()))
-        E, A, B, jac_y, jac_yp = matrices
-        if self._ref_meta.get("check_jacobians"):
-            np.testing.assert_allclose(jac_y, -A)
-            np.testing.assert_allclose(jac_yp, E)
-        if not self._ref_meta.get("check_discrete_residual"):
-            return
-
-        outputs = []
-        for item in self._output:
-            try:
-                outputs.append(to_numpy(item))
-            except TypeError:
-                outputs.append(np.asarray(to_sparse(item).todense()))
-        time, y, yp = outputs
-        forcing = B @ np.asarray(self._meta["input"], dtype=np.float64)
-        tol = self._ref_meta.get("residual_tol", 1e-8)
-        assert y.shape == (len(time), A.shape[0])
-        assert yp.shape == y.shape
-        np.testing.assert_allclose(y[0], self._meta["y0"])
-        dt = time[1] - time[0]
-        np.testing.assert_allclose(np.diff(time), dt)
-        np.testing.assert_allclose(yp[1], (y[1] - y[0]) / dt, atol=tol)
+        time, y, yp = (_dense(item) for item in self._output)
+        start, stop = self._meta["span"]
+        n, dt = self._meta["n"], self._meta["dt"]
+        h = (stop - start) / float(n)
+        assert y.shape == (n + 1, A.shape[0]) and yp.shape == y.shape
         np.testing.assert_allclose(
-            yp[2:], (3 * y[2:] - 4 * y[1:-1] + y[:-2]) / (2 * dt), atol=tol
+            time, np.linspace(start, stop, n + 1), rtol=_gamma(2), atol=0
         )
-        for step_index in range(1, len(time)):
-            residual = jac_yp @ yp[step_index] + jac_y @ y[step_index] - forcing
-            assert np.linalg.norm(residual) < tol, (
-                f"{self.name} residual too high at step {step_index}: {residual}"
+        np.testing.assert_array_equal(y[0], self._meta["y0"])
+
+        abs_E, abs_A = abs(E), abs(A)
+        u = np.asarray(self._meta["input"], dtype=np.float64)
+        forcing = B @ u
+        forcing_abs = abs(B) @ np.abs(u)
+        rounds = max(
+            int(np.max(_row_counts(matrix), initial=0))
+            for matrix in (E, A, B, *startup[:2], *bdf2[:2])
+        )
+        gamma = _gamma(rounds + 6)
+
+        # yp is a backward difference of y.
+        np.testing.assert_array_equal(yp[0], 0)
+        differences = [(y[1] - y[0]) / dt]
+        magnitudes = [(np.abs(y[1]) + np.abs(y[0])) / dt]
+        for i in range(2, n + 1):
+            differences.append((3 * y[i] - 4 * y[i - 1] + y[i - 2]) / (2 * dt))
+            magnitudes.append(
+                (3 * np.abs(y[i]) + 4 * np.abs(y[i - 1]) + np.abs(y[i - 2])) / (2 * dt)
+            )
+        error = np.abs(yp[1:] - np.array(differences))
+        assert np.all(
+            error <= 2 * _gamma(4) * np.array(magnitudes)
+        ), f"yp isn't the backward difference of y for {param.dataset.name}"
+
+        # Each step solves its implicit equation with one correction through
+        # the given LU factors of its matrix. Its residual can be no larger
+        # than the rounding in that right-hand side and in this residual, the
+        # backward error of the triangular solves and the factorization
+        # (gamma |L| |U| on the correction), the factorization's own step size
+        # if it differs from the step's, and rounding y_i.
+        for i in range(1, n + 1):
+            if i == 1:
+                coefficients, scale, factor_scale = (
+                    (1.0, -1.0, 0.0),
+                    time[1] - time[0],
+                    dt,
+                )
+                L, U, rows, cols = startup
+            else:
+                coefficients, scale, factor_scale = (3.0, -4.0, 1.0), 2.0 * h, 2.0 * dt
+                L, U, rows, cols = bdf2
+            states = [y[i], y[i - 1], y[i - 2] if i > 1 else y[0]]
+            combination = sum(
+                c * state for c, state in zip(coefficients, states, strict=True)
+            )
+            residual = E @ combination - scale * (A @ y[i] + forcing)
+            terms = (abs_E, abs_A, forcing_abs, coefficients, scale)
+            # The step's right-hand side evaluates the residual at its guess,
+            # y[i - 1].
+            magnitude = _step_magnitude(*terms, states) + _step_magnitude(
+                *terms, [y[i - 1], *states[1:]]
+            )
+
+            correction = y[i - 1] - y[i]
+            z = np.empty_like(correction)
+            z[cols] = np.abs(correction)
+            solve = np.empty_like(correction)
+            solve[rows] = abs(L) @ (abs(U) @ z)
+            bound = (
+                gamma * (magnitude + 2 * solve)
+                + 4 * (rounds + 6) * _UNDERFLOW
+                + abs(scale - factor_scale) * (abs_A @ np.abs(correction))
+                + _gamma(1)
+                * (
+                    coefficients[0] * abs_E @ np.abs(y[i])
+                    + abs(scale) * abs_A @ np.abs(y[i])
+                )
+            )
+            excess = np.abs(residual) - bound
+            worst = int(np.argmax(excess))
+            assert excess[worst] <= 0, (
+                f"{self.name} step {i} of {param.dataset.name} has residual "
+                f"{abs(residual[worst]):.3g} in row {worst}, more than rounding "
+                f"allows ({bound[worst]:.3g})"
             )
 
 
@@ -602,7 +689,7 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
         n = int(n)
         y0 = xp.reshape(xp.asarray(y0, dtype=xp.float64), (-1,))
 
-        t = xp.linspace ( tspan[0], tspan[1], n + 1 )
+        t = xp.linspace ( tspan[0], tspan[1], n + 1, dtype=xp.float64 )
         y = []
 
         h = ( tspan[1] - tspan[0] ) / float ( n )

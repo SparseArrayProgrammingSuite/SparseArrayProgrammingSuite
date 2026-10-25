@@ -46,6 +46,13 @@ class ScipyLinalg:
         b_dense = np.asarray(b).ravel()
 
         if sps.issparse(A):
+            # A triangular system, like an LU factor, needs only substitution.
+            # spsolve would factor it again, with pivoting that loses accuracy.
+            A = sps.csr_array(A)
+            if sps.triu(A, 1).count_nonzero() == 0:
+                return spla.spsolve_triangular(A, b_dense, lower=True)
+            if sps.tril(A, -1).count_nonzero() == 0:
+                return spla.spsolve_triangular(A, b_dense, lower=False)
             return spla.spsolve(A, b_dense, **kwargs)
         return la.solve(A, b_dense, **kwargs)
 

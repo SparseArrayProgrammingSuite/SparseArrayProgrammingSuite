@@ -178,6 +178,8 @@ def _resolve_derivatives(problem_name):
 # rounds at most once per term, and an error e in f's argument moves f by at
 # most spread(t, x, e). Higham's gamma_n uses eps, as saps.util.error_bounds does.
 _EPS = np.finfo(np.float64).eps
+# Each rounding can also lose this much to underflow (Higham, section 2.1).
+_UNDERFLOW = np.finfo(np.float64).smallest_subnormal
 
 
 def _gamma(n, *arrays):
@@ -210,13 +212,14 @@ class _StepModel:
         value = np.asarray(self.f(t, x))
         error = np.broadcast_to(np.asarray(error, dtype=np.float64), value.shape)
         bound = _gamma(self.rounds + 1, value, x) * self.magnitude(t, x)
+        bound = bound + 4 * (self.rounds + 1) * _UNDERFLOW
         return value, bound + self.spread(t, x, error)
 
 
 def _axpy(y, scale, k, k_error):
     """y + k * scale, as the methods compute it, with its error bound."""
     value = y + k * scale
-    rounding = _gamma(2, y, k) * (np.abs(y) + abs(scale) * np.abs(k))
+    rounding = _gamma(2, y, k) * (np.abs(y) + abs(scale) * np.abs(k)) + 8 * _UNDERFLOW
     return value, abs(scale) * k_error + rounding
 
 
@@ -715,7 +718,7 @@ dydt_vector = (dVc, d2Vc)
             "L": dataset.L,
             "C": dataset.C,
         }
-        return DataInstance(inputs=[], meta=meta, ref_meta={"check_components": [0]})
+        return DataInstance(inputs=[], meta=meta)
 
 
 class ODELotkaVolterraGenerator(_ODEGenerator[ODELotkaVolterraDataset]):
@@ -796,7 +799,7 @@ dydt_vector = (dxdt, dydt)
             "c": dataset.c,
             "d": dataset.d,
         }
-        return DataInstance(inputs=[], meta=meta, ref_meta={"error_tolerance": 10.0})
+        return DataInstance(inputs=[], meta=meta)
 
 
 class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
@@ -911,7 +914,6 @@ dydt_vector = (lin + non_lin).tolist()
                 from_numpy(np.asarray(_brusselator_forcing(n))),
             ],
             meta=meta,
-            ref_meta={"error_tolerance": 0.5, "real_output": True},
         )
 
 
@@ -1173,9 +1175,9 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         super().check(param)
         time = to_numpy(self._output[0])
         y_out = to_numpy(self._output[1])
-        assert np.all(np.isfinite(y_out)), (
-            f"Non-finite ODE output at step={self._meta['step']}"
-        )
+        assert np.all(
+            np.isfinite(y_out)
+        ), f"Non-finite ODE output at step={self._meta['step']}"
         span, step, y0 = self._meta["span"], self._meta["step"], self._meta["y0"]
         grid = []
         curr = span[0]
