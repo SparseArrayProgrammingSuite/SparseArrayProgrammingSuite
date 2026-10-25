@@ -658,9 +658,9 @@ Dimensionality reduction</concept_desc>
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
         if self._ref_meta is None:
             return
 
@@ -679,6 +679,6 @@ Dimensionality reduction</concept_desc>
         assert np.all((labels >= 0) & (labels < k)), f"Labels must be in [0, {k})"
         cost = _cost(A, labels, k)
         limit = (1 + self._ref_meta["rel_tol"]) * self._ref_meta["reference_cost"]
-        assert (
-            cost <= limit
-        ), f"k-means cost too high for {param.dataset.name}: {cost} > {limit}"
+        assert cost <= limit, (
+            f"k-means cost too high for {param.dataset.name}: {cost} > {limit}"
+        )

@@ -710,9 +710,9 @@ class GCNBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         if self._ref_outputs is None:
             return

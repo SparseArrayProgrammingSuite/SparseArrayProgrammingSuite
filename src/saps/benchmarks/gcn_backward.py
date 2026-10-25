@@ -894,9 +894,9 @@ Each iteration:
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         outputs = [_from_binsparse(item) for item in self._output]
         output_shapes = (self._ref_meta or {}).get("output_shapes")
@@ -919,9 +919,9 @@ Each iteration:
         # rounded initial loss; allow _SIGMAS standard deviations of rounding.
         rel_tol = self._meta["rel_tol"]
         limit = rel_tol * (initial_loss + _SIGMAS * initial_sigma) + _SIGMAS * sigma
-        assert (
-            loss <= limit
-        ), f"GCN training loss too high for {param.dataset.name}: {loss} > {limit}"
+        assert loss <= limit, (
+            f"GCN training loss too high for {param.dataset.name}: {loss} > {limit}"
+        )
 
     """
     Args:
