@@ -593,13 +593,15 @@ class ReferenceDataset(Dataset):
 
 
 class ReferenceGenerator(Generator[Any]):
-    """Caches the expensive reference outputs of an uncached generator.
+    """Caches the expensive parts of an uncached generator's instances.
 
     A generator whose inputs come from cached shell generators stays uncached,
     so each shared input is stored once. It defines `generate_reference`, which
-    returns a `DataInstance` with no inputs, and its `generate` takes the
-    reference from `ReferenceGenerator(self).cached_generate(dataset)`. Wrap
-    each in a `ShellBenchmark` so that dataset caching prepares it.
+    returns a `DataInstance` holding only the expensive parts, such as reference
+    outputs, training targets, or a factored preconditioner, and its `generate`
+    merges in `ReferenceGenerator(self).cached_generate(dataset)`. Wrap each in a
+    `ShellBenchmark` so that dataset caching prepares it. Test runs prepare no
+    references, so test cases belong in test generators that compute inline.
     """
 
     def __init__(self, generator: Any):
@@ -616,7 +618,7 @@ class ReferenceGenerator(Generator[Any]):
     @property
     def description(self) -> str:
         return (
-            f"Reference outputs for {self.generator.pretty_name}, cached without the"
+            f"Expensive parts of {self.generator.pretty_name}, cached without the"
             " inputs that its shell generators already cache."
         )
 

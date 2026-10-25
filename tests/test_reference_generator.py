@@ -1,3 +1,4 @@
+import inspect
 from unittest.mock import Mock
 
 import numpy as np
@@ -64,6 +65,10 @@ def test_reference_datasets_keep_cache_keys_but_join_no_suites():
         assert wrapped.suites == []
 
 
+def _reads_cached_reference(generator):
+    return "ReferenceGenerator(" in inspect.getsource(type(generator).generate)
+
+
 def test_every_generator_with_a_reference_has_an_uncached_shell():
     benchmarks = list(_benchmark_instances())
     wrapped = {
@@ -76,7 +81,17 @@ def test_every_generator_with_a_reference_has_an_uncached_shell():
         generator
         for benchmark in benchmarks
         for generator in benchmark.generators
-        if hasattr(generator, "generate_reference")
+        if _reads_cached_reference(generator)
     }
     assert {type(generator) for generator in referenced} == wrapped
     assert not any(generator.cacheable for generator in referenced)
+
+
+def test_generators_with_cached_references_have_no_test_datasets():
+    # Test runs prepare no references, so test cases belong in test generators.
+    for benchmark in _benchmark_instances():
+        for generator in benchmark.generators:
+            if _reads_cached_reference(generator):
+                assert not any(
+                    "test" in dataset.suites for dataset in generator.datasets
+                ), generator.name
