@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import numpy as np
 
 from binsparse.conversions import from_numpy, to_numpy
@@ -11,6 +13,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.util.ball import Ball, einsum_bound
 
 
 def _ctf_col_major_idx(shape):
@@ -147,20 +150,6 @@ def make_ccsd_inputs(no, nv):
     )
 
 
-def _as_canon_abij(T):
-    nv, _, no, _ = T.shape
-    canon = (
-        np.arange(nv)[:, None, None, None] < np.arange(nv)[None, :, None, None]
-    ) & (np.arange(no)[None, None, :, None] < np.arange(no)[None, None, None, :])
-    T_c = np.where(canon, T, 0.0)
-    return (
-        T_c
-        - T_c.transpose(1, 0, 2, 3)
-        - T_c.transpose(0, 1, 3, 2)
-        + T_c.transpose(1, 0, 3, 2)
-    )
-
-
 class CCSDDataset(Dataset):
     def __init__(
         self,
@@ -170,7 +159,6 @@ class CCSDDataset(Dataset):
         suites,
         no,
         nv,
-        ref_outputs=None,
     ):
         self._name = name
         self._pretty_name = pretty_name
@@ -178,7 +166,6 @@ class CCSDDataset(Dataset):
         self._suites = suites
         self.no = no
         self.nv = nv
-        self.ref_outputs = ref_outputs
 
     @property
     def name(self) -> str:
@@ -312,7 +299,6 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 suites=["standard", "test", "trace"],
                 no=4,
                 nv=6,
-                ref_outputs=[from_numpy(np.array(380638.269079))],
             ),
             CCSDDataset(
                 name="medium",
@@ -333,10 +319,19 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
         ]
 
     def generate(self, dataset: CCSDDataset):
+        inputs = make_ccsd_inputs(dataset.no, dataset.nv)
+        # The kernel's own arithmetic on Balls bounds every float64 evaluation.
+        bounds = CCSDBenchmark().benchmark(
+            SimpleNamespace(einsum=einsum_bound),
+            {},
+            *[Ball(to_numpy(tensor)) for tensor in inputs],
+        )
         return DataInstance(
-            inputs=make_ccsd_inputs(dataset.no, dataset.nv),
+            inputs=inputs,
             meta={},
-            ref_outputs=dataset.ref_outputs,
+            # Every output's value, then every output's error bound.
+            ref_outputs=[from_numpy(bound.value) for bound in bounds]
+            + [from_numpy(bound.error) for bound in bounds],
         )
 
 
@@ -625,14 +620,18 @@ class CCSDBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
 
-        reference_norm = to_numpy(self._ref_outputs[0])[()]
-        T1_out = to_numpy(self._output[0])
-        T2_out = to_numpy(self._output[1])
-        assert T1_out.shape == (6, 4)
-        assert T2_out.shape == (6, 6, 4, 4)
-
-        T2_out = _as_canon_abij(T2_out)
-        assert np.allclose(T2_out, -T2_out.transpose(1, 0, 2, 3), atol=1e-10)
-        assert np.allclose(T2_out, -T2_out.transpose(0, 1, 3, 2), atol=1e-10)
-        T_norm = np.linalg.norm(T1_out) + np.linalg.norm(T2_out)
-        assert np.isclose(T_norm, reference_norm, rtol=1e-6)
+        # The reference holds every output's value, then every output's bound.
+        count = len(self._output)
+        bounds = zip(self._ref_outputs[:count], self._ref_outputs[count:], strict=True)
+        for i, (actual, (value, error)) in enumerate(
+            zip(self._output, bounds, strict=True)
+        ):
+            actual, value, error = to_numpy(actual), to_numpy(value), to_numpy(error)
+            assert actual.shape == value.shape, (
+                f"CCSD output {i} has shape {actual.shape}, expected {value.shape}"
+            )
+            inside = np.abs(actual - value) <= error
+            assert np.all(inside), (
+                f"CCSD output {i} leaves its error bound at "
+                f"{np.count_nonzero(~inside)} entries for {param.dataset.name}"
+            )
