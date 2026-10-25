@@ -133,36 +133,56 @@ class ParticleSimulationDataset(Dataset):
         return data
 
 
-def _may_interact(position, width, cells):
-    """Ordered pairs whose intervals start within two cells on every axis.
+# Rounding a coordinate into a cell moves it by under 2.2e-10 cells while it
+# stays within a million cells of zero, so cells this much wider than the cutoff
+# keep every pair within the cutoff in adjacent cells.
+_CELL_MARGIN = 1e-9
 
-    Buckets both endpoints of each interval into cells `width` wide, wrapping
-    every `cells` cells in a periodic box, or never if `cells` is None.
-    Intervals span at most two cells, so other pairs are a cell apart.
+
+def _may_interact(position, width, cells):
+    """Ordered pairs whose intervals occupy adjacent cells on every axis.
+
+    Each particle occupies the cells of both endpoints of its intervals. Cells
+    are `width` wide and wrap every `cells` cells in a periodic box, or never if
+    `cells` is None. Other pairs are a whole cell apart on some axis.
     """
     low = np.stack([np.floor(p.lo / width) for p in position]).astype(np.int64)
     high = np.stack([np.floor(p.hi / width) for p in position]).astype(np.int64)
     assert np.all(high - low <= 1), "Interval bounds grew wider than a cell"
+    assert np.all(np.abs(low) < 1e6) and np.all(np.abs(high) < 1e6), (
+        "Coordinates are too many cells from zero"
+    )
     if cells is None:
-        # Enough cells that wrapping never folds together cells near particles.
-        shape = tuple(high.max(axis=1) - low.min(axis=1) + 5)
+        # Enough cells that wrapping never folds a cell next to another.
+        shape = tuple(high.max(axis=1) - low.min(axis=1) + 3)
     else:
         shape = (cells, cells, cells)
 
-    keys, cell = np.unique(
-        np.ravel_multi_index(low, shape, mode="wrap"), return_inverse=True
-    )
     n = low.shape[1]
-    members = csr_array((np.ones(n), (cell, np.arange(n))), (len(keys), n))
+    corners = [
+        np.where(np.reshape(choice, (3, 1)), high, low)
+        for choice in itertools.product((False, True), repeat=3)
+    ]
+    occupied = np.unique(
+        np.concatenate(
+            [np.ravel_multi_index(c, shape, mode="wrap") * n + np.arange(n) for c in corners]
+        )
+    )
+    owners = occupied % n
+    keys, cell = np.unique(occupied // n, return_inverse=True)
+    members = csr_array((np.ones(len(owners)), (cell, owners)), (len(keys), n))
+    coordinates = np.stack(np.unravel_index(keys[cell], shape))
     rows, columns = [], []
-    for offset in itertools.product(range(-2, 3), repeat=3):
-        key = np.ravel_multi_index(low + np.reshape(offset, (3, 1)), shape, mode="wrap")
+    for offset in itertools.product((-1, 0, 1), repeat=3):
+        key = np.ravel_multi_index(
+            coordinates + np.reshape(offset, (3, 1)), shape, mode="wrap"
+        )
         neighbor = np.minimum(np.searchsorted(keys, key), len(keys) - 1)
         found = keys[neighbor] == key
-        rows.append(np.flatnonzero(found))
+        rows.append(owners[found])
         columns.append(neighbor[found])
     rows, columns = np.concatenate(rows), np.concatenate(columns)
-    # Each row of `near` marks the particles in that particle's nearby cells.
+    # Each row of `near` marks the particles in that particle's adjacent cells.
     near = csr_array((np.ones(len(rows)), (rows, columns)), (n, len(keys))) @ members
     i, j = near.nonzero()
     return i[i != j], j[i != j]
@@ -184,22 +204,27 @@ def particle_sim_bounds(x, y, z, vx, vy, vz, particle_mass, size, steps, paramet
     velocity = [Interval(vx), Interval(vy), Interval(vz)]
     particle_mass = Interval(particle_mass)
     periodic = parameters["boundary_model"] == "periodic_box"
-    # Cells at least twice the cutoff wide, a whole number per periodic box.
-    cells = max(int(size // (2 * cutoff)), 1) if periodic else None
-    width = size / cells if periodic else 2 * cutoff
+    # Cells a margin wider than the cutoff, a whole number per periodic box.
+    reach = cutoff * (1 + _CELL_MARGIN)
+    cells = max(int(size // reach), 1) if periodic else None
+    width = size / cells if periodic else reach
 
     for _ in range(steps):
-        # Other pairs are more than twice the cutoff apart on some axis in
-        # every evaluation, so their wedge, and with it their force, is zero.
+        # Other pairs are more than the cutoff apart on some axis in every
+        # evaluation, so their wedge, and with it their force, is zero.
         i, j = _may_interact(position, width, cells)
-        mass = particle_mass if particle_mass.lo.ndim == 0 else particle_mass[j]
-
         delta = [p[j] - p[i] for p in position]
         if periodic:
             delta = [d - size * (d / size).round() for d in delta]
         r2 = add(delta[0] * delta[0], delta[1] * delta[1], delta[2] * delta[2])
         r2 = maximum(r2, softening * softening)
         r = r2.sqrt()
+
+        # So do pairs whose distance is at least the cutoff in every evaluation.
+        near = r.lo < cutoff
+        i, j, r2, r = i[near], j[near], r2[near], r[near]
+        delta = [d[near] for d in delta]
+        mass = particle_mass if particle_mass.lo.ndim == 0 else particle_mass[j]
 
         if parameters["force_model"] == "newtonian_gravity":
             coef = gravitational_constant * mass / (r2 * r)
@@ -933,7 +958,17 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
             include_mass="mass" in dataset.source_columns,
         )
         meta["parameters"] = dataset.parameters
-        return DataInstance(inputs=inputs, meta=meta)
+        x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
+        bounds = particle_sim_bounds(
+            x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], dataset.parameters
+        )
+        return DataInstance(
+            inputs=inputs,
+            meta=meta,
+            # Every output's lower bound, then every output's upper bound.
+            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+            + [from_numpy(bound.hi) for bound in bounds],
+        )
 
 
 class ParticleSimulationBenchmark(Benchmark):
