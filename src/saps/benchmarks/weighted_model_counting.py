@@ -19,7 +19,7 @@ from saps.benchmark import (
 from saps.codegen import (
     constant_function_source,
     define_function,
-    einsum_function_source,
+    einsums_function_source,
 )
 from saps.downloaders.mccomp import (
     MCCOMP_REPOSITORY_URL,
@@ -65,11 +65,29 @@ def parse_format(text):
     return num_vars, clauses, weights
 
 
-def clauses_to_einsum(clauses, num_vars):
+def parse_shown(text, num_vars):
+    """The variables a projected count sums over: those on "c p show" lines, or
+    every variable when the instance has none."""
+    shown = None
+    for line in text.splitlines():
+        parts = line.split()
+        if parts[:3] == ["c", "p", "show"]:
+            shown = (shown or []) + [int(part) for part in parts[3:] if part != "0"]
+    if shown is None:
+        return list(range(1, num_vars + 1))
+    return list(dict.fromkeys(shown))
+
+
+def clauses_to_einsums(clauses, num_vars, shown):
+    """Einsums for the weighted count of clauses' models projected onto shown.
+
+    An or= over the other variables finds which shown assignments extend to a
+    model; a += then sums those assignments' weights.
+    """
     if len(clauses) == 0:
         return None
     if any(len(clause) == 0 for clause in clauses):
-        return "s[] += False"
+        return ["s[] += False"]
 
     clause_strings = []
     for clause in clauses:
@@ -83,15 +101,31 @@ def clauses_to_einsum(clauses, num_vars):
                 literal_strings.append(var_name)
         clause_str = "(" + " or ".join(literal_strings) + ")"
         clause_strings.append(clause_str)
+    # S is indexed by every shown variable, so each must appear in the formula.
+    mentioned = {abs(literal) for clause in clauses for literal in clause}
+    clause_strings.extend(
+        f"(B[v{var}] or not B[v{var}])" for var in shown if var not in mentioned
+    )
 
     mask_str = "(" + " and ".join(clause_strings) + ")"
-    weight_strings = [f"W{i}[v{i}]" for i in range(1, num_vars + 1)]
-    weights_str = " * ".join(weight_strings)
+    indices = ",".join(f"v{var}" for var in shown)
+    terms = [f"S[{indices}]", *(f"W{var}[v{var}]" for var in shown)]
+    if not shown:
+        terms.append("1.0")
+    return [f"S[{indices}] or= {mask_str}", f"s[] += {' * '.join(terms)}"]
 
-    return f"s[] += {mask_str} * {weights_str}"
+
+# Brute force enumerates 2**num_vars assignments.
+_MAX_REFERENCE_VARS = 24
 
 
-def referenceWeightedModelCount(num_vars, clauses, weights):
+def _projected_terms(num_vars, clauses, weights, shown):
+    """The weight of each projected model: for each assignment of the shown
+    variables that extends to a model, the product of their weights."""
+    if num_vars > _MAX_REFERENCE_VARS:
+        raise ValueError(
+            f"Can't brute-force a reference count over {num_vars} variables"
+        )
     num_rows = 1 << num_vars
     bit_index = np.arange(num_rows, dtype=np.int64)[:, None]
     positions = np.arange(num_vars, dtype=np.int64)[None, :]
@@ -108,12 +142,59 @@ def referenceWeightedModelCount(num_vars, clauses, weights):
             clause_mask |= column if lit > 0 else ~column
         satisfied &= clause_mask
 
-    products = np.ones(num_rows, dtype=np.float64)
-    for i in range(1, num_vars + 1):
-        column = assignments[:, i - 1]
-        products *= np.where(column, np.float64(weights[i]), np.float64(weights[-i]))
+    columns = [var - 1 for var in shown]
+    models = np.unique(assignments[satisfied][:, columns], axis=0)
+    products = np.ones(len(models), dtype=np.float64)
+    for j, var in enumerate(shown):
+        products *= np.where(
+            models[:, j], np.float64(weights[var]), np.float64(weights[-var])
+        )
+    return products
 
-    return np.float64(np.sum(np.where(satisfied, products, np.float64(0.0))))
+
+def referenceWeightedModelCount(num_vars, clauses, weights, shown=None):
+    """The weighted model count of clauses, projected onto shown (by default
+    every variable), by brute force."""
+    shown = list(range(1, num_vars + 1)) if shown is None else shown
+    return np.float64(np.sum(_projected_terms(num_vars, clauses, weights, shown)))
+
+
+def _weighted_problem(cnf_text, expected=None):
+    """The inputs, metadata and reference of a projected weighted count.
+
+    The count sums one product of the k shown variables' weights per projected
+    model. Assignments that aren't models contribute exact zeros, which don't
+    round, so whatever the order each term rounds at most
+    (models - 1) + (k - 1) times.
+    """
+    num_vars, clauses, weights = parse_format(cnf_text)
+    shown = parse_shown(cnf_text, num_vars)
+    terms = _projected_terms(num_vars, clauses, weights, shown)
+    reference = float(np.sum(terms))
+    steps = max(len(terms) - 1, 0) + max(len(shown) - 1, 0)
+    bound = summation_error_bound(
+        np, steps + 1, float(np.sum(np.abs(terms))), np.float64
+    )
+    inputs: list[BinsparseTensor] = [from_numpy(np.asarray([0, 1], dtype=np.int64))]
+    inputs.extend(
+        from_numpy(np.asarray([weights[-var], weights[var]], dtype=np.float64))
+        for var in shown
+    )
+    meta = {
+        "exprs": clauses_to_einsums(clauses, num_vars, shown),
+        "num_vars": num_vars,
+        "num_clauses": len(clauses),
+        "shown": shown,
+        "default_total": reference,
+    }
+    return DataInstance(
+        inputs=inputs,
+        meta=meta,
+        ref_outputs=[
+            from_numpy(np.asarray(reference if expected is None else expected))
+        ],
+        ref_meta={"error_bound": float(bound), "reference_count": reference},
+    )
 
 
 class WeightedModelCountingTestDataset(Dataset):
@@ -220,11 +301,11 @@ class _WMCFunctionGenerator(Generator[Any], ABC):
 
     def generate_benchmark_function(self, dataset, problem, benchmark):
         meta = problem.meta
-        params = ["B", *(f"W{i}" for i in range(1, meta["num_vars"] + 1))]
-        if meta["expr"] is None:
+        params = ["B", *(f"W{var}" for var in meta["shown"])]
+        if meta["exprs"] is None:
             source = constant_function_source(meta["default_total"], "float64", params)
         else:
-            source = einsum_function_source(meta["expr"], params)
+            source = einsums_function_source(meta["exprs"], params)
         return define_function(
             source, f"<saps-generated {self.name}.{dataset.name}>", {"np": np}
         )
@@ -422,45 +503,9 @@ class WeightedModelCountingTestGenerator(
         ]
 
     def generate(self, dataset: WeightedModelCountingTestDataset):
-        num_vars, clauses, weights = parse_format(dataset.cnf_text)
-        expr = clauses_to_einsum(clauses, num_vars)
-
-        data_list: list[BinsparseTensor] = [from_numpy(np.array([0, 1]))]
-
-        data_list.extend(
-            from_numpy(np.array([weights[-i], weights[i]]))
-            for i in range(1, num_vars + 1)
-        )
-
-        default_total = 1.0
-        if expr is None:
-            for i in range(1, num_vars + 1):
-                default_total *= weights[i] + weights[-i]
-
-        meta = {
-            "expr": expr,
-            "num_vars": num_vars,
-            "expected_result": dataset.expected,
-            "default_total": default_total,
-        }
-
-        # At most 2**num_vars summands, each a product of num_vars weights.
-        steps = (1 << num_vars) - 1 + max(num_vars - 1, 0)
-        abs_sum = np.prod(
-            [np.abs(weights[-i]) + np.abs(weights[i]) for i in range(1, num_vars + 1)]
-        )
-        bound = summation_error_bound(np, steps + 1, abs_sum, np.float64)
-        reference = (
-            default_total
-            if expr is None
-            else float(referenceWeightedModelCount(num_vars, clauses, weights))
-        )
-        return DataInstance(
-            inputs=data_list,
-            meta=meta,
-            ref_outputs=[from_numpy(np.array(dataset.expected))],
-            ref_meta={"error_bound": float(bound), "reference_count": reference},
-        )
+        problem = _weighted_problem(dataset.cnf_text, dataset.expected)
+        problem.meta["expected_result"] = dataset.expected
+        return problem
 
 
 class WeightedModelCountingMCCompGenerator(
@@ -552,34 +597,26 @@ class WeightedModelCountingMCCompGenerator(
         source_path = normalize_mccomp_source_path(dataset.source_path)
         local_path = download_mccomp_instance(source_path)
         cnf_text = Path(local_path).read_text(encoding="utf-8")
-        num_vars, clauses, weights = parse_format(cnf_text)
-        expr = clauses_to_einsum(clauses, num_vars)
-
-        data_list: list[BinsparseTensor] = [
-            from_numpy(np.asarray([0, 1], dtype=np.int64))
-        ]
-        data_list.extend(
-            from_numpy(np.asarray([weights[-i], weights[i]], dtype=np.float64))
-            for i in range(1, num_vars + 1)
-        )
-
         exact_type, exact_value = parse_mccomp_exact(cnf_text)
-        meta = {
-            "expr": expr,
-            "num_vars": num_vars,
-            "default_total": _default_weighted_total(weights, num_vars),
-            "source_repository": MCCOMP_REPOSITORY_URL,
-            "source_path": source_path,
-            "source_url": mccomp_source_url(source_path),
-            "local_path": str(local_path),
-            "source_problem_type": parse_mccomp_problem_type(cnf_text),
-            "source_num_clauses": len(clauses),
-            "source_exact_type": exact_type,
-            "source_exact_value": exact_value,
-            "source_exact_is_projected": True,
-        }
-
-        return DataInstance(inputs=data_list, meta=meta)
+        # The competition's answer is the projected count the benchmark
+        # computes, so check checks it against the brute-force reference too.
+        problem = _weighted_problem(
+            cnf_text, None if exact_value is None else float(exact_value)
+        )
+        problem.meta.update(
+            {
+                "source_repository": MCCOMP_REPOSITORY_URL,
+                "source_path": source_path,
+                "source_url": mccomp_source_url(source_path),
+                "local_path": str(local_path),
+                "source_problem_type": parse_mccomp_problem_type(cnf_text),
+                "source_num_clauses": problem.meta["num_clauses"],
+                "source_exact_type": exact_type,
+                "source_exact_value": exact_value,
+                "source_exact_is_projected": True,
+            }
+        )
+        return problem
 
 
 class WeightedModelCountingBenchmark(Benchmark):
@@ -638,9 +675,9 @@ class WeightedModelCountingBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
         if self._ref_outputs is None:
             return
         result = float(to_numpy(self._output[0]))
@@ -649,24 +686,17 @@ class WeightedModelCountingBenchmark(Benchmark):
         bound = self._ref_meta["error_bound"]
         # The stored answer is typed in or parsed from the instance file, so check
         # it against an independent brute-force count before trusting it.
-        assert "reference_count" in self._ref_meta, (
-            "No NumPy reference count; regenerate the cached dataset"
-        )
+        assert (
+            "reference_count" in self._ref_meta
+        ), "No NumPy reference count; regenerate the cached dataset"
         reference = self._ref_meta["reference_count"]
         assert np.isclose(expected, reference, rtol=0, atol=bound), (
             f"Test '{param.dataset.name}' has stored count {expected}, but the "
             f"NumPy brute-force reference counts {reference}"
         )
-        assert np.isclose(result, expected, rtol=0, atol=bound), (
-            f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
-        )
-
-
-def _default_weighted_total(weights: dict[int, float], num_vars: int) -> float:
-    total = 1.0
-    for i in range(1, num_vars + 1):
-        total *= weights[i] + weights[-i]
-    return total
+        assert np.isclose(
+            result, expected, rtol=0, atol=bound
+        ), f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
 
 
 def parse_mccomp_problem_type(cnf_text: str) -> str | None:
