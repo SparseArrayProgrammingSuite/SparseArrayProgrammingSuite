@@ -466,11 +466,16 @@ def _simhash_reference(data, query, projection, meta):
     weights = 1 << np.arange(n_projections, dtype=np.int64)
 
     def codes(x):
-        projected = x @ projection
-        if sps.issparse(projected):
-            projected = projected.toarray()
-        signs = np.asarray(projected).reshape(x.shape[0], n_tables, n_projections)
-        return (signs > 0).astype(np.int64) @ weights
+        # Hash in blocks of rows, since all the projections at once can be
+        # gigabytes.
+        blocks = []
+        for start in range(0, x.shape[0], 65_536):
+            projected = x[start : start + 65_536] @ projection
+            if sps.issparse(projected):
+                projected = projected.toarray()
+            signs = np.asarray(projected).reshape(-1, n_tables, n_projections)
+            blocks.append((signs > 0).astype(np.int64) @ weights)
+        return np.concatenate(blocks)
 
     def indicator(columns, width):
         rows = np.repeat(np.arange(columns.shape[0]), n_tables)
