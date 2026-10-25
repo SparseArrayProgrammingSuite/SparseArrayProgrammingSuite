@@ -60,7 +60,8 @@ def test_simhash_ann_openml_generator_uses_cached_task_split(
     dataset = next(d for d in generator.datasets if d.name == source_name)
     instance = generator.generate(dataset)
 
-    assert calls == [("openml_dataset", source_name, task_id, 0)]
+    # An in-process reference reads the shell again.
+    assert set(calls) == {("openml_dataset", source_name, task_id, 0)}
     assert not generator.cacheable
     np.testing.assert_array_equal(to_numpy(instance.inputs[0]), features[train])
     np.testing.assert_array_equal(to_numpy(instance.inputs[1]), features[query])
