@@ -23,6 +23,8 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.codegen import define_function
 from saps.downloaders.cache import source_cache_dir
@@ -352,6 +354,58 @@ class LTHConv2Dataset(Dataset):
         return "<ccs2012></ccs2012>"
 
 
+def _widened_model(num_images):
+    """The pruned model, widened to classify the first `num_images` CIFAR-10
+    test images, with its runtime input's value info and those images."""
+    import onnx
+
+    model = onnx.load(str(_model_path()), load_external_data=True)
+
+    initializer_names = {tensor.name for tensor in model.graph.initializer}
+    real_inputs = [
+        value_info
+        for value_info in model.graph.input
+        if value_info.name not in initializer_names
+    ]
+
+    if len(real_inputs) != 1:
+        raise ValueError(f"Expected one runtime input, found {len(real_inputs)}.")
+
+    input_info = real_inputs[0]
+
+    shape = []
+    for dim in input_info.type.tensor_type.shape.dim:
+        if not dim.HasField("dim_value") or dim.dim_value <= 0:
+            raise ValueError(f"Input {input_info.name!r} must have a static shape.")
+        shape.append(int(dim.dim_value))
+
+    dtype = np.dtype(
+        onnx.helper.tensor_dtype_to_np_dtype(input_info.type.tensor_type.elem_type)
+    )
+
+    model_input = _cifar10_test_images(num_images).astype(dtype)
+    if model_input.shape[1:] != tuple(shape[1:]):
+        raise ValueError(
+            f"Input {input_info.name!r} of shape {tuple(shape)} doesn't take "
+            f"images of shape {model_input.shape[1:]}."
+        )
+    # The model is exported for one image. Widen its batch, including the
+    # constant shape its flatten reshapes to, and drop the stale shapes
+    # inferred for one image.
+    batch = shape[0]
+    for value_info in (input_info, *model.graph.output):
+        value_info.type.tensor_type.shape.dim[0].dim_value = num_images
+    del model.graph.value_info[:]
+    reshapes = {node.input[1] for node in model.graph.node if node.op_type == "Reshape"}
+    for tensor in model.graph.initializer:
+        if tensor.name in reshapes:
+            target = onnx.numpy_helper.to_array(tensor).copy()
+            if target[0] == batch:
+                target[0] = num_images
+                tensor.CopyFrom(onnx.numpy_helper.from_array(target, tensor.name))
+    return model, input_info, model_input
+
+
 class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
     @property
     def name(self) -> str:
@@ -419,61 +473,19 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
         ]
 
     def generate(self, dataset: LTHConv2Dataset) -> DataInstance:
-        import onnx
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: LTHConv2Dataset) -> DataInstance:
         from onnxpy import compile_to_source
 
-        model = onnx.load(str(_model_path()), load_external_data=True)
-
-        initializer_names = {tensor.name for tensor in model.graph.initializer}
-        real_inputs = [
-            value_info
-            for value_info in model.graph.input
-            if value_info.name not in initializer_names
-        ]
-
-        if len(real_inputs) != 1:
-            raise ValueError(f"Expected one runtime input, found {len(real_inputs)}.")
-
-        input_info = real_inputs[0]
-
-        shape = []
-        for dim in input_info.type.tensor_type.shape.dim:
-            if not dim.HasField("dim_value") or dim.dim_value <= 0:
-                raise ValueError(f"Input {input_info.name!r} must have a static shape.")
-            shape.append(int(dim.dim_value))
-
-        dtype = np.dtype(
-            onnx.helper.tensor_dtype_to_np_dtype(input_info.type.tensor_type.elem_type)
-        )
-
-        model_input = _cifar10_test_images(dataset.num_images).astype(dtype)
-        if model_input.shape[1:] != tuple(shape[1:]):
-            raise ValueError(
-                f"Input {input_info.name!r} of shape {tuple(shape)} doesn't take "
-                f"images of shape {model_input.shape[1:]}."
-            )
-        # The model is exported for one image. Widen its batch, including the
-        # constant shape its flatten reshapes to, and drop the stale shapes
-        # inferred for one image.
-        batch = shape[0]
-        for value_info in (input_info, *model.graph.output):
-            value_info.type.tensor_type.shape.dim[0].dim_value = dataset.num_images
-        del model.graph.value_info[:]
-        reshapes = {
-            node.input[1] for node in model.graph.node if node.op_type == "Reshape"
-        }
-        for tensor in model.graph.initializer:
-            if tensor.name in reshapes:
-                target = onnx.numpy_helper.to_array(tensor).copy()
-                if target[0] == batch:
-                    target[0] = dataset.num_images
-                    tensor.CopyFrom(onnx.numpy_helper.from_array(target, tensor.name))
-
+        model, input_info, model_input = _widened_model(dataset.num_images)
         model_source, tensor_inputs = compile_to_source(
             model, function_name="benchmark", extra_parameters=("meta",)
         )
-        exact, sigma = _exact_outputs(model, {input_info.name: model_input})
-
         return DataInstance(
             inputs=[
                 from_numpy(model_input),
@@ -484,6 +496,14 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
                 "onnx_initializer_names": tuple(tensor_inputs),
                 "benchmark_source": model_source,
             },
+        )
+
+    def generate_reference(self, dataset: LTHConv2Dataset) -> DataInstance:
+        model, input_info, model_input = _widened_model(dataset.num_images)
+        exact, sigma = _exact_outputs(model, {input_info.name: model_input})
+        return DataInstance(
+            inputs=[],
+            meta={},
             ref_outputs=[from_numpy(exact), from_numpy(sigma)],
             ref_meta={"sigmas": _SIGMAS},
         )
@@ -499,6 +519,12 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
             f"<saps-generated {self.name}.{dataset.name}>",
             {"math": math},
         )
+
+
+class LTHConv2ONNXReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(LTHConv2ONNXGenerator())
 
 
 class LTHConv2Benchmark(Benchmark):

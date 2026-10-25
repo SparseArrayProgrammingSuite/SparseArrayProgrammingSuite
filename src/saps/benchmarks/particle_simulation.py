@@ -16,6 +16,8 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.downloaders.ewap import download_ewap_dataset
 from saps.downloaders.nemo import download_nemo_dataset
@@ -242,6 +244,18 @@ def particle_sim_bounds(x, y, z, vx, vy, vz, particle_mass, size, steps, paramet
         position = [p + v * dt for p, v in zip(position, velocity, strict=True)]
 
     return [*position, *velocity]
+
+
+def _bounds_reference(problem):
+    """Every output's lower bound, then every output's upper bound."""
+    x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in problem.inputs)
+    meta = problem.meta
+    bounds = particle_sim_bounds(
+        x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], meta["parameters"]
+    )
+    return [from_numpy(bound.lo) for bound in bounds] + [
+        from_numpy(bound.hi) for bound in bounds
+    ]
 
 
 class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
@@ -551,7 +565,13 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
             ),
         ]
 
-    def generate(self, dataset: ParticleSimulationCS267Dataset):
+    def generate(self, dataset: ParticleSimulationCS267Dataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        return problem
+
+    def generate_inputs(self, dataset: ParticleSimulationCS267Dataset) -> DataInstance:
         rng = np.random.Generator(np.random.MT19937(dataset.seed))
         n = dataset.n_particles
         parameters = dataset.parameters
@@ -581,9 +601,6 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
             vy[i] = rng.uniform(-1.0, 1.0)
             vz[i] = rng.uniform(-1.0, 1.0)
 
-        bounds = particle_sim_bounds(
-            x, y, z, vx, vy, vz, mass, size, dataset.num_steps, parameters
-        )
         return DataInstance(
             inputs=[
                 from_numpy(x),
@@ -605,10 +622,19 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
                 "source_dimensions": 3,
                 "simulation_dimensions": 3,
             },
-            # Every output's lower bound, then every output's upper bound.
-            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
-            + [from_numpy(bound.hi) for bound in bounds],
         )
+
+    def generate_reference(
+        self, dataset: ParticleSimulationCS267Dataset
+    ) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        return DataInstance(inputs=[], meta={}, ref_outputs=_bounds_reference(problem))
+
+
+class ParticleSimulationCS267ReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(ParticleSimulationCS267Generator())
 
 
 class ParticleSimulationEWAPDataset(ParticleSimulationDataset):
@@ -948,7 +974,13 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
             ),
         ]
 
-    def generate(self, dataset: ParticleSimulationDataset):
+    def generate(self, dataset: ParticleSimulationDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ReferenceGenerator(self).cached_generate(dataset)
+        problem.ref_outputs = reference.ref_outputs
+        return problem
+
+    def generate_inputs(self, dataset: ParticleSimulationDataset) -> DataInstance:
         if dataset.source_path is None or dataset.source_columns is None:
             raise ValueError(f"Particle dataset {dataset.name} has no NEMO source")
         inputs, meta = download_nemo_dataset(
@@ -961,17 +993,17 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
             include_mass="mass" in dataset.source_columns,
         )
         meta["parameters"] = dataset.parameters
-        x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
-        bounds = particle_sim_bounds(
-            x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], dataset.parameters
-        )
-        return DataInstance(
-            inputs=inputs,
-            meta=meta,
-            # Every output's lower bound, then every output's upper bound.
-            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
-            + [from_numpy(bound.hi) for bound in bounds],
-        )
+        return DataInstance(inputs=inputs, meta=meta)
+
+    def generate_reference(self, dataset: ParticleSimulationDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        return DataInstance(inputs=[], meta={}, ref_outputs=_bounds_reference(problem))
+
+
+class ParticleSimulationNEMOReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(ParticleSimulationNEMOGenerator())
 
 
 class ParticleSimulationBenchmark(Benchmark):

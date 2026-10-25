@@ -14,6 +14,8 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gcn import _SIGMAS, _UNIT_ROUNDOFF, gcn_reference
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
@@ -588,9 +590,15 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
 
     @property
     def cacheable(self) -> bool:
-        return True
+        return False
 
-    def generate(self, dataset: GCNBackwardDataset):
+    def generate(self, dataset: GCNBackwardDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        # The training target, from a float64 run, is the cached reference.
+        problem.meta.update(ReferenceGenerator(self).cached_generate(dataset).meta)
+        return problem
+
+    def generate_inputs(self, dataset: GCNBackwardDataset) -> DataInstance:
         feature_dim = dataset.feature_dim
         hidden_dim = dataset.hidden_dim
         out_dim = dataset.out_dim
@@ -627,17 +635,31 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
                 bias2_b,
                 targets_b,
             ],
-            meta=_training_meta(
-                to_scipy(A_bin),
-                features,
-                weights1,
-                bias1,
-                weights2,
-                bias2,
-                targets,
-                dataset,
-            ),
+            meta={},
         )
+
+    def generate_reference(self, dataset: GCNBackwardDataset) -> DataInstance:
+        adjacency, *dense = self.generate_inputs(dataset).inputs
+        features, weights1, bias1, weights2, bias2, targets = (
+            to_numpy(array) for array in dense
+        )
+        meta = _training_meta(
+            to_scipy(adjacency),
+            features,
+            weights1,
+            bias1,
+            weights2,
+            bias2,
+            targets,
+            dataset,
+        )
+        return DataInstance(inputs=[], meta=meta)
+
+
+class GCNBackwardSuiteSparseReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(GCNBackwardSuiteSparseGenerator())
 
 
 class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
@@ -682,13 +704,13 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
         return (
             "Uses complete real-world node features, graph structure, and labels "
             "from the Open Graph Benchmark for the GCN training loop. SAPS caches "
-            "the inputs with their training target, which takes a float64 run of "
-            "the training loop to find."
+            "the training target, which takes a float64 run of the training loop "
+            "to find, apart from the inputs the OGB shell already caches."
         )
 
     @property
     def cacheable(self) -> bool:
-        return True
+        return False
 
     @property
     def datasets(self) -> list[GCNBackwardOGBDataset]:
@@ -720,6 +742,12 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
         ]
 
     def generate(self, dataset: GCNBackwardOGBDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        # The training target, from a float64 run, is the cached reference.
+        problem.meta.update(ReferenceGenerator(self).cached_generate(dataset).meta)
+        return problem
+
+    def generate_inputs(self, dataset: GCNBackwardOGBDataset) -> DataInstance:
         graph = fetch_ogb_nodeprop_dataset(dataset.source_name)
         feature_dim = graph.num_features
         out_dim = graph.num_outputs
@@ -731,23 +759,6 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
         weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
         bias1 = np.zeros(hidden_dim, dtype=np.float32)
         bias2 = np.zeros(out_dim, dtype=np.float32)
-        meta = {
-            **graph.metadata,
-            "num_nodes": graph.num_nodes,
-            "num_raw_edges": graph.num_raw_edges,
-            "num_features": feature_dim,
-            "num_outputs": out_dim,
-            **_training_meta(
-                to_scipy(graph.adjacency),
-                graph.features,
-                weights1,
-                bias1,
-                weights2,
-                bias2,
-                targets,
-                dataset,
-            ),
-        }
         return DataInstance(
             inputs=[
                 graph.adjacency,
@@ -758,8 +769,37 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
                 from_numpy(bias2),
                 from_numpy(targets),
             ],
-            meta=meta,
+            meta={
+                **graph.metadata,
+                "num_nodes": graph.num_nodes,
+                "num_raw_edges": graph.num_raw_edges,
+                "num_features": feature_dim,
+                "num_outputs": out_dim,
+            },
         )
+
+    def generate_reference(self, dataset: GCNBackwardOGBDataset) -> DataInstance:
+        adjacency, *dense = self.generate_inputs(dataset).inputs
+        features, weights1, bias1, weights2, bias2, targets = (
+            to_numpy(array) for array in dense
+        )
+        meta = _training_meta(
+            to_scipy(adjacency),
+            features,
+            weights1,
+            bias1,
+            weights2,
+            bias2,
+            targets,
+            dataset,
+        )
+        return DataInstance(inputs=[], meta=meta)
+
+
+class GCNBackwardOGBReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ReferenceGenerator(GCNBackwardOGBGenerator())
 
 
 class GCNBackwardBenchmark(Benchmark):
