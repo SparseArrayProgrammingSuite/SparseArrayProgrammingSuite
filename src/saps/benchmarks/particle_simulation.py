@@ -165,7 +165,10 @@ def _may_interact(position, width, cells):
     ]
     occupied = np.unique(
         np.concatenate(
-            [np.ravel_multi_index(c, shape, mode="wrap") * n + np.arange(n) for c in corners]
+            [
+                np.ravel_multi_index(c, shape, mode="wrap") * n + np.arange(n)
+                for c in corners
+            ]
         )
     )
     owners = occupied % n
