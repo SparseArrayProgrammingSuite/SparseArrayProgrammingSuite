@@ -675,9 +675,9 @@ class WeightedModelCountingBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
         if self._ref_outputs is None:
             return
         result = float(to_numpy(self._output[0]))
@@ -686,17 +686,17 @@ class WeightedModelCountingBenchmark(Benchmark):
         bound = self._ref_meta["error_bound"]
         # The stored answer is typed in or parsed from the instance file, so check
         # it against an independent brute-force count before trusting it.
-        assert (
-            "reference_count" in self._ref_meta
-        ), "No NumPy reference count; regenerate the cached dataset"
+        assert "reference_count" in self._ref_meta, (
+            "No NumPy reference count; regenerate the cached dataset"
+        )
         reference = self._ref_meta["reference_count"]
         assert np.isclose(expected, reference, rtol=0, atol=bound), (
             f"Test '{param.dataset.name}' has stored count {expected}, but the "
             f"NumPy brute-force reference counts {reference}"
         )
-        assert np.isclose(
-            result, expected, rtol=0, atol=bound
-        ), f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
+        assert np.isclose(result, expected, rtol=0, atol=bound), (
+            f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"
+        )
 
 
 def parse_mccomp_problem_type(cnf_text: str) -> str | None:
