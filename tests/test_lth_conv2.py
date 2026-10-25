@@ -8,10 +8,12 @@ import numpy as np
 
 import onnx
 import onnxpy
-from binsparse.conversions import to_numpy
+from binsparse.conversions import from_numpy, to_numpy
 from onnx import TensorProto, helper, numpy_helper
+from onnx.reference import ReferenceEvaluator
 
 from frameworks.saps_numpy import NumpyFramework
+from saps.benchmarks import lth_conv2
 from saps.benchmarks.lth_conv2 import LTHConv2Benchmark
 
 
@@ -73,6 +75,16 @@ def conv_model(tmp_path, monkeypatch):
         size_threshold=0,
     )
     monkeypatch.setenv("LTH_CONV2_ONNX", str(model_path))
+    # Stand in for CIFAR-10 with images this model takes.
+    monkeypatch.setattr(
+        lth_conv2,
+        "_cifar10_test_images",
+        lambda count: (
+            np.random.default_rng(0)
+            .standard_normal((count, 1, 4, 4))
+            .astype(np.float32)
+        ),
+    )
     return model_path
 
 
@@ -127,8 +139,8 @@ def test_generated_function_is_inline_fixed_arity_and_inspectable(conv_model):
     nodes = list(ast.walk(ast.parse(source)))
     assert sum(isinstance(node, ast.FunctionDef) for node in nodes) == 1
     assert not any(isinstance(node, ast.For | ast.While | ast.Lambda) for node in nodes)
-    assert "xp.unfold(" in source
-    assert "xp.tensordot(" in source
+    assert "xp.conv(" in source
+    assert "xp.pool(" in source
     result = function(NumpyFramework(), problem.meta, *map(to_numpy, problem.inputs))
     np.testing.assert_allclose(
         result, to_numpy(problem.ref_outputs[0]), rtol=1e-4, atol=1e-4
@@ -167,3 +179,33 @@ def test_generator_validates_runtime_inputs(conv_model, invalid_input):
     param = LTHConv2Benchmark().params[0]
     with pytest.raises(ValueError, match=message):
         param.generator.generate(param.dataset)
+
+
+def test_exact_outputs_match_onnx_and_bound_its_float32_rounding(conv_model):
+    model = onnx.load(conv_model, load_external_data=True)
+    x = np.random.default_rng(1).standard_normal((1, 1, 4, 4)).astype(np.float32)
+
+    exact, sigma = lth_conv2._exact_outputs(model, {"input": x})
+
+    (float32,) = ReferenceEvaluator(model).run(None, {"input": x})
+    np.testing.assert_allclose(exact, float32, rtol=1e-5, atol=1e-6)
+    assert np.all(sigma > 0)
+    assert np.all(np.abs(float32 - exact) <= lth_conv2._SIGMAS * sigma)
+
+
+def test_check_accepts_rounding_and_rejects_larger_errors(conv_model):
+    benchmark = LTHConv2Benchmark()
+    param = benchmark.params[0]
+    problem = param.generator.generate(param.dataset)
+    benchmark._ref_outputs = problem.ref_outputs
+    benchmark._ref_meta = problem.ref_meta
+    exact, sigma = (to_numpy(array) for array in problem.ref_outputs)
+
+    benchmark._output = [from_numpy(exact.astype(np.float32))]
+    benchmark.check(param)
+
+    off = exact.copy()
+    off[0, 0] += 1.5 * benchmark._ref_meta["sigmas"] * sigma[0, 0]
+    benchmark._output = [from_numpy(off)]
+    with pytest.raises(AssertionError, match="standard deviations"):
+        benchmark.check(param)

@@ -5,8 +5,9 @@ import pytest
 
 import numpy as np
 
-from binsparse.conversions import from_numpy
+from binsparse.conversions import from_numpy, to_numpy
 
+from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks import weighted_model_counting
 from saps.benchmarks.weighted_model_counting import (
     WeightedModelCountingBenchmark,
@@ -79,7 +80,7 @@ def test_test_datasets_expected_matches_reference(dataset):
     num_vars, clauses, weights = parse_format(dataset.cnf_text)
     reference = (
         problem.meta["default_total"]
-        if problem.meta["expr"] is None
+        if problem.meta["exprs"] is None
         else float(referenceWeightedModelCount(num_vars, clauses, weights))
     )
     assert problem.ref_meta["reference_count"] == reference
@@ -91,9 +92,11 @@ def test_test_datasets_expected_matches_reference(dataset):
     )
 
 
-def test_mccomp_generator_leaves_projected_instances_unchecked(monkeypatch, tmp_path):
+def test_mccomp_generator_checks_the_projected_count(monkeypatch, tmp_path):
     source_path = tmp_path / "Track4_PWMC" / "random_pwmc_1.cnf"
     source_path.parent.mkdir()
+    # Both values of x1 extend to a model of (x1 or x2), so the count projected
+    # onto x1 is w(-x1) + w(x1) = 1, while the full count is 0.875.
     source_path.write_text(
         """\
         p cnf 2 1
@@ -102,7 +105,7 @@ def test_mccomp_generator_leaves_projected_instances_unchecked(monkeypatch, tmp_
         c p weight -1 0.25 0
         c p weight 1 0.75 0
         1 2 0
-        c c s exact arb float 7.5E-01
+        c c s exact arb float 1.0E+00
         """
     )
     monkeypatch.setattr(
@@ -110,14 +113,30 @@ def test_mccomp_generator_leaves_projected_instances_unchecked(monkeypatch, tmp_
         "download_mccomp_instance",
         lambda name: source_path,
     )
-    problem = WeightedModelCountingMCCompGenerator().generate(
-        WeightedModelCountingMCCompGenerator().datasets[0]
+    generator = WeightedModelCountingMCCompGenerator()
+    problem = generator.generate(generator.datasets[0])
+    assert problem.meta["shown"] == [1]
+    assert problem.ref_meta["reference_count"] == 1.0
+    assert to_numpy(problem.ref_outputs[0]) == 1.0
+
+    function = generator.generate_benchmark_function(
+        generator.datasets[0], problem, None
     )
-    # Track4 answers are projected over the "show" variables, so the full-sum
-    # benchmark output cannot be checked against them: no reference is attached.
-    assert problem.ref_outputs is None
-    assert problem.ref_meta is None
-    assert problem.meta["source_exact_is_projected"]
+    xp = NumpyFramework()
+    result = function(xp, problem.meta, *map(xp.from_binsparse, problem.inputs))
+    assert float(result) == 1.0
+    num_vars, clauses, weights = parse_format(source_path.read_text())
+    assert referenceWeightedModelCount(num_vars, clauses, weights) == 0.875
+
+
+def test_error_bound_counts_only_the_projected_models():
+    # Of x1's two values, only x1 = True extends to a model: one summand, one
+    # weight, so nothing rounds.
+    problem = weighted_model_counting._weighted_problem(
+        "p cnf 2 2\nc p show 1 0\nc p weight 1 0.75 0\n1 2 0\n1 -2 0\n"
+    )
+    assert problem.ref_meta["error_bound"] == 0.0
+    assert problem.ref_meta["reference_count"] == 0.75
 
 
 def _benchmark(result, expected, reference, *, error_bound=1e-9):

@@ -6,8 +6,12 @@ import torch._dynamo
 import torch.nn.functional as F
 from binsparse.conversions import from_torch, to_torch
 
-from saps_framework import Framework, normalize_unfold_args
-from saps_framework.einsum import Access, parse_einsum
+from saps_framework import (
+    Framework,
+    normalize_pad_width,
+    normalize_unfold_args,
+)
+from saps_framework.einsum import Access, nary_ops, parse_einsum, reduction_ops
 
 torch._dynamo.config.suppress_errors = True
 torch_xp.power = torch.pow  # type: ignore[attr-defined]
@@ -72,6 +76,27 @@ def _device() -> str:
     if not torch.cuda.is_available():
         raise RuntimeError("SAPS_DEVICE=gpu, but PyTorch cannot see a CUDA device")
     return "cuda"
+
+
+def _f_pad(x, pad_width, mode):
+    """Pad x with F.pad in a non-constant mode, or return None if F.pad can't.
+
+    These modes only pad the last 1-3 axes of an input with 1 or 2 leading
+    axes, and reflect and circular padding can't wrap past the other end.
+    """
+    padded = [axis for axis, pair in enumerate(pad_width) if pair != (0, 0)]
+    if not padded:
+        return x
+    trailing = x.ndim - padded[0]
+    if trailing > 3 or x.ndim - trailing not in (1, 2):
+        return None
+    for axis in padded:
+        if mode == "reflect" and max(pad_width[axis]) >= x.shape[axis]:
+            return None
+        if mode == "circular" and max(pad_width[axis]) > x.shape[axis]:
+            return None
+    pad = [width for pair in reversed(pad_width[padded[0] :]) for width in pair]
+    return F.pad(x, pad, mode=mode)
 
 
 class PytorchFramework(Framework):
@@ -150,28 +175,40 @@ class PytorchFramework(Framework):
         result = torch.einsum(equation, *(operand.to(dtype) for operand in operands))
         return result != 0 if logical_reduction else result
 
-    def unfold(
-        self,
-        x,
-        kernel_shape,
-        *,
-        axes=None,
-        strides=None,
-        dilations=None,
-        padding=None,
-        fill_value=0,
-    ):
+    def pad_constant(self, x, pad_width, *, fill_value=0):
         x = x.to_dense() if _is_sparse_tensor(x) else x
-        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+        pad_width = normalize_pad_width(x.ndim, pad_width)
+        if torch.is_tensor(fill_value):
+            fill_value = fill_value.detach().cpu().item()
+        # F.pad lists (before, after) pairs starting from the last axis.
+        pad = [width for pair in reversed(pad_width) for width in pair]
+        return F.pad(x, pad, mode="constant", value=float(fill_value))
+
+    def pad_reflect(self, x, pad_width):
+        x = x.to_dense() if _is_sparse_tensor(x) else x
+        padded = _f_pad(x, normalize_pad_width(x.ndim, pad_width), "reflect")
+        return super().pad_reflect(x, pad_width) if padded is None else padded
+
+    def pad_edge(self, x, pad_width):
+        x = x.to_dense() if _is_sparse_tensor(x) else x
+        padded = _f_pad(x, normalize_pad_width(x.ndim, pad_width), "replicate")
+        return super().pad_edge(x, pad_width) if padded is None else padded
+
+    def pad_wrap(self, x, pad_width):
+        x = x.to_dense() if _is_sparse_tensor(x) else x
+        padded = _f_pad(x, normalize_pad_width(x.ndim, pad_width), "circular")
+        return super().pad_wrap(x, pad_width) if padded is None else padded
+
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
+        x = x.to_dense() if _is_sparse_tensor(x) else x
+        axes_t, strides_t, dilations_t = normalize_unfold_args(
             x.ndim,
             kernel_shape,
             axes,
             strides,
             dilations,
-            padding,
         )
         kernel_t = tuple(int(size) for size in kernel_shape)
-        x = self._pad_for_unfold(x, axes_t, padding_t, fill_value)
 
         if x.ndim == 4 and axes_t == (2, 3):
             patches = F.unfold(
@@ -207,22 +244,104 @@ class PytorchFramework(Framework):
             slices[window_axis] = slice(None, None, dilation)
         return windows[tuple(slices)]
 
-    @staticmethod
-    def _pad_for_unfold(x, axes, padding, fill_value):
-        if not any(pair != (0, 0) for pair in padding):
-            return x
+    def conv(
+        self,
+        x,
+        w,
+        *,
+        strides=None,
+        dilations=None,
+        padding=None,
+        padding_mode="constant",
+        fill_value=0,
+        group=1,
+        combine="*",
+        reduce="+",
+    ):
+        if (
+            nary_ops[combine] == "multiply"
+            and reduction_ops[reduce] == "sum"
+            and 1 <= x.ndim - 2 <= 3
+            and x.ndim == w.ndim
+            and x.dtype == w.dtype
+            and x.dtype.is_floating_point
+        ):
+            x = x.to_dense() if _is_sparse_tensor(x) else x
+            w = w.to_dense() if _is_sparse_tensor(w) else w
+            axes = tuple(range(2, x.ndim))
+            _, strides_t, dilations_t = normalize_unfold_args(
+                x.ndim, w.shape[2:], axes, strides, dilations
+            )
+            x = self._pad(x, padding, axes, padding_mode, fill_value)
+            conv = (F.conv1d, F.conv2d, F.conv3d)[x.ndim - 3]
+            return conv(x, w, stride=strides_t, dilation=dilations_t, groups=group)
+        return super().conv(
+            x,
+            w,
+            strides=strides,
+            dilations=dilations,
+            padding=padding,
+            padding_mode=padding_mode,
+            fill_value=fill_value,
+            group=group,
+            combine=combine,
+            reduce=reduce,
+        )
 
-        full_padding = [(0, 0)] * x.ndim
-        for axis, pad_pair in zip(axes, padding, strict=True):
-            full_padding[axis] = pad_pair
+    def topk(self, x, k, *, axis=-1, largest=True):
+        x = x.to_dense() if _is_sparse_tensor(x) else x
+        # torch.topk orders ties arbitrarily; a stable sort keeps index order.
+        values, indices = torch.sort(x, dim=axis, descending=largest, stable=True)
+        return values.narrow(axis, 0, k), indices.narrow(axis, 0, k)
 
-        pad = []
-        for before, after in reversed(full_padding):
-            pad.extend((before, after))
-
-        if torch.is_tensor(fill_value):
-            fill_value = fill_value.detach().cpu().item()
-        return F.pad(x, tuple(pad), mode="constant", value=float(fill_value))
+    def pool(
+        self,
+        x,
+        kernel_shape,
+        *,
+        reduce,
+        strides=None,
+        dilations=None,
+        padding=None,
+        padding_mode="constant",
+        fill_value=0,
+    ):
+        rank = len(kernel_shape)
+        operation = reduction_ops[reduce]
+        if (
+            operation in ("max", "min", "mean")
+            and 1 <= rank <= 3
+            and x.ndim == rank + 2
+            and x.dtype.is_floating_point
+        ):
+            axes = tuple(range(2, x.ndim))
+            _, strides_t, dilations_t = normalize_unfold_args(
+                x.ndim, kernel_shape, axes, strides, dilations
+            )
+            # avg_pool has no dilation.
+            if operation != "mean" or all(dilation == 1 for dilation in dilations_t):
+                x = x.to_dense() if _is_sparse_tensor(x) else x
+                x = self._pad(x, padding, axes, padding_mode, fill_value)
+                kernel_t = tuple(int(size) for size in kernel_shape)
+                max_pool = (F.max_pool1d, F.max_pool2d, F.max_pool3d)[rank - 1]
+                if operation == "max":
+                    return max_pool(x, kernel_t, stride=strides_t, dilation=dilations_t)
+                if operation == "min":
+                    return -max_pool(
+                        -x, kernel_t, stride=strides_t, dilation=dilations_t
+                    )
+                avg_pool = (F.avg_pool1d, F.avg_pool2d, F.avg_pool3d)[rank - 1]
+                return avg_pool(x, kernel_t, stride=strides_t)
+        return super().pool(
+            x,
+            kernel_shape,
+            reduce=reduce,
+            strides=strides,
+            dilations=dilations,
+            padding=padding,
+            padding_mode=padding_mode,
+            fill_value=fill_value,
+        )
 
     def replace(self, arr, old, new):
         if _is_sparse_tensor(arr):

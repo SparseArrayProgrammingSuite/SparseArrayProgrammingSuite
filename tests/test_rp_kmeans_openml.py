@@ -156,7 +156,7 @@ def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatc
 
     instance = generator.generate(dataset)
 
-    assert not generator.cacheable
+    assert generator.cacheable
     np.testing.assert_array_equal(to_numpy(instance.inputs[0]), source_features)
     assert instance.inputs[1].shape == (4, 11)
     assert instance.meta["k"] == 2
@@ -204,7 +204,7 @@ def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):
 
     instance = generator.generate(dataset)
 
-    assert not generator.cacheable
+    assert generator.cacheable
     assert dataset.suites == ["standard"]
     assert instance.inputs[0].shape == (6, 5)
     assert instance.inputs[1].shape == (5, 112)

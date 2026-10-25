@@ -1,8 +1,9 @@
 from typing import Any, cast
 
 import numpy as np
+import scipy.sparse as sps
 
-from binsparse import BinsparseTensor, COORMatrix
+from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
 from saps.benchmark import (
@@ -14,8 +15,10 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.gcn import _SIGMAS, _UNIT_ROUNDOFF, gcn_reference
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
+from saps.downloaders.ogb import normalized_undirected_adjacency
 
 
 def _from_binsparse(array):
@@ -33,6 +36,62 @@ def _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets):
     predictions = z2 @ weights2 + bias2
     diff = predictions - targets
     return np.sum(diff * diff) / predictions.shape[0]
+
+
+def _loss_and_sigma(adjacency, features, weights1, bias1, weights2, bias2, targets):
+    """The exact MSE loss of these weights, and the standard deviation of the
+    error float32 rounding adds to computing it (see gcn.gcn_reference)."""
+    predictions, sigma = gcn_reference(
+        adjacency, features, weights1, bias1, weights2, bias2
+    )
+    diff = predictions - np.asarray(targets, dtype=np.float64)
+    n = predictions.shape[0]
+    loss = np.sum(diff * diff) / n
+    # Errors in the predictions reach the loss through 2 diff / n, and
+    # squaring and summing round diff.size + 2 more times.
+    variance = np.sum((2 * diff * sigma / n) ** 2)
+    variance += _UNIT_ROUNDOFF**2 * (diff.size + 2) * loss**2
+    return float(loss), float(np.sqrt(variance))
+
+
+def _training_meta(
+    adjacency, features, weights1, bias1, weights2, bias2, targets, dataset
+) -> dict[str, Any]:
+    """Train to the loss that float64 gradient descent reaches in
+    dataset.num_iterations steps, in at most twice as many."""
+    adjacency = sps.csr_array(adjacency, dtype=np.float64)
+    adjacency_t = adjacency.T.tocsr()
+    features, weights1, bias1, weights2, bias2, targets = (
+        np.asarray(array, dtype=np.float64)
+        for array in (features, weights1, bias1, weights2, bias2, targets)
+    )
+    lr = dataset.learning_rate
+    initial = _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets)
+    z1 = adjacency @ features
+    for _ in range(dataset.num_iterations):
+        h1_pre = z1 @ weights1 + bias1
+        h1 = np.maximum(h1_pre, 0)
+        z2 = adjacency @ h1
+        d_y = (2 / targets.shape[0]) * (z2 @ weights2 + bias2 - targets)
+        d_h1_pre = (adjacency_t @ (d_y @ weights2.T)) * (h1_pre > 0)
+        weights1 = weights1 - lr * (z1.T @ d_h1_pre)
+        bias1 = bias1 - lr * np.sum(d_h1_pre, axis=0)
+        weights2 = weights2 - lr * (z2.T @ d_y)
+        bias2 = bias2 - lr * np.sum(d_y, axis=0)
+    final = _gcn_loss(adjacency, features, weights1, bias1, weights2, bias2, targets)
+    if not final < initial:
+        raise ValueError(
+            f"Gradient descent doesn't lower the loss of {dataset.name}: "
+            f"{initial} -> {final}"
+        )
+    return {
+        "num_iterations": dataset.num_iterations,
+        "max_iter": 2 * dataset.num_iterations,
+        "learning_rate": lr,
+        # Float32 tracks float64 to about 1e-5 here, so it reaches this
+        # slightly looser target at the same step.
+        "rel_tol": float(final / initial) * (1 + 1e-3),
+    }
 
 
 def _targets_from_ogb_labels(labels: np.ndarray, num_outputs: int) -> np.ndarray:
@@ -262,7 +321,6 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
                 num_iterations=10,
                 learning_rate=0.01,
                 ref_meta={
-                    "check_loss_reduction": True,
                     "output_shapes": [(1,), (1, 1), (1,), (1, 1), (1,)],
                 },
             ),
@@ -306,7 +364,6 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
                 num_iterations=100,
                 learning_rate=0.01,
                 ref_meta={
-                    "check_loss_reduction": True,
                     "output_shapes": [(1,), (2, 3), (3,), (3, 2), (2,)],
                 },
             ),
@@ -324,7 +381,6 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
                 num_iterations=500,
                 learning_rate=0.01,
                 ref_meta={
-                    "check_loss_reduction": True,
                     "output_shapes": [(1,), (1, 4), (4,), (4, 1), (1,)],
                 },
             ),
@@ -342,7 +398,6 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
                 num_iterations=500,
                 learning_rate=0.01,
                 ref_meta={
-                    "check_loss_reduction": True,
                     "output_shapes": [(1,), (1, 4), (4,), (4, 1), (1,)],
                 },
             ),
@@ -380,10 +435,16 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
                 from_numpy(bias2),
                 from_numpy(targets),
             ],
-            meta={
-                "num_iterations": dataset.num_iterations,
-                "learning_rate": dataset.learning_rate,
-            },
+            meta=_training_meta(
+                adjacency,
+                features,
+                weights1,
+                bias1,
+                weights2,
+                bias2,
+                targets,
+                dataset,
+            ),
             ref_meta=ref_meta,
         )
 
@@ -527,7 +588,7 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     def generate(self, dataset: GCNBackwardDataset):
         feature_dim = dataset.feature_dim
@@ -547,16 +608,9 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
         bias2 = np.zeros((out_dim,), dtype=np.float32)
         targets = rng.standard_normal((n, out_dim), dtype=np.float32)
 
-        row, col = coo.row, coo.col
-        shape = coo.shape
-        values_f32 = coo.data.astype(np.float32, copy=False)
-        A_bin = COORMatrix(
-            shape,
-            len(values_f32),
-            indices_0=row,
-            indices_1=col,
-            values=values_f32,
-        )
+        # Normalize the graph's structure as OGB's GCNs do. Raw matrix values
+        # make gradient descent overflow within a few iterations.
+        A_bin = normalized_undirected_adjacency(np.stack([coo.row, coo.col]), n)
         features_b = from_numpy(features)
         weights1_b = from_numpy(weights1)
         bias1_b = from_numpy(bias1)
@@ -573,10 +627,16 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
                 bias2_b,
                 targets_b,
             ],
-            meta={
-                "num_iterations": dataset.num_iterations,
-                "learning_rate": dataset.learning_rate,
-            },
+            meta=_training_meta(
+                to_scipy(A_bin),
+                features,
+                weights1,
+                bias1,
+                weights2,
+                bias2,
+                targets,
+                dataset,
+            ),
         )
 
 
@@ -621,14 +681,14 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
     def motivation(self) -> str:
         return (
             "Uses complete real-world node features, graph structure, and labels "
-            "from the Open Graph Benchmark for the GCN training loop. SAPS caching "
-            "is disabled for these benchmark-specific training tensors because the "
-            "shared OGB shell generator caches the prepared source graph."
+            "from the Open Graph Benchmark for the GCN training loop. SAPS caches "
+            "the inputs with their training target, which takes a float64 run of "
+            "the training loop to find."
         )
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     @property
     def datasets(self) -> list[GCNBackwardOGBDataset]:
@@ -669,23 +729,33 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
         rng = np.random.default_rng(0)
         weights1 = rng.standard_normal((feature_dim, hidden_dim), dtype=np.float32)
         weights2 = rng.standard_normal((hidden_dim, out_dim), dtype=np.float32)
+        bias1 = np.zeros(hidden_dim, dtype=np.float32)
+        bias2 = np.zeros(out_dim, dtype=np.float32)
         meta = {
             **graph.metadata,
             "num_nodes": graph.num_nodes,
             "num_raw_edges": graph.num_raw_edges,
             "num_features": feature_dim,
             "num_outputs": out_dim,
-            "num_iterations": dataset.num_iterations,
-            "learning_rate": dataset.learning_rate,
+            **_training_meta(
+                to_scipy(graph.adjacency),
+                graph.features,
+                weights1,
+                bias1,
+                weights2,
+                bias2,
+                targets,
+                dataset,
+            ),
         }
         return DataInstance(
             inputs=[
                 graph.adjacency,
                 from_numpy(graph.features),
                 from_numpy(weights1),
-                from_numpy(np.zeros(hidden_dim, dtype=np.float32)),
+                from_numpy(bias1),
                 from_numpy(weights2),
-                from_numpy(np.zeros(out_dim, dtype=np.float32)),
+                from_numpy(bias2),
                 from_numpy(targets),
             ],
             meta=meta,
@@ -828,54 +898,30 @@ Each iteration:
                 "Output must be in binsparse format"
             )
 
-        if not self._ref_meta:
-            return
-
         outputs = [_from_binsparse(item) for item in self._output]
-
-        output_shapes = self._ref_meta.get("output_shapes")
+        output_shapes = (self._ref_meta or {}).get("output_shapes")
         if output_shapes is not None:
             for output, shape in zip(outputs, output_shapes, strict=True):
                 assert output.shape == tuple(shape)
 
-        if self._ref_meta.get("check_loss_reduction"):
-            (
-                adjacency,
-                features,
-                initial_w1,
-                initial_b1,
-                initial_w2,
-                initial_b2,
-                targets,
-            ) = [_from_binsparse(item) for item in self._input]
-            reported_loss, final_w1, final_b1, final_w2, final_b2 = outputs
-
-            initial_loss = _gcn_loss(
-                adjacency,
-                features,
-                initial_w1,
-                initial_b1,
-                initial_w2,
-                initial_b2,
-                targets,
-            )
-            final_weight_loss = _gcn_loss(
-                adjacency,
-                features,
-                final_w1,
-                final_b1,
-                final_w2,
-                final_b2,
-                targets,
-            )
-            assert reported_loss.item() < initial_loss, (
-                f"Reported loss should decrease: {reported_loss.item()} < "
-                f"{initial_loss}"
-            )
-            assert final_weight_loss < initial_loss, (
-                f"Final weights should reduce loss: {final_weight_loss} < "
-                f"{initial_loss}"
-            )
+        adjacency, *initial, targets = self._input
+        try:
+            adjacency = to_scipy(adjacency).tocsr()
+        except TypeError:
+            adjacency = sps.csr_array(to_numpy(adjacency))
+        initial = [to_numpy(item) for item in initial]
+        targets = to_numpy(targets)
+        _, *final = outputs
+        initial_loss, initial_sigma = _loss_and_sigma(adjacency, *initial, targets)
+        loss, sigma = _loss_and_sigma(adjacency, initial[0], *final, targets)
+        assert np.isfinite(loss) and np.isfinite(sigma), "Non-finite loss"
+        # Training stops once its rounded loss is below rel_tol times its
+        # rounded initial loss; allow _SIGMAS standard deviations of rounding.
+        rel_tol = self._meta["rel_tol"]
+        limit = rel_tol * (initial_loss + _SIGMAS * initial_sigma) + _SIGMAS * sigma
+        assert loss <= limit, (
+            f"GCN training loss too high for {param.dataset.name}: {loss} > {limit}"
+        )
 
     """
     Args:
@@ -896,10 +942,12 @@ Each iteration:
         Initial bias for second GCN layer b2 (O,)
     targets_bench : BinsparseTensor
         Target values T (N x O) for MSE loss
-    num_iterations : int
-        Number of training iterations (default 10)
+    max_iter : int
+        Most gradient descent steps to take
+    rel_tol : float
+        Stop once the loss is at most rel_tol times the initial loss
     learning_rate : float
-        Learning rate for gradient descent (default 0.01)
+        Learning rate for gradient descent
 
     Returns:
     -------
@@ -920,10 +968,12 @@ Each iteration:
         targets,
     ):
         adjacency_T = adjacency.T
-        num_iterations = meta["num_iterations"]
+        max_iter = meta["max_iter"]
+        rel_tol = meta["rel_tol"]
         learning_rate = meta["learning_rate"]
 
-        for _ in range(num_iterations):
+        target = None
+        for _ in range(max_iter):
             # Forward pass
             Z1 = adjacency @ features  # (N × F)
             H1_pre = Z1 @ weights1 + bias1  # (N × H)
@@ -935,6 +985,10 @@ Each iteration:
             N = Y.shape[0]
             diff = Y - targets
             loss = xp.sum(diff * diff) / N
+            if target is None:
+                target = rel_tol * loss
+            if loss <= target:
+                break
 
             # Backward pass
             dY = (2 / N) * diff

@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Any
 
 import numpy as np
@@ -5,6 +6,7 @@ import numpy as np
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps.util.error_bounds import summation_error_bound
 
 
 class RQCStatevectorDataset(Dataset):
@@ -15,8 +17,6 @@ class RQCStatevectorDataset(Dataset):
         description: str,
         gate_sequence: list[tuple[str, int]],
         suites: list[str] | None = None,
-        expected: np.ndarray | None = None,
-        ref_meta: dict[str, Any] | None = None,
         pretty_name: str | None = None,
     ):
         self._suites = suites or []
@@ -25,8 +25,6 @@ class RQCStatevectorDataset(Dataset):
         self.nqubits = nqubits
         self.dataset_description = description
         self.gate_sequence = gate_sequence
-        self.expected = expected
-        self.ref_meta = ref_meta or {}
 
     @property
     def name(self) -> str:
@@ -175,7 +173,6 @@ class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
                 ],
                 pretty_name="Single Layer Tiny",
                 suites=["test"],
-                ref_meta={"check_norm": True, "norm_atol": 1e-4},
             ),
         ]
 
@@ -196,7 +193,14 @@ class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
                 from_numpy(QGates.T),
             ],
             meta={"nqubits": nqubits, "gate_sequence": dataset.gate_sequence},
-            ref_meta=dataset.ref_meta,
+            ref_outputs=[
+                from_numpy(product_state_reference(nqubits, dataset.gate_sequence))
+            ],
+            # The framework and the reference each stay within a bound of exact.
+            ref_meta={
+                "error_bound": statevector_error_bound(len(dataset.gate_sequence))
+                + statevector_error_bound(len(dataset.gate_sequence) + nqubits - 1)
+            },
         )
 
 
@@ -215,12 +219,31 @@ def _zero_state(nqubits):
     return state
 
 
-def _expected_zero_state_after_gate(nqubits, gate_np, qubit):
-    expected = np.zeros(1 << nqubits, dtype=np.complex128)
-    flipped_idx = 1 << (nqubits - 1 - qubit)
-    expected[0] = gate_np[0, 0]
-    expected[flipped_idx] = gate_np[1, 0]
-    return expected
+def product_state_reference(nqubits, gate_sequence):
+    """The circuit's final state, built one qubit at a time.
+
+    Every gate acts on a single qubit, so the state stays a Kronecker product of
+    per-qubit states, with qubit 0 the most significant.
+    """
+    qubits = [np.array([1, 0], dtype=np.complex128) for _ in range(nqubits)]
+    for gate_name, qubit in gate_sequence:
+        qubits[qubit] = getattr(QGates, gate_name) @ qubits[qubit]
+    return reduce(np.kron, qubits)
+
+
+def statevector_error_bound(steps):
+    """Bound the 2-norm distance between exact arithmetic and any float64
+    evaluation of `steps` single-qubit gates or Kronecker products on |0...0>.
+
+    Each step computes every amplitude from at most two complex products, so it
+    rounds by at most gamma * ||G||_F * ||psi||, where ||G||_F is at most
+    sqrt(2) (1 + 2 eps). Later steps are unitary up to the rounding of their
+    entries, so they grow an earlier error by at most 1 + 2 eps, never compounding.
+    """
+    eps = np.finfo(np.float64).eps
+    # A dot product of two terms, counted as in the matrix benchmarks.
+    gamma = summation_error_bound(np, 2 + 1, 1.0, np.complex128)
+    return float(steps * gamma * np.sqrt(2) * (1 + 2 * eps) ** (steps + 1))
 
 
 class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
@@ -285,7 +308,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 ],
                 pretty_name="Basic",
                 suites=["test"],
-                ref_meta={"check_norm": True, "norm_atol": 1e-4},
             ),
             RQCStatevectorDataset(
                 "gate_h_q0",
@@ -294,8 +316,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("H", 0)],
                 pretty_name="H Gate (Qubit 0)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.H, 0),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_h_q1",
@@ -304,8 +324,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("H", 1)],
                 pretty_name="H Gate (Qubit 1)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.H, 1),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_h_q2",
@@ -314,8 +332,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("H", 2)],
                 pretty_name="H Gate (Qubit 2)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.H, 2),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_h_q3",
@@ -324,8 +340,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("H", 3)],
                 pretty_name="H Gate (Qubit 3)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.H, 3),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_x_q0",
@@ -334,8 +348,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("X", 0)],
                 pretty_name="X Gate (Qubit 0)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.X, 0),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_x_q1",
@@ -344,8 +356,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("X", 1)],
                 pretty_name="X Gate (Qubit 1)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.X, 1),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_x_q2",
@@ -354,8 +364,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("X", 2)],
                 pretty_name="X Gate (Qubit 2)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.X, 2),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_x_q3",
@@ -364,8 +372,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("X", 3)],
                 pretty_name="X Gate (Qubit 3)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.X, 3),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_y_q0",
@@ -374,8 +380,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Y", 0)],
                 pretty_name="Y Gate (Qubit 0)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Y, 0),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_y_q1",
@@ -384,8 +388,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Y", 1)],
                 pretty_name="Y Gate (Qubit 1)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Y, 1),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_y_q2",
@@ -394,8 +396,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Y", 2)],
                 pretty_name="Y Gate (Qubit 2)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Y, 2),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_y_q3",
@@ -404,8 +404,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Y", 3)],
                 pretty_name="Y Gate (Qubit 3)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Y, 3),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_z_q0",
@@ -414,8 +412,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Z", 0)],
                 pretty_name="Z Gate (Qubit 0)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Z, 0),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_z_q1",
@@ -424,8 +420,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Z", 1)],
                 pretty_name="Z Gate (Qubit 1)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Z, 1),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_z_q2",
@@ -434,8 +428,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Z", 2)],
                 pretty_name="Z Gate (Qubit 2)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Z, 2),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_z_q3",
@@ -444,8 +436,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("Z", 3)],
                 pretty_name="Z Gate (Qubit 3)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.Z, 3),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_s_q0",
@@ -454,8 +444,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("S", 0)],
                 pretty_name="S Gate (Qubit 0)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.S, 0),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_s_q1",
@@ -464,8 +452,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("S", 1)],
                 pretty_name="S Gate (Qubit 1)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.S, 1),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_s_q2",
@@ -474,8 +460,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("S", 2)],
                 pretty_name="S Gate (Qubit 2)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.S, 2),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_s_q3",
@@ -484,8 +468,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("S", 3)],
                 pretty_name="S Gate (Qubit 3)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.S, 3),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_t_q0",
@@ -494,8 +476,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("T", 0)],
                 pretty_name="T Gate (Qubit 0)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.T, 0),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_t_q1",
@@ -504,8 +484,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("T", 1)],
                 pretty_name="T Gate (Qubit 1)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.T, 1),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_t_q2",
@@ -514,8 +492,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("T", 2)],
                 pretty_name="T Gate (Qubit 2)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.T, 2),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "gate_t_q3",
@@ -524,8 +500,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("T", 3)],
                 pretty_name="T Gate (Qubit 3)",
                 suites=["test"],
-                expected=_expected_zero_state_after_gate(4, QGates.T, 3),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
             RQCStatevectorDataset(
                 "h_twice",
@@ -534,15 +508,11 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 [("H", 2), ("H", 2)],
                 pretty_name="H Twice",
                 suites=["test"],
-                expected=_zero_state(5),
-                ref_meta={"atol": 1e-13, "rtol": 1e-13},
             ),
         ]
 
     def generate(self, dataset: RQCStatevectorDataset) -> DataInstance:
-        ref_outputs = None
-        if dataset.expected is not None:
-            ref_outputs = [from_numpy(dataset.expected)]
+        nqubits = dataset.nqubits
         return DataInstance(
             inputs=[
                 from_numpy(_zero_state(dataset.nqubits)),
@@ -554,11 +524,17 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
                 from_numpy(QGates.T),
             ],
             meta={
-                "nqubits": dataset.nqubits,
+                "nqubits": nqubits,
                 "gate_sequence": dataset.gate_sequence,
             },
-            ref_outputs=ref_outputs,
-            ref_meta=dataset.ref_meta,
+            ref_outputs=[
+                from_numpy(product_state_reference(nqubits, dataset.gate_sequence))
+            ],
+            # The framework and the reference each stay within a bound of exact.
+            ref_meta={
+                "error_bound": statevector_error_bound(len(dataset.gate_sequence))
+                + statevector_error_bound(len(dataset.gate_sequence) + nqubits - 1)
+            },
         )
 
 
@@ -656,16 +632,12 @@ class RQCStatevectorBenchmark(Benchmark):
         assert output_bin.shape == (1 << self._meta["nqubits"],)
         result = to_numpy(output_bin)
         assert result.dtype == np.complex128
+        assert self._ref_outputs is not None, "No reference state; regenerate it"
 
-        if self._ref_meta.get("check_norm"):
-            norm = np.sqrt(np.sum(np.abs(result) ** 2))
-            assert abs(norm - 1.0) < self._ref_meta["norm_atol"]
-
-        if self._ref_outputs is not None:
-            expected = to_numpy(self._ref_outputs[0])
-            np.testing.assert_allclose(
-                result,
-                expected,
-                atol=self._ref_meta["atol"],
-                rtol=self._ref_meta["rtol"],
-            )
+        distance = np.linalg.norm(result - to_numpy(self._ref_outputs[0]))
+        # Computing the distance itself rounds by at most this factor.
+        slack = 1 + summation_error_bound(np, 2 * result.size + 2, 1.0, np.float64)
+        assert distance <= self._ref_meta["error_bound"] * slack, (
+            f"Statevector for {param.dataset.name} is {distance} from the reference,"
+            f" beyond the bound {self._ref_meta['error_bound']}"
+        )

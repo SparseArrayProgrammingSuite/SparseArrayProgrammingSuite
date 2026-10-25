@@ -22,7 +22,7 @@ from saps.benchmarks.weighted_model_counting import (
     parse_format,
 )
 from saps.benchmarks.weighted_model_counting import (
-    clauses_to_einsum as wmc_clauses_to_einsum,
+    clauses_to_einsums as wmc_clauses_to_einsums,
 )
 from saps.downloaders.mccomp import (
     download_mccomp_instance,
@@ -89,7 +89,7 @@ def test_shared_dimacs_parser_rejects_out_of_range_literals():
 def test_empty_dimacs_clause_builds_false_formula():
     assert parse_dimacs("p cnf 2 1\n0\n") == (2, [[]])
     assert mc_clauses_to_einsum([[]]) == "s[] += False"
-    assert wmc_clauses_to_einsum([[]], 2) == "s[] += False"
+    assert wmc_clauses_to_einsums([[]], 2, [1, 2]) == ["s[] += False"]
 
 
 def test_weighted_parser_reuses_dimacs_clause_shape():
@@ -174,12 +174,13 @@ def test_weighted_mccomp_track4_generator_parses_downloaded_source(
     source_path.parent.mkdir()
     source_path.write_text(
         """\
-        p cnf 2 1
+        p cnf 2 2
         c t pwmc
         c p show 1 0
         c p weight -1 0.25 0
         c p weight 1 0.75 0
         1 2 0
+        1 -2 0
         c c s exact arb float 7.5E-01
         """
     )
@@ -197,7 +198,10 @@ def test_weighted_mccomp_track4_generator_parses_downloaded_source(
 
     instance = generator.generate(generator.datasets[0])
 
-    assert instance.ref_outputs is None
+    # Only x1 = True extends to a model, so the projected count is w(x1).
+    assert instance.meta["shown"] == [1]
+    assert to_numpy(instance.ref_outputs[0]) == 0.75
+    assert instance.ref_meta["reference_count"] == 0.75
     assert instance.meta["source_problem_type"] == "pwmc"
     assert instance.meta["source_exact_type"] == "float"
     assert instance.meta["source_exact_value"] == "7.5E-01"
