@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import cache
 from string import ascii_letters
 
 import numpy as np
@@ -436,6 +437,8 @@ def _parse_einsum_expr(t: Tree) -> EinsumExpr:
             raise ValueError(f"Unknown tree structure: {t}")
 
 
+# Parsing takes milliseconds; programs are reused often and never mutated.
+@cache
 def parse_einsum(expr: str) -> Einsum:
     tree = lark_parser.parse(expr)
     # print(f"Parsed tree: {tree.pretty()}")

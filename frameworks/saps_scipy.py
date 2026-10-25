@@ -28,9 +28,16 @@ from binsparse.conversions import (
 from saps_framework import (
     Framework,
     einsum,
+    normalize_pad_width,
     normalize_unfold_args,
     unfold_output_shape,
 )
+
+# Tests import frameworks as a package; the harness loads them from their folder.
+try:
+    from frameworks.saps_numpy import NumpyFramework
+except ImportError:
+    from saps_numpy import NumpyFramework  # type: ignore[no-redef]
 
 
 class ScipyLinalg:
@@ -39,6 +46,13 @@ class ScipyLinalg:
         b_dense = np.asarray(b).ravel()
 
         if sps.issparse(A):
+            # A triangular system, like an LU factor, needs only substitution.
+            # spsolve would factor it again, with pivoting that loses accuracy.
+            A = sps.csr_array(A)
+            if sps.triu(A, 1).count_nonzero() == 0:
+                return spla.spsolve_triangular(A, b_dense, lower=True)
+            if sps.tril(A, -1).count_nonzero() == 0:
+                return spla.spsolve_triangular(A, b_dense, lower=False)
             return spla.spsolve(A, b_dense, **kwargs)
         return la.solve(A, b_dense, **kwargs)
 
@@ -55,25 +69,9 @@ class ScipyLinalg:
         return la.lstsq(a, b, **kwargs)
 
 
-def _value_is_zero(value) -> bool:
-    array = np.asarray(value)
-    return array.shape == () and array.item() == 0
-
-
-def _axis_unfold_map(
-    input_size, output_size, kernel_index, stride, dilation, pad_pair, dtype
-):
-    padded_size = input_size + pad_pair[0] + pad_pair[1]
-    padded_input = sps.eye(
-        padded_size,
-        input_size,
-        k=-pad_pair[0],
-        dtype=dtype,
-        format="csr",
-    )
+def _axis_unfold_map(input_size, output_size, kernel_index, stride, dilation, dtype):
     positions = np.arange(output_size) * stride + kernel_index * dilation
-    window_positions = sps.eye(padded_size, dtype=dtype, format="csr")[positions, :]
-    return window_positions @ padded_input
+    return sps.eye_array(input_size, dtype=dtype, format="csr")[positions]
 
 
 def _kron_all(matrices):
@@ -101,7 +99,6 @@ def _sparse_unfold_with_diagonals(
     axes,
     strides,
     dilations,
-    padding,
 ):
     input_shape = tuple(int(dim) for dim in matrix.shape)
     output_shape = unfold_output_shape(
@@ -110,7 +107,6 @@ def _sparse_unfold_with_diagonals(
         axes,
         strides,
         dilations,
-        padding,
     )
     output_core_shape = output_shape[: matrix.ndim]
     axis_positions = {axis: i for i, axis in enumerate(axes)}
@@ -130,7 +126,6 @@ def _sparse_unfold_with_diagonals(
                         kernel_index[position],
                         strides[position],
                         dilations[position],
-                        padding[position],
                         matrix.dtype,
                     )
                 )
@@ -160,9 +155,14 @@ def _sparse_unfold_with_diagonals(
     return pydata_sparse.COO(output_coords, output_data, shape=output_shape)
 
 
+def _is_sparse(array):
+    return sps.issparse(array) or isinstance(array, pydata_sparse.SparseArray)
+
+
 class SciPyFramework(Framework):
     def __init__(self):
         self._modules = [sps, compat_np, sp, np]
+        self._numpy = NumpyFramework()
 
     @staticmethod
     def _array_namespace(*arrays):
@@ -207,7 +207,21 @@ class SciPyFramework(Framework):
         return array
 
     def einsum(self, prgm, **kwargs):
-        return einsum(self, prgm, **kwargs)
+        if any(_is_sparse(arg) for arg in kwargs.values()):
+            return einsum(self, prgm, **kwargs)
+        return self._numpy.einsum(prgm, **kwargs)
+
+    # SciPy has no sparse convolution, so only dense inputs have a fast path.
+
+    def conv(self, x, w, **kwargs):
+        if _is_sparse(x) or _is_sparse(w):
+            return super().conv(x, w, **kwargs)
+        return self._numpy.conv(x, w, **kwargs)
+
+    def pool(self, x, kernel_shape, **kwargs):
+        if _is_sparse(x):
+            return super().pool(x, kernel_shape, **kwargs)
+        return self._numpy.pool(x, kernel_shape, **kwargs)
 
     def permute_dims(self, a, axes):
         if sps.issparse(a):
@@ -231,63 +245,79 @@ class SciPyFramework(Framework):
             return x2.multiply(x1)
         return compat_np.multiply(x1, x2)
 
-    def unfold(
-        self,
-        x,
-        kernel_shape,
-        *,
-        axes=None,
-        strides=None,
-        dilations=None,
-        padding=None,
-        fill_value=0,
-    ):
-        if sps.issparse(x) and _value_is_zero(fill_value):
+    def concat(self, arrays, /, *, axis=0):
+        if not any(sps.issparse(array) for array in arrays):
+            return compat_np.concat(arrays, axis=axis)
+        ndim = arrays[0].ndim
+        axis %= ndim
+        if ndim == 2:
+            stack = sps.vstack if axis == 0 else sps.hstack
+            return stack(arrays, format="coo")
+        # scipy.sparse only stacks 2D arrays, so offset COO coordinates instead.
+        arrays = [sps.coo_array(array) for array in arrays]
+        coords = []
+        offset = 0
+        for array in arrays:
+            shifted = list(array.coords)
+            shifted[axis] = shifted[axis] + offset
+            coords.append(np.stack(shifted))
+            offset += array.shape[axis]
+        shape = list(arrays[0].shape)
+        shape[axis] = offset
+        return sps.coo_array(
+            (
+                np.concatenate([array.data for array in arrays]),
+                tuple(np.concatenate(coords, axis=1)),
+            ),
+            shape=tuple(shape),
+        )
+
+    # scipy.sparse can't pad, so sparse arrays fall back to concatenation.
+
+    def pad_constant(self, x, pad_width, *, fill_value=0):
+        if sps.issparse(x):
+            return super().pad_constant(x, pad_width, fill_value=fill_value)
+        pad_width = normalize_pad_width(np.ndim(x), pad_width)
+        return np.pad(x, pad_width, mode="constant", constant_values=fill_value)
+
+    def pad_reflect(self, x, pad_width):
+        if sps.issparse(x):
+            return super().pad_reflect(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="reflect")
+
+    def pad_edge(self, x, pad_width):
+        if sps.issparse(x):
+            return super().pad_edge(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="edge")
+
+    def pad_wrap(self, x, pad_width):
+        if sps.issparse(x):
+            return super().pad_wrap(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="wrap")
+
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
+        kernel_t = tuple(int(size) for size in kernel_shape)
+        if sps.issparse(x):
             matrix = sps.coo_array(x)
-            kernel_t = tuple(int(size) for size in kernel_shape)
-            axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
-                matrix.ndim,
-                kernel_t,
-                axes,
-                strides,
-                dilations,
-                padding,
+            axes_t, strides_t, dilations_t = normalize_unfold_args(
+                matrix.ndim, kernel_t, axes, strides, dilations
             )
             return _sparse_unfold_with_diagonals(
-                matrix,
-                kernel_t,
-                axes_t,
-                strides_t,
-                dilations_t,
-                padding_t,
+                matrix, kernel_t, axes_t, strides_t, dilations_t
             )
 
-        array = x.toarray() if sps.issparse(x) else x
-        array = np.asarray(array)
-        kernel_t = tuple(int(size) for size in kernel_shape)
-        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+        array = np.asarray(x)
+        axes_t, strides_t, dilations_t = normalize_unfold_args(
             array.ndim,
             kernel_t,
             axes,
             strides,
             dilations,
-            padding,
         )
         effective_kernel = tuple(
             (kernel - 1) * dilation + 1
             for kernel, dilation in zip(kernel_t, dilations_t, strict=True)
         )
-
-        pad_width = [(0, 0)] * array.ndim
-        for axis, pad_pair in zip(axes_t, padding_t, strict=True):
-            pad_width[axis] = pad_pair
-        if any(pair != (0, 0) for pair in pad_width):
-            array = np.pad(
-                array,
-                pad_width,
-                mode="constant",
-                constant_values=fill_value,
-            )
 
         windows = np.lib.stride_tricks.sliding_window_view(  # type: ignore[call-overload]
             array,

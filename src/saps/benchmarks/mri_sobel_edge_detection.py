@@ -2,6 +2,7 @@ import os
 from typing import Any
 
 import numpy as np
+from scipy import ndimage
 
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, to_numpy
@@ -121,24 +122,15 @@ class MRISobelEdgeDetectionDataset(Dataset):
         return data
 
 
-def expected_sobel_edge(image, threshold):
-    img_m1_m1 = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
-    img_m1_0 = np.roll(image, 1, axis=0)
-    img_m1_p1 = np.roll(np.roll(image, 1, axis=0), -1, axis=1)
+def reference_sobel_edge(image, threshold):
+    """Threshold the Sobel gradient magnitude computed by scipy.ndimage.
 
-    img_p1_m1 = np.roll(np.roll(image, -1, axis=0), 1, axis=1)
-    img_p1_0 = np.roll(image, -1, axis=0)
-    img_p1_p1 = np.roll(np.roll(image, -1, axis=0), -1, axis=1)
-
-    gx = (img_p1_m1 + 2 * img_p1_0 + img_p1_p1) - (img_m1_m1 + 2 * img_m1_0 + img_m1_p1)
-
-    img_0_m1 = np.roll(image, 1, axis=1)
-    img_0_p1 = np.roll(image, -1, axis=1)
-
-    gy = (img_m1_p1 + 2 * img_0_p1 + img_p1_p1) - (img_m1_m1 + 2 * img_0_m1 + img_p1_m1)
-
-    magnitude = np.abs(gx) + np.abs(gy)
-    return magnitude > threshold
+    Pixels are 8-bit integers, so float64 gradients are exact.
+    """
+    image = np.asarray(image, dtype=np.float64)
+    gx = ndimage.sobel(image, axis=0, mode="wrap")
+    gy = ndimage.sobel(image, axis=1, mode="wrap")
+    return np.abs(gx) + np.abs(gy) > np.float32(threshold)
 
 
 class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]):
@@ -244,11 +236,10 @@ class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]
 
     def generate(self, dataset: MRISobelEdgeDetectionDataset) -> DataInstance:
         problem = MRISobelEdgeDetectionKaggleGenerator().generate(dataset)
-        expected = expected_sobel_edge(dataset.image, dataset.threshold_val)
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
-            ref_outputs=[from_numpy(expected)],
+            ref_outputs=problem.ref_outputs,
             ref_meta=dataset.ref_meta,
         )
 
@@ -353,9 +344,12 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
 
         Nx, Ny = img_array.shape
         dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
+        # Computed here so it is cached with the dataset; check only compares.
+        expected = reference_sobel_edge(img_array, dataset.threshold_val)
         return DataInstance(
             inputs=[image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin],
             meta={},
+            ref_outputs=[from_numpy(expected)],
         )
 
 
@@ -453,15 +447,22 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, (
+            "No scipy.ndimage reference edge map; regenerate the cached dataset"
+        )
 
         actual = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
 
         assert self._meta == {}
-        assert actual.shape == expected.shape
-        assert np.all(actual == expected)
+        assert actual.shape == expected.shape, (
+            f"Expected edge map shape {expected.shape}, got {actual.shape}"
+        )
+        mismatches = np.count_nonzero(actual != expected)
+        assert mismatches == 0, (
+            f"{mismatches} of {expected.size} pixels differ from the "
+            "scipy.ndimage Sobel reference"
+        )
 
         if self._ref_meta is None:
             return

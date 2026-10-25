@@ -60,7 +60,8 @@ def test_generator_builds_fixed_arity_function(
     parameters = list(inspect.signature(function).parameters)
     assert parameters == ["xp", "meta", *expected_params]
     source = inspect.getsource(function)
-    assert repr(problem.meta["expr"]) in source
+    for expr in problem.meta.get("exprs") or [problem.meta["expr"]]:
+        assert repr(expr) in source
     with pytest.raises(NotImplementedError):
         benchmark.benchmark(NumpyFramework(), problem.meta)
 

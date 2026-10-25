@@ -6,6 +6,7 @@ from textwrap import indent
 from typing import Any, TypeVar
 
 import numpy as np
+import scipy.sparse as scipy_sparse
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
@@ -27,11 +28,12 @@ from saps.downloaders.slicot import (
 )
 
 
-def _dense_binsparse_array(array: BinsparseTensor):
+def _matrix(array: BinsparseTensor):
+    """A dense array as NumPy, or a sparse matrix as SciPy CSR."""
     try:
         return to_numpy(array)
     except TypeError:
-        return to_scipy(array).toarray()
+        return to_scipy(array).tocsr()
 
 
 def _step_input(t):
@@ -169,6 +171,151 @@ def _resolve_derivatives(problem_name):
             return _linear_system_derivatives
         case _:
             raise NotImplementedError(f"Unknown ODE problem: {problem_name!r}")
+
+
+# Running error analysis for the checks. Each method's step is recomputed with
+# a bound on how far its rounding can take it from the exact step: an operation
+# rounds at most once per term, and an error e in f's argument moves f by at
+# most spread(t, x, e). Higham's gamma_n uses eps, as saps.util.error_bounds does.
+_EPS = np.finfo(np.float64).eps
+# Each rounding can also lose this much to underflow (Higham, section 2.1).
+_UNDERFLOW = np.finfo(np.float64).smallest_subnormal
+
+
+def _gamma(n, *arrays):
+    # A complex operation is up to four real ones, as in saps.util.error_bounds.
+    if any(np.iscomplexobj(array) for array in arrays):
+        n = 4 * n
+    return n * _EPS / (1 - n * _EPS)
+
+
+def _row_counts(matrix):
+    """The stored nonzeros in each row: the terms each row of a product sums."""
+    if hasattr(matrix, "indptr"):
+        return np.diff(matrix.indptr)
+    return np.count_nonzero(matrix, axis=1)
+
+
+class _StepModel:
+    """A problem's derivative f(t, x) with the pieces its error bound needs.
+
+    magnitude(t, x) is f with every term made nonnegative, spread(t, x, e)
+    bounds |f(t, x + d) - f(t, x)| over |d| <= e, and rounds counts the
+    roundings in each component of f.
+    """
+
+    def __init__(self, f, magnitude, spread, rounds):
+        self.f, self.magnitude, self.spread, self.rounds = f, magnitude, spread, rounds
+
+    def evaluate(self, t, x, error):
+        """f(t, x), and a bound on its distance from f at the exact argument."""
+        value = np.asarray(self.f(t, x))
+        error = np.broadcast_to(np.asarray(error, dtype=np.float64), value.shape)
+        bound = _gamma(self.rounds + 1, value, x) * self.magnitude(t, x)
+        bound = bound + 4 * (self.rounds + 1) * _UNDERFLOW
+        return value, bound + self.spread(t, x, error)
+
+
+def _axpy(y, scale, k, k_error):
+    """y + k * scale, as the methods compute it, with its error bound."""
+    value = y + k * scale
+    rounding = _gamma(2, y, k) * (np.abs(y) + abs(scale) * np.abs(k)) + 8 * _UNDERFLOW
+    return value, abs(scale) * k_error + rounding
+
+
+def _product_spread(x, y, ex, ey):
+    """Bounds |(x + dx)(y + dy) - x y| over |dx| <= ex, |dy| <= ey."""
+    return (np.abs(x) + ex) * (np.abs(y) + ey) - np.abs(x) * np.abs(y)
+
+
+def _step_model(meta, data) -> _StepModel:
+    match meta["problem_name"]:
+        case "ode_rc":
+            tau = meta["R"] * meta["C"]
+            return _StepModel(
+                lambda t, x: _rc_derivatives(t, list(x), meta),
+                lambda t, x: (abs(_step_input(t)) + np.abs(x)) / abs(tau),
+                lambda t, x, e: e / abs(tau),
+                2,
+            )
+        case "ode_rlc":
+            rc, lc = meta["R"] * meta["C"], meta["L"] * meta["C"]
+            return _StepModel(
+                lambda t, x: _rlc_derivatives(t, list(x), meta),
+                lambda t, x: np.array(
+                    [
+                        abs(x[1]),
+                        (abs(_step_input(t)) + abs(x[0]) + abs(rc * x[1])) / abs(lc),
+                    ]
+                ),
+                lambda t, x, e: np.array([e[1], (e[0] + abs(rc) * e[1]) / abs(lc)]),
+                np.array([0, 4]),
+            )
+        case "ode_lotka_volterra":
+            a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
+
+            def spread(t, x, e):
+                xy = _product_spread(x[0], x[1], e[0], e[1])
+                return np.array(
+                    [abs(a) * e[0] + abs(b) * xy, abs(d) * xy + abs(c) * e[1]]
+                )
+
+            return _StepModel(
+                lambda t, x: _lotka_volterra_derivatives(t, list(x), meta),
+                lambda t, x: np.array(
+                    [
+                        abs(a * x[0]) + abs(b * x[0] * x[1]),
+                        abs(d * x[0] * x[1]) + abs(c * x[1]),
+                    ]
+                ),
+                spread,
+                4,
+            )
+        case "ode_brusselator":
+            dense_c, forcing = data
+            c = scipy_sparse.csr_array(dense_c)
+            abs_c, a = abs(c), meta["a"]
+
+            def constant(t):
+                values = np.zeros(c.shape[0])
+                values[0::2] = abs(a)
+                return values + (np.abs(forcing) if t >= 1.1 else 0)
+
+            def reaction(x, e):
+                # u^2 v enters both components of each grid point.
+                u, v, eu, ev = x[0::2], x[1::2], e[0::2], e[1::2]
+                change = (np.abs(u) + eu) ** 2 * (np.abs(v) + ev) - u**2 * np.abs(v)
+                return np.repeat(change, 2)
+
+            def f(t, x):
+                # _brusselator_derivatives, with C sparse.
+                lin = c @ x
+                lin[0::2] += a
+                if t >= 1.1:
+                    lin += forcing
+                uv2 = x[0::2] ** 2 * x[1::2]
+                lin[0::2] += uv2
+                lin[1::2] -= uv2
+                return lin
+
+            return _StepModel(
+                f,
+                lambda t, x: abs_c @ np.abs(x) + constant(t) + reaction(x, 0 * x),
+                lambda t, x, e: abs_c @ e + reaction(x, e),
+                _row_counts(c) + 5,
+            )
+        case "ode_slicot":
+            A, B = data
+            u = np.full(B.shape[1], meta["input_value"], dtype=np.float64)
+            abs_a, forcing = abs(A), abs(B) @ np.abs(u)
+            return _StepModel(
+                lambda t, x: _linear_system_derivatives(t, list(x), meta, A, B),
+                lambda t, x: abs_a @ np.abs(x) + forcing,
+                lambda t, x, e: abs_a @ e,
+                _row_counts(A) + _row_counts(B) + 1,
+            )
+        case name:
+            raise NotImplementedError(f"No step model for ODE problem {name!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -571,7 +718,7 @@ dydt_vector = (dVc, d2Vc)
             "L": dataset.L,
             "C": dataset.C,
         }
-        return DataInstance(inputs=[], meta=meta, ref_meta={"check_components": [0]})
+        return DataInstance(inputs=[], meta=meta)
 
 
 class ODELotkaVolterraGenerator(_ODEGenerator[ODELotkaVolterraDataset]):
@@ -652,7 +799,7 @@ dydt_vector = (dxdt, dydt)
             "c": dataset.c,
             "d": dataset.d,
         }
-        return DataInstance(inputs=[], meta=meta, ref_meta={"error_tolerance": 10.0})
+        return DataInstance(inputs=[], meta=meta)
 
 
 class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
@@ -767,7 +914,6 @@ dydt_vector = (lin + non_lin).tolist()
                 from_numpy(np.asarray(_brusselator_forcing(n))),
             ],
             meta=meta,
-            ref_meta={"error_tolerance": 0.5, "real_output": True},
         )
 
 
@@ -1021,48 +1167,47 @@ class _ODEBenchmarkBase(Benchmark, ABC):
     def motivation(self):
         return ""
 
+    @abstractmethod
+    def _step(self, model: _StepModel, t: float, step: float, y):
+        """This method's step from y at time t, and a bound on its rounding."""
+
     def check(self, param):
         super().check(param)
-        from scipy.integrate import solve_ivp
-
         time = to_numpy(self._output[0])
         y_out = to_numpy(self._output[1])
         assert np.all(np.isfinite(y_out)), (
             f"Non-finite ODE output at step={self._meta['step']}"
         )
-        data = [_dense_binsparse_array(item) for item in self._input]
-        dydt = _resolve_derivatives(self._meta["problem_name"])
-        rhs = lambda t, y: dydt(t, list(y), self._meta, *data)  # noqa: E731
-        y0 = np.asarray(
-            self._meta["y0"],
-            dtype=np.result_type(y_out.dtype, *(item.dtype for item in data), float),
-        )
-        solution = solve_ivp(
-            rhs,
-            self._meta["span"],
-            y0,
-            t_eval=time,
-            rtol=1e-8,
-            atol=1e-10,
-        )
-        assert solution.success, f"ODE reference integration failed: {solution.message}"
-        ref_meta = self._ref_meta or {}
-        actual_y, ref_y = np.asarray(y_out), solution.y.T
-        if ref_meta.get("real_output"):
-            actual_y = actual_y.real
-        if "check_components" in ref_meta:
-            components = ref_meta["check_components"]
-            actual_y, ref_y = actual_y[:, components], ref_y[:, components]
-        tolerance = ref_meta.get("error_tolerance", 0.05)
-        error = np.max(np.abs(actual_y - ref_y))
-        assert error < tolerance, (
-            f"ODE maximum absolute error {error:.6g} exceeds "
-            f"tolerance {tolerance} at step={self._meta['step']}"
-        )
+        span, step, y0 = self._meta["span"], self._meta["step"], self._meta["y0"]
+        grid = []
+        curr = span[0]
+        while curr < span[1]:
+            grid.append(curr)
+            curr += step
+        np.testing.assert_array_equal(time, grid)
+        assert y_out.shape == (len(grid), len(y0))
+        np.testing.assert_array_equal(y_out[0], y0)
+        model = _step_model(self._meta, [_matrix(item) for item in self._input])
+        # Recompute each step from the framework's previous state. Both this
+        # step and the framework's are within the bound of the exact one.
+        for i in range(1, len(grid)):
+            value, bound = self._step(model, grid[i - 1], step, y_out[i - 1])
+            error = np.abs(y_out[i] - value)
+            worst = int(np.argmax(error - 2 * bound))
+            assert error[worst] <= 2 * bound[worst], (
+                f"{self.name} step {i} of {param.dataset.name} is off by "
+                f"{error[worst]:.3g} in component {worst}, more than rounding "
+                f"allows ({2 * bound[worst]:.3g})"
+            )
 
 
 class ForwardEulerBenchmark(_ODEBenchmarkBase):
     step_multiplier = 0.01
+
+    def _step(self, model, t, step, y):
+        k, k_error = model.evaluate(t, y, 0)
+        return _axpy(y, step, k, k_error)
+
     slicot_trace_datasets = ("beam", "fom", "heat-cont")
     slicot_train_dataset = "fom"
 
@@ -1106,6 +1251,15 @@ def benchmark({signature}):
 
 class BackwardEulerBenchmark(_ODEBenchmarkBase):
     step_multiplier = 0.02
+
+    def _step(self, model, t, step, y):
+        # Ten fixed-point iterations of y_next = y + step * f(t + step, y_next).
+        guess, error = y, np.zeros_like(y)
+        for _ in range(10):
+            k, k_error = model.evaluate(t + step, guess, error)
+            guess, error = _axpy(y, step, k, k_error)
+        return guess, error
+
     slicot_train_dataset = "heat-cont"
 
     @property
@@ -1154,6 +1308,18 @@ def benchmark({signature}):
 
 class RK4Benchmark(_ODEBenchmarkBase):
     step_multiplier = 1.0
+
+    def _step(self, model, t, step, y):
+        k1, e1 = model.evaluate(t, y, 0)
+        k2, e2 = model.evaluate(t + step / 2, *_axpy(y, step / 2, k1, e1))
+        k3, e3 = model.evaluate(t + step / 2, *_axpy(y, step / 2, k2, e2))
+        k4, e4 = model.evaluate(t + step, *_axpy(y, step, k3, e3))
+        # ((k1 + 2 k2) + 2 k3) + k4 rounds three times; doubling is exact.
+        total = k1 + 2 * k2 + 2 * k3 + k4
+        magnitude = np.abs(k1) + 2 * np.abs(k2) + 2 * np.abs(k3) + np.abs(k4)
+        total_error = e1 + 2 * e2 + 2 * e3 + e4 + _gamma(3, total) * magnitude
+        return _axpy(y, step / 6, total, total_error)
+
     brusselator_train = True
     slicot_trace_datasets = (
         "CDplayer",

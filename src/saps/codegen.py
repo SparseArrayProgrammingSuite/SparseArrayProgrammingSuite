@@ -9,6 +9,7 @@ rely on.
 
 import builtins
 import linecache
+import re
 from collections.abc import Callable, Sequence
 from typing import Any
 
@@ -46,6 +47,29 @@ def einsum_function_source(expr: str, params: Sequence[str]) -> str:
     """Source for ``benchmark(xp, meta, *params)`` evaluating one einsum."""
     kwargs = ", ".join(f"{name}={name}" for name in params)
     return _signature(params) + f"    return xp.einsum({expr!r}, {kwargs})\n"
+
+
+def einsums_function_source(exprs: Sequence[str], params: Sequence[str]) -> str:
+    """Source for ``benchmark(xp, meta, *params)`` evaluating einsums in turn.
+
+    Each einsum's output tensor is a local that later einsums can read, and the
+    function returns the last one's.
+    """
+    lines = []
+    available = set(params)
+    output = None
+    for expr in exprs:
+        output, *inputs = re.findall(r"([A-Za-z_]\w*)\[", expr)
+        inputs = list(dict.fromkeys(inputs))
+        undefined = [name for name in inputs if name not in available]
+        if undefined:
+            raise ValueError(f"{expr!r} reads undefined tensors {undefined}")
+        kwargs = ", ".join(f"{name}={name}" for name in inputs)
+        lines.append(f"    {output} = xp.einsum({expr!r}, {kwargs})\n")
+        available.add(output)
+    if output is None:
+        raise ValueError("Expected at least one einsum")
+    return _signature(params) + "".join(lines) + f"    return {output}\n"
 
 
 def constant_function_source(value: Any, dtype: str, params: Sequence[str]) -> str:

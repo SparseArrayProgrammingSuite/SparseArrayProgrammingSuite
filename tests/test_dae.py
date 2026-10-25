@@ -3,13 +3,18 @@ import pytest
 import numpy as np
 import scipy.sparse as sp
 
+from binsparse.conversions import from_numpy
+
 from frameworks.saps_numpy import NumpyFramework
+from frameworks.saps_scipy import SciPyFramework
+from frameworks.saps_smart import SmartSparseFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.dae_bdf import (
     DAEBDFBenchmark,
     DAEBDFDataset,
     DAEBDFSLICOTGenerator,
     DAEBDFTestGenerator,
+    _dense,
 )
 
 
@@ -203,3 +208,23 @@ def test_timed_solver_does_not_use_host_array_libraries():
             "to_sparse",
         }
     )
+
+
+@pytest.mark.parametrize(
+    "framework_cls",
+    [NumpyFramework, SciPyFramework, PyDataSparseFramework, SmartSparseFramework],
+)
+def test_dae_check_verifies_every_step(framework_cls):
+    benchmark = DAEBDFBenchmark()
+    param = next(p for p in benchmark.params if p.dataset.name == "tiny_descriptor")
+    benchmark.setup(param, xp=framework_cls(), use_cache=False)
+    benchmark.run(param)
+    benchmark.check(param)
+
+    time, y, yp = benchmark._output
+    states = _dense(y).copy()
+    states[2, 0] *= 1 + 1e-9
+    benchmark._output = [time, from_numpy(states), yp]
+    # The changed state breaks yp's backward difference as well as the step.
+    with pytest.raises(AssertionError, match="backward difference|more than rounding"):
+        benchmark.check(param)

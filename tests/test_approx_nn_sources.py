@@ -58,7 +58,7 @@ def test_simhash_ann_openml_generator_uses_cached_task_split(
     instance = generator.generate(dataset)
 
     assert calls == [("openml_dataset", source_name, task_id, 0)]
-    assert not generator.cacheable
+    assert generator.cacheable
     np.testing.assert_array_equal(to_numpy(instance.inputs[0]), features[train])
     np.testing.assert_array_equal(to_numpy(instance.inputs[1]), features[query])
     assert instance.inputs[2].shape == (
@@ -101,7 +101,7 @@ def test_simhash_ann_netflix_generator_uses_shared_shell(monkeypatch, generator_
 
     instance = generator.generate(dataset)
 
-    assert not generator.cacheable
+    assert generator.cacheable
     assert dataset.suites == ["standard"]
     assert to_scipy(instance.inputs[0]).shape == (6, 5)
     assert to_scipy(instance.inputs[1]).shape == (6, 5)

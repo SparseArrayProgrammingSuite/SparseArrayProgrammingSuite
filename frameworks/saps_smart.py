@@ -23,13 +23,25 @@ from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_scipy, t
 
 from saps_framework import (
     Framework,
+    normalize_pad_width,
     normalize_unfold_args,
+    normalize_unfold_padding,
     unfold_output_shape,
 )
-from saps_framework.einsum import Access, native_einsum, parse_einsum
+from saps_framework.einsum import Access, nary_ops, parse_einsum, reduction_ops
+
+# Tests import frameworks as a package; the harness loads them from their folder.
+try:
+    from frameworks.saps_numpy import NumpyFramework
+except ImportError:
+    from saps_numpy import NumpyFramework  # type: ignore[no-redef]
 
 _EINSUM_BLOCK_SIZE = 65_536
 _EINSUM_DENSE_BYTES = 64 * 1024**2
+# Convolve a sparse input site by site when at most this fraction of its
+# (batch, *spatial) sites store a value. Measured against densifying and using
+# BLAS, site by site wins below 3-10% depending on the channels and kernel.
+_CONV_SITE_DENSITY = 0.05
 
 
 class SmartSparseLinalg:
@@ -72,9 +84,17 @@ class SmartSparseLinalg:
 
     @staticmethod
     def solve(A, b):
-        A = SmartSparseLinalg._scipy_sparse(A).tocsc()
+        A = SmartSparseLinalg._scipy_sparse(A).tocsr()
         b = SmartSparseLinalg._scipy_sparse(b)
-        x = spla.spsolve(A, b)
+        # A triangular system, like an LU factor, needs only substitution.
+        # spsolve would factor it again, with pivoting that loses accuracy.
+        for lower, outside in ((True, sps.triu(A, 1)), (False, sps.tril(A, -1))):
+            if outside.count_nonzero() == 0:
+                x = spla.spsolve_triangular(A, b.toarray(), lower=lower)
+                return SmartSparseLinalg._wrap_result(
+                    x.ravel() if x.shape[1] == 1 else x
+                )
+        x = spla.spsolve(A.tocsc(), b)
         return SmartSparseLinalg._wrap_result(x)
 
     @staticmethod
@@ -141,26 +161,9 @@ def _value_is_zero(value) -> bool:
     return array.shape == () and array.item() == 0
 
 
-def _axis_unfold_map(
-    input_size,
-    output_size,
-    kernel_index,
-    stride,
-    dilation,
-    pad_pair,
-    dtype,
-):
-    padded_size = input_size + pad_pair[0] + pad_pair[1]
-    padded_input = sp.eye(
-        padded_size,
-        input_size,
-        k=-pad_pair[0],
-        dtype=dtype,
-        format="coo",
-    )
+def _axis_unfold_map(input_size, output_size, kernel_index, stride, dilation, dtype):
     positions = np.arange(output_size) * stride + kernel_index * dilation
-    window_positions = sp.eye(padded_size, dtype=dtype, format="coo")[positions, :]
-    return window_positions @ padded_input
+    return sp.eye(input_size, dtype=dtype, format="coo")[positions]
 
 
 def _kron_all(arrays):
@@ -188,7 +191,6 @@ def _sparse_unfold_with_diagonals(
     axes,
     strides,
     dilations,
-    padding,
 ):
     input_shape = tuple(int(dim) for dim in array.shape)
     output_shape = unfold_output_shape(
@@ -197,7 +199,6 @@ def _sparse_unfold_with_diagonals(
         axes,
         strides,
         dilations,
-        padding,
     )
     output_core_shape = output_shape[: array.ndim]
     axis_positions = {axis: i for i, axis in enumerate(axes)}
@@ -217,7 +218,6 @@ def _sparse_unfold_with_diagonals(
                         kernel_index[position],
                         strides[position],
                         dilations[position],
-                        padding[position],
                         array.dtype,
                     )
                 )
@@ -358,6 +358,7 @@ class SmartSparseKernels(Framework):
 
     def __init__(self):
         self._modules = [sp, compat_np, np]
+        self._numpy = NumpyFramework()
 
     @staticmethod
     def _is_sparse(arg):
@@ -498,11 +499,12 @@ class SmartSparseKernels(Framework):
         return compat_np.where(condition, x, y)
 
     def einsum(self, prgm, **kwargs):
-        if all(not isinstance(value, sp.SparseArray) for value in kwargs.values()):
-            xp = self._array_namespace(*kwargs.values())
-            return native_einsum(xp, prgm, **kwargs)
+        if not self._has_sparse_arg(**kwargs):
+            return self._numpy.einsum(prgm, **kwargs)
         parsed = parse_einsum(prgm)
-        result = self._blocked_einsum(parsed, kwargs)
+        result = self._masked_einsum(parsed, kwargs)
+        if result is NotImplemented:
+            result = self._blocked_einsum(parsed, kwargs)
         if result is not NotImplemented:
             return result
         kwargs = {
@@ -510,6 +512,113 @@ class SmartSparseKernels(Framework):
         }
         result = parsed.run_native(sp, kwargs)
         return parsed.run(sp, kwargs) if result is NotImplemented else result
+
+    def _masked_einsum(self, parsed, kwargs):
+        """Contract C[i,j] * A[i,f] * B[j,f] (in any order) over f only at the
+        entries a sparse mask C stores, as a sampled matrix product.
+
+        The other pairs are zero in the result anyway, so this never forms
+        A @ B.T, which can be dense even when C is very sparse.
+        """
+        contraction = parsed.native_contraction()
+        if contraction is NotImplemented or parsed.op not in {"+", "add", "sum"}:
+            return NotImplemented
+        _, leaves, bitwise = contraction
+        out = parsed.idxs
+        if (
+            bitwise
+            or len(leaves) != 3
+            or len(out) != 2
+            or not all(isinstance(leaf, Access) for leaf in leaves)
+        ):
+            return NotImplemented
+        masks = [
+            leaf
+            for leaf in leaves
+            if sorted(leaf.idxs) == sorted(out)
+            and isinstance(kwargs[leaf.tns], sp.SparseArray)
+        ]
+        if not masks:
+            return NotImplemented
+        mask = masks[0]
+        a, b = (leaf for leaf in leaves if leaf is not mask)
+        i, j = out
+        if i not in a.idxs:
+            a, b = b, a
+        reduced = [idx for idx in a.idxs if idx != i]
+        if (
+            len(a.idxs) != 2
+            or len(b.idxs) != 2
+            or len(reduced) != 1
+            or sorted(a.idxs) != sorted([i, *reduced])
+            or sorted(b.idxs) != sorted([j, *reduced])
+        ):
+            return NotImplemented
+        arrays = [kwargs[leaf.tns] for leaf in (mask, a, b)]
+        if not all(self._fill_value_is_zero(array) for array in arrays):
+            return NotImplemented
+
+        def matrix(leaf, row):
+            """leaf's array with row indexed first, as CSR if sparse."""
+            array = kwargs[leaf.tns]
+            if isinstance(array, sp.SparseArray):
+                array = self._to_scipy_sparse(array).tocsr()
+            else:
+                array = np.asarray(array)
+            return array if leaf.idxs[0] == row else array.T
+
+        left, right = matrix(a, i), matrix(b, j)
+        if sps.issparse(left) and left.format != "csr":
+            left = left.tocsr()
+        if sps.issparse(right) and right.format != "csr":
+            right = right.tocsr()
+        coo = arrays[0].asformat("coo")
+        rows, cols = coo.coords if mask.idxs == out else coo.coords[::-1]
+        dtype = np.result_type(*(array.dtype for array in arrays))
+        values = np.empty(len(rows), dtype=dtype)
+        # Bound the rows gathered at once by their stored entries.
+        width = max(
+            (x.nnz / max(x.shape[0], 1) if sps.issparse(x) else x.shape[1])
+            for x in (left, right)
+        )
+        step = max(1, int(_EINSUM_DENSE_BYTES // (16 * max(width, 1))))
+        for start in range(0, len(rows), step):
+            r, c = rows[start : start + step], cols[start : start + step]
+            x, y = left[r], right[c]
+            if sps.issparse(y):
+                x, y = y, x
+            if sps.issparse(x):
+                products = np.asarray(x.multiply(y).sum(axis=1)).ravel()
+            else:
+                products = np.einsum("pk,pk->p", x, y)
+            values[start : start + step] = products
+        values *= coo.data.astype(dtype, copy=False)
+        return sp.COO(
+            np.stack([rows, cols]),
+            values,
+            shape=tuple(
+                kwargs[leaf.tns].shape[leaf.idxs.index(idx)]
+                for leaf, idx in ((a, i), (b, j))
+            ),
+        )
+
+    def topk(self, x, k, *, axis=-1, largest=True):
+        """Sort only the stored entries of a sparse matrix's rows, when each
+        row stores at least k entries that beat its fill value."""
+        if not (isinstance(x, sp.SparseArray) and x.ndim == 2 and axis in (1, -1)):
+            return super().topk(x, k, axis=axis, largest=largest)
+        coo = x.asformat("coo")
+        rows, cols = coo.coords
+        fill = coo.fill_value
+        better = coo.data > fill if largest else coo.data < fill
+        if np.any(np.bincount(rows[better], minlength=x.shape[0]) < k):
+            return super().topk(self._dense(x), k, axis=axis, largest=largest)
+        rows, cols, data = rows[better], cols[better], coo.data[better]
+        # Sort by row, then value, then column so ties keep index order.
+        order = np.lexsort((cols, -data if largest else data, rows))
+        starts = np.searchsorted(rows[order], np.arange(x.shape[0]))
+        picks = order[starts[:, None] + np.arange(k)]
+        return data[picks], cols[picks].astype(np.int64)
 
     def _blocked_einsum(self, parsed, kwargs):
         """Contract zero-fill sparse entries in bounded batches.
@@ -607,63 +716,195 @@ class SmartSparseKernels(Framework):
                     result[target] += values.sum(dtype=output_dtype)
         return result
 
-    def unfold(
+    def conv(self, x, w, **kwargs):
+        # Weights are small next to activations, and dense weights let a
+        # dense input use BLAS even when most of them are zero.
+        w = self._dense(w)
+        if not isinstance(x, sp.SparseArray):
+            return self._numpy.conv(x, w, **kwargs)
+        result = self._sparse_conv(x, w, **kwargs)
+        if result is NotImplemented:
+            return self._numpy.conv(self._dense(x), w, **kwargs)
+        return result
+
+    def _sparse_conv(
         self,
         x,
-        kernel_shape,
+        w,
         *,
-        axes=None,
         strides=None,
         dilations=None,
         padding=None,
+        padding_mode="constant",
         fill_value=0,
+        group=1,
+        combine="*",
+        reduce="+",
     ):
-        if isinstance(x, sp.SparseArray) and _value_is_zero(fill_value):
-            coo = x.asformat("coo")
-            kernel_t = tuple(int(size) for size in kernel_shape)
-            axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
-                coo.ndim,
-                kernel_t,
-                axes,
-                strides,
-                dilations,
-                padding,
+        """Convolve the stored sites of x, a zero-fill sparse (N, C, *spatial).
+
+        Each kernel offset maps every stored input site to at most one output
+        site, so the offset contributes one matmul of the stored sites' channels
+        with its weights. Summing the contributions per output site gives a
+        sparse output.
+        """
+        batch, channels, *spatial = x.shape
+        out_channels, group_channels, *kernel = w.shape
+        axes = tuple(range(2, x.ndim))
+        pad_width = normalize_unfold_padding(x.ndim, padding, axes)[2:]
+        if (
+            nary_ops[combine] != "multiply"
+            or reduction_ops[reduce] != "sum"
+            or x.ndim != w.ndim
+            or x.ndim < 3
+            or channels != group * group_channels
+            or out_channels % group != 0
+            or not self._fill_value_is_zero(x)
+            or np.result_type(x.dtype, w.dtype).kind not in "fc"
+            or (padding_mode != "constant" or fill_value != 0)
+            and any(pair != (0, 0) for pair in pad_width)
+        ):
+            return NotImplemented
+        _, strides_t, dilations_t = normalize_unfold_args(
+            x.ndim, kernel, axes, strides, dilations
+        )
+        x = x.asformat("coo")
+        n, c, *s = x.coords
+        sites, site = np.unique(
+            np.ravel_multi_index((n, *s), (batch, *spatial)), return_inverse=True
+        )
+        if len(sites) > _CONV_SITE_DENSITY * batch * prod(spatial):
+            return NotImplemented
+        dtype = np.result_type(x.dtype, w.dtype)
+        values = np.zeros((group, len(sites), group_channels), dtype=dtype)
+        values[c // group_channels, site, c % group_channels] = x.data
+        n, *s = np.unravel_index(sites, (batch, *spatial))
+        out_spatial = unfold_output_shape(
+            [
+                size + before + after
+                for size, (before, after) in zip(spatial, pad_width, strict=True)
+            ],
+            kernel,
+            range(len(kernel)),
+            strides_t,
+            dilations_t,
+        )[: len(kernel)]
+        # (G, M / G, C / G, *kernel), with each offset's weights as (C / G, M / G).
+        w = w.reshape(group, out_channels // group, group_channels, *kernel)
+        targets = []
+        contributions = []
+        for offset in np.ndindex(*kernel):
+            # Input s feeds output o where o * stride = s + before - k * dilation.
+            o = [
+                si + before - k * dilation
+                for si, (before, _), k, dilation in zip(
+                    s, pad_width, offset, dilations_t, strict=True
+                )
+            ]
+            hit = np.ones(len(sites), dtype=bool)
+            for oi, stride, size in zip(o, strides_t, out_spatial, strict=True):
+                hit &= (oi >= 0) & (oi < size * stride) & (oi % stride == 0)
+            targets.append(
+                np.ravel_multi_index(
+                    (
+                        n[hit],
+                        *(
+                            oi[hit] // stride
+                            for oi, stride in zip(o, strides_t, strict=True)
+                        ),
+                    ),
+                    (batch, *out_spatial),
+                )
+            )
+            product = np.matmul(values[:, hit], np.swapaxes(w[(..., *offset)], 1, 2))
+            contributions.append(np.swapaxes(product, 0, 1).reshape(-1, out_channels))
+        targets = np.concatenate(targets)
+        out_sites, target = np.unique(targets, return_inverse=True)
+        # Sum the contributions landing on each output site.
+        scatter = sps.csr_array(
+            (np.ones(len(targets), dtype=dtype), (target, np.arange(len(targets)))),
+            shape=(len(out_sites), len(targets)),
+        )
+        out_values = scatter @ np.concatenate(contributions)
+        n, *o = np.unravel_index(out_sites, (batch, *out_spatial))
+        # The sites are sorted by batch, then position. COO order puts the
+        # channel between them, so site u of a batch whose sites start at
+        # `start` and number `count` holds channel m at
+        # start * M + m * count + (u - start).
+        start = np.searchsorted(n, n)
+        count = np.bincount(n, minlength=batch)[n]
+        order = (
+            (start * out_channels)[:, None]
+            + np.arange(out_channels) * count[:, None]
+            + (np.arange(len(out_sites)) - start)[:, None]
+        )
+        coords = np.empty((x.ndim, order.size), dtype=np.intp)
+        for axis, index in enumerate((n, np.arange(out_channels), *o)):
+            coords[axis, order] = index[:, None] if axis != 1 else index
+        data = np.empty(order.size, dtype=out_values.dtype)
+        data[order] = out_values
+        return sp.COO(
+            coords,
+            data,
+            shape=(batch, out_channels, *out_spatial),
+            has_duplicates=False,
+            sorted=True,
+        )
+
+    def pool(self, x, kernel_shape, **kwargs):
+        if isinstance(x, sp.SparseArray):
+            return super().pool(x, kernel_shape, **kwargs)
+        return self._numpy.pool(x, kernel_shape, **kwargs)
+
+    def pad_constant(self, x, pad_width, *, fill_value=0):
+        pad_width = normalize_pad_width(np.ndim(x), pad_width)
+        if not isinstance(x, sp.SparseArray):
+            return np.pad(x, pad_width, mode="constant", constant_values=fill_value)
+        # pydata/sparse only pads with the array's fill value.
+        if np.asarray(fill_value) == x.fill_value:
+            return sp.pad(x.asformat("coo"), pad_width, constant_values=fill_value)
+        return super().pad_constant(x, pad_width, fill_value=fill_value)
+
+    # pydata/sparse.pad only supports constant mode, so sparse arrays fall back
+    # to concatenating slices.
+
+    def pad_reflect(self, x, pad_width):
+        if isinstance(x, sp.SparseArray):
+            return super().pad_reflect(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="reflect")
+
+    def pad_edge(self, x, pad_width):
+        if isinstance(x, sp.SparseArray):
+            return super().pad_edge(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="edge")
+
+    def pad_wrap(self, x, pad_width):
+        if isinstance(x, sp.SparseArray):
+            return super().pad_wrap(x, pad_width)
+        return np.pad(x, normalize_pad_width(np.ndim(x), pad_width), mode="wrap")
+
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
+        kernel_t = tuple(int(size) for size in kernel_shape)
+        if isinstance(x, sp.SparseArray):
+            axes_t, strides_t, dilations_t = normalize_unfold_args(
+                x.ndim, kernel_t, axes, strides, dilations
             )
             return _sparse_unfold_with_diagonals(
-                coo,
-                kernel_t,
-                axes_t,
-                strides_t,
-                dilations_t,
-                padding_t,
+                x.asformat("coo"), kernel_t, axes_t, strides_t, dilations_t
             )
 
-        array = self._dense(x) if isinstance(x, sp.SparseArray) else x
-        array = np.asarray(array)
-        kernel_t = tuple(int(size) for size in kernel_shape)
-        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+        array = np.asarray(x)
+        axes_t, strides_t, dilations_t = normalize_unfold_args(
             array.ndim,
             kernel_t,
             axes,
             strides,
             dilations,
-            padding,
         )
         effective_kernel = tuple(
             (kernel - 1) * dilation + 1
             for kernel, dilation in zip(kernel_t, dilations_t, strict=True)
         )
-
-        pad_width = [(0, 0)] * array.ndim
-        for axis, pad_pair in zip(axes_t, padding_t, strict=True):
-            pad_width[axis] = pad_pair
-        if any(pair != (0, 0) for pair in pad_width):
-            array = np.pad(
-                array,
-                pad_width,
-                mode="constant",
-                constant_values=fill_value,
-            )
 
         windows = np.lib.stride_tricks.sliding_window_view(  # type: ignore[call-overload]
             array,
@@ -675,10 +916,7 @@ class SmartSparseKernels(Framework):
             slices[axis] = slice(None, None, step)
         for window_axis, dilation in enumerate(dilations_t, start=array.ndim):
             slices[window_axis] = slice(None, None, dilation)
-        windows = windows[tuple(slices)]
-        if isinstance(x, sp.SparseArray):
-            return sp.asarray(windows)
-        return windows
+        return windows[tuple(slices)]
 
     def diagonal(self, a, *args, **kwargs):
         if isinstance(a, sp.SparseArray):
@@ -965,6 +1203,7 @@ _ELEMENTWISE = {
 }
 
 _CONTRACTIONS = {
+    "conv",
     "dot",
     "einsum",
     "inner",
@@ -1546,8 +1785,38 @@ class SmartSparseFramework(Framework):
     def einsum(self, prgm, **kwargs):
         return self.call("einsum", self.kernels.einsum, (prgm,), kwargs)
 
+    def pad_constant(self, x, pad_width, **kwargs):
+        return self.call(
+            "pad_constant", self.kernels.pad_constant, (x, pad_width), kwargs
+        )
+
+    def pad_reflect(self, x, pad_width, **kwargs):
+        return self.call(
+            "pad_reflect", self.kernels.pad_reflect, (x, pad_width), kwargs
+        )
+
+    def pad_edge(self, x, pad_width, **kwargs):
+        return self.call("pad_edge", self.kernels.pad_edge, (x, pad_width), kwargs)
+
+    def pad_wrap(self, x, pad_width, **kwargs):
+        return self.call("pad_wrap", self.kernels.pad_wrap, (x, pad_width), kwargs)
+
     def unfold(self, x, kernel_shape, **kwargs):
         return self.call("unfold", self.kernels.unfold, (x, kernel_shape), kwargs)
+
+    def padded_unfold(self, x, kernel_shape, **kwargs):
+        return self.call(
+            "padded_unfold", self.kernels.padded_unfold, (x, kernel_shape), kwargs
+        )
+
+    def conv(self, x, w, **kwargs):
+        return self.call("conv", self.kernels.conv, (x, w), kwargs)
+
+    def pool(self, x, kernel_shape, **kwargs):
+        return self.call("pool", self.kernels.pool, (x, kernel_shape), kwargs)
+
+    def topk(self, x, k, **kwargs):
+        return self.call("topk", self.kernels.topk, (x, k), kwargs)
 
     def replace(self, arr, old, new):
         return self.call("replace", self.kernels.replace, (arr, old, new), {})

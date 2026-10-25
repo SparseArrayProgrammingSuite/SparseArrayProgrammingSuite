@@ -1,7 +1,9 @@
+import itertools
 import math
 from typing import Any
 
 import numpy as np
+from scipy.sparse import csr_array
 
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_sparse
@@ -17,6 +19,7 @@ from saps.benchmark import (
 )
 from saps.downloaders.ewap import download_ewap_dataset
 from saps.downloaders.nemo import download_nemo_dataset
+from saps.util.interval import Interval, add, maximum, minimum
 
 
 def particle_density_box_size(n_particles: int, density: float) -> float:
@@ -130,156 +133,115 @@ class ParticleSimulationDataset(Dataset):
         return data
 
 
-class Particle:
-    def __init__(
-        self,
-        x=0.0,
-        y=0.0,
-        z=0.0,
-        vx=0.0,
-        vy=0.0,
-        vz=0.0,
-        ax=0.0,
-        ay=0.0,
-        az=0.0,
-        *,
-        particle_mass: float,
-    ):
-        self.x = x
-        self.y = y
-        self.z = z
-        self.vx = vx
-        self.vy = vy
-        self.vz = vz
-        self.ax = ax
-        self.ay = ay
-        self.az = az
-        self.mass = particle_mass
+# Rounding a coordinate into a cell moves it by under 2.2e-10 cells while it
+# stays within a million cells of zero, so cells this much wider than the cutoff
+# keep every pair within the cutoff in adjacent cells.
+_CELL_MARGIN = 1e-9
 
 
-def apply_force(particle, neighbor, parameters):
-    dx = neighbor.x - particle.x
-    dy = neighbor.y - particle.y
-    dz = neighbor.z - particle.z
+def _may_interact(position, width, cells):
+    """Ordered pairs whose intervals occupy adjacent cells on every axis.
+
+    Each particle occupies the cells of both endpoints of its intervals. Cells
+    are `width` wide and wrap every `cells` cells in a periodic box, or never if
+    `cells` is None. Other pairs are a whole cell apart on some axis.
+    """
+    low = np.stack([np.floor(p.lo / width) for p in position]).astype(np.int64)
+    high = np.stack([np.floor(p.hi / width) for p in position]).astype(np.int64)
+    assert np.all(high - low <= 1), "Interval bounds grew wider than a cell"
+    assert np.all(np.abs(low) < 1e6) and np.all(np.abs(high) < 1e6), (
+        "Coordinates are too many cells from zero"
+    )
+    if cells is None:
+        # Enough cells that wrapping never folds a cell next to another.
+        shape = tuple(high.max(axis=1) - low.min(axis=1) + 3)
+    else:
+        shape = (cells, cells, cells)
+
+    n = low.shape[1]
+    corners = [
+        np.where(np.reshape(choice, (3, 1)), high, low)
+        for choice in itertools.product((False, True), repeat=3)
+    ]
+    occupied = np.unique(
+        np.concatenate(
+            [
+                np.ravel_multi_index(c, shape, mode="wrap") * n + np.arange(n)
+                for c in corners
+            ]
+        )
+    )
+    owners = occupied % n
+    keys, cell = np.unique(occupied // n, return_inverse=True)
+    members = csr_array((np.ones(len(owners)), (cell, owners)), (len(keys), n))
+    coordinates = np.stack(np.unravel_index(keys[cell], shape))
+    rows, columns = [], []
+    for offset in itertools.product((-1, 0, 1), repeat=3):
+        key = np.ravel_multi_index(
+            coordinates + np.reshape(offset, (3, 1)), shape, mode="wrap"
+        )
+        neighbor = np.minimum(np.searchsorted(keys, key), len(keys) - 1)
+        found = keys[neighbor] == key
+        rows.append(owners[found])
+        columns.append(neighbor[found])
+    rows, columns = np.concatenate(rows), np.concatenate(columns)
+    # Each row of `near` marks the particles in that particle's adjacent cells.
+    near = csr_array((np.ones(len(rows)), (rows, columns)), (n, len(keys))) @ members
+    i, j = near.nonzero()
+    return i[i != j], j[i != j]
+
+
+def particle_sim_bounds(x, y, z, vx, vy, vz, particle_mass, size, steps, parameters):
+    """Interval bounds on every float64 evaluation of the benchmark.
+
+    Repeats the benchmark's arithmetic on the pairs that may interact. Every
+    other pair has zero force in every evaluation.
+    """
+    dt = parameters["dt"]
     gravitational_constant = parameters["gravitational_constant"]
     cutoff = parameters["cutoff"]
-
-    # The interaction region is the 27 neighboring cells, including our own.
-    if any(
-        abs(math.floor(a / cutoff) - math.floor(b / cutoff)) > 1
-        for a, b in (
-            (particle.x, neighbor.x),
-            (particle.y, neighbor.y),
-            (particle.z, neighbor.z),
-        )
-    ):
-        return
-
     softening = parameters["softening"]
-    r2 = max(dx * dx + dy * dy + dz * dz, softening * softening)
-    r = math.sqrt(r2)
 
-    if parameters["force_model"] == "newtonian_gravity":
-        coef = gravitational_constant * neighbor.mass / (r2 * r)
-    else:
-        coef = gravitational_constant * ((1 - cutoff / r) / r2 / particle.mass)
-    particle.ax += coef * dx
-    particle.ay += coef * dy
-    particle.az += coef * dz
+    n = len(x)
+    position = [Interval(x), Interval(y), Interval(z)]
+    velocity = [Interval(vx), Interval(vy), Interval(vz)]
+    particle_mass = Interval(particle_mass)
+    periodic = parameters["boundary_model"] == "periodic_box"
+    # Cells a margin wider than the cutoff, a whole number per periodic box.
+    reach = cutoff * (1 + _CELL_MARGIN)
+    cells = max(int(size // reach), 1) if periodic else None
+    width = size / cells if periodic else reach
 
-
-def move(p, size, parameters):
-    dt = parameters["dt"]
-    p.vx += p.ax * dt
-    p.vy += p.ay * dt
-    p.vz += p.az * dt
-    p.x += p.vx * dt
-    p.y += p.vy * dt
-    p.z += p.vz * dt
-
-    if parameters["boundary_model"] != "reflective_box":
-        return
-
-    if p.x < 0 or p.x > size:
-        if p.x < 0:
-            p.x = -p.x
-        else:
-            p.x = 2 * size - p.x
-
-        p.vx = -p.vx
-
-    if p.y < 0 or p.y > size:
-        if p.y < 0:
-            p.y = -p.y
-        else:
-            p.y = 2 * size - p.y
-        p.vy = -p.vy
-
-    if p.z < 0 or p.z > size:
-        if p.z < 0:
-            p.z = -p.z
-        else:
-            p.z = 2 * size - p.z
-        p.vz = -p.vz
-
-
-def simulate_one_step(parts, num_parts, size, parameters):
-    for i in range(num_parts):
-        parts[i].ax = 0
-        parts[i].ay = 0
-        parts[i].az = 0
-        for j in range(num_parts):
-            apply_force(parts[i], parts[j], parameters)
-
-    for i in range(num_parts):
-        move(parts[i], size, parameters)
-
-
-def init_simulation(parts, num_parts, size, steps, parameters):
     for _ in range(steps):
-        simulate_one_step(parts, num_parts, size, parameters)
+        # Other pairs are more than the cutoff apart on some axis in every
+        # evaluation, so their wedge, and with it their force, is zero.
+        i, j = _may_interact(position, width, cells)
+        delta = [p[j] - p[i] for p in position]
+        if periodic:
+            delta = [d - size * (d / size).round() for d in delta]
+        r2 = add(delta[0] * delta[0], delta[1] * delta[1], delta[2] * delta[2])
+        r2 = maximum(r2, softening * softening)
+        r = r2.sqrt()
 
+        # So do pairs whose distance is at least the cutoff in every evaluation.
+        near = r.lo < cutoff
+        i, j, r2, r = i[near], j[near], r2[near], r[near]
+        delta = [d[near] for d in delta]
+        mass = particle_mass if particle_mass.lo.ndim == 0 else particle_mass[j]
 
-def reference_particle_sim(
-    x,
-    y,
-    z,
-    vx,
-    vy,
-    vz,
-    size,
-    steps,
-    parameters,
-    particle_mass,
-):
-    ref_particles = [
-        Particle(xi, yi, zi, vxi, vyi, vzi, 0, 0, 0, particle_mass=float(mi))
-        for xi, yi, zi, vxi, vyi, vzi, mi in zip(
-            x,
-            y,
-            z,
-            vx,
-            vy,
-            vz,
-            _mass_values(particle_mass, len(x)),
-            strict=True,
-        )
-    ]
-    init_simulation(ref_particles, len(ref_particles), size, steps, parameters)
-    return [
-        np.array([p.x for p in ref_particles]),
-        np.array([p.y for p in ref_particles]),
-        np.array([p.z for p in ref_particles]),
-        np.array([p.vx for p in ref_particles]),
-        np.array([p.vy for p in ref_particles]),
-        np.array([p.vz for p in ref_particles]),
-    ]
+        if parameters["force_model"] == "newtonian_gravity":
+            coef = gravitational_constant * mass / (r2 * r)
+        else:
+            coef = gravitational_constant * ((1 - cutoff / r) / r2 / mass)
+        wedge = minimum(maximum((cutoff - r) / (0.05 * cutoff), 0.0), 1.0)
+        coef = coef * wedge
 
+        # The benchmark sums n terms for each particle, mostly zeros.
+        acceleration = [(coef * d).sum_by(i, n, n) for d in delta]
+        velocity = [v + a * dt for v, a in zip(velocity, acceleration, strict=True)]
+        position = [p + v * dt for p, v in zip(position, velocity, strict=True)]
 
-def _mass_values(particle_mass, n_particles):
-    if getattr(particle_mass, "ndim", 0) == 0:
-        return np.full(n_particles, float(particle_mass), dtype=np.float64)
-    return particle_mass
+    return [*position, *velocity]
 
 
 class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
@@ -345,7 +307,7 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
-                    "boundary_model": "reflective_box",
+                    "boundary_model": "periodic_box",
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -364,24 +326,25 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
                 ),
             ),
             ParticleSimulationDataset(
-                "wall_bounce",
-                pretty_name="Wall Bounce",
+                "across_boundary",
+                pretty_name="Across Boundary",
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
-                    "boundary_model": "reflective_box",
+                    "boundary_model": "periodic_box",
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
                     "gravitational_constant": 1.0,
                 },
+                # The pair is 0.008 apart through the periodic boundary at x = 0.
                 values=(
-                    np.array([0.0001]),
-                    np.array([0.05]),
-                    np.array([0.05]),
-                    np.array([-0.1]),
-                    np.array([0.0]),
-                    np.array([0.0]),
+                    np.array([0.003, 1.995]),
+                    np.array([0.05, 0.05]),
+                    np.array([0.05, 0.05]),
+                    np.array([0.0, 0.0]),
+                    np.array([0.0, 0.0]),
+                    np.array([0.0, 0.0]),
                     np.asarray(0.01),
                     2,
                     5,
@@ -393,7 +356,7 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
-                    "boundary_model": "reflective_box",
+                    "boundary_model": "periodic_box",
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -407,7 +370,7 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
                 suites=["test"],
                 parameters={
                     "force_model": "cs267_repulsive",
-                    "boundary_model": "reflective_box",
+                    "boundary_model": "periodic_box",
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -422,18 +385,7 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
             raise ValueError("Particle simulation test datasets must define values.")
         x, y, z, vx, vy, vz, mass, size, steps = dataset.values
         parameters = dataset.parameters
-        expected = reference_particle_sim(
-            x,
-            y,
-            z,
-            vx,
-            vy,
-            vz,
-            size,
-            steps,
-            parameters,
-            mass,
-        )
+        bounds = particle_sim_bounds(x, y, z, vx, vy, vz, mass, size, steps, parameters)
         return DataInstance(
             inputs=[
                 from_numpy(x),
@@ -445,7 +397,9 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
                 from_numpy(mass),
             ],
             meta={"size": size, "steps": steps, "parameters": parameters},
-            ref_outputs=[from_numpy(value) for value in expected],
+            # Every output's lower bound, then every output's upper bound.
+            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+            + [from_numpy(bound.hi) for bound in bounds],
         )
 
 
@@ -579,7 +533,7 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
                 suites=["standard"],
                 parameters={
                     "force_model": "cs267_repulsive",
-                    "boundary_model": "reflective_box",
+                    "boundary_model": "periodic_box",
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -627,6 +581,9 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
             vy[i] = rng.uniform(-1.0, 1.0)
             vz[i] = rng.uniform(-1.0, 1.0)
 
+        bounds = particle_sim_bounds(
+            x, y, z, vx, vy, vz, mass, size, dataset.num_steps, parameters
+        )
         return DataInstance(
             inputs=[
                 from_numpy(x),
@@ -648,6 +605,9 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
                 "source_dimensions": 3,
                 "simulation_dimensions": 3,
             },
+            # Every output's lower bound, then every output's upper bound.
+            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+            + [from_numpy(bound.hi) for bound in bounds],
         )
 
 
@@ -759,7 +719,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
                 num_steps=50,
                 parameters={
                     "force_model": "cs267_repulsive",
-                    "boundary_model": "reflective_box",
+                    "boundary_model": "periodic_box",
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -780,7 +740,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
                 num_steps=50,
                 parameters={
                     "force_model": "cs267_repulsive",
-                    "boundary_model": "reflective_box",
+                    "boundary_model": "periodic_box",
                     "cutoff": 0.01,
                     "softening": 0.0001,
                     "dt": 0.0005,
@@ -803,7 +763,17 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             num_steps=dataset.num_steps,
         )
         meta["parameters"] = dataset.parameters
-        return DataInstance(inputs=inputs, meta=meta)
+        x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
+        bounds = particle_sim_bounds(
+            x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], dataset.parameters
+        )
+        return DataInstance(
+            inputs=inputs,
+            meta=meta,
+            # Every output's lower bound, then every output's upper bound.
+            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+            + [from_numpy(bound.hi) for bound in bounds],
+        )
 
 
 class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
@@ -991,7 +961,17 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
             include_mass="mass" in dataset.source_columns,
         )
         meta["parameters"] = dataset.parameters
-        return DataInstance(inputs=inputs, meta=meta)
+        x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
+        bounds = particle_sim_bounds(
+            x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], dataset.parameters
+        )
+        return DataInstance(
+            inputs=inputs,
+            meta=meta,
+            # Every output's lower bound, then every output's upper bound.
+            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+            + [from_numpy(bound.hi) for bound in bounds],
+        )
 
 
 class ParticleSimulationBenchmark(Benchmark):
@@ -1007,11 +987,13 @@ class ParticleSimulationBenchmark(Benchmark):
     def description(self):
         return (
             "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
-            " array operations. The cutoff parameter is the cell width: particles"
-            " interact when their cell indices differ by at most one on every"
-            " axis, without a spherical distance cutoff. Distance still determines"
-            " force strength. This benchmark evaluates performance characteristics"
-            " and numerical properties."
+            " array operations. The cutoff parameter is the interaction radius and"
+            " the smallest cell width: forces ramp linearly to zero over the last 5%"
+            " of the cutoff radius, and only pairs whose cell indices differ by at"
+            " most one on every axis are evaluated. A periodic box wraps its cells"
+            " and pairs interact through their nearest periodic image. This"
+            " benchmark evaluates performance characteristics and numerical"
+            " properties."
         )
 
     @property
@@ -1091,20 +1073,31 @@ class ParticleSimulationBenchmark(Benchmark):
 
         n_particles = x.shape[0]
         particle_index = xp.arange(n_particles)
+        periodic = parameters["boundary_model"] == "periodic_box"
+        # A periodic box splits into whole buckets at least `cutoff` wide.
+        n_buckets = max(int(size // cutoff), 1)
+        width = size / n_buckets if periodic else cutoff
 
         for _ in range(steps):
-            # Particles interact when their buckets, `cutoff` wide, are at most
+            # Particles interact when their buckets, `width` wide, are at most
             # one apart on every axis: own @ band @ own.T per axis, where own
             # puts each particle in its bucket and band links adjacent buckets.
-            bx = xp.astype(xp.floor(x / cutoff), xp.int64)
-            by = xp.astype(xp.floor(y / cutoff), xp.int64)
-            bz = xp.astype(xp.floor(z / cutoff), xp.int64)
-            bx = bx - xp.min(bx)
-            by = by - xp.min(by)
-            bz = bz - xp.min(bz)
-            nx = int(xp.max(bx)) + 1
-            ny = int(xp.max(by)) + 1
-            nz = int(xp.max(bz)) + 1
+            # In a periodic box, buckets wrap around and positions never do.
+            bx = xp.astype(xp.floor(x / width), xp.int64)
+            by = xp.astype(xp.floor(y / width), xp.int64)
+            bz = xp.astype(xp.floor(z / width), xp.int64)
+            if periodic:
+                bx = bx % n_buckets
+                by = by % n_buckets
+                bz = bz % n_buckets
+                nx = ny = nz = n_buckets
+            else:
+                bx = bx - xp.min(bx)
+                by = by - xp.min(by)
+                bz = bz - xp.min(bz)
+                nx = int(xp.max(bx)) + 1
+                ny = int(xp.max(by)) + 1
+                nz = int(xp.max(bz)) + 1
 
             own_x = xp.zeros((n_particles, nx), dtype=xp.uint8)
             own_y = xp.zeros((n_particles, ny), dtype=xp.uint8)
@@ -1128,6 +1121,13 @@ class ParticleSimulationBenchmark(Benchmark):
                 + xp.eye(nz, dtype=xp.uint8)
                 + xp.eye(nz, k=1, dtype=xp.uint8)
             )
+            if periodic:
+                band_x = band_x + xp.eye(nx, k=1 - nx, dtype=xp.uint8)
+                band_x = band_x + xp.eye(nx, k=nx - 1, dtype=xp.uint8)
+                band_y = band_y + xp.eye(ny, k=1 - ny, dtype=xp.uint8)
+                band_y = band_y + xp.eye(ny, k=ny - 1, dtype=xp.uint8)
+                band_z = band_z + xp.eye(nz, k=1 - nz, dtype=xp.uint8)
+                band_z = band_z + xp.eye(nz, k=nz - 1, dtype=xp.uint8)
 
             near_x = xp.matmul(xp.matmul(own_x, band_x), xp.permute_dims(own_x, (1, 0)))
             near_y = xp.matmul(xp.matmul(own_y, band_y), xp.permute_dims(own_y, (1, 0)))
@@ -1139,6 +1139,11 @@ class ParticleSimulationBenchmark(Benchmark):
             dx = candidates * x - candidates * xp.reshape(x, (-1, 1))
             dy = candidates * y - candidates * xp.reshape(y, (-1, 1))
             dz = candidates * z - candidates * xp.reshape(z, (-1, 1))
+            if periodic:
+                # Each pair uses its nearest periodic image.
+                dx = dx - size * xp.round(dx / size)
+                dy = dy - size * xp.round(dy / size)
+                dz = dz - size * xp.round(dz / size)
             r2 = dx * dx + dy * dy + dz * dz
             # Distance sets force strength only; bucket overlap selects pairs.
             # Nonneighbors have zero force, including the implicit sparse fill.
@@ -1150,6 +1155,10 @@ class ParticleSimulationBenchmark(Benchmark):
                 coef = gravitational_constant * particle_mass / (r2 * r)
             else:
                 coef = gravitational_constant * ((1 - cutoff / r) / r2 / particle_mass)
+            # Forces ramp linearly to zero over the last 5% of the cutoff radius,
+            # so they stay continuous as a pair moves out of range.
+            wedge = xp.minimum(xp.maximum((cutoff - r) / (0.05 * cutoff), 0.0), 1.0)
+            coef = coef * wedge
 
             ax = coef * dx
             ay = coef * dy
@@ -1168,34 +1177,6 @@ class ParticleSimulationBenchmark(Benchmark):
             y += vy * dt
             z += vz * dt
 
-            if parameters["boundary_model"] != "reflective_box":
-                continue
-
-            # bounce off walls
-            # x
-            reflected = (x < 0) | (x > size)
-            vx = xp.where(reflected, -vx, vx)
-
-            x1 = xp.abs(x)
-            x2 = 2 * size - x
-            x = xp.where(x > size, x2, x1)
-
-            # y
-            reflected = (y < 0) | (y > size)
-            vy = xp.where(reflected, -vy, vy)
-
-            y1 = xp.abs(y)
-            y2 = 2 * size - y
-            y = xp.where(y > size, y2, y1)
-
-            # z
-            reflected = (z < 0) | (z > size)
-            vz = xp.where(reflected, -vz, vz)
-
-            z1 = xp.abs(z)
-            z2 = 2 * size - z
-            z = xp.where(z > size, z2, z1)
-
         return x, y, z, vx, vy, vz
 
     def check(self, param):
@@ -1206,14 +1187,20 @@ class ParticleSimulationBenchmark(Benchmark):
         if self._ref_outputs is None:
             return
 
-        for i, (actual, expected) in enumerate(
-            zip(self._output, self._ref_outputs, strict=True)
+        # The reference holds every output's lower bound, then every upper bound.
+        count = len(self._output)
+        bounds = zip(self._ref_outputs[:count], self._ref_outputs[count:], strict=True)
+        for i, (actual, (lower, upper)) in enumerate(
+            zip(self._output, bounds, strict=True)
         ):
             try:
                 actual_values = to_numpy(actual)
             except TypeError:
                 actual_values = to_sparse(actual).todense()
-            expected_values = to_numpy(expected)
-            assert np.all(actual_values == expected_values), (
-                f"Particle simulation output {i} mismatch for {param.dataset.name}"
+            inside = (to_numpy(lower) <= actual_values) & (
+                actual_values <= to_numpy(upper)
+            )
+            assert np.all(inside), (
+                f"Particle simulation output {i} leaves its interval bound at "
+                f"{np.count_nonzero(~inside)} particles for {param.dataset.name}"
             )
