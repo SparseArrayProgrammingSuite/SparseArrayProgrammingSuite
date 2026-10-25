@@ -67,10 +67,11 @@ class MRIMaskedEdgeDetectionDataset(Dataset):
         return data
 
 
-def expected_masked_mri_edge(image, roi, t1, t2):
-    img_t1 = image > t1
-    img_t2 = image > t2
-    return (img_t2 & roi) ^ (img_t1 & roi)
+def reference_masked_mri_edge(image, roi, t1, t2):
+    """Mark ROI pixels above exactly one threshold."""
+    low, high = sorted((np.float32(t1), np.float32(t2)))
+    image = np.asarray(image, dtype=np.float32)
+    return np.asarray(roi, dtype=bool) & (low < image) & (image <= high)
 
 
 def default_masked_mri_roi(image):
@@ -180,16 +181,10 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
 
     def generate(self, dataset: MRIMaskedEdgeDetectionDataset) -> DataInstance:
         problem = MRIMaskedEdgeDetectionKaggleGenerator().generate(dataset)
-        roi = dataset.roi
-        if roi is None:
-            roi = default_masked_mri_roi(dataset.image)
-        expected = expected_masked_mri_edge(
-            dataset.image, roi, dataset.t1_val, dataset.t2_val
-        )
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
-            ref_outputs=[from_numpy(expected)],
+            ref_outputs=problem.ref_outputs,
             ref_meta=dataset.ref_meta,
         )
 
@@ -271,11 +266,8 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
         else:
             img_array = np.array(dataset.image, dtype=np.float32)
 
-        H, W = img_array.shape
         if dataset.roi is None:
-            roi_array = np.zeros_like(img_array, dtype=bool)
-            H_val, W_val = H // 4, W // 4
-            roi_array[H_val : H - H_val, W_val : W - W_val] = True
+            roi_array = default_masked_mri_roi(img_array)
         else:
             roi_array = np.array(dataset.roi, dtype=bool)
 
@@ -284,7 +276,15 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
         t1_bin = from_numpy(np.array(dataset.t1_val, dtype=np.float32))
         t2_bin = from_numpy(np.array(dataset.t2_val, dtype=np.float32))
 
-        return DataInstance(inputs=[image_bin, roi_bin, t1_bin, t2_bin], meta={})
+        # Computed here so it is cached with the dataset; check only compares.
+        expected = reference_masked_mri_edge(
+            img_array, roi_array, dataset.t1_val, dataset.t2_val
+        )
+        return DataInstance(
+            inputs=[image_bin, roi_bin, t1_bin, t2_bin],
+            meta={},
+            ref_outputs=[from_numpy(expected)],
+        )
 
 
 class MRIMaskedEdgeDetectionBenchmark(Benchmark):
@@ -394,15 +394,22 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is None:
-            return
+        assert self._ref_outputs is not None, (
+            "No NumPy reference edge mask; regenerate the cached dataset"
+        )
 
         result = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
 
         assert self._meta == {}
-        assert result.shape == expected.shape
-        assert np.all(result == expected)
+        assert result.shape == expected.shape, (
+            f"Expected edge mask shape {expected.shape}, got {result.shape}"
+        )
+        mismatches = np.count_nonzero(result != expected)
+        assert mismatches == 0, (
+            f"{mismatches} of {expected.size} pixels differ from the "
+            "NumPy threshold-band reference"
+        )
 
         if self._ref_meta is None:
             return
