@@ -13,7 +13,7 @@ from saps.downloaders.ewap import load_toy_ewap_dataset
 def _toy_parameters():
     return {
         "force_model": "cs267_repulsive",
-        "boundary_model": "reflective_box",
+        "boundary_model": "periodic_box",
         "cutoff": 0.01,
         "softening": 0.0001,
         "dt": 0.0005,
@@ -87,7 +87,7 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
     def fake_download(scene, *, num_steps):
         calls.append((scene, num_steps))
         inputs = [
-            from_numpy(np.array([0.0, 1.0], dtype=np.float64)),
+            from_numpy(np.array([0.0, 0.5], dtype=np.float64)),
             from_numpy(np.array([0.0, 0.0], dtype=np.float64)),
             from_numpy(np.zeros(2, dtype=np.float64)),
             from_numpy(np.zeros(2, dtype=np.float64)),
