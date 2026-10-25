@@ -644,9 +644,9 @@ Dimensionality reduction</concept_desc>
             old_labels = labels
             dists = xp.sum((A_prime[:, None] - centroids[None, :]) ** 2, axis=2)
             labels = xp.argmin(dists, axis=1)
-            H = xp.equal(labels[:, None], ks[None, :]).astype(A_prime.dtype)
+            H = xp.astype(xp.equal(labels[:, None], ks[None, :]), A_prime.dtype)
             counts = xp.sum(H, axis=0)
-            sums = xp.matmul(xp.transpose(H), A_prime)
+            sums = xp.matmul(xp.permute_dims(H, (1, 0)), A_prime)
             counts_nonz = xp.where(counts > 0, counts, one)
             new_centroids = sums / counts_nonz[:, None]
             new_centroids = xp.where((counts == 0)[:, None], centroids, new_centroids)

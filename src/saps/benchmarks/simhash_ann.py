@@ -3,9 +3,10 @@ import math
 from abc import ABC, abstractmethod
 
 import numpy as np
+import scipy.sparse as sps
 
 from binsparse import BinsparseTensor
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -172,7 +173,7 @@ class SimHashANNGeneratorMixin(ABC):
     def projection(self, n_features: int, target_dim: int, seed: int):
         """Return the scalar projections defining each hash hyperplane."""
 
-    def _instance(self, dataset, data, query, source_meta=None):
+    def _instance(self, dataset, data, query, source_meta=None, nearest=None):
         from scipy.sparse import issparse
 
         if dataset.max_tables < 1 or dataset.max_projections < 1:
@@ -209,6 +210,13 @@ class SimHashANNGeneratorMixin(ABC):
                 "projection_kind": self.projection_kind,
                 **(source_meta or {}),
             },
+            ref_outputs=[
+                from_numpy(
+                    _nearest_cosine_distances(data, query)
+                    if nearest is None
+                    else nearest
+                )
+            ],
         )
 
 
@@ -371,14 +379,6 @@ class _SimHashANNTestGeneratorMixin(_SimHashANNRandomGeneratorMixin):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: SimHashANNRandomDataset):
-        problem = super().generate(dataset)
-        return DataInstance(
-            inputs=problem.inputs,
-            meta=problem.meta,
-            ref_meta={"check": "simhash_preserves_cosine_similarity"},
-        )
-
 
 class SimHashANNDataset(Dataset):
     def __init__(
@@ -424,6 +424,27 @@ class SimHashANNDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+
+def _unit_rows(x):
+    """x's rows scaled to unit length in float64; zero rows stay zero."""
+    x = x.astype(np.float64)
+    squares = x.multiply(x) if sps.issparse(x) else x * x
+    norms = np.sqrt(np.asarray(squares.sum(axis=1))).ravel()
+    scale = 1 / np.maximum(norms, 1e-10)
+    return sps.diags_array(scale) @ x if sps.issparse(x) else x * scale[:, None]
+
+
+def _nearest_cosine_distances(data, query, chunk=1024):
+    """Each query's exact cosine distance to its nearest data point."""
+    data, query = _unit_rows(data), _unit_rows(query)
+    nearest = np.empty(query.shape[0])
+    for start in range(0, query.shape[0], chunk):
+        similarity = query[start : start + chunk] @ data.T
+        if sps.issparse(similarity):
+            similarity = similarity.toarray()
+        nearest[start : start + chunk] = 1 - similarity.max(axis=1)
+    return nearest
 
 
 def _lsh_meta(dataset):
@@ -601,10 +622,12 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
     def generate(self, dataset: SimHashANNDataset) -> DataInstance:
         data, source_meta = fetch_netflixprize_matrix()
 
+        # Each query is a data point, so its nearest neighbor is itself.
         return self._instance(
             dataset,
             data,
             data,
+            nearest=np.zeros(data.shape[0]),
             source_meta={
                 "num_train": int(data.shape[0]),
                 "num_query": int(data.shape[0]),
@@ -1229,15 +1252,14 @@ Nearest neighbor algorithms</concept_desc>
             n_buckets = 1 << m
             mask = xp.asarray((1 << m) - 1, dtype=code_dtype)
             masked_data = table_data & mask
-            masked_query = xp.einsum(
-                "M[q,t] = (Q[q,t] & Mask[]) * A[q]",
-                Q=table_query,
-                Mask=mask,
-                A=active,
+            # Queries that already have enough candidates look up the spare
+            # bucket n_buckets, which no sample is in, so they collect no more.
+            masked_query = xp.where(
+                active[:, None], xp.astype(table_query & mask, xp.int64), n_buckets
             )
 
             # One-hot each row's (table, code) into a combined column
-            # (table * n_buckets + code); a sparse matmul then counts, per
+            # (table * (n_buckets + 1) + code); a sparse matmul then counts, per
             # (query, sample) pair, how many tables agree -- the same
             # result as the dense broadcast below, without ever
             # materializing an O(n_queries * n_samples * n_tables) array:
@@ -1245,15 +1267,17 @@ Nearest neighbor algorithms</concept_desc>
             #       "Match[q,n] or= (Q[q,t] == D[n,t])",
             #       Q=masked_query, D=masked_data,
             #   )
-            offsets = xp.astype(xp.arange(n_tables), xp.int64) * n_buckets
+            offsets = xp.astype(xp.arange(n_tables), xp.int64) * (n_buckets + 1)
             query_indicator = xp.zeros(
-                (n_queries, n_tables * n_buckets), dtype=xp.uint8
+                (n_queries, n_tables * (n_buckets + 1)), dtype=xp.uint8
             )
             query_indicator[
                 xp.reshape(xp.arange(n_queries)[:, None] + offsets * 0, (-1,)),
                 xp.reshape(xp.add(xp.astype(masked_query, xp.int64), offsets), (-1,)),
             ] = 1
-            data_indicator = xp.zeros((n_samples, n_tables * n_buckets), dtype=xp.uint8)
+            data_indicator = xp.zeros(
+                (n_samples, n_tables * (n_buckets + 1)), dtype=xp.uint8
+            )
             data_indicator[
                 xp.reshape(xp.arange(n_samples)[:, None] + offsets * 0, (-1,)),
                 xp.reshape(xp.add(xp.astype(masked_data, xp.int64), offsets), (-1,)),
@@ -1285,22 +1309,38 @@ Nearest neighbor algorithms</concept_desc>
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
-        if not self._ref_meta:
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
+        if self._ref_outputs is None:
             return
 
-        from scipy.spatial.distance import cdist
+        def matrix(array):
+            try:
+                return to_numpy(array)
+            except TypeError:
+                return to_scipy(array).tocsr()
 
-        data = to_numpy(self._input[0])
-        query = to_numpy(self._input[1])
-        nearest_ind = to_numpy(self._output[0])
+        def dense(array):
+            try:
+                return to_numpy(array)
+            except TypeError:
+                return np.asarray(to_sparse(array).todense())
 
-        orig_distances = cdist(query, data, metric="cosine")
-
-        true_nearest = np.min(orig_distances, axis=1)
-        approx_nearest = orig_distances[
-            np.arange(param.dataset.n_queries), nearest_ind[:, 0].astype(int)
-        ]
-        assert np.all(approx_nearest <= (1 + param.dataset.eps) * true_nearest)
+        data, query = (_unit_rows(matrix(array)) for array in self._input[:2])
+        nearest = to_numpy(self._ref_outputs[0])
+        top = dense(self._output[0])[:, 0].astype(np.int64)
+        similarity = (
+            query.multiply(data[top]) if sps.issparse(query) else query * data[top]
+        )
+        returned = 1 - np.asarray(similarity.sum(axis=1)).ravel()
+        # An answer is (1 + eps)-approximate when it is at most 1 + eps times
+        # as far as the nearest data point; a tiny absolute slack lets
+        # duplicates of the query count when the nearest distance is zero.
+        eps = self._meta["eps"]
+        fraction = np.mean(returned <= (1 + eps) * nearest + 1e-9)
+        target = self._meta["target_probability"]
+        assert fraction >= target, (
+            f"Only {fraction:.1%} of queries for {param.dataset.name} found a "
+            f"(1 + {eps})-approximate nearest neighbor, fewer than {target:.0%}"
+        )
