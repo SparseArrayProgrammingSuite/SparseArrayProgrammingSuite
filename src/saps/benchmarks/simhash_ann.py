@@ -1289,22 +1289,25 @@ Nearest neighbor algorithms</concept_desc>
             candidates = candidates | matches
             required_projections -= 1
 
-        # Rerank candidates by cosine distance.
-        dot = xp.matmul(query, xp.permute_dims(data, (1, 0)))
+        # Rerank candidates by cosine distance. Scaling rows to unit length
+        # first makes the similarity of each candidate pair one masked
+        # contraction, which needn't compute any other pair.
+        # The 1e-10 floor keeps zero rows at zero instead of nan.
         query_norm = xp.sqrt(xp.sum(query**2, axis=-1))
         data_norm = xp.sqrt(xp.sum(data**2, axis=-1))
-        # 1e-10 floor guards zero-norm rows against a nan from 0/0.
-        denom = xp.einsum(
-            "Denom[q,n] = max(Qn[q] * Dn[n], 1e-10)",
-            Qn=query_norm,
-            Dn=data_norm,
+        unit_query = query * (1 / xp.maximum(query_norm, 1e-10))[:, None]
+        unit_data = data * (1 / xp.maximum(data_norm, 1e-10))[:, None]
+        similarity = xp.einsum(
+            "S[q,n] += C[q,n] * Q[q,f] * D[n,f]",
+            C=candidates,
+            Q=unit_query,
+            D=unit_data,
         )
-        distances = 1 - dot / denom
-        distances = xp.where(candidates, distances, xp.inf)
+        distances = xp.where(candidates, 1 - similarity, xp.inf)
 
-        sorted_indices = xp.argsort(distances, axis=1)
-        nearest_indices = xp.take(sorted_indices, xp.arange(k), axis=1)
-        nearest_distances = xp.take_along_axis(distances, nearest_indices, axis=1)
+        nearest_distances, nearest_indices = xp.topk(
+            distances, k, axis=1, largest=False
+        )
         return nearest_indices, nearest_distances
 
     def check(self, param):

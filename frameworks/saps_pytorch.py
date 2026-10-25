@@ -288,6 +288,12 @@ class PytorchFramework(Framework):
             reduce=reduce,
         )
 
+    def topk(self, x, k, *, axis=-1, largest=True):
+        x = x.to_dense() if _is_sparse_tensor(x) else x
+        # torch.topk orders ties arbitrarily; a stable sort keeps index order.
+        values, indices = torch.sort(x, dim=axis, descending=largest, stable=True)
+        return values.narrow(axis, 0, k), indices.narrow(axis, 0, k)
+
     def pool(
         self,
         x,

@@ -494,7 +494,9 @@ class SmartSparseKernels(Framework):
         if not self._has_sparse_arg(**kwargs):
             return self._numpy.einsum(prgm, **kwargs)
         parsed = parse_einsum(prgm)
-        result = self._blocked_einsum(parsed, kwargs)
+        result = self._masked_einsum(parsed, kwargs)
+        if result is NotImplemented:
+            result = self._blocked_einsum(parsed, kwargs)
         if result is not NotImplemented:
             return result
         kwargs = {
@@ -502,6 +504,113 @@ class SmartSparseKernels(Framework):
         }
         result = parsed.run_native(sp, kwargs)
         return parsed.run(sp, kwargs) if result is NotImplemented else result
+
+    def _masked_einsum(self, parsed, kwargs):
+        """Contract C[i,j] * A[i,f] * B[j,f] (in any order) over f only at the
+        entries a sparse mask C stores, as a sampled matrix product.
+
+        The other pairs are zero in the result anyway, so this never forms
+        A @ B.T, which can be dense even when C is very sparse.
+        """
+        contraction = parsed.native_contraction()
+        if contraction is NotImplemented or parsed.op not in {"+", "add", "sum"}:
+            return NotImplemented
+        _, leaves, bitwise = contraction
+        out = parsed.idxs
+        if (
+            bitwise
+            or len(leaves) != 3
+            or len(out) != 2
+            or not all(isinstance(leaf, Access) for leaf in leaves)
+        ):
+            return NotImplemented
+        masks = [
+            leaf
+            for leaf in leaves
+            if sorted(leaf.idxs) == sorted(out)
+            and isinstance(kwargs[leaf.tns], sp.SparseArray)
+        ]
+        if not masks:
+            return NotImplemented
+        mask = masks[0]
+        a, b = (leaf for leaf in leaves if leaf is not mask)
+        i, j = out
+        if i not in a.idxs:
+            a, b = b, a
+        reduced = [idx for idx in a.idxs if idx != i]
+        if (
+            len(a.idxs) != 2
+            or len(b.idxs) != 2
+            or len(reduced) != 1
+            or sorted(a.idxs) != sorted([i, *reduced])
+            or sorted(b.idxs) != sorted([j, *reduced])
+        ):
+            return NotImplemented
+        arrays = [kwargs[leaf.tns] for leaf in (mask, a, b)]
+        if not all(self._fill_value_is_zero(array) for array in arrays):
+            return NotImplemented
+
+        def matrix(leaf, row):
+            """leaf's array with row indexed first, as CSR if sparse."""
+            array = kwargs[leaf.tns]
+            if isinstance(array, sp.SparseArray):
+                array = self._to_scipy_sparse(array).tocsr()
+            else:
+                array = np.asarray(array)
+            return array if leaf.idxs[0] == row else array.T
+
+        left, right = matrix(a, i), matrix(b, j)
+        if sps.issparse(left) and left.format != "csr":
+            left = left.tocsr()
+        if sps.issparse(right) and right.format != "csr":
+            right = right.tocsr()
+        coo = arrays[0].asformat("coo")
+        rows, cols = coo.coords if mask.idxs == out else coo.coords[::-1]
+        dtype = np.result_type(*(array.dtype for array in arrays))
+        values = np.empty(len(rows), dtype=dtype)
+        # Bound the rows gathered at once by their stored entries.
+        width = max(
+            (x.nnz / max(x.shape[0], 1) if sps.issparse(x) else x.shape[1])
+            for x in (left, right)
+        )
+        step = max(1, int(_EINSUM_DENSE_BYTES // (16 * max(width, 1))))
+        for start in range(0, len(rows), step):
+            r, c = rows[start : start + step], cols[start : start + step]
+            x, y = left[r], right[c]
+            if sps.issparse(y):
+                x, y = y, x
+            if sps.issparse(x):
+                products = np.asarray(x.multiply(y).sum(axis=1)).ravel()
+            else:
+                products = np.einsum("pk,pk->p", x, y)
+            values[start : start + step] = products
+        values *= coo.data.astype(dtype, copy=False)
+        return sp.COO(
+            np.stack([rows, cols]),
+            values,
+            shape=tuple(
+                kwargs[leaf.tns].shape[leaf.idxs.index(idx)]
+                for leaf, idx in ((a, i), (b, j))
+            ),
+        )
+
+    def topk(self, x, k, *, axis=-1, largest=True):
+        """Sort only the stored entries of a sparse matrix's rows, when each
+        row stores at least k entries that beat its fill value."""
+        if not (isinstance(x, sp.SparseArray) and x.ndim == 2 and axis in (1, -1)):
+            return super().topk(x, k, axis=axis, largest=largest)
+        coo = x.asformat("coo")
+        rows, cols = coo.coords
+        fill = coo.fill_value
+        better = coo.data > fill if largest else coo.data < fill
+        if np.any(np.bincount(rows[better], minlength=x.shape[0]) < k):
+            return super().topk(self._dense(x), k, axis=axis, largest=largest)
+        rows, cols, data = rows[better], cols[better], coo.data[better]
+        # Sort by row, then value, then column so ties keep index order.
+        order = np.lexsort((cols, -data if largest else data, rows))
+        starts = np.searchsorted(rows[order], np.arange(x.shape[0]))
+        picks = order[starts[:, None] + np.arange(k)]
+        return data[picks], cols[picks].astype(np.int64)
 
     def _blocked_einsum(self, parsed, kwargs):
         """Contract zero-fill sparse entries in bounded batches.
@@ -1697,6 +1806,9 @@ class SmartSparseFramework(Framework):
 
     def pool(self, x, kernel_shape, **kwargs):
         return self.call("pool", self.kernels.pool, (x, kernel_shape), kwargs)
+
+    def topk(self, x, k, **kwargs):
+        return self.call("topk", self.kernels.topk, (x, k), kwargs)
 
     def replace(self, arr, old, new):
         return self.call("replace", self.kernels.replace, (arr, old, new), {})

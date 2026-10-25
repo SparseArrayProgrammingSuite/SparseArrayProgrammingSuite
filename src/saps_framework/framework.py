@@ -255,6 +255,17 @@ class Framework(ABC):
         )
         return reduce_op(patches, axis=tuple(range(x.ndim, patches.ndim)))
 
+    def topk(self, x, k, *, axis=-1, largest=True):
+        """Return the k largest (or, with largest=False, smallest) entries of x
+        along axis, in order, and their indices, like torch.topk. Ties come in
+        index order.
+
+        Backends override this to avoid sorting every entry.
+        """
+        order = self.argsort(-x if largest else x, axis=axis, stable=True)
+        indices = self.take(order, self.arange(k), axis=axis)
+        return self.take_along_axis(x, indices, axis=axis), indices
+
     @abstractmethod
     def replace(self, arr, old, new):
         """Return an array with every occurrence of scalar old replaced by new.
