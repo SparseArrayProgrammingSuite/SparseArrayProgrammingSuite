@@ -120,11 +120,14 @@ def _conv(x: np.ndarray, w: np.ndarray, pads, strides, dilations) -> np.ndarray:
     ]
     y = np.zeros((x.shape[0], *out, w.shape[0]), dtype=np.result_type(x, w))
     for offset in np.ndindex(*w.shape[2:]):
-        window = tuple(
-            slice(o * d, o * d + (n - 1) * s + 1, s)
-            for o, d, n, s in zip(offset, dilations, out, strides, strict=True)
+        window: tuple[Any, ...] = (
+            ...,
+            *(
+                slice(o * d, o * d + (n - 1) * s + 1, s)
+                for o, d, n, s in zip(offset, dilations, out, strides, strict=True)
+            ),
         )
-        y += np.tensordot(x[(..., *window)], w[(..., *offset)], axes=(1, 1))
+        y += np.tensordot(x[window], w[(..., *offset)], axes=(1, 1))
     return np.moveaxis(y, -1, 1)
 
 
@@ -160,7 +163,7 @@ def _exact_outputs(model, feed: dict[str, np.ndarray]) -> tuple[np.ndarray, np.n
                     b"NOTSET"
                 ):
                     raise NotImplementedError("Only ungrouped, explicitly padded Conv")
-                (x, w, *b), vx = args, variances[0]
+                (x, w, *bias_args), vx = args, variances[0]
                 rank = w.ndim - 2
 
                 def conv(x, w, rank=rank, attrs=attrs):
@@ -172,10 +175,12 @@ def _exact_outputs(model, feed: dict[str, np.ndarray]) -> tuple[np.ndarray, np.n
                         attrs.get("dilations", [1] * rank),
                     )
 
-                bias = b[0].reshape(-1, *[1] * rank) if b else np.zeros(())
+                bias = (
+                    bias_args[0].reshape(-1, *[1] * rank) if bias_args else np.zeros(())
+                )
                 y = conv(x, w) + bias
                 magnitude = conv(np.abs(x), np.abs(w)) + np.abs(bias)
-                v = conv(vx, w * w) + u2 * (w[0].size + len(b)) * magnitude**2
+                v = conv(vx, w * w) + u2 * (w[0].size + len(bias_args)) * magnitude**2
             case "Gemm" | "MatMul":
                 (a, b, *c), (va, vb, *_) = args, variances
                 if attrs.get("transA"):
@@ -217,11 +222,11 @@ def _exact_outputs(model, feed: dict[str, np.ndarray]) -> tuple[np.ndarray, np.n
                     *zip(pads[:rank], pads[rank:], strict=True),
                 ]
                 axes = tuple(range(2, 2 + rank))
-                windows = np.lib.stride_tricks.sliding_window_view(
+                windows = np.lib.stride_tricks.sliding_window_view(  # type: ignore[call-overload]
                     np.pad(x, pad_width, constant_values=-np.inf), spread, axis=axes
                 )[(..., *steps)]
                 y = windows.max(axis=tuple(range(-rank, 0)))
-                windows = np.lib.stride_tricks.sliding_window_view(
+                windows = np.lib.stride_tricks.sliding_window_view(  # type: ignore[call-overload]
                     np.pad(vx, pad_width), spread, axis=axes
                 )[(..., *steps)]
                 v = windows.sum(axis=tuple(range(-rank, 0)))

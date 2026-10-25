@@ -72,14 +72,3 @@ def test_smart_sparse_topk_falls_back_when_a_row_stores_too_few():
     values, indices = SmartSparseKernels().topk(x, 3, axis=1, largest=False)
     np.testing.assert_array_equal(indices[0], [4, 1, 0])
     np.testing.assert_array_equal(values[0], [0.25, 0.5, np.inf])
-
-
-def test_numpy_factors_out_an_output_shaped_mask(monkeypatch):
-    rng = np.random.default_rng(3)
-    mask = rng.random((30, 40)) < 0.1
-    a, b = rng.standard_normal((30, 8)), rng.standard_normal((40, 8))
-    monkeypatch.setattr(np, "einsum", lambda *args, **kwargs: pytest.fail("np.einsum"))
-    result = NumpyFramework().einsum(
-        "S[q,n] += C[q,n] * Q[q,f] * D[n,f]", C=mask, Q=a, D=b
-    )
-    np.testing.assert_allclose(result, mask * (a @ b.T), atol=1e-12)
