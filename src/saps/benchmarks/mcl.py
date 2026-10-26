@@ -15,6 +15,9 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
@@ -359,8 +362,41 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
         # fmt: on
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = MCLSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        problem = DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+        return DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+
+
+class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Markov Clustering (MCL) SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Markov Clustering (MCL) SNAP, cached apart from"
+            " its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MCLSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
+        problem = MCLSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0])
         graph = graph.astype(float)
@@ -407,7 +443,18 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
             "reference_backend": "scipy",
             "reference_algorithm": "mcl",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class MCLSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return MCLSNAPReferenceGenerator()
 
 
 class MCLGAPGenerator(Generator[MCLDataset]):
@@ -468,8 +515,41 @@ class MCLGAPGenerator(Generator[MCLDataset]):
         # fmt: on
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = MCLGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        problem = DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+        return DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+
+
+class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Markov Clustering (MCL) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Markov Clustering (MCL) GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MCLGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
+        problem = MCLGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0])
         graph = graph.astype(float)
@@ -516,7 +596,18 @@ class MCLGAPGenerator(Generator[MCLDataset]):
             "reference_backend": "scipy",
             "reference_algorithm": "mcl",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class MCLGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return MCLGAPReferenceGenerator()
 
 
 class MCLBenchmark(Benchmark):

@@ -31,21 +31,42 @@ from saps.downloaders import suitesparse as downloader
 from saps.metadata import _benchmark_instances
 from saps.storage import LocalStorageBackend
 
+# Each SNAP consumer with the reference generator its generate reads, if any.
 _CONSUMERS = [
-    ("bfs", "BFSSNAPGenerator"),
-    ("bellman_ford", "BellmanFordSNAPGenerator"),
-    ("betweenness_centrality", "BetweennessCentralitySNAPGenerator"),
-    ("connected_components", "ConnectedComponentsSNAPGenerator"),
-    ("fastsv", "FastSVSNAPGenerator"),
-    ("four_clique_counting", "FourCliqueCountingSNAPGenerator"),
-    ("pagerank", "PageRankSNAPGenerator"),
-    ("transitive_closure", "TransitiveClosureSNAPGenerator"),
-    ("floyd_warshall", "FloydWarshallSNAPGenerator"),
-    ("triangle_counting", "TriangleCountingSNAPGenerator"),
-    ("transitive_reduction", "TransitiveReductionSNAPGenerator"),
-    ("mssp", "MSSPSNAPGenerator"),
-    ("msbfs", "MSBFSSNAPGenerator"),
-    ("mcl", "MCLSNAPGenerator"),
+    ("bfs", "BFSSNAPGenerator", "BFSSNAPReferenceGenerator"),
+    ("bellman_ford", "BellmanFordSNAPGenerator", "BellmanFordSNAPReferenceGenerator"),
+    (
+        "betweenness_centrality",
+        "BetweennessCentralitySNAPGenerator",
+        "BetweennessCentralitySNAPReferenceGenerator",
+    ),
+    (
+        "connected_components",
+        "ConnectedComponentsSNAPGenerator",
+        "ConnectedComponentsSNAPReferenceGenerator",
+    ),
+    ("fastsv", "FastSVSNAPGenerator", "FastSVSNAPReferenceGenerator"),
+    ("four_clique_counting", "FourCliqueCountingSNAPGenerator", None),
+    ("pagerank", "PageRankSNAPGenerator", "PageRankSNAPReferenceGenerator"),
+    (
+        "transitive_closure",
+        "TransitiveClosureSNAPGenerator",
+        "TransitiveClosureSNAPReferenceGenerator",
+    ),
+    (
+        "floyd_warshall",
+        "FloydWarshallSNAPGenerator",
+        "FloydWarshallSNAPReferenceGenerator",
+    ),
+    ("triangle_counting", "TriangleCountingSNAPGenerator", None),
+    (
+        "transitive_reduction",
+        "TransitiveReductionSNAPGenerator",
+        "TransitiveReductionSNAPReferenceGenerator",
+    ),
+    ("mssp", "MSSPSNAPGenerator", "MSSPSNAPReferenceGenerator"),
+    ("msbfs", "MSBFSSNAPGenerator", "MSBFSSNAPReferenceGenerator"),
+    ("mcl", "MCLSNAPGenerator", "MCLSNAPReferenceGenerator"),
 ]
 _MULTI_SOURCE = {"mssp", "msbfs"}
 
@@ -151,9 +172,11 @@ def test_snap_shell_preserves_suitesparse_matrix_and_discards_extras(
     np.testing.assert_array_equal(to_numpy(shared.inputs[1]), [1, 2, 3, 4])
 
 
-@pytest.mark.parametrize(("module_name", "class_name"), _CONSUMERS)
+@pytest.mark.parametrize(
+    ("module_name", "class_name", "reference_class_name"), _CONSUMERS
+)
 def test_snap_consumer_reads_shared_remote_graph_without_source_download(
-    monkeypatch, tmp_path, module_name, class_name
+    monkeypatch, tmp_path, module_name, class_name, reference_class_name
 ):
     backend = LocalStorageBackend(
         tmp_path / "remote", tmp_path / "manifest.json", tmp_path / "cache"
@@ -177,9 +200,20 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", source_download)
     assert backend.upload_dataset(shell, source)
     source_download.assert_called_once_with(f"SNAP/{slug}", data_dir=None)
-    # Simulate another worker with only the manifest and remote prepared object.
+    referenced = reference_class_name is not None
+    reference = getattr(module, reference_class_name)() if referenced else None
+    if referenced:
+        # References for every dataset of this graph are prepared once too.
+        for prepared in reference.datasets:
+            if getattr(prepared.dataset, "source_name", prepared.name) == getattr(
+                dataset, "source_name", dataset.name
+            ):
+                assert backend.upload_dataset(reference, prepared)
+    # Simulate another worker with only the manifest and remote prepared objects.
     shutil.rmtree(backend.cache_dir)
     forbidden = Mock(side_effect=AssertionError("Unexpected source download"))
+    if referenced:
+        monkeypatch.setattr(type(reference), "generate", forbidden)
     monkeypatch.setattr(downloader, "download_suitesparse_matrix", forbidden)
     monkeypatch.setattr(
         "saps.benchmarks.suitesparse.load_suitesparse_matrix", forbidden
@@ -191,6 +225,8 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
 
     problem = consumer.cached_generate(dataset)
     assert len(problem.inputs) == (2 if module_name in _MULTI_SOURCE else 1)
+    if referenced:
+        assert problem.ref_outputs is not None
     if getattr(dataset, "source_seed", None) is not None:
         assert problem.meta["seed"] == 0
         assert problem.meta["src"] == int(
@@ -281,11 +317,26 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         "max_degree": _MAX_DEGREES[f"SNAP/{slug}"],
         "sources": _seeded_sources(raw.inputs[0]),
     }
-    download.assert_called_once()
-    assert download.call_args.args[0].startswith(f"suitesparse_matrix/SNAP/{slug}/")
+    # The shared graph downloads once; everything else is a prepared reference.
+    downloaded = [call.args[0] for call in download.call_args_list]
+    graph = f"suitesparse_matrix/SNAP/{slug}/"
+    assert sum(path.startswith(graph) for path in downloaded) == 1
+    generators = {"suitesparse_matrix"}
+    if referenced:
+        generators.add(reference.name)
+    assert all(
+        path.startswith(graph) or path.partition("/")[0] in generators
+        for path in downloaded
+    )
     forbidden.assert_not_called()
     assert backend.manifest_path.read_bytes() == manifest
-    assert len(list(backend.cache_dir.rglob("*.bsp.h5"))) == 1
+    cached = [
+        path.relative_to(backend.cache_dir).parts[0]
+        for path in backend.cache_dir.rglob("*.bsp.h5")
+    ]
+    # The graph is cached once; the other objects are its consumer's references.
+    assert cached.count("suitesparse_matrix") == 1
+    assert set(cached) <= generators
 
 
 def test_each_gap_graph_problem_has_an_explicit_snap_generator():
@@ -304,6 +355,7 @@ def test_each_gap_graph_problem_has_an_explicit_snap_generator():
     assert len(problems) == 13
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
     from scipy.sparse import coo_array
 
@@ -518,6 +570,7 @@ def test_snap_generator_rejects_seeds_without_a_source(monkeypatch, seed):
         BFSSNAPGenerator().generate(dataset)
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     from scipy.sparse import coo_array
 
@@ -536,6 +589,7 @@ def test_snap_source_graph_picks_source_from_shell_sources(monkeypatch):
     assert raw.meta == {"max_degree": 3, "sources": sources}
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
     from scipy.sparse import coo_array
 
@@ -553,6 +607,7 @@ def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
     assert problem.inputs[1].shape == (3, 3)
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_msbfs_snap_problems_use_deduplicated_shell_sources_and_edge_pattern(
     monkeypatch,
 ):

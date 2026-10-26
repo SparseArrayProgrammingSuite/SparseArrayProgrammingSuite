@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 
 import pytest
 
@@ -14,6 +14,9 @@ from saps.benchmark import DataInstance
 from saps.benchmarks import betweenness_centrality as bc
 from saps.benchmarks.gap import GAPGraphGenerator
 from saps.benchmarks.snap import SNAPGraphGenerator
+
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
 
 
 @pytest.mark.parametrize("framework", [NumpyFramework, PyDataSparseFramework])
@@ -124,7 +127,8 @@ def test_gap_generator_selects_trial_and_discards_weights(monkeypatch):
     # Published IDs are tested separately; numerical checks need local vertices.
     dataset.sources = [0, 1, 2, 0]
     problem = bc.BetweennessCentralityGAPGenerator().generate(dataset)
-    fetch.assert_called_once_with("GAP-road")
+    # An in-process reference fetches the graph again.
+    assert fetch.call_args_list == [call("GAP-road")] * fetch.call_count
     assert problem.meta["bc_sources"] == dataset.sources
     assert problem.meta["trial"] == 3
     assert problem.meta["include_source"] is True

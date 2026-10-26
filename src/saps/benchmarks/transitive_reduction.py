@@ -18,6 +18,9 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
@@ -293,10 +296,50 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
         # fmt: on
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = TransitiveReductionSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        problem = DataInstance(
+        return DataInstance(
             inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
         )
+
+
+class TransitiveReductionSNAPReferenceGenerator(
+    ReferenceGenerator[TransitiveReductionDataset]
+):
+    @property
+    def name(self) -> str:
+        return "transitive_reduction_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Reduction SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Transitive Reduction SNAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[TransitiveReductionDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in TransitiveReductionSNAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[TransitiveReductionDataset]
+    ) -> DataInstance:
+        problem = TransitiveReductionSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0], distances=True)
         # Existing-edge two-hop witnesses implement the suite's weighted pruning rule.
@@ -349,7 +392,18 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             "reference_backend": "scipy",
             "reference_algorithm": "transitive_reduction",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class TransitiveReductionSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return TransitiveReductionSNAPReferenceGenerator()
 
 
 class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
@@ -456,10 +510,50 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
         ]
 
     def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = TransitiveReductionGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        problem = DataInstance(
+        return DataInstance(
             inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
         )
+
+
+class TransitiveReductionGAPReferenceGenerator(
+    ReferenceGenerator[TransitiveReductionDataset]
+):
+    @property
+    def name(self) -> str:
+        return "transitive_reduction_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Reduction GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Transitive Reduction GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[TransitiveReductionDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in TransitiveReductionGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[TransitiveReductionDataset]
+    ) -> DataInstance:
+        problem = TransitiveReductionGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0], distances=True)
         # Existing-edge two-hop witnesses implement the suite's weighted pruning rule.
@@ -512,7 +606,18 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
             "reference_backend": "scipy",
             "reference_algorithm": "transitive_reduction",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class TransitiveReductionGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return TransitiveReductionGAPReferenceGenerator()
 
 
 class TransitiveReductionBenchmark(Benchmark):

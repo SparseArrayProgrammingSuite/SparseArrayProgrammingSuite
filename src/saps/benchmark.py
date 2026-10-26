@@ -551,3 +551,82 @@ class ShellBenchmark(Benchmark, ABC):
 
     def check(self, param):
         pass
+
+
+class ReferenceDataset(Dataset, Generic[TDataset]):
+    """A dataset whose reference outputs are cached apart from its inputs.
+
+    It keeps the dataset's name and freshness, so its cache key and staleness
+    match the dataset's, but joins no suites: it exists only to prepare caches.
+    """
+
+    def __init__(self, dataset: TDataset):
+        self.dataset = dataset
+
+    @property
+    def name(self) -> str:
+        return self.dataset.name
+
+    @property
+    def pretty_name(self) -> str:
+        return self.dataset.pretty_name
+
+    @property
+    def description(self) -> str:
+        return self.dataset.description
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return self.dataset.concepts
+
+    @property
+    def file(self) -> str:
+        return self.dataset.file
+
+    @property
+    def freshness(self) -> str:
+        return self.dataset.freshness
+
+
+class ReferenceGenerator(Generator[ReferenceDataset[TDataset]], ABC):
+    """Caches the expensive parts of an uncached generator's instances.
+
+    A generator whose inputs come from cached shell generators stays uncached,
+    so each shared input is stored once. Its expensive parts, such as reference
+    outputs, training targets, or a factored preconditioner, live in a sibling
+    `ReferenceGenerator` whose `datasets` wrap the generator's own in
+    `ReferenceDataset` and whose `generate` returns a `DataInstance` holding only
+    those parts. The generator's `generate` merges in
+    `XReferenceGenerator().cached_generate(ReferenceDataset(dataset))`. Wrap each
+    reference generator in a `ShellBenchmark` so that dataset caching prepares
+    it. Test runs prepare no references, so test cases belong in test generators
+    that compute inline.
+    """
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return []
+
+    @property
+    def ai_disclosure(self) -> str:
+        return ""
+
+    @property
+    def motivation(self) -> str:
+        return ""

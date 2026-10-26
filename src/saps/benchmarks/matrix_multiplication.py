@@ -11,6 +11,9 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 from saps.util.error_bounds import summation_error_bound
@@ -285,7 +288,7 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
         )
 
     @property
-    def datasets(self) -> list[Dataset]:
+    def datasets(self) -> list[MatrixMultiplicationSuiteSparseDataset]:
         return [
             MatrixMultiplicationSuiteSparseDataset(
                 name,
@@ -301,8 +304,57 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
         ]
 
     def generate(self, dataset: MatrixMultiplicationSuiteSparseDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = MatrixMultiplicationSuiteSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(
+        self, dataset: MatrixMultiplicationSuiteSparseDataset
+    ) -> DataInstance:
         A_bin = fetch_suitesparse_matrix(dataset.matrix_1).inputs[0]
         B_bin = fetch_suitesparse_matrix(dataset.matrix_2).inputs[0]
+        return DataInstance([A_bin, B_bin], meta={"dataset": dataset.name})
+
+
+class MatrixMultiplicationSuiteSparseReferenceGenerator(
+    ReferenceGenerator[MatrixMultiplicationSuiteSparseDataset]
+):
+    @property
+    def name(self) -> str:
+        return "matrix_multiplication_suitesparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Matrix Multiplication SuiteSparse Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Matrix Multiplication SuiteSparse, cached apart"
+            " from its inputs."
+        )
+
+    @property
+    def datasets(
+        self,
+    ) -> list[ReferenceDataset[MatrixMultiplicationSuiteSparseDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in MatrixMultiplicationSuiteSparseGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[MatrixMultiplicationSuiteSparseDataset]
+    ) -> DataInstance:
+        A_bin, B_bin = (
+            MatrixMultiplicationSuiteSparseGenerator()
+            .generate_inputs(dataset.dataset)
+            .inputs
+        )
         A_coo = to_scipy(A_bin).tocoo()
         B_coo = to_scipy(B_bin).tocoo()
 
@@ -312,11 +364,17 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
             np, A_coo.shape[1] + 1, scale, np.result_type(A_coo.dtype, B_coo.dtype)
         )
         return DataInstance(
-            [A_bin, B_bin],
-            meta={"dataset": dataset.name},
+            [],
+            meta={},
             ref_outputs=[from_scipy((A_coo @ B_coo).tocoo())],
             ref_meta={"error_bound": float(bound)},
         )
+
+
+class MatrixMultiplicationSuiteSparseReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return MatrixMultiplicationSuiteSparseReferenceGenerator()
 
 
 # Densities (fraction of nonzeros) for the uniform random sparse generator,

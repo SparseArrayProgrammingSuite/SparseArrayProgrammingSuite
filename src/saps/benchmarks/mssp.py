@@ -14,6 +14,9 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
@@ -456,7 +459,16 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: MSSPDataset):
+    def generate(self, dataset: MSSPDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = MSSPGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MSSPDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
         n, m = raw.inputs[0].shape
         if n != m:
@@ -464,9 +476,33 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
                 f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}"
             )
 
-        problem = multi_source_instance(
+        return multi_source_instance(
             raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
         )
+
+
+class MSSPGAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
+    @property
+    def name(self) -> str:
+        return "mssp_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Multi-Source Shortest Paths (MSSP) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Multi-Source Shortest Paths (MSSP) GAP, cached"
+            " apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MSSPDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MSSPGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MSSPDataset]) -> DataInstance:
+        problem = MSSPGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
         graph = ig.Graph(
@@ -487,7 +523,18 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "mssp",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class MSSPGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return MSSPGAPReferenceGenerator()
 
 
 class MSSPSNAPGenerator(Generator[MSSPDataset]):
@@ -613,9 +660,42 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
         # fmt: on
 
     def generate(self, dataset: MSSPDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = MSSPSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MSSPDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         sources = np.unique(raw.meta["sources"]).tolist()
-        problem = multi_source_instance(raw.inputs[0], sources)
+        return multi_source_instance(raw.inputs[0], sources)
+
+
+class MSSPSNAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
+    @property
+    def name(self) -> str:
+        return "mssp_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Multi-Source Shortest Paths (MSSP) SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Multi-Source Shortest Paths (MSSP) SNAP, cached"
+            " apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MSSPDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MSSPSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MSSPDataset]) -> DataInstance:
+        problem = MSSPSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
         graph = ig.Graph(
@@ -636,7 +716,18 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "mssp",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class MSSPSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return MSSPSNAPReferenceGenerator()
 
 
 class MSSPBenchmark(Benchmark):

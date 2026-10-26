@@ -1,4 +1,5 @@
 import importlib
+import itertools
 from fractions import Fraction
 from types import SimpleNamespace
 
@@ -24,6 +25,9 @@ from saps.util.error_bounds import (
     operation_error_bound,
     summation_error_bound,
 )
+
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
 
 
 @pytest.mark.parametrize("dtype", [np.float32, np.float64])
@@ -87,16 +91,17 @@ def _product_case(monkeypatch, benchmark_cls, a, b, *, sparse=False):
     B = b if benchmark_cls is MatrixVectorMultiplicationBenchmark else b.reshape(-1, 1)
     if benchmark_cls is SDDMMBenchmark:
         generator = benchmark.generators[0]
-        matrices = iter([sps.coo_array([[2.0]])])
-        arrays = iter([A, B])
+        matrices = itertools.cycle([sps.coo_array([[2.0]])])
+        arrays = itertools.cycle([A, B])
     elif sparse:
         generator = benchmark.generators[1]
-        matrices = iter([sps.coo_array(A), sps.coo_array(B)])
-        arrays = iter([B])
+        matrices = itertools.cycle([sps.coo_array(A), sps.coo_array(B)])
+        arrays = itertools.cycle([B])
     else:
         generator = benchmark.generators[0]
-        arrays = iter([A, B])
-        matrices = iter([])
+        arrays = itertools.cycle([A, B])
+        matrices = itertools.cycle([])
+    # Fakes repeat their inputs, since an in-process reference builds them again.
     with monkeypatch.context() as patch:
         patch.setattr(
             module,
@@ -201,7 +206,7 @@ def test_sampled_bound_does_not_materialize_dense_product(monkeypatch):
     benchmark = SDDMMBenchmark()
     mask = sps.coo_array(([2.0, -3.0], ([0, 9999], [9999, 0])), shape=(10000, 10000))
     module = importlib.import_module(benchmark.__module__)
-    arrays = iter([np.ones((10000, 2)), np.ones((2, 10000))])
+    arrays = itertools.cycle([np.ones((10000, 2)), np.ones((2, 10000))])
     monkeypatch.setattr(
         module,
         "fetch_suitesparse_matrix",
@@ -240,7 +245,9 @@ def test_sddmm_bound_accounts_for_scaling_and_cancellation(
 
     def generate_bound(mask_value, terms):
         mask = sps.coo_array([[mask_value]])
-        arrays = iter([np.array([terms], dtype=dtype), np.ones((2, 1), dtype=dtype)])
+        arrays = itertools.cycle(
+            [np.array([terms], dtype=dtype), np.ones((2, 1), dtype=dtype)]
+        )
         rng = SimpleNamespace(random=lambda shape: next(arrays))
         with monkeypatch.context() as patch:
             patch.setattr(np.random, "Generator", lambda _: rng)

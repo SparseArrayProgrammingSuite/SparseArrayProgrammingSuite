@@ -14,6 +14,9 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
@@ -333,8 +336,17 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
         # fmt: on
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = TransitiveClosureSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: TransitiveClosureDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        problem = DataInstance(
+        return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={
                 **raw.meta,
@@ -345,6 +357,37 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
                 ),
             },
         )
+
+
+class TransitiveClosureSNAPReferenceGenerator(
+    ReferenceGenerator[TransitiveClosureDataset]
+):
+    @property
+    def name(self) -> str:
+        return "transitive_closure_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Closure SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Transitive Closure SNAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[TransitiveClosureDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in TransitiveClosureSNAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[TransitiveClosureDataset]
+    ) -> DataInstance:
+        problem = TransitiveClosureSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0], boolean=True)
         # Boolean sparse multiplication preserves reachability without path counts.
@@ -363,7 +406,18 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
             "reference_backend": "scipy",
             "reference_algorithm": "transitive_closure",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class TransitiveClosureSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return TransitiveClosureSNAPReferenceGenerator()
 
 
 class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
@@ -434,8 +488,17 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
         # fmt: on
 
     def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = TransitiveClosureGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: TransitiveClosureDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        problem = DataInstance(
+        return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={
                 **raw.meta,
@@ -446,6 +509,37 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
                 ),
             },
         )
+
+
+class TransitiveClosureGAPReferenceGenerator(
+    ReferenceGenerator[TransitiveClosureDataset]
+):
+    @property
+    def name(self) -> str:
+        return "transitive_closure_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Closure GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Transitive Closure GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[TransitiveClosureDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in TransitiveClosureGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[TransitiveClosureDataset]
+    ) -> DataInstance:
+        problem = TransitiveClosureGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0], boolean=True)
         # Boolean sparse multiplication preserves reachability without path counts.
@@ -464,7 +558,18 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
             "reference_backend": "scipy",
             "reference_algorithm": "transitive_closure",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class TransitiveClosureGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return TransitiveClosureGAPReferenceGenerator()
 
 
 class TransitiveClosureBenchmark(Benchmark):

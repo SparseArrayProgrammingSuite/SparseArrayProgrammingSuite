@@ -15,6 +15,9 @@ from saps.benchmark import (
     DataInstance,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
@@ -24,6 +27,36 @@ from saps.downloaders.suitesparse import random_rhs_for_matrix
 from saps.util.error_bounds import operation_error_bound, summation_error_bound
 
 BLOCK_JACOBI_BLOCK_SIZE = 16
+
+
+def _block_jacobi_preconditioner(A_bin):
+    """Lower Cholesky factors of A's diagonal blocks, as one block-diagonal matrix.
+
+    One block for every processor, modelled after
+    https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html. Every block factors
+    at once; identity pads a short last block without changing its factor.
+    """
+    A = to_scipy(A_bin).tocoo()
+    A.sum_duplicates()
+    n = A.shape[0]
+    size = min(BLOCK_JACOBI_BLOCK_SIZE, n)
+    count = -(-n // size)
+    blocks = np.zeros((count, size, size), dtype=A.dtype)
+    inside = A.row // size == A.col // size
+    rows, cols = A.row[inside], A.col[inside]
+    blocks[rows // size, rows % size, cols % size] = A.data[inside]
+    padding = count * size - n
+    blocks[-1, size - padding :, size - padding :] = np.eye(padding)
+    factors = np.linalg.cholesky(blocks)
+    # Blocks are stored whole, upper zeros included, as block_diag stores them.
+    block, row, col = np.indices(factors.shape, dtype=np.int32).reshape(3, -1)
+    row, col = block * size + row, block * size + col
+    keep = (row < n) & (col < n)
+    return from_scipy(
+        scipy_sparse.coo_array(
+            (factors.ravel()[keep], (row[keep], col[keep])), shape=(n, n)
+        )
+    )
 
 
 def _generate_cg_data(source, A=None, rhs_index=None):
@@ -572,36 +605,67 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
         ]
 
     def generate(self, dataset: PCGDataset) -> DataInstance:
-        import scipy.sparse as sp
+        problem = self.generate_inputs(dataset)
+        # The preconditioner is costly to factor, so it is cached apart from A.
+        reference = BlockJacobiPCGSuiteSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.inputs.extend(reference.inputs)
+        return problem
 
+    def generate_inputs(self, dataset: PCGDataset) -> DataInstance:
         A_bin, b, x0 = _generate_cg_data(
             dataset.source_name,
             dataset.A,
             rhs_index=dataset.rhs_index,
         )
-        A_csr = to_scipy(A_bin).tocsr()
-        # Create one block for every processor modelled after
-        # this example: https://petsc.org/main/src/ksp/ksp/tutorials/ex7.c.html
-        n = A_csr.shape[0]
-        block_size = min(BLOCK_JACOBI_BLOCK_SIZE, n)
-        blocks = []
-        i = 0
-        while i < n:
-            j = min(i + block_size, n)
-            A_ii = A_csr[i:j, i:j].toarray()
-            L_i = np.linalg.cholesky(A_ii)
-            blocks.append(L_i)
-            i = j
-        M = sp.block_diag(blocks).tocoo()
-        M_bin = from_scipy(M)
-        b_bin = from_numpy(b)
-        x0_bin = from_numpy(x0)
         return DataInstance(
-            inputs=[A_bin, b_bin, x0_bin, M_bin],
+            inputs=[A_bin, from_numpy(b), from_numpy(x0)],
             meta=dataset.benchmark_meta(),
-            ref_outputs=[from_scipy(np.abs(A_csr).tocoo())],
+            ref_outputs=[from_scipy(np.abs(to_scipy(A_bin).tocsr()).tocoo())],
             ref_meta={**(dataset.ref_meta or {}), "bnorm": float(np.linalg.norm(b))},
         )
+
+
+class BlockJacobiPCGSuiteSparseReferenceGenerator(ReferenceGenerator[PCGDataset]):
+    @property
+    def name(self) -> str:
+        return "block_jacobi_pcg_suitesparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "Block Jacobi Preconditioned Conjugate Gradient (PCG) SuiteSparse Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Block Jacobi preconditioner for Block Jacobi Preconditioned Conjugate"
+            " Gradient (PCG) SuiteSparse, factored once and cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[PCGDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in BlockJacobiPCGSuiteSparseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[PCGDataset]) -> DataInstance:
+        A_bin = (
+            BlockJacobiPCGSuiteSparseGenerator()
+            .generate_inputs(dataset.dataset)
+            .inputs[0]
+        )
+        return DataInstance(inputs=[_block_jacobi_preconditioner(A_bin)], meta={})
+
+
+class BlockJacobiPCGSuiteSparseReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return BlockJacobiPCGSuiteSparseReferenceGenerator()
 
 
 class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
@@ -680,6 +744,11 @@ class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
                 ref_meta={"check_residual": True},
             ),
         ]
+
+    def generate(self, dataset: PCGDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        problem.inputs.append(_block_jacobi_preconditioner(problem.inputs[0]))
+        return problem
 
 
 class JacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):

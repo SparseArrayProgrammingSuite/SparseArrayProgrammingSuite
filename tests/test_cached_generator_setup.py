@@ -59,6 +59,7 @@ def test_bellman_ford_runs_with_infinity_filled_sparse_input(framework):
     np.testing.assert_array_equal(result, [0, 2, 5, np.inf])
 
 
+@pytest.mark.usefixtures("uncached_references")
 def test_bellman_ford_large_graph_setup_and_cache_stay_sparse(monkeypatch, tmp_path):
     size = 1_000_000
     raw = from_scipy(

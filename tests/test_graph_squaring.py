@@ -12,6 +12,9 @@ from saps.benchmarks import floyd_warshall as fw
 from saps.benchmarks import transitive_closure as tc
 from saps.util.adjacency import squaring_count
 
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
+
 
 @pytest.mark.parametrize(
     "n,degree,density,steps",

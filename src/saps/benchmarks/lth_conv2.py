@@ -409,7 +409,7 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
 
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     @property
     def datasets(self) -> list[LTHConv2Dataset]:

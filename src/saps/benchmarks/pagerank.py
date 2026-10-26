@@ -14,6 +14,9 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
@@ -325,11 +328,43 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
         # fmt: on
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = PageRankSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: PageRankDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        problem = DataInstance(
+        return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta=dict(raw.meta),
         )
+
+
+class PageRankSNAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
+    @property
+    def name(self) -> str:
+        return "pagerank_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "PageRank SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return "Reference outputs for PageRank SNAP, cached apart from its inputs."
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[PageRankDataset]]:
+        return [
+            ReferenceDataset(dataset) for dataset in PageRankSNAPGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[PageRankDataset]) -> DataInstance:
+        problem = PageRankSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0]).tocoo()
         graph = ig.Graph(
@@ -360,7 +395,18 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
                 meta.get("tol", 1e-8) / (1 - alpha),
             ),
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class PageRankSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return PageRankSNAPReferenceGenerator()
 
 
 class PageRankGAPGenerator(Generator[PageRankDataset]):
@@ -431,11 +477,43 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
         # fmt: on
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = PageRankGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: PageRankDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        problem = DataInstance(
+        return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta=dict(raw.meta),
         )
+
+
+class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
+    @property
+    def name(self) -> str:
+        return "pagerank_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "PageRank GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return "Reference outputs for PageRank GAP, cached apart from its inputs."
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[PageRankDataset]]:
+        return [
+            ReferenceDataset(dataset) for dataset in PageRankGAPGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[PageRankDataset]) -> DataInstance:
+        problem = PageRankGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0]).tocoo()
         graph = ig.Graph(
@@ -466,7 +544,18 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
                 meta.get("tol", 1e-8) / (1 - alpha),
             ),
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class PageRankGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return PageRankGAPReferenceGenerator()
 
 
 class PageRankBenchmark(Benchmark):

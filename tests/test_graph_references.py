@@ -17,6 +17,9 @@ from saps.benchmark import DataInstance
 from saps.storage import LocalStorageBackend
 from saps.util.adjacency import distance_matrix
 
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
+
 GRAPH_CLASSES = [
     ("bfs", "BFS"),
     ("msbfs", "MSBFS"),

@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 
 import pytest
 
@@ -21,6 +21,9 @@ from saps.benchmarks.gap import (
 )
 from saps.benchmarks.suitesparse import SuiteSparseMatrixGenerator
 from saps.metadata import _benchmark_instances
+
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
 
 
 def test_gap_shell_inventory():
@@ -156,7 +159,8 @@ def test_floyd_warshall_gap_keeps_weights_and_direction(
     assert G.fill_value == np.inf
     assert G.nnz == np.isfinite(expected).sum()
     np.testing.assert_array_equal(G.todense(), expected)
-    load.assert_called_once_with(f"GAP-{name}")
+    # An in-process reference fetches the graph again.
+    assert load.call_args_list == [call(f"GAP-{name}")] * load.call_count
 
 
 @pytest.mark.parametrize("symmetrize", [False, True])
@@ -179,7 +183,8 @@ def test_multi_source_gap_conversion_uses_shell_sources(
     )
     assert problem.meta == {"sources": [2, 0, 2]}
     assert weighted_graph.meta == {"sources": [2, 0, 2], "max_degree": 1}
-    load.assert_called_once_with("GAP-road")
+    # An in-process reference fetches the graph again.
+    assert load.call_args_list == [call("GAP-road")] * load.call_count
 
 
 def test_msbfs_gap_searches_from_every_published_source(monkeypatch, weighted_graph):
@@ -201,7 +206,8 @@ def test_msbfs_gap_searches_from_every_published_source(monkeypatch, weighted_gr
     )
     assert problem.meta == {"sources": [2, 0, 2]}
     assert weighted_graph.meta == {"sources": [2, 0, 2], "max_degree": 1}
-    load.assert_called_once_with("GAP-road")
+    # An in-process reference fetches the graph again.
+    assert load.call_args_list == [call("GAP-road")] * load.call_count
 
 
 def test_bellman_ford_gap_preserves_weights_and_shared_metadata(
@@ -219,4 +225,5 @@ def test_bellman_ford_gap_preserves_weights_and_shared_metadata(
     )
     assert problem.meta == {**weighted_graph.meta, "src": 2}
     assert "src" not in weighted_graph.meta
-    load.assert_called_once_with("GAP-road")
+    # An in-process reference fetches the graph again.
+    assert load.call_args_list == [call("GAP-road")] * load.call_count

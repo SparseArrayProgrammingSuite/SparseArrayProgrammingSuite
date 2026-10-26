@@ -14,6 +14,9 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
 )
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
@@ -580,16 +583,49 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
         # fmt: on
 
     def generate(self, dataset: BFSDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = BFSSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: BFSDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.source_name)
         seed = dataset.source_seed
         if seed is None or not 0 <= seed < len(raw.meta["sources"]):
             raise ValueError(
                 f"Source seed is outside the graph's available sources: {seed}"
             )
-        problem = DataInstance(
+        return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
+
+
+class BFSSNAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search (BFS) SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Breadth-First Search (BFS) SNAP, cached apart from"
+            " its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BFSDataset]]:
+        return [ReferenceDataset(dataset) for dataset in BFSSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[BFSDataset]) -> DataInstance:
+        problem = BFSSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -608,7 +644,18 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "bfs",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class BFSSNAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return BFSSNAPReferenceGenerator()
 
 
 class BFSGAPGenerator(Generator[BFSDataset]):
@@ -694,15 +741,48 @@ class BFSGAPGenerator(Generator[BFSDataset]):
         # fmt: on
 
     def generate(self, dataset: BFSDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = BFSGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: BFSDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.source_name)
         if dataset.src not in raw.meta["sources"]:
             raise ValueError(
                 f"{dataset.src} is not a published source of {dataset.source_name}"
             )
-        problem = DataInstance(
+        return DataInstance(
             inputs=[zero_one_adjacency(raw.inputs[0])],
             meta={**raw.meta, "src": dataset.src},
         )
+
+
+class BFSGAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search (BFS) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Breadth-First Search (BFS) GAP, cached apart from"
+            " its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BFSDataset]]:
+        return [ReferenceDataset(dataset) for dataset in BFSGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[BFSDataset]) -> DataInstance:
+        problem = BFSGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -721,7 +801,18 @@ class BFSGAPGenerator(Generator[BFSDataset]):
             "reference_backend": "igraph",
             "reference_algorithm": "bfs",
         }
-        return problem
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class BFSGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return BFSGAPReferenceGenerator()
 
 
 class BFSBenchmark(Benchmark):

@@ -18,6 +18,9 @@ from saps.benchmarks.simhash_ann import (
     SimHashANNRandomSparseGenerator,
 )
 
+# These generators' references compute in-process here.
+pytestmark = pytest.mark.usefixtures("uncached_references")
+
 
 @pytest.mark.parametrize(
     "generator_cls",
@@ -57,8 +60,9 @@ def test_simhash_ann_openml_generator_uses_cached_task_split(
     dataset = next(d for d in generator.datasets if d.name == source_name)
     instance = generator.generate(dataset)
 
-    assert calls == [("openml_dataset", source_name, task_id, 0)]
-    assert generator.cacheable
+    # An in-process reference reads the shell again.
+    assert set(calls) == {("openml_dataset", source_name, task_id, 0)}
+    assert not generator.cacheable
     np.testing.assert_array_equal(to_numpy(instance.inputs[0]), features[train])
     np.testing.assert_array_equal(to_numpy(instance.inputs[1]), features[query])
     assert instance.inputs[2].shape == (
@@ -101,7 +105,7 @@ def test_simhash_ann_netflix_generator_uses_shared_shell(monkeypatch, generator_
 
     instance = generator.generate(dataset)
 
-    assert generator.cacheable
+    assert not generator.cacheable
     assert dataset.suites == ["standard"]
     assert to_scipy(instance.inputs[0]).shape == (6, 5)
     assert to_scipy(instance.inputs[1]).shape == (6, 5)
