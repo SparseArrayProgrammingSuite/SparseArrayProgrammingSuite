@@ -14,6 +14,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -583,7 +584,9 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
 
     def generate(self, dataset: BFSDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = BFSSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -600,8 +603,29 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
             meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
         )
 
-    def generate_reference(self, dataset: BFSDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class BFSSNAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search (BFS) SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Breadth-First Search (BFS) SNAP, cached apart from"
+            " its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BFSDataset]]:
+        return [ReferenceDataset(dataset) for dataset in BFSSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[BFSDataset]) -> DataInstance:
+        problem = BFSSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -631,7 +655,7 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
 class BFSSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(BFSSNAPGenerator())
+        return BFSSNAPReferenceGenerator()
 
 
 class BFSGAPGenerator(Generator[BFSDataset]):
@@ -718,7 +742,9 @@ class BFSGAPGenerator(Generator[BFSDataset]):
 
     def generate(self, dataset: BFSDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = BFSGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -734,8 +760,29 @@ class BFSGAPGenerator(Generator[BFSDataset]):
             meta={**raw.meta, "src": dataset.src},
         )
 
-    def generate_reference(self, dataset: BFSDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class BFSGAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
+    @property
+    def name(self) -> str:
+        return "bfs_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Breadth-First Search (BFS) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Breadth-First Search (BFS) GAP, cached apart from"
+            " its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BFSDataset]]:
+        return [ReferenceDataset(dataset) for dataset in BFSGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[BFSDataset]) -> DataInstance:
+        problem = BFSGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -765,7 +812,7 @@ class BFSGAPGenerator(Generator[BFSDataset]):
 class BFSGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(BFSGAPGenerator())
+        return BFSGAPReferenceGenerator()
 
 
 class BFSBenchmark(Benchmark):

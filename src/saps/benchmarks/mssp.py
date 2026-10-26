@@ -14,6 +14,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -460,7 +461,9 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
 
     def generate(self, dataset: MSSPDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = MSSPGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -477,8 +480,29 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
             raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
         )
 
-    def generate_reference(self, dataset: MSSPDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class MSSPGAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
+    @property
+    def name(self) -> str:
+        return "mssp_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Multi-Source Shortest Paths (MSSP) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Multi-Source Shortest Paths (MSSP) GAP, cached"
+            " apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MSSPDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MSSPGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MSSPDataset]) -> DataInstance:
+        problem = MSSPGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
         graph = ig.Graph(
@@ -510,7 +534,7 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
 class MSSPGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(MSSPGAPGenerator())
+        return MSSPGAPReferenceGenerator()
 
 
 class MSSPSNAPGenerator(Generator[MSSPDataset]):
@@ -637,7 +661,9 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
 
     def generate(self, dataset: MSSPDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = MSSPSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -647,8 +673,29 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
         sources = np.unique(raw.meta["sources"]).tolist()
         return multi_source_instance(raw.inputs[0], sources)
 
-    def generate_reference(self, dataset: MSSPDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class MSSPSNAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
+    @property
+    def name(self) -> str:
+        return "mssp_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Multi-Source Shortest Paths (MSSP) SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Multi-Source Shortest Paths (MSSP) SNAP, cached"
+            " apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MSSPDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MSSPSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MSSPDataset]) -> DataInstance:
+        problem = MSSPSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
         graph = ig.Graph(
@@ -680,7 +727,7 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
 class MSSPSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(MSSPSNAPGenerator())
+        return MSSPSNAPReferenceGenerator()
 
 
 class MSSPBenchmark(Benchmark):

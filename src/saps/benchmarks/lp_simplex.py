@@ -32,6 +32,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -587,7 +588,9 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
 
     def generate(self, dataset: LPSimplexLPnetlibDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = LPSimplexLPnetlibReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -609,20 +612,51 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
             },
         )
 
-    def generate_reference(self, dataset: LPSimplexLPnetlibDataset) -> DataInstance:
-        A_dense, b, c, lo, hi, _ = _dense_lpnetlib_problem(dataset.source_name)
+
+class LPSimplexLPnetlibReferenceGenerator(ReferenceGenerator[LPSimplexLPnetlibDataset]):
+    @property
+    def name(self) -> str:
+        return "lp_simplex_lpnetlib_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Linear Programming (LP) Simplex LPnetlib Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Linear Programming (LP) Simplex LPnetlib, cached"
+            " apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[LPSimplexLPnetlibDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in LPSimplexLPnetlibGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[LPSimplexLPnetlibDataset]
+    ) -> DataInstance:
+        lp = dataset.dataset
+        A_dense, b, c, lo, hi, _ = _dense_lpnetlib_problem(lp.source_name)
         reference_status, reference_objective = _reference_solution(
             A_dense, b, c, lo, hi
         )
 
         ref_outputs = None
-        if dataset.expected_status != _STATUS_OPTIMAL:
+        if lp.expected_status != _STATUS_OPTIMAL:
             # The lpi_ problems are the infeasible members of the collection, so
             # the status is known ahead of the run even though no solution is.
-            width = self.generate_inputs(dataset).meta["standard_form_shape"][1]
+            width = (
+                LPSimplexLPnetlibGenerator()
+                .generate_inputs(lp)
+                .meta["standard_form_shape"][1]
+            )
             ref_outputs = [
                 from_numpy(np.zeros(width)),
-                from_numpy(np.array([dataset.expected_status])),
+                from_numpy(np.array([lp.expected_status])),
             ]
 
         return DataInstance(
@@ -633,7 +667,7 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
                 "check_solution": True,
                 "feasibility_tol": 1e-6,
                 "objective_tol": 1e-6,
-                "expect_feasible": dataset.expected_status == _STATUS_OPTIMAL,
+                "expect_feasible": lp.expected_status == _STATUS_OPTIMAL,
                 "reference_status": reference_status,
                 "reference_objective": reference_objective,
             },
@@ -643,7 +677,7 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
 class LPSimplexLPnetlibReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(LPSimplexLPnetlibGenerator())
+        return LPSimplexLPnetlibReferenceGenerator()
 
 
 class LPSimplexBenchmark(Benchmark):

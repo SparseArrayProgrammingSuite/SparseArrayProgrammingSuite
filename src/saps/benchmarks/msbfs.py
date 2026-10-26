@@ -14,6 +14,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -428,7 +429,9 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
 
     def generate(self, dataset: MSBFSDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = MSBFSSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -438,8 +441,29 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
         sources = np.unique(raw.meta["sources"]).tolist()
         return multi_source_bfs_instance(raw.inputs[0], sources)
 
-    def generate_reference(self, dataset: MSBFSDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class MSBFSSNAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
+    @property
+    def name(self) -> str:
+        return "msbfs_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Multi-Source Breadth-First Search (MS-BFS) SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Multi-Source Breadth-First Search (MS-BFS) SNAP,"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MSBFSDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MSBFSSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MSBFSDataset]) -> DataInstance:
+        problem = MSBFSSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -470,7 +494,7 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
 class MSBFSSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(MSBFSSNAPGenerator())
+        return MSBFSSNAPReferenceGenerator()
 
 
 class MSBFSGAPGenerator(Generator[MSBFSDataset]):
@@ -542,7 +566,9 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
 
     def generate(self, dataset: MSBFSDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = MSBFSGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -551,8 +577,29 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
         raw = fetch_gap_graph(dataset.source_name)
         return multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
 
-    def generate_reference(self, dataset: MSBFSDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class MSBFSGAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
+    @property
+    def name(self) -> str:
+        return "msbfs_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Multi-Source Breadth-First Search (MS-BFS) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Multi-Source Breadth-First Search (MS-BFS) GAP,"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MSBFSDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MSBFSGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MSBFSDataset]) -> DataInstance:
+        problem = MSBFSGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -583,7 +630,7 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
 class MSBFSGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(MSBFSGAPGenerator())
+        return MSBFSGAPReferenceGenerator()
 
 
 class MSBFSBenchmark(Benchmark):

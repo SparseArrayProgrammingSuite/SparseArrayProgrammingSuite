@@ -14,6 +14,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -441,7 +442,9 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
 
     def generate(self, dataset: BetweennessCentralitySNAPDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = BetweennessCentralitySNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -464,10 +467,36 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             },
         )
 
-    def generate_reference(
-        self, dataset: BetweennessCentralitySNAPDataset
+
+class BetweennessCentralitySNAPReferenceGenerator(
+    ReferenceGenerator[BetweennessCentralitySNAPDataset]
+):
+    @property
+    def name(self) -> str:
+        return "betweenness_centrality_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Betweenness Centrality SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Betweenness Centrality SNAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BetweennessCentralitySNAPDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in BetweennessCentralitySNAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[BetweennessCentralitySNAPDataset]
     ) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+        problem = BetweennessCentralitySNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -505,7 +534,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
 class BetweennessCentralitySNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(BetweennessCentralitySNAPGenerator())
+        return BetweennessCentralitySNAPReferenceGenerator()
 
 
 class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDataset]):
@@ -577,7 +606,9 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
 
     def generate(self, dataset: BetweennessCentralityGAPDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = BetweennessCentralityGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -594,10 +625,36 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
             },
         )
 
-    def generate_reference(
-        self, dataset: BetweennessCentralityGAPDataset
+
+class BetweennessCentralityGAPReferenceGenerator(
+    ReferenceGenerator[BetweennessCentralityGAPDataset]
+):
+    @property
+    def name(self) -> str:
+        return "betweenness_centrality_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Betweenness Centrality GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Betweenness Centrality GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BetweennessCentralityGAPDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in BetweennessCentralityGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[BetweennessCentralityGAPDataset]
     ) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+        problem = BetweennessCentralityGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
@@ -635,7 +692,7 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
 class BetweennessCentralityGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(BetweennessCentralityGAPGenerator())
+        return BetweennessCentralityGAPReferenceGenerator()
 
 
 class BetweennessCentralityBenchmark(Benchmark):

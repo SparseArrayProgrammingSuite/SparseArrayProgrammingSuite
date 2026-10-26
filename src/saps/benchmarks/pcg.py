@@ -15,6 +15,7 @@ from saps.benchmark import (
     DataInstance,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -606,7 +607,10 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
     def generate(self, dataset: PCGDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
         # The preconditioner is costly to factor, so it is cached apart from A.
-        problem.inputs.extend(ReferenceGenerator(self).cached_generate(dataset).inputs)
+        reference = BlockJacobiPCGSuiteSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.inputs.extend(reference.inputs)
         return problem
 
     def generate_inputs(self, dataset: PCGDataset) -> DataInstance:
@@ -622,15 +626,46 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
             ref_meta={**(dataset.ref_meta or {}), "bnorm": float(np.linalg.norm(b))},
         )
 
-    def generate_reference(self, dataset: PCGDataset) -> DataInstance:
-        A_bin = self.generate_inputs(dataset).inputs[0]
+
+class BlockJacobiPCGSuiteSparseReferenceGenerator(ReferenceGenerator[PCGDataset]):
+    @property
+    def name(self) -> str:
+        return "block_jacobi_pcg_suitesparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "Block Jacobi Preconditioned Conjugate Gradient (PCG) SuiteSparse Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Block Jacobi preconditioner for Block Jacobi Preconditioned Conjugate"
+            " Gradient (PCG) SuiteSparse, factored once and cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[PCGDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in BlockJacobiPCGSuiteSparseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[PCGDataset]) -> DataInstance:
+        A_bin = (
+            BlockJacobiPCGSuiteSparseGenerator()
+            .generate_inputs(dataset.dataset)
+            .inputs[0]
+        )
         return DataInstance(inputs=[_block_jacobi_preconditioner(A_bin)], meta={})
 
 
 class BlockJacobiPCGSuiteSparseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(BlockJacobiPCGSuiteSparseGenerator())
+        return BlockJacobiPCGSuiteSparseReferenceGenerator()
 
 
 class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):

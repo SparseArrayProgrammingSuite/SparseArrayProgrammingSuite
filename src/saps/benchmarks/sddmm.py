@@ -12,6 +12,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -176,7 +177,7 @@ class SDDMMSuiteSparseGenerator(Generator):
         )
 
     @property
-    def datasets(self) -> list[Dataset]:
+    def datasets(self) -> list[SDDMMSuiteSparseDataset]:
         return [
             SDDMMSuiteSparseDataset(
                 matrix,
@@ -193,7 +194,9 @@ class SDDMMSuiteSparseGenerator(Generator):
 
     def generate(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = SDDMMSuiteSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -207,8 +210,36 @@ class SDDMMSuiteSparseGenerator(Generator):
             [S_bin, from_numpy(A), from_numpy(B)], meta={"dataset": dataset.name}
         )
 
-    def generate_reference(self, dataset: SDDMMSuiteSparseDataset) -> DataInstance:
-        S_bin, A_bin, B_bin = self.generate_inputs(dataset).inputs
+
+class SDDMMSuiteSparseReferenceGenerator(ReferenceGenerator[SDDMMSuiteSparseDataset]):
+    @property
+    def name(self) -> str:
+        return "sddmm_suitesparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Sampled Dense-Dense Matrix Multiplication (SDDMM) SuiteSparse Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Sampled Dense-Dense Matrix Multiplication (SDDMM)"
+            " SuiteSparse, cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[SDDMMSuiteSparseDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in SDDMMSuiteSparseGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[SDDMMSuiteSparseDataset]
+    ) -> DataInstance:
+        S_bin, A_bin, B_bin = (
+            SDDMMSuiteSparseGenerator().generate_inputs(dataset.dataset).inputs
+        )
         sample_matrix = to_scipy(S_bin).tocoo()
         A = to_numpy(A_bin)
         B = to_numpy(B_bin)
@@ -233,7 +264,7 @@ class SDDMMSuiteSparseGenerator(Generator):
 class SDDMMSuiteSparseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(SDDMMSuiteSparseGenerator())
+        return SDDMMSuiteSparseReferenceGenerator()
 
 
 # Nonzeros per row of the sampling matrix, the sweep Bharadwaj et al. use for

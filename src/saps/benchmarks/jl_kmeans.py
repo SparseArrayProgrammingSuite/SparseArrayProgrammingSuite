@@ -15,6 +15,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -390,7 +391,9 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
 
     def generate(self, dataset: JLKMeansDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = JLKMeansOpenMLReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -422,16 +425,39 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
             },
         )
 
-    def generate_reference(self, dataset: JLKMeansDataset) -> DataInstance:
-        training, R = self.generate_inputs(dataset).inputs
-        ref_meta = _cost_ref_meta(to_numpy(training), to_numpy(R), dataset)
+
+class JLKMeansOpenMLReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_kmeans_openml_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Johnson-Lindenstrauss (JL) k-Means OpenML Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Johnson-Lindenstrauss (JL) k-Means OpenML, cached"
+            " apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
+        return [
+            ReferenceDataset(dataset) for dataset in JLKMeansOpenMLGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[JLKMeansDataset]) -> DataInstance:
+        training, R = JLKMeansOpenMLGenerator().generate_inputs(dataset.dataset).inputs
+        ref_meta = _cost_ref_meta(to_numpy(training), to_numpy(R), dataset.dataset)
         return DataInstance(inputs=[], meta={}, ref_meta=ref_meta)
 
 
 class JLKMeansOpenMLReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(JLKMeansOpenMLGenerator())
+        return JLKMeansOpenMLReferenceGenerator()
 
 
 class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
@@ -499,7 +525,9 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
 
     def generate(self, dataset: JLKMeansDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = JLKMeansNetflixPrizeReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -530,16 +558,44 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
             },
         )
 
-    def generate_reference(self, dataset: JLKMeansDataset) -> DataInstance:
-        training, R = self.generate_inputs(dataset).inputs
-        ref_meta = _cost_ref_meta(to_scipy(training).tocsr(), to_numpy(R), dataset)
+
+class JLKMeansNetflixPrizeReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_kmeans_netflix_prize_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Johnson-Lindenstrauss (JL) k-Means Netflix Prize Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Johnson-Lindenstrauss (JL) k-Means Netflix Prize,"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in JLKMeansNetflixPrizeGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[JLKMeansDataset]) -> DataInstance:
+        training, R = (
+            JLKMeansNetflixPrizeGenerator().generate_inputs(dataset.dataset).inputs
+        )
+        ref_meta = _cost_ref_meta(
+            to_scipy(training).tocsr(), to_numpy(R), dataset.dataset
+        )
         return DataInstance(inputs=[], meta={}, ref_meta=ref_meta)
 
 
 class JLKMeansNetflixPrizeReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(JLKMeansNetflixPrizeGenerator())
+        return JLKMeansNetflixPrizeReferenceGenerator()
 
 
 class JLKMeansBenchmark(Benchmark):

@@ -14,6 +14,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -334,7 +335,9 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = ConnectedComponentsSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -345,8 +348,36 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
             inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
         )
 
-    def generate_reference(self, dataset: ConnectedComponentsDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class ConnectedComponentsSNAPReferenceGenerator(
+    ReferenceGenerator[ConnectedComponentsDataset]
+):
+    @property
+    def name(self) -> str:
+        return "connected_components_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Connected Components SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Connected Components SNAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[ConnectedComponentsDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in ConnectedComponentsSNAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[ConnectedComponentsDataset]
+    ) -> DataInstance:
+        problem = ConnectedComponentsSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
             n=adjacency.shape[0],
@@ -375,7 +406,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
 class ConnectedComponentsSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(ConnectedComponentsSNAPGenerator())
+        return ConnectedComponentsSNAPReferenceGenerator()
 
 
 class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
@@ -447,7 +478,9 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = ConnectedComponentsGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -458,8 +491,36 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
             inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
         )
 
-    def generate_reference(self, dataset: ConnectedComponentsDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class ConnectedComponentsGAPReferenceGenerator(
+    ReferenceGenerator[ConnectedComponentsDataset]
+):
+    @property
+    def name(self) -> str:
+        return "connected_components_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Connected Components GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Connected Components GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[ConnectedComponentsDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in ConnectedComponentsGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[ConnectedComponentsDataset]
+    ) -> DataInstance:
+        problem = ConnectedComponentsGAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
             n=adjacency.shape[0],
@@ -488,7 +549,7 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
 class ConnectedComponentsGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(ConnectedComponentsGAPGenerator())
+        return ConnectedComponentsGAPReferenceGenerator()
 
 
 class ConnectedComponentsBenchmark(Benchmark):

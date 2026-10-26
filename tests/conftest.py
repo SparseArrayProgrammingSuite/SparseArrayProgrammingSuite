@@ -11,7 +11,9 @@ from saps.benchmark import ReferenceGenerator
 def uncached_references(monkeypatch):
     """Compute reference generators' outputs instead of reading the dataset cache."""
     monkeypatch.setattr(
-        ReferenceGenerator, "cached_generate", ReferenceGenerator.generate
+        ReferenceGenerator,
+        "cached_generate",
+        lambda self, dataset: self.generate(dataset),
     )
 
 

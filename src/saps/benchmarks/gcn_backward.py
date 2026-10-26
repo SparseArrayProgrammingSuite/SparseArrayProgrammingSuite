@@ -14,6 +14,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -595,7 +596,10 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
     def generate(self, dataset: GCNBackwardDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
         # The training target, from a float64 run, is the cached reference.
-        problem.meta.update(ReferenceGenerator(self).cached_generate(dataset).meta)
+        reference = GCNBackwardSuiteSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.meta.update(reference.meta)
         return problem
 
     def generate_inputs(self, dataset: GCNBackwardDataset) -> DataInstance:
@@ -638,8 +642,34 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
             meta={},
         )
 
-    def generate_reference(self, dataset: GCNBackwardDataset) -> DataInstance:
-        adjacency, *dense = self.generate_inputs(dataset).inputs
+
+class GCNBackwardSuiteSparseReferenceGenerator(ReferenceGenerator[GCNBackwardDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_backward_suitesparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Graph Convolutional Network (GCN) Backward SuiteSparse Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Training targets from a float64 run of Graph Convolutional Network (GCN)"
+            " Backward SuiteSparse, cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[GCNBackwardDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in GCNBackwardSuiteSparseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[GCNBackwardDataset]) -> DataInstance:
+        adjacency, *dense = (
+            GCNBackwardSuiteSparseGenerator().generate_inputs(dataset.dataset).inputs
+        )
         features, weights1, bias1, weights2, bias2, targets = (
             to_numpy(array) for array in dense
         )
@@ -651,7 +681,7 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
             weights2,
             bias2,
             targets,
-            dataset,
+            dataset.dataset,
         )
         return DataInstance(inputs=[], meta=meta)
 
@@ -659,7 +689,7 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
 class GCNBackwardSuiteSparseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(GCNBackwardSuiteSparseGenerator())
+        return GCNBackwardSuiteSparseReferenceGenerator()
 
 
 class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
@@ -744,7 +774,10 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
     def generate(self, dataset: GCNBackwardOGBDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
         # The training target, from a float64 run, is the cached reference.
-        problem.meta.update(ReferenceGenerator(self).cached_generate(dataset).meta)
+        reference = GCNBackwardOGBReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.meta.update(reference.meta)
         return problem
 
     def generate_inputs(self, dataset: GCNBackwardOGBDataset) -> DataInstance:
@@ -778,8 +811,35 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
             },
         )
 
-    def generate_reference(self, dataset: GCNBackwardOGBDataset) -> DataInstance:
-        adjacency, *dense = self.generate_inputs(dataset).inputs
+
+class GCNBackwardOGBReferenceGenerator(ReferenceGenerator[GCNBackwardOGBDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_backward_ogb_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Graph Convolutional Network (GCN) Backward OGB Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Training targets from a float64 run of Graph Convolutional Network (GCN)"
+            " Backward OGB, cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[GCNBackwardOGBDataset]]:
+        return [
+            ReferenceDataset(dataset) for dataset in GCNBackwardOGBGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[GCNBackwardOGBDataset]
+    ) -> DataInstance:
+        adjacency, *dense = (
+            GCNBackwardOGBGenerator().generate_inputs(dataset.dataset).inputs
+        )
         features, weights1, bias1, weights2, bias2, targets = (
             to_numpy(array) for array in dense
         )
@@ -791,7 +851,7 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
             weights2,
             bias2,
             targets,
-            dataset,
+            dataset.dataset,
         )
         return DataInstance(inputs=[], meta=meta)
 
@@ -799,7 +859,7 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
 class GCNBackwardOGBReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(GCNBackwardOGBGenerator())
+        return GCNBackwardOGBReferenceGenerator()
 
 
 class GCNBackwardBenchmark(Benchmark):

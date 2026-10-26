@@ -16,6 +16,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -622,17 +623,6 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
     def cacheable(self) -> bool:
         return False
 
-    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
-        problem.ref_outputs = reference.ref_outputs
-        problem.ref_meta = reference.ref_meta
-        return problem
-
-    def generate_reference(self, dataset: SimHashANNDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
-        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
-
     def generate_inputs(self, dataset: SimHashANNDataset) -> DataInstance:
         train, test, source_meta = fetch_openml_train_test_features(dataset.name)
 
@@ -711,17 +701,6 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
     @property
     def cacheable(self) -> bool:
         return False
-
-    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
-        problem.ref_outputs = reference.ref_outputs
-        problem.ref_meta = reference.ref_meta
-        return problem
-
-    def generate_reference(self, dataset: SimHashANNDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
-        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
 
     def generate_inputs(self, dataset: SimHashANNDataset) -> DataInstance:
         data, source_meta = fetch_netflixprize_matrix()
@@ -1005,6 +984,15 @@ class SimHashANNOpenMLDenseGenerator(
             ),
         ]
 
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = SimHashANNOpenMLDenseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
 
 class SimHashANNOpenMLSparseGenerator(
     _SparseProjectionMixin,
@@ -1048,6 +1036,15 @@ class SimHashANNOpenMLSparseGenerator(
             ),
         ]
 
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = SimHashANNOpenMLSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
 
 class SimHashANNNetflixPrizeDenseGenerator(
     _DenseProjectionMixin,
@@ -1081,6 +1078,15 @@ class SimHashANNNetflixPrizeDenseGenerator(
                 target_probability=0.9,
             )
         ]
+
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = SimHashANNNetflixPrizeDenseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
 
 
 class SimHashANNNetflixPrizeSparseGenerator(
@@ -1116,29 +1122,176 @@ class SimHashANNNetflixPrizeSparseGenerator(
             )
         ]
 
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = SimHashANNNetflixPrizeSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+
+class SimHashANNOpenMLDenseReferenceGenerator(ReferenceGenerator[SimHashANNDataset]):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_openml_dense_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) OpenML (Dense Projection)"
+            " Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for SimHash Approximate Nearest Neighbor (ANN) OpenML"
+            " (Dense Projection),"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in SimHashANNOpenMLDenseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[SimHashANNDataset]) -> DataInstance:
+        problem = SimHashANNOpenMLDenseGenerator().generate_inputs(dataset.dataset)
+        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
+
 
 class SimHashANNOpenMLDenseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(SimHashANNOpenMLDenseGenerator())
+        return SimHashANNOpenMLDenseReferenceGenerator()
+
+
+class SimHashANNOpenMLSparseReferenceGenerator(ReferenceGenerator[SimHashANNDataset]):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_openml_sparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) OpenML (Sparse Projection)"
+            " Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for SimHash Approximate Nearest Neighbor (ANN) OpenML"
+            " (Sparse Projection),"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in SimHashANNOpenMLSparseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[SimHashANNDataset]) -> DataInstance:
+        problem = SimHashANNOpenMLSparseGenerator().generate_inputs(dataset.dataset)
+        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
 
 
 class SimHashANNOpenMLSparseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(SimHashANNOpenMLSparseGenerator())
+        return SimHashANNOpenMLSparseReferenceGenerator()
+
+
+class SimHashANNNetflixPrizeDenseReferenceGenerator(
+    ReferenceGenerator[SimHashANNDataset]
+):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_netflix_prize_dense_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) Netflix Prize (Dense"
+            " Projection)"
+            " Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for SimHash Approximate Nearest Neighbor (ANN) Netflix"
+            " Prize (Dense Projection),"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in SimHashANNNetflixPrizeDenseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[SimHashANNDataset]) -> DataInstance:
+        problem = SimHashANNNetflixPrizeDenseGenerator().generate_inputs(
+            dataset.dataset
+        )
+        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
 
 
 class SimHashANNNetflixPrizeDenseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(SimHashANNNetflixPrizeDenseGenerator())
+        return SimHashANNNetflixPrizeDenseReferenceGenerator()
+
+
+class SimHashANNNetflixPrizeSparseReferenceGenerator(
+    ReferenceGenerator[SimHashANNDataset]
+):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_netflix_prize_sparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) Netflix Prize (Sparse"
+            " Projection)"
+            " Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for SimHash Approximate Nearest Neighbor (ANN) Netflix"
+            " Prize (Sparse Projection),"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in SimHashANNNetflixPrizeSparseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[SimHashANNDataset]) -> DataInstance:
+        problem = SimHashANNNetflixPrizeSparseGenerator().generate_inputs(
+            dataset.dataset
+        )
+        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
 
 
 class SimHashANNNetflixPrizeSparseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(SimHashANNNetflixPrizeSparseGenerator())
+        return SimHashANNNetflixPrizeSparseReferenceGenerator()
 
 
 class SimHashANNBenchmark(Benchmark):

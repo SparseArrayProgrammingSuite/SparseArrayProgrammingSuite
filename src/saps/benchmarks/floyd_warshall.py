@@ -18,6 +18,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -469,7 +470,9 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
 
     def generate(self, dataset: FloydWarshallDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = FloydWarshallSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -488,8 +491,31 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
             },
         )
 
-    def generate_reference(self, dataset: FloydWarshallDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class FloydWarshallSNAPReferenceGenerator(ReferenceGenerator[FloydWarshallDataset]):
+    @property
+    def name(self) -> str:
+        return "floyd_warshall_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Floyd-Warshall SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Floyd-Warshall SNAP, cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[FloydWarshallDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in FloydWarshallSNAPGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[FloydWarshallDataset]) -> DataInstance:
+        problem = FloydWarshallSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0], distances=True)
         n = graph.shape[0]
@@ -585,7 +611,7 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
 class FloydWarshallSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(FloydWarshallSNAPGenerator())
+        return FloydWarshallSNAPReferenceGenerator()
 
 
 class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
@@ -678,7 +704,9 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
 
     def generate(self, dataset: FloydWarshallDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = FloydWarshallGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -698,8 +726,29 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
             },
         )
 
-    def generate_reference(self, dataset: FloydWarshallDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class FloydWarshallGAPReferenceGenerator(ReferenceGenerator[FloydWarshallDataset]):
+    @property
+    def name(self) -> str:
+        return "floyd_warshall_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Floyd-Warshall GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return "Reference outputs for Floyd-Warshall GAP, cached apart from its inputs."
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[FloydWarshallDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in FloydWarshallGAPGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[FloydWarshallDataset]) -> DataInstance:
+        problem = FloydWarshallGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0], distances=True)
         n = graph.shape[0]
@@ -795,7 +844,7 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
 class FloydWarshallGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(FloydWarshallGAPGenerator())
+        return FloydWarshallGAPReferenceGenerator()
 
 
 class FloydWarshallBenchmark(Benchmark):

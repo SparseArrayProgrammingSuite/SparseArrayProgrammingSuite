@@ -15,6 +15,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -362,7 +363,9 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = MCLSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -371,8 +374,29 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
 
-    def generate_reference(self, dataset: MCLDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Markov Clustering (MCL) SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Markov Clustering (MCL) SNAP, cached apart from"
+            " its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MCLSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
+        problem = MCLSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0])
         graph = graph.astype(float)
@@ -430,7 +454,7 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 class MCLSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(MCLSNAPGenerator())
+        return MCLSNAPReferenceGenerator()
 
 
 class MCLGAPGenerator(Generator[MCLDataset]):
@@ -492,7 +516,9 @@ class MCLGAPGenerator(Generator[MCLDataset]):
 
     def generate(self, dataset: MCLDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = MCLGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -501,8 +527,29 @@ class MCLGAPGenerator(Generator[MCLDataset]):
         raw = fetch_gap_graph(dataset.name)
         return DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
 
-    def generate_reference(self, dataset: MCLDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Markov Clustering (MCL) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Markov Clustering (MCL) GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MCLGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
+        problem = MCLGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         graph = graph_csr(problem.inputs[0])
         graph = graph.astype(float)
@@ -560,7 +607,7 @@ class MCLGAPGenerator(Generator[MCLDataset]):
 class MCLGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(MCLGAPGenerator())
+        return MCLGAPReferenceGenerator()
 
 
 class MCLBenchmark(Benchmark):

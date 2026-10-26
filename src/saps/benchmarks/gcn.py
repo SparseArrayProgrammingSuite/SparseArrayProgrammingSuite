@@ -14,6 +14,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -443,7 +444,9 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
 
     def generate(self, dataset: GCNDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = GCNSuiteSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -477,8 +480,33 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
             meta={},
         )
 
-    def generate_reference(self, dataset: GCNDataset) -> DataInstance:
-        adjacency, *dense = self.generate_inputs(dataset).inputs
+
+class GCNSuiteSparseReferenceGenerator(ReferenceGenerator[GCNDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_suitesparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Graph Convolutional Network (GCN) SuiteSparse Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Graph Convolutional Network (GCN) SuiteSparse,"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[GCNDataset]]:
+        return [
+            ReferenceDataset(dataset) for dataset in GCNSuiteSparseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[GCNDataset]) -> DataInstance:
+        adjacency, *dense = (
+            GCNSuiteSparseGenerator().generate_inputs(dataset.dataset).inputs
+        )
         exact, sigma = gcn_reference(
             to_scipy(adjacency), *(to_numpy(array) for array in dense)
         )
@@ -493,7 +521,7 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
 class GCNSuiteSparseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(GCNSuiteSparseGenerator())
+        return GCNSuiteSparseReferenceGenerator()
 
 
 class GCNOGBGenerator(Generator[GCNOGBDataset]):
@@ -580,7 +608,9 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
 
     def generate(self, dataset: GCNOGBDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = GCNOGBReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -613,8 +643,29 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
             },
         )
 
-    def generate_reference(self, dataset: GCNOGBDataset) -> DataInstance:
-        adjacency, *dense = self.generate_inputs(dataset).inputs
+
+class GCNOGBReferenceGenerator(ReferenceGenerator[GCNOGBDataset]):
+    @property
+    def name(self) -> str:
+        return "gcn_ogb_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Graph Convolutional Network (GCN) OGB Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Graph Convolutional Network (GCN) OGB, cached"
+            " apart from its inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[GCNOGBDataset]]:
+        return [ReferenceDataset(dataset) for dataset in GCNOGBGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[GCNOGBDataset]) -> DataInstance:
+        adjacency, *dense = GCNOGBGenerator().generate_inputs(dataset.dataset).inputs
         exact, sigma = gcn_reference(
             to_scipy(adjacency), *(to_numpy(array) for array in dense)
         )
@@ -629,7 +680,7 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
 class GCNOGBReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(GCNOGBGenerator())
+        return GCNOGBReferenceGenerator()
 
 
 class GCNBenchmark(Benchmark):

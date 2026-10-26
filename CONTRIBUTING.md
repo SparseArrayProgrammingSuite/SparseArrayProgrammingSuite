@@ -88,6 +88,8 @@ Generators should be deterministic. If random data is needed, use fixed seeds an
 
 Concrete generators must be reachable from a benchmark so metadata, freshness checks, and dataset caching can discover them. If a generator is intentionally standalone data plumbing rather than part of a runnable benchmark, wrap it in a small `ShellBenchmark`: implement only the `generator` property and let the shell expose the generator under a `{generator.name}_shell` benchmark record.
 
+A generator whose inputs come from a cached shell generator stays uncached, so each shared input is stored once. Put its expensive parts, such as reference outputs or a factored preconditioner, in a sibling `ReferenceGenerator` subclass: its `datasets` wrap the generator's own in `ReferenceDataset`, its `generate` returns a `DataInstance` holding only those parts, and the generator's `generate` merges in `XReferenceGenerator().cached_generate(ReferenceDataset(dataset))`. Give the reference generator its own `ShellBenchmark` so dataset caching prepares it.
+
 Each shell generator's `datasets` list is its complete, manually maintained inventory. Fetch functions must look up the requested dataset in that list and raise an error if it is absent; they must never construct an unlisted dataset on demand. Add new source datasets to the shell list before referencing them from another benchmark, then regenerate metadata and prepare the cache. SuiteSparse shell datasets store each matrix with all its RHS vectors once; select RHS columns in uncached benchmark generators.
 
 ## Style Guide
@@ -108,6 +110,7 @@ Use an acronym in a name only when the field uses it on its own as the method's 
 - Benchmark: the method in snake_case, such as `bellman_ford`, `jacobi_pcg`, or `cp_als_3d`.
 - Generator: `<benchmark>_<source>`, such as `bfs_test`, `bfs_snap`, or `cg_suitesparse`. A generator shared by several benchmarks uses their family prefix (`ode_rc`, `cp_als_frostt`, `hosvd_dense`).
 - Shell generator: `<collection>_<kind>`, such as `snap_graph` or `suitesparse_matrix`; its benchmark is `<generator>_shell`. Don't use the bare collection name: prepared datasets are cached under `<cache>/<generator>/`, and downloaders keep raw files under `<cache>/<collection>/`.
+- Reference generator: `<generator>_reference`, such as `bfs_snap_reference`, for the cached expensive parts of an uncached generator's instances; its benchmark is `<generator>_reference_shell`.
 - Dataset from a collection: the collection's own ID (`soc-Epinions1`, `HB/ash219`, `GAP-road`, `ogbn-arxiv`, `Track1_MC/random_mc_1`). Variants add a suffix: `_seed3`, `_src4795720`, `_rhs1`.
 - Synthetic or test dataset: a short snake_case description with no `test_` or benchmark prefix (`two_node_cycle`, `3x3_tridiagonal`).
 - Dataset names must not contain `.`, which separates the generator and dataset in ASV parameters.
@@ -122,7 +125,7 @@ Pretty names spell out each acronym in the name and follow it with the acronym i
 
 ### Classes And Files
 
-- A class is its CamelCase name plus a suffix, with acronyms capitalized: `bfs` becomes `BFSBenchmark`, `bfs_snap` becomes `BFSSNAPGenerator`, and `snap_graph_shell` becomes `SNAPGraphShellBenchmark`.
+- A class is its CamelCase name plus a suffix, with acronyms capitalized: `bfs` becomes `BFSBenchmark`, `bfs_snap` becomes `BFSSNAPGenerator`, `bfs_snap_reference` becomes `BFSSNAPReferenceGenerator`, and `snap_graph_shell` becomes `SNAPGraphShellBenchmark`.
 - A dataset class is named for its benchmark (`BFSDataset`), adding the source when a module has several (`MatrixMultiplicationDenseDataset`). Collection datasets are named for the collection (`SNAPDataset`, `SuiteSparseDataset`).
 - A module is named for its benchmark (`src/saps/benchmarks/bfs.py`). A module with several benchmarks takes their family name (`cp_als.py`, `ode.py`, `pcg.py`), and a shell module takes its generator's name (`snap_graph.py`).
 

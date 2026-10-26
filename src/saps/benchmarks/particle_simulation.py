@@ -16,6 +16,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -567,7 +568,9 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
 
     def generate(self, dataset: ParticleSimulationCS267Dataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = ParticleSimulationCS267ReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         return problem
 
@@ -624,17 +627,43 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
             },
         )
 
-    def generate_reference(
-        self, dataset: ParticleSimulationCS267Dataset
+
+class ParticleSimulationCS267ReferenceGenerator(
+    ReferenceGenerator[ParticleSimulationCS267Dataset]
+):
+    @property
+    def name(self) -> str:
+        return "particle_simulation_cs267_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Particle Simulation CS267 Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Particle Simulation CS267, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[ParticleSimulationCS267Dataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in ParticleSimulationCS267Generator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[ParticleSimulationCS267Dataset]
     ) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+        problem = ParticleSimulationCS267Generator().generate_inputs(dataset.dataset)
         return DataInstance(inputs=[], meta={}, ref_outputs=_bounds_reference(problem))
 
 
 class ParticleSimulationCS267ReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(ParticleSimulationCS267Generator())
+        return ParticleSimulationCS267ReferenceGenerator()
 
 
 class ParticleSimulationEWAPDataset(ParticleSimulationDataset):
@@ -976,7 +1005,9 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
 
     def generate(self, dataset: ParticleSimulationDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = ParticleSimulationNEMOReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         return problem
 
@@ -995,15 +1026,43 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
         meta["parameters"] = dataset.parameters
         return DataInstance(inputs=inputs, meta=meta)
 
-    def generate_reference(self, dataset: ParticleSimulationDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class ParticleSimulationNEMOReferenceGenerator(
+    ReferenceGenerator[ParticleSimulationDataset]
+):
+    @property
+    def name(self) -> str:
+        return "particle_simulation_nemo_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Particle Simulation NEMO Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Particle Simulation NEMO, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[ParticleSimulationDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in ParticleSimulationNEMOGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[ParticleSimulationDataset]
+    ) -> DataInstance:
+        problem = ParticleSimulationNEMOGenerator().generate_inputs(dataset.dataset)
         return DataInstance(inputs=[], meta={}, ref_outputs=_bounds_reference(problem))
 
 
 class ParticleSimulationNEMOReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(ParticleSimulationNEMOGenerator())
+        return ParticleSimulationNEMOReferenceGenerator()
 
 
 class ParticleSimulationBenchmark(Benchmark):

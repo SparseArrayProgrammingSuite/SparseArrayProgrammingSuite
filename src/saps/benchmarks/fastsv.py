@@ -15,6 +15,7 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
+    ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
@@ -320,7 +321,9 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = FastSVSNAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -332,8 +335,26 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             meta=dict(raw.meta),
         )
 
-    def generate_reference(self, dataset: FastSVDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class FastSVSNAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
+    @property
+    def name(self) -> str:
+        return "fastsv_snap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FastSV SNAP Reference"
+
+    @property
+    def description(self) -> str:
+        return "Reference outputs for FastSV SNAP, cached apart from its inputs."
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[FastSVDataset]]:
+        return [ReferenceDataset(dataset) for dataset in FastSVSNAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
+        problem = FastSVSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
             n=adjacency.shape[0],
@@ -362,7 +383,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
 class FastSVSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(FastSVSNAPGenerator())
+        return FastSVSNAPReferenceGenerator()
 
 
 class FastSVGAPGenerator(Generator[FastSVDataset]):
@@ -437,7 +458,9 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
 
     def generate(self, dataset: FastSVDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = ReferenceGenerator(self).cached_generate(dataset)
+        reference = FastSVGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
         problem.ref_outputs = reference.ref_outputs
         problem.ref_meta = reference.ref_meta
         return problem
@@ -449,8 +472,26 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
             meta=dict(raw.meta),
         )
 
-    def generate_reference(self, dataset: FastSVDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
+
+class FastSVGAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
+    @property
+    def name(self) -> str:
+        return "fastsv_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FastSV GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return "Reference outputs for FastSV GAP, cached apart from its inputs."
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[FastSVDataset]]:
+        return [ReferenceDataset(dataset) for dataset in FastSVGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
+        problem = FastSVGAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(
             n=adjacency.shape[0],
@@ -479,7 +520,7 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
 class FastSVGAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return ReferenceGenerator(FastSVGAPGenerator())
+        return FastSVGAPReferenceGenerator()
 
 
 class FastSVBenchmark(Benchmark):

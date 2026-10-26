@@ -553,14 +553,14 @@ class ShellBenchmark(Benchmark, ABC):
         pass
 
 
-class ReferenceDataset(Dataset):
+class ReferenceDataset(Dataset, Generic[TDataset]):
     """A dataset whose reference outputs are cached apart from its inputs.
 
     It keeps the dataset's name and freshness, so its cache key and staleness
     match the dataset's, but joins no suites: it exists only to prepare caches.
     """
 
-    def __init__(self, dataset: Dataset):
+    def __init__(self, dataset: TDataset):
         self.dataset = dataset
 
     @property
@@ -592,35 +592,20 @@ class ReferenceDataset(Dataset):
         return self.dataset.freshness
 
 
-class ReferenceGenerator(Generator[Any]):
+class ReferenceGenerator(Generator[ReferenceDataset[TDataset]], ABC):
     """Caches the expensive parts of an uncached generator's instances.
 
     A generator whose inputs come from cached shell generators stays uncached,
-    so each shared input is stored once. It defines `generate_reference`, which
-    returns a `DataInstance` holding only the expensive parts, such as reference
-    outputs, training targets, or a factored preconditioner, and its `generate`
-    merges in `ReferenceGenerator(self).cached_generate(dataset)`. Wrap each in a
-    `ShellBenchmark` so that dataset caching prepares it. Test runs prepare no
-    references, so test cases belong in test generators that compute inline.
+    so each shared input is stored once. Its expensive parts, such as reference
+    outputs, training targets, or a factored preconditioner, live in a sibling
+    `ReferenceGenerator` whose `datasets` wrap the generator's own in
+    `ReferenceDataset` and whose `generate` returns a `DataInstance` holding only
+    those parts. The generator's `generate` merges in
+    `XReferenceGenerator().cached_generate(ReferenceDataset(dataset))`. Wrap each
+    reference generator in a `ShellBenchmark` so that dataset caching prepares
+    it. Test runs prepare no references, so test cases belong in test generators
+    that compute inline.
     """
-
-    def __init__(self, generator: Any):
-        self.generator = generator
-
-    @property
-    def name(self) -> str:
-        return f"{self.generator.name}_reference"
-
-    @property
-    def pretty_name(self) -> str:
-        return f"{self.generator.pretty_name} Reference"
-
-    @property
-    def description(self) -> str:
-        return (
-            f"Expensive parts of {self.generator.pretty_name}, cached without the"
-            " inputs that its shell generators already cache."
-        )
 
     @property
     def suites(self) -> list[str]:
@@ -645,20 +630,3 @@ class ReferenceGenerator(Generator[Any]):
     @property
     def motivation(self) -> str:
         return ""
-
-    @property
-    def file(self) -> str:
-        return self.generator.file
-
-    @property
-    def freshness(self) -> str:
-        return self.generator.freshness
-
-    @property
-    def datasets(self) -> list[ReferenceDataset]:
-        return [ReferenceDataset(dataset) for dataset in self.generator.datasets]
-
-    def generate(self, dataset: Dataset) -> DataInstance:
-        if isinstance(dataset, ReferenceDataset):
-            dataset = dataset.dataset
-        return self.generator.generate_reference(dataset)
