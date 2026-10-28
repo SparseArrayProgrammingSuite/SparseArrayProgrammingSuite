@@ -339,6 +339,7 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     assert set(cached) <= generators
 
 
+@pytest.mark.skip(reason="GAP datasets are disabled for now")
 def test_each_gap_graph_problem_has_an_explicit_snap_generator():
     problems = []
     for benchmark in _benchmark_instances():

@@ -546,10 +546,10 @@ class ConnectedComponentsGAPReferenceGenerator(
         )
 
 
-class ConnectedComponentsGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return ConnectedComponentsGAPReferenceGenerator()
+# class ConnectedComponentsGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return ConnectedComponentsGAPReferenceGenerator()
 
 
 class ConnectedComponentsBenchmark(Benchmark):
@@ -638,7 +638,7 @@ class ConnectedComponentsBenchmark(Benchmark):
         return [
             ConnectedComponentsTestGenerator(),
             ConnectedComponentsSNAPGenerator(),
-            ConnectedComponentsGAPGenerator(),
+            # ConnectedComponentsGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, edges):

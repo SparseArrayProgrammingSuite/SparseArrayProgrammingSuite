@@ -552,10 +552,10 @@ class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
         )
 
 
-class PageRankGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return PageRankGAPReferenceGenerator()
+# class PageRankGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return PageRankGAPReferenceGenerator()
 
 
 class PageRankBenchmark(Benchmark):
@@ -664,7 +664,7 @@ class PageRankBenchmark(Benchmark):
         return [
             PageRankTestGenerator(),
             PageRankSNAPGenerator(),
-            PageRankGAPGenerator(),
+            # PageRankGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, A):
