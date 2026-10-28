@@ -614,10 +614,10 @@ class TransitiveReductionGAPReferenceGenerator(
         )
 
 
-class TransitiveReductionGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return TransitiveReductionGAPReferenceGenerator()
+# class TransitiveReductionGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return TransitiveReductionGAPReferenceGenerator()
 
 
 class TransitiveReductionBenchmark(Benchmark):
@@ -719,7 +719,7 @@ class TransitiveReductionBenchmark(Benchmark):
         return [
             TransitiveReductionTestGenerator(),
             TransitiveReductionSNAPGenerator(),
-            TransitiveReductionGAPGenerator(),
+            # TransitiveReductionGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, R):

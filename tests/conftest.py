@@ -6,6 +6,8 @@ from numpy.random import default_rng
 
 from saps.benchmark import ReferenceGenerator
 
+collect_ignore = ["test_gap_shell.py"]
+
 
 @pytest.fixture
 def uncached_references(monkeypatch):

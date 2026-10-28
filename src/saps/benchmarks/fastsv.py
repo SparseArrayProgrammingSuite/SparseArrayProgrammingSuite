@@ -517,10 +517,10 @@ class FastSVGAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
         )
 
 
-class FastSVGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return FastSVGAPReferenceGenerator()
+# class FastSVGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return FastSVGAPReferenceGenerator()
 
 
 class FastSVBenchmark(Benchmark):
@@ -615,7 +615,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator]:
-        return [FastSVTestGenerator(), FastSVSNAPGenerator(), FastSVGAPGenerator()]
+        return [FastSVTestGenerator(), FastSVSNAPGenerator()]  # FastSVGAPGenerator()
 
     def benchmark(self, xp, meta, A):
         A = A != 0

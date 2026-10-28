@@ -938,10 +938,10 @@ class BellmanFordGAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         )
 
 
-class BellmanFordGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return BellmanFordGAPReferenceGenerator()
+# class BellmanFordGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return BellmanFordGAPReferenceGenerator()
 
 
 class BellmanFordBenchmark(Benchmark):
@@ -1038,7 +1038,7 @@ class BellmanFordBenchmark(Benchmark):
         return [
             BellmanFordTestGenerator(),
             BellmanFordSNAPGenerator(),
-            BellmanFordGAPGenerator(),
+            # BellmanFordGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, edges):

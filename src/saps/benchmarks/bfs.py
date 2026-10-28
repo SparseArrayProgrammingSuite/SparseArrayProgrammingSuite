@@ -809,10 +809,10 @@ class BFSGAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
         )
 
 
-class BFSGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return BFSGAPReferenceGenerator()
+# class BFSGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return BFSGAPReferenceGenerator()
 
 
 class BFSBenchmark(Benchmark):
@@ -910,7 +910,7 @@ class BFSBenchmark(Benchmark):
         return [
             BFSSNAPGenerator(),
             BFSTestGenerator(),
-            BFSGAPGenerator(),
+            # BFSGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict, edges):

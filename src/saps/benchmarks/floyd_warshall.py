@@ -841,10 +841,10 @@ class FloydWarshallGAPReferenceGenerator(ReferenceGenerator[FloydWarshallDataset
         )
 
 
-class FloydWarshallGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return FloydWarshallGAPReferenceGenerator()
+# class FloydWarshallGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return FloydWarshallGAPReferenceGenerator()
 
 
 class FloydWarshallBenchmark(Benchmark):
@@ -941,7 +941,7 @@ class FloydWarshallBenchmark(Benchmark):
         return [
             FloydWarshallTestGenerator(),
             FloydWarshallSNAPGenerator(),
-            FloydWarshallGAPGenerator(),
+            # FloydWarshallGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, G):

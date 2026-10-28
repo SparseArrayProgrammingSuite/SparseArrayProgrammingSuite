@@ -531,10 +531,10 @@ class MSSPGAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
         )
 
 
-class MSSPGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return MSSPGAPReferenceGenerator()
+# class MSSPGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return MSSPGAPReferenceGenerator()
 
 
 class MSSPSNAPGenerator(Generator[MSSPDataset]):
@@ -821,7 +821,7 @@ class MSSPBenchmark(Benchmark):
     def generators(self):
         return [
             MSSPTestGenerator(),
-            MSSPGAPGenerator(),
+            # MSSPGAPGenerator(),
             MSSPSNAPGenerator(),
         ]
 

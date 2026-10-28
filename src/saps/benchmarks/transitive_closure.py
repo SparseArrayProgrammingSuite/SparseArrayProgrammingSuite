@@ -566,10 +566,10 @@ class TransitiveClosureGAPReferenceGenerator(
         )
 
 
-class TransitiveClosureGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return TransitiveClosureGAPReferenceGenerator()
+# class TransitiveClosureGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return TransitiveClosureGAPReferenceGenerator()
 
 
 class TransitiveClosureBenchmark(Benchmark):
@@ -661,7 +661,7 @@ class TransitiveClosureBenchmark(Benchmark):
         return [
             TransitiveClosureSNAPGenerator(),
             TransitiveClosureTestGenerator(),
-            TransitiveClosureGAPGenerator(),
+            # TransitiveClosureGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, edges):

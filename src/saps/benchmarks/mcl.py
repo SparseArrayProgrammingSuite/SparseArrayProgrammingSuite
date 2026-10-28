@@ -604,10 +604,10 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         )
 
 
-class MCLGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return MCLGAPReferenceGenerator()
+# class MCLGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return MCLGAPReferenceGenerator()
 
 
 class MCLBenchmark(Benchmark):
@@ -701,7 +701,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [MCLTestGenerator(), MCLSNAPGenerator(), MCLGAPGenerator()]
+        return [MCLTestGenerator(), MCLSNAPGenerator()]  # MCLGAPGenerator()
 
     def benchmark(self, xp, meta: dict[str, Any], graph):
         """

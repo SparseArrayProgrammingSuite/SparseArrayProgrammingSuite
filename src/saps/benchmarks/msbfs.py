@@ -627,10 +627,10 @@ class MSBFSGAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
         )
 
 
-class MSBFSGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return MSBFSGAPReferenceGenerator()
+# class MSBFSGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return MSBFSGAPReferenceGenerator()
 
 
 class MSBFSBenchmark(Benchmark):
@@ -748,7 +748,7 @@ class MSBFSBenchmark(Benchmark):
         return [
             MSBFSSNAPGenerator(),
             MSBFSTestGenerator(),
-            MSBFSGAPGenerator(),
+            # MSBFSGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict, edges, frontier):

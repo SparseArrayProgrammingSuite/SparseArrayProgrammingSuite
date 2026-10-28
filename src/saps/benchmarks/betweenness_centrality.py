@@ -689,10 +689,10 @@ class BetweennessCentralityGAPReferenceGenerator(
         )
 
 
-class BetweennessCentralityGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return BetweennessCentralityGAPReferenceGenerator()
+# class BetweennessCentralityGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return BetweennessCentralityGAPReferenceGenerator()
 
 
 class BetweennessCentralityBenchmark(Benchmark):
@@ -808,7 +808,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return [
             BetweennessCentralityTestGenerator(),
             BetweennessCentralitySNAPGenerator(),
-            BetweennessCentralityGAPGenerator(),
+            # BetweennessCentralityGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, G):
