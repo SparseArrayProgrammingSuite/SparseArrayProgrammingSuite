@@ -679,7 +679,7 @@ class PageRankBenchmark(Benchmark):
         zero_deg = xp.equal(out_degree, 0)
         safe_out = xp.where(zero_deg, N, out_degree)
         M = M / safe_out
-        M = M * (1 - zero_deg) + (1.0 / N) * zero_deg
+        M = M * xp.logical_not(zero_deg) + (1.0 / N) * zero_deg
 
         x = xp.full((N,), 1.0 / N)
         u = xp.full((N,), 1.0 / N)
