@@ -55,6 +55,15 @@ def test_transpose_follows_numpy(xp, axes):
     np.testing.assert_array_equal(result.numpy(), np.transpose(array, axes))
 
 
+def test_default_float_matches_numpy(xp):
+    # An identity built without a dtype must multiply float64 inputs.
+    identity = xp.eye(2)
+    inputs = torch.asarray(np.array([1.0, 2.0]))
+
+    assert xp.zeros(2).dtype == torch.float64
+    np.testing.assert_array_equal((identity @ inputs).numpy(), [1.0, 2.0])
+
+
 def test_array_accepts_numpy_dtype(xp):
     # Generated constant functions pass NumPy dtypes.
     result = xp.array([1, 2], dtype=np.float64)

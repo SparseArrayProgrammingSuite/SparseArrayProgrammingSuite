@@ -116,6 +116,10 @@ class PytorchFramework(Framework):
         # default device, so this alone moves the whole benchmark to the GPU.
         self.device = _device()
         torch.set_default_device(self.device)
+        # Benchmarks are written against NumPy, whose default float is float64.
+        # Torch's float32 would break matmuls with float64 inputs and round
+        # values stored into arrays created without a dtype.
+        torch.set_default_dtype(torch.float64)
 
     @property
     def linalg(self):
