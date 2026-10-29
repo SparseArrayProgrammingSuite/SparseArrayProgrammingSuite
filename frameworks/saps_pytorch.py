@@ -1,10 +1,12 @@
 import os
 
+import numpy as np
+
 import array_api_compat.torch as torch_xp
 import torch
 import torch._dynamo
 import torch.nn.functional as F
-from binsparse.conversions import from_torch, to_torch
+from binsparse.conversions import from_numpy, from_torch, to_sparse, to_torch
 
 from saps_framework import (
     Framework,
@@ -68,6 +70,14 @@ class PytorchLinalg:
         result = torch.linalg.lstsq(PytorchLinalg._dense(A), b, **kwargs)
         return result.solution, result.residuals, result.rank, result.singular_values
 
+    @staticmethod
+    def pinv(A, **kwargs):
+        return torch.linalg.pinv(PytorchLinalg._dense(A), **kwargs)
+
+    @staticmethod
+    def svd(A, **kwargs):
+        return torch.linalg.svd(PytorchLinalg._dense(A), **kwargs)
+
 
 def _device() -> str:
     # The competition config marks GPU frameworks with SAPS_DEVICE=gpu.
@@ -112,6 +122,8 @@ class PytorchFramework(Framework):
         return PytorchLinalg
 
     def from_binsparse(self, array):
+        if array.fill and array.fill_value != 0:
+            return torch.asarray(np.asarray(to_sparse(array).todense()))
         result = to_torch(array)
         if self.sparse_layout == "CSR" and result.layout == torch.sparse_coo:
             if result.ndim != 2:
@@ -120,6 +132,9 @@ class PytorchFramework(Framework):
         return result
 
     def to_binsparse(self, array):
+        if not torch.is_tensor(array):
+            # Benchmarks may return NumPy arrays or Python scalars.
+            return from_numpy(np.asarray(array))
         return from_torch(array.detach().cpu())
 
     def lazy(self, array):
@@ -375,6 +390,16 @@ class PytorchFramework(Framework):
                 out_dtype
             )
         return torch_xp.matmul(x1, x2, **kwargs)
+
+    # NumPy-style array(), which torch lacks. Code from saps.codegen calls
+    # xp.array(value, dtype=np.<dtype>), and torch only takes torch dtypes, so
+    # NumPy builds the value and torch.asarray converts it.
+    def array(self, obj, *args, **kwargs):
+        return torch.asarray(np.asarray(obj, *args, **kwargs))
+
+    # NumPy's transpose(x, axes); torch.transpose swaps two given dims instead.
+    def transpose(self, x, axes=None):
+        return x.permute(*(reversed(range(x.ndim)) if axes is None else axes))
 
     def maximum(self, x, y):
         if not torch.is_tensor(y):
