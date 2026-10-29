@@ -25,6 +25,6 @@ cd "$repo_directory"
 
 poetry run ./bin/run_benchmark.py \
   --cache-datasets \
-  --memory-limit 320G \
   --chunk-count "${SLURM_ARRAY_TASK_COUNT:-1}" \
-  --chunk-index "${SLURM_ARRAY_TASK_ID:-0}"
+  --chunk-index "${SLURM_ARRAY_TASK_ID:-0}" \
+  --memory-limit 320G
