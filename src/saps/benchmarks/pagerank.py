@@ -367,11 +367,9 @@ class PageRankSNAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
         problem = PageRankSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0]).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.col, adjacency.row)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.col, adjacency.row)))
         # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
         expected = from_numpy(
@@ -516,11 +514,9 @@ class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
         problem = PageRankGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0]).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.col, adjacency.row)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.col, adjacency.row)))
         # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
         expected = from_numpy(
