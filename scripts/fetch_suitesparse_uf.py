@@ -3,7 +3,8 @@
 
 sparse.tamu.edu currently answers archive requests with a 403 page. This script
 downloads every `suitesparse_matrix` source missing from
-`$SAPS_CACHE_DIR/suitesparse/<group>/<name>` from the older UF mirror instead,
+`$SAPS_CACHE_DIR/suitesparse/<group>/<name>` (by default this checkout's
+`.saps/outputs/cache`, as in `bin/run_benchmark.py`) from the older UF mirror instead,
 using the same layout and lock as `download_suitesparse_matrix`, so later cache
 runs find the matrices and never contact TAMU. The UF mirror lacks a few newer
 matrices (mostly SNAP); those are reported and left alone.
@@ -19,6 +20,7 @@ for it, unless the cache already holds a newer index.
 
 import argparse
 import datetime as dt
+import os
 import shutil
 import sqlite3
 import sys
@@ -32,6 +34,7 @@ from filelock import FileLock
 
 from saps.benchmarks.suitesparse import SuiteSparseMatrixGenerator
 from saps.downloaders.cache import source_cache_dir
+from saps.storage import DEFAULT_CACHE_DIR
 
 
 def index_date(path: Path) -> str:
@@ -60,6 +63,11 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    # Like bin/run_benchmark.py, default to this checkout's cache, not the cwd's.
+    os.environ.setdefault(
+        "SAPS_CACHE_DIR",
+        str(Path(__file__).resolve().parent.parent / DEFAULT_CACHE_DIR),
+    )
     root = source_cache_dir("suitesparse").resolve()
     print(f"SuiteSparse source cache: {root}")
 
