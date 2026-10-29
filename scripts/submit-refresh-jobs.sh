@@ -34,7 +34,7 @@ cd "$repo_directory"
 "$script_directory/ensure-poetry-env.sh"
 poetry run ./bin/generate_metadata.py
 
-account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6}"
+account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 upload_chunk_count="${SAPS_UPLOAD_CHUNK_COUNT:-8}"
 trace_chunk_count="${SAPS_TRACE_CHUNK_COUNT:-8}"
 trace_array_end=$((trace_chunk_count - 1))

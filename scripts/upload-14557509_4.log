@@ -1,0 +1,108 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-28-2026 18:47:01
+Job ID:    14559978
+User ID:   wahrens6
+Account:   gts-wahrens6-pose
+Job name:  dataset-upload
+Partition: cpu-gnr
+QOS:       inferno
+---------------------------------------
+INFO:root:Using SAPS config: {'environment_type': 'existing:same'}
+· Using SAPS config: {'environment_type': 'existing:same'}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-4
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-4INFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-4
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-4INFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3
+Discovered 11 benchmark entries for caching
+Using process timeout: 172800.0 seconds
+
+· Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3INFO:root:lth_conv2.LTHConv2Benchmark.time_lth_conv2
+
+·· lth_conv2.LTHConv2Benchmark.time_lth_conv2              1/2 failedINFO:root:============================ ========
+          dataset                    
+---------------------------- --------
+   lth_conv2_onnx.pruned       n/a   
+ lth_conv2_onnx.pruned_test   failed 
+============================ ========
+For parameters: lth_conv2_onnx.pruned_test
+saps: status {"benchmark": "lth_conv2", "dataset": "lth_conv2_onnx.pruned_test", "phase": "setup"}
+INFO root: Dataset openml_dataset.cifar10 found in cache.
+Traceback (most recent call last):
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/server.py", line 179, in _run_server
+    _run(run_args)
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/run.py", line 66, in _run
+    skip = benchmark.do_setup()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/time.py", line 121, in do_setup
+    result = Benchmark.do_setup(self)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/_base.py", line 723, in do_setup
+    setup(*self._build_params())
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/benchmark.py", line 378, in setup
+    if param.generator.cacheable and not param.generator.backend.upload_dataset(
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/storage.py", line 167, in upload_dataset
+    _, digest, local_path = self._generate_and_cache(generator, dataset)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/storage.py", line 121, in _generate_and_cache
+    data = generator.generate(dataset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/benchmarks/lth_conv2.py", line 472, in generate
+    model_source, tensor_inputs = compile_to_source(
+                                  ^^^^^^^^^^^^^^^^^^
+TypeError: compile_to_source() got an unexpected keyword argument 'extra_parameters'
+
+·· ============================ ========
+             dataset                    
+   ---------------------------- --------
+      lth_conv2_onnx.pruned       n/a   
+    lth_conv2_onnx.pruned_test   failed 
+   ============================ ========
+   For parameters: lth_conv2_onnx.pruned_test
+   saps: status {"benchmark": "lth_conv2", "dataset": "lth_conv2_onnx.pruned_test", "phase": "setup"}
+   INFO root: Dataset openml_dataset.cifar10 found in cache.
+   Traceback (most recent call last):
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/server.py", line 179, in _run_server
+       _run(run_args)
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/run.py", line 66, in _run
+       skip = benchmark.do_setup()
+              ^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/time.py", line 121, in do_setup
+       result = Benchmark.do_setup(self)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/_base.py", line 723, in do_setup
+       setup(*self._build_params())
+     File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/benchmark.py", line 378, in setup
+       if param.generator.cacheable and not param.generator.backend.upload_dataset(
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/storage.py", line 167, in upload_dataset
+       _, digest, local_path = self._generate_and_cache(generator, dataset)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/storage.py", line 121, in _generate_and_cache
+       data = generator.generate(dataset)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/benchmarks/lth_conv2.py", line 472, in generate
+       model_source, tensor_inputs = compile_to_source(
+                                     ^^^^^^^^^^^^^^^^^^
+   TypeError: compile_to_source() got an unexpected keyword argument 'extra_parameters'
+INFO:root:...ShellBenchmark.time_mcl_snap_reference_shell
+
+·· ...ShellBenchmark.time_mcl_snap_reference_shell[2026-10-29T06:47:16.106] error: *** JOB 14559978 ON atl1-1-03-018-28-0 CANCELLED AT 2026-10-29T06:47:16 DUE TO TIME LIMIT ***
+[2026-10-29T06:47:16.176] error: Detected 1 oom_kill event in StepId=14559978.batch. Some of the step tasks have been OOM Killed.
+---------------------------------------
+Begin Slurm Epilog: Oct-29-2026 06:47:18
+Job ID:        14559978
+Array Job ID:  14557509_4
+User ID:       wahrens6
+Account:       gts-wahrens6-pose
+Job name:      dataset-upload
+Resources:     cpu=192,mem=1450G,node=1
+Rsrc Used:     cput=96-00:57:36,vmem=0,walltime=12:00:18,mem=1520402596K,energy_used=0
+Partition:     cpu-gnr
+QOS:           inferno
+Nodes:         atl1-1-03-018-28-0
+---------------------------------------
