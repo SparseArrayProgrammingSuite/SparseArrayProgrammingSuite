@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=dataset-upload
 #SBATCH --nodes=1
-#SBATCH --mem=1450G
-#SBATCH --cpus-per-task=192
-#SBATCH --time=3-00:00:00
+#SBATCH --mem=350G
+#SBATCH --cpus-per-task=24
+#SBATCH --time=08:00:00
 #SBATCH --array=0-7
-#SBATCH --constraint=graniterapids
 #SBATCH --output=upload-%A_%a.log
 
 set -e
@@ -33,7 +32,6 @@ fi
 
 poetry run ./bin/run_benchmark.py \
   --cache-datasets \
-  --process-timeout 172800 \
   --chunk-count "${SLURM_ARRAY_TASK_COUNT:-1}" \
   --chunk-index "${SLURM_ARRAY_TASK_ID:-0}" \
   "${memory_limit_args[@]}"

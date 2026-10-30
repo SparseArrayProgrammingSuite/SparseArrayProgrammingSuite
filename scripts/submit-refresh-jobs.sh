@@ -34,7 +34,7 @@ cd "$repo_directory"
 "$script_directory/ensure-poetry-env.sh"
 poetry run ./bin/generate_metadata.py
 
-account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6}"
+account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 upload_chunk_count="${SAPS_UPLOAD_CHUNK_COUNT:-8}"
 upload_memory="${SAPS_UPLOAD_MEMORY:-256G}"
 upload_memory_limit="${SAPS_UPLOAD_MEMORY_LIMIT:-224G}"

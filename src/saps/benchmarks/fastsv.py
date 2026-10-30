@@ -356,11 +356,9 @@ class FastSVSNAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
     def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
         problem = FastSVSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         components = graph.connected_components(mode="weak")
         labels = np.asarray(components.membership, dtype=np.int64)
         smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
@@ -493,11 +491,9 @@ class FastSVGAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
     def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
         problem = FastSVGAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         components = graph.connected_components(mode="weak")
         labels = np.asarray(components.membership, dtype=np.int64)
         smallest = np.full(len(components), graph.vcount(), dtype=np.int64)

@@ -499,11 +499,9 @@ class BetweennessCentralitySNAPReferenceGenerator(
         problem = BetweennessCentralitySNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         sources = meta.get("bc_sources", range(graph.vcount()))
         scores = np.asarray(graph.betweenness(sources=sources, directed=True))
         if meta.get("include_source", False):
@@ -657,11 +655,9 @@ class BetweennessCentralityGAPReferenceGenerator(
         problem = BetweennessCentralityGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         sources = meta.get("bc_sources", range(graph.vcount()))
         scores = np.asarray(graph.betweenness(sources=sources, directed=True))
         if meta.get("include_source", False):

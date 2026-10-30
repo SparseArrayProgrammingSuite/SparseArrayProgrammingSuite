@@ -24,6 +24,10 @@ from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import assert_coo_allclose
 
+# Bound on the multiplications, and so the unpruned nonzeros, of one column
+# block of an MCL expansion.
+_BLOCK_WORK = 1 << 28
+
 
 class MCLDataset(Dataset):
     def __init__(
@@ -204,34 +208,56 @@ class MCLTestGenerator(Generator[MCLDataset]):
         current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
         for iteration in range(meta.get("iterations", 100)):
             previous = current
-            expanded = current.copy()
-            for _ in range(meta.get("expansion", 2) - 1):
-                expanded = (expanded @ current).tocsc()
             threshold = meta.get("pruning_threshold", 1e-4)
             frequency = meta.get("pruning_frequency", 1)
-            if threshold > 0 and (iteration + 1) % frequency == 0:
-                maxima = expanded.max(axis=0).toarray().ravel()
-                columns = np.repeat(
-                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+            converged = (iteration + 1) % meta.get(
+                "convergence_check_frequency", 1
+            ) == 0
+            # As in HipMCL, expand a block of columns at a time and prune it right
+            # away, so the unpruned product never exists in full. Column j of the
+            # product depends only on column j of its right factor, and pruning,
+            # inflation, normalization, and the convergence test act on columns
+            # alone, so the blocks give the same result as the whole matrix.
+            work = np.concatenate(
+                [[0], np.cumsum(np.diff(previous.indptr)[previous.indices])]
+            )[previous.indptr]
+            blocks = []
+            start = 0
+            while start < previous.shape[1]:
+                stop = max(
+                    start + 1,
+                    np.searchsorted(work, work[start] + _BLOCK_WORK, side="right") - 1,
                 )
-                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
-                expanded.data[~keep] = 0
-                expanded.eliminate_zeros()
-            expanded.data **= meta.get("inflation", 2)
-            sums = np.maximum(
-                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
-            )
-            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
-            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
-                delta = abs(current - previous).tocoo()
-                if delta.nnz == 0:
-                    break
-                old_values = abs(previous)[delta.row, delta.col]
-                if scipy_sparse.issparse(old_values):
-                    old_values = old_values.toarray()
-                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
-                if np.all(delta.data <= tolerance):
-                    break
+                expanded = previous[:, start:stop].copy()
+                for _ in range(meta.get("expansion", 2) - 1):
+                    expanded = (previous @ expanded).tocsc()
+                if threshold > 0 and (iteration + 1) % frequency == 0:
+                    maxima = expanded.max(axis=0).toarray().ravel()
+                    columns = np.repeat(
+                        np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+                    )
+                    keep = (expanded.data >= threshold) | (
+                        expanded.data == maxima[columns]
+                    )
+                    expanded.data[~keep] = 0
+                    expanded.eliminate_zeros()
+                expanded.data **= meta.get("inflation", 2)
+                sums = np.maximum(
+                    np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+                )
+                block = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
+                if converged:
+                    delta = abs(block - previous[:, start:stop]).tocoo()
+                    old_values = abs(previous[:, start:stop])[delta.row, delta.col]
+                    if scipy_sparse.issparse(old_values):
+                        old_values = old_values.toarray()
+                    tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
+                    converged = bool(np.all(delta.data <= tolerance))
+                blocks.append(block)
+                start = stop
+            current = scipy_sparse.hstack(blocks, format="csc")
+            if converged:
+                break
         expected = from_scipy(current.tocoo())
         problem.ref_outputs = [expected]
         problem.ref_meta = {
@@ -408,34 +434,56 @@ class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
         for iteration in range(meta.get("iterations", 100)):
             previous = current
-            expanded = current.copy()
-            for _ in range(meta.get("expansion", 2) - 1):
-                expanded = (expanded @ current).tocsc()
             threshold = meta.get("pruning_threshold", 1e-4)
             frequency = meta.get("pruning_frequency", 1)
-            if threshold > 0 and (iteration + 1) % frequency == 0:
-                maxima = expanded.max(axis=0).toarray().ravel()
-                columns = np.repeat(
-                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+            converged = (iteration + 1) % meta.get(
+                "convergence_check_frequency", 1
+            ) == 0
+            # As in HipMCL, expand a block of columns at a time and prune it right
+            # away, so the unpruned product never exists in full. Column j of the
+            # product depends only on column j of its right factor, and pruning,
+            # inflation, normalization, and the convergence test act on columns
+            # alone, so the blocks give the same result as the whole matrix.
+            work = np.concatenate(
+                [[0], np.cumsum(np.diff(previous.indptr)[previous.indices])]
+            )[previous.indptr]
+            blocks = []
+            start = 0
+            while start < previous.shape[1]:
+                stop = max(
+                    start + 1,
+                    np.searchsorted(work, work[start] + _BLOCK_WORK, side="right") - 1,
                 )
-                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
-                expanded.data[~keep] = 0
-                expanded.eliminate_zeros()
-            expanded.data **= meta.get("inflation", 2)
-            sums = np.maximum(
-                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
-            )
-            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
-            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
-                delta = abs(current - previous).tocoo()
-                if delta.nnz == 0:
-                    break
-                old_values = abs(previous)[delta.row, delta.col]
-                if scipy_sparse.issparse(old_values):
-                    old_values = old_values.toarray()
-                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
-                if np.all(delta.data <= tolerance):
-                    break
+                expanded = previous[:, start:stop].copy()
+                for _ in range(meta.get("expansion", 2) - 1):
+                    expanded = (previous @ expanded).tocsc()
+                if threshold > 0 and (iteration + 1) % frequency == 0:
+                    maxima = expanded.max(axis=0).toarray().ravel()
+                    columns = np.repeat(
+                        np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+                    )
+                    keep = (expanded.data >= threshold) | (
+                        expanded.data == maxima[columns]
+                    )
+                    expanded.data[~keep] = 0
+                    expanded.eliminate_zeros()
+                expanded.data **= meta.get("inflation", 2)
+                sums = np.maximum(
+                    np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+                )
+                block = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
+                if converged:
+                    delta = abs(block - previous[:, start:stop]).tocoo()
+                    old_values = abs(previous[:, start:stop])[delta.row, delta.col]
+                    if scipy_sparse.issparse(old_values):
+                        old_values = old_values.toarray()
+                    tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
+                    converged = bool(np.all(delta.data <= tolerance))
+                blocks.append(block)
+                start = stop
+            current = scipy_sparse.hstack(blocks, format="csc")
+            if converged:
+                break
         expected = from_scipy(current.tocoo())
         problem.ref_outputs = [expected]
         problem.ref_meta = {
@@ -561,34 +609,56 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
         for iteration in range(meta.get("iterations", 100)):
             previous = current
-            expanded = current.copy()
-            for _ in range(meta.get("expansion", 2) - 1):
-                expanded = (expanded @ current).tocsc()
             threshold = meta.get("pruning_threshold", 1e-4)
             frequency = meta.get("pruning_frequency", 1)
-            if threshold > 0 and (iteration + 1) % frequency == 0:
-                maxima = expanded.max(axis=0).toarray().ravel()
-                columns = np.repeat(
-                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+            converged = (iteration + 1) % meta.get(
+                "convergence_check_frequency", 1
+            ) == 0
+            # As in HipMCL, expand a block of columns at a time and prune it right
+            # away, so the unpruned product never exists in full. Column j of the
+            # product depends only on column j of its right factor, and pruning,
+            # inflation, normalization, and the convergence test act on columns
+            # alone, so the blocks give the same result as the whole matrix.
+            work = np.concatenate(
+                [[0], np.cumsum(np.diff(previous.indptr)[previous.indices])]
+            )[previous.indptr]
+            blocks = []
+            start = 0
+            while start < previous.shape[1]:
+                stop = max(
+                    start + 1,
+                    np.searchsorted(work, work[start] + _BLOCK_WORK, side="right") - 1,
                 )
-                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
-                expanded.data[~keep] = 0
-                expanded.eliminate_zeros()
-            expanded.data **= meta.get("inflation", 2)
-            sums = np.maximum(
-                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
-            )
-            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
-            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
-                delta = abs(current - previous).tocoo()
-                if delta.nnz == 0:
-                    break
-                old_values = abs(previous)[delta.row, delta.col]
-                if scipy_sparse.issparse(old_values):
-                    old_values = old_values.toarray()
-                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
-                if np.all(delta.data <= tolerance):
-                    break
+                expanded = previous[:, start:stop].copy()
+                for _ in range(meta.get("expansion", 2) - 1):
+                    expanded = (previous @ expanded).tocsc()
+                if threshold > 0 and (iteration + 1) % frequency == 0:
+                    maxima = expanded.max(axis=0).toarray().ravel()
+                    columns = np.repeat(
+                        np.arange(expanded.shape[1]), np.diff(expanded.indptr)
+                    )
+                    keep = (expanded.data >= threshold) | (
+                        expanded.data == maxima[columns]
+                    )
+                    expanded.data[~keep] = 0
+                    expanded.eliminate_zeros()
+                expanded.data **= meta.get("inflation", 2)
+                sums = np.maximum(
+                    np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+                )
+                block = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
+                if converged:
+                    delta = abs(block - previous[:, start:stop]).tocoo()
+                    old_values = abs(previous[:, start:stop])[delta.row, delta.col]
+                    if scipy_sparse.issparse(old_values):
+                        old_values = old_values.toarray()
+                    tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
+                    converged = bool(np.all(delta.data <= tolerance))
+                blocks.append(block)
+                start = stop
+            current = scipy_sparse.hstack(blocks, format="csc")
+            if converged:
+                break
         expected = from_scipy(current.tocoo())
         problem.ref_outputs = [expected]
         problem.ref_meta = {
