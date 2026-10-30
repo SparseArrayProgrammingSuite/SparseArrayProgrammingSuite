@@ -174,24 +174,18 @@ Slurm stdout and stderr logs go to the directory where you submit the job:
 `competition-cpu-%A_%a.log`, `competition-gpu-%A_%a.log`,
 `competition-combine-%j.log`, `upload-%A_%a.log`, `trace-%A_%a.log`, or
 `finalize-metadata-%j.log`. The refresh launcher (`scripts/submit-refresh-jobs.sh`)
-also preserves the directory where you invoked it for all four (or five, with
-`--with-competition`) jobs' logs, and writes the big-memory upload pass to
-`upload-bigmem-%A_%a.log`. You can submit the Slurm scripts from the
+also preserves the directory where you invoked it for all three (or four, with
+`--with-competition`) jobs' logs. You can submit the Slurm scripts from the
 repository root or any subdirectory.
 
-The refresh launcher uploads datasets in two passes to avoid paying for whole
-nodes. The first pass runs as an eight-task array on 24 CPUs and 256G per task,
-with each dataset process capped at 224G so oversized datasets fail with
-`MemoryError` instead of killing the task. A second, four-task array then
-reruns on Granite Rapids nodes with 192 CPUs and 1450G per task for up to
-three days; it skips every dataset the first pass uploaded, so only the
-oversized ones are regenerated. Override the defaults with
-`SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`, `SAPS_UPLOAD_MEMORY`,
-`SAPS_UPLOAD_MEMORY_LIMIT`, `SAPS_BIGMEM_CHUNK_COUNT`, `SAPS_BIGMEM_MEMORY`, and
-`SAPS_BIGMEM_CPUS`. Tracing waits for
-every big-memory task to succeed.
-
-Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
+The refresh launcher uploads datasets in two passes to avoid payingThe refresh launcher uploads datasets in one pass on the `cpu-large` partition,
+as an eight-task array with 24 CPUs and 720G per task for up to three days.
+Each dataset process is capped at 680G, so an oversized dataset fails with
+`MemoryError` instead of getting the task killed and skipping the rest of its
+chunk. Override the defaults with `SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`,
+`SAPS_UPLOAD_MEMORY`, and `SAPS_UPLOAD_MEMORY_LIMIT`. Tracing waits for every
+upload task to succeed.
+lso submit a
 competition run once the upload/trace/merge chain finishes successfully
 (`scripts/submit-competition.sh --after <merge job>`), instead of submitting
 it separately:

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=dataset-upload
 #SBATCH --nodes=1
-#SBATCH --mem=350G
+#SBATCH --partition=cpu-large
+#SBATCH --mem=720G
 #SBATCH --cpus-per-task=24
-#SBATCH --time=08:00:00
+#SBATCH --time=3-00:00:00
 #SBATCH --array=0-7
 #SBATCH --output=upload-%A_%a.log
 
@@ -20,11 +21,15 @@ export PATH="$HOME/.local/bin:$PATH"
 export AWS_PROFILE=dataset-upload
 export REMOTE_STORAGE_BACKEND=s3
 export REMOTE_STORAGE_BUCKET=sparse-array-programming-suite
+# GraphBLAS references use OpenMP, which should match the CPUs Slurm grants.
+if [[ -n "${SLURM_CPUS_PER_TASK:-}" ]]; then
+  export OMP_NUM_THREADS="$SLURM_CPUS_PER_TASK"
+fi
 
 cd "$repo_directory"
 
 # A per-process cap makes oversized datasets fail cleanly instead of tripping
-# the Slurm OOM killer, so a later big-memory pass can retry just those.
+# the Slurm OOM killer, which would skip the rest of the chunk.
 memory_limit_args=()
 if [[ -n "${SAPS_MEMORY_LIMIT:-}" ]]; then
   memory_limit_args=(--memory-limit "$SAPS_MEMORY_LIMIT")

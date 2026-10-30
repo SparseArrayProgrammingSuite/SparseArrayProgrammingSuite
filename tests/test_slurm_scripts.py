@@ -63,22 +63,16 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     submissions = [json.loads(line) for line in record.read_text().splitlines()]
     names = [
         "upload-%A_%a.log",
-        "upload-bigmem-%A_%a.log",
         "trace-%A_%a.log",
         "finalize-metadata-%j.log",
     ]
     assert len(submissions) == len(names)
-    upload, bigmem = submissions[:2]
+    upload = submissions[0]
     assert f"--array=0-{int(upload_chunks or '8') - 1}" in upload
-    assert "SAPS_MEMORY_LIMIT=224G" in upload[upload.index("--chdir") + 2]
-    assert "--cpus-per-task=24" in upload
-    # The big-memory pass retries whatever the capped pass could not fit.
-    assert "--dependency=afterany:12345" in bigmem
-    assert "--constraint=graniterapids" in bigmem
-    assert "--mem=1450G" in bigmem
-    assert "--cpus-per-task=192" in bigmem
-    assert bigmem[bigmem.index("--chdir") + 2].endswith("SAPS_MEMORY_LIMIT=")
-    assert "--dependency=afterok:12345" in submissions[2]
+    assert "cpu-large" in upload[upload.index("-p") + 1]
+    assert "--mem=720G" in upload
+    assert "SAPS_MEMORY_LIMIT=680G" in upload[upload.index("--chdir") + 2]
+    assert "--dependency=afterok:12345" in submissions[1]
     for args, name in zip(submissions, names, strict=True):
         expected = str(submission.resolve()).replace("%", "%%") + "/" + name
         assert args[args.index("--output") + 1] == expected

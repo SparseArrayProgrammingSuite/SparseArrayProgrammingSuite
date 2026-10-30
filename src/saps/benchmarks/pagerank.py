@@ -21,6 +21,43 @@ from saps.benchmark import (
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps.util.graphblas_process import call_graphblas
+
+# Stop once an iteration moves the ranks by less than this in L1 norm, which
+# bounds their L1 error by about 6e-14 for the default damping of 0.85.
+_REFERENCE_L1_CHANGE = 1e-14
+
+
+def _pagerank_reference(adjacency, alpha: float) -> np.ndarray:
+    """PageRank of a SciPy adjacency matrix whose columns hold outgoing edges.
+
+    Dangling vertices spread their rank uniformly, as in igraph. SuiteSparse:
+    GraphBLAS runs each step on every core. It is imported here so that the
+    benchmarks themselves do not depend on it. Call it through `call_graphblas`.
+    """
+    import graphblas as gb
+
+    n = adjacency.shape[0]
+    weights = gb.io.from_scipy_sparse(adjacency.astype(float))
+    out_weight = (
+        weights.reduce_columnwise(gb.monoid.plus).new().to_dense(fill_value=0.0)
+    )
+    dangling = out_weight == 0
+    scale = np.divide(1.0, out_weight, out=np.zeros(n), where=~dangling)
+    transition = weights.mxm(
+        gb.Vector.from_dense(scale).diag(), gb.semiring.plus_times
+    ).new()
+    rank = np.full(n, 1.0 / n)
+    while True:
+        spread = transition.mxv(gb.Vector.from_dense(rank), gb.semiring.plus_times)
+        updated = (
+            alpha * spread.new().to_dense(fill_value=0.0)
+            + (alpha * rank[dangling].sum() + 1 - alpha) / n
+        )
+        change = np.abs(updated - rank).sum()
+        rank = updated
+        if change < _REFERENCE_L1_CHANGE:
+            return rank / rank.sum()
 
 
 class PageRankDataset(Dataset):
@@ -366,26 +403,14 @@ class PageRankSNAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
     def generate(self, dataset: ReferenceDataset[PageRankDataset]) -> DataInstance:
         problem = PageRankSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        adjacency = graph_csr(problem.inputs[0]).tocoo()
-        graph = ig.Graph(n=adjacency.shape[0], directed=True)
-        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
-        graph.add_edges(np.column_stack((adjacency.col, adjacency.row)))
-        # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
         expected = from_numpy(
-            np.asarray(
-                graph.pagerank(
-                    damping=alpha,
-                    weights=None
-                    if adjacency.dtype == bool
-                    else adjacency.data.tolist(),
-                )
-            )
+            call_graphblas(_pagerank_reference, graph_csr(problem.inputs[0]), alpha)
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "igraph",
+            "reference_backend": "graphblas",
             "reference_algorithm": "pagerank",
             # L1 error bound for the benchmark's finite power iteration.
             "reference_l1_tolerance": max(
@@ -513,26 +538,14 @@ class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
     def generate(self, dataset: ReferenceDataset[PageRankDataset]) -> DataInstance:
         problem = PageRankGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        adjacency = graph_csr(problem.inputs[0]).tocoo()
-        graph = ig.Graph(n=adjacency.shape[0], directed=True)
-        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
-        graph.add_edges(np.column_stack((adjacency.col, adjacency.row)))
-        # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
         expected = from_numpy(
-            np.asarray(
-                graph.pagerank(
-                    damping=alpha,
-                    weights=None
-                    if adjacency.dtype == bool
-                    else adjacency.data.tolist(),
-                )
-            )
+            call_graphblas(_pagerank_reference, graph_csr(problem.inputs[0]), alpha)
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "igraph",
+            "reference_backend": "graphblas",
             "reference_algorithm": "pagerank",
             # L1 error bound for the benchmark's finite power iteration.
             "reference_l1_tolerance": max(
@@ -689,9 +702,9 @@ class PageRankBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(item, BinsparseTensor), (
-                "Output must be in binsparse format"
-            )
+            assert isinstance(
+                item, BinsparseTensor
+            ), "Output must be in binsparse format"
 
         result = to_numpy(self._output[0])
 
@@ -700,13 +713,13 @@ class PageRankBenchmark(Benchmark):
             assert result.shape == expected.shape
             if self._ref_meta and "reference_l1_tolerance" in self._ref_meta:
                 error = np.sum(np.abs(result - expected))
-                assert error <= self._ref_meta["reference_l1_tolerance"] + 1e-12, (
-                    f"PageRank output mismatch for {param.dataset.name}"
-                )
+                assert (
+                    error <= self._ref_meta["reference_l1_tolerance"] + 1e-12
+                ), f"PageRank output mismatch for {param.dataset.name}"
             else:
-                assert np.allclose(result, expected, atol=1e-2), (
-                    f"PageRank output mismatch for {param.dataset.name}"
-                )
+                assert np.allclose(
+                    result, expected, atol=1e-2
+                ), f"PageRank output mismatch for {param.dataset.name}"
 
         if self._ref_meta is None:
             return

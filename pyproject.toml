@@ -55,6 +55,7 @@ scipy = "==1.17.1"
 ssgetpy = "==1.0rc2"
 torch = "==2.12.1"
 onnx = "==1.23.0"
+python-graphblas = "==2025.2.0"
 onnxpy = {git = "https://github.com/SparseArrayProgrammingSuite/ONNXPY.git", rev = "1b2c881aa170d96368bbc8878b1943d08dc654eb"}
 # Indirect dependencies are pinned too, so generated data and freshness hashes
 # do not drift with whatever versions a resolver picks.
@@ -64,6 +65,7 @@ awscrt = "==0.32.2"
 beautifulsoup4 = "==4.15.0"
 build = "==1.5.0"
 certifi = "==2026.6.17"
+cffi = "==2.1.1"
 charset-normalizer = "==3.4.7"
 cloudpickle = "==3.1.2"
 colorama = {version = "==0.4.6", markers = "os_name == \"nt\" or platform_system == \"Windows\""}
@@ -109,6 +111,7 @@ outdated = "==0.2.2"
 packaging = "==26.2"
 platformdirs = "==4.10.0"
 protobuf = "==7.35.1"
+pycparser = {version = "==3.12", markers = "implementation_name != \"PyPy\""}
 pympler = {version = "==1.1", markers = "platform_python_implementation != \"PyPy\""}
 pyproject-hooks = "==1.2.0"
 pysocks = "==1.7.1"
@@ -122,6 +125,7 @@ semver = "==3.0.4"
 setuptools = "==81.0.0"
 six = "==1.17.0"
 soupsieve = "==2.8.4"
+suitesparse-graphblas = "==9.4.5.0"
 sympy = "==1.14.0"
 tabulate = "==0.10.0"
 texttable = "==1.7.2"
