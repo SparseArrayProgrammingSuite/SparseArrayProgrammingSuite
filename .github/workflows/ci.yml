@@ -30,7 +30,7 @@ jobs:
           fi
       - name: Install package
         run: |
-          poetry install --with test
+          poetry sync --with generate,test
       - name: Set up MSVC
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1

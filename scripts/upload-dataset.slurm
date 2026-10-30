@@ -32,6 +32,7 @@ fi
 
 poetry run ./bin/run_benchmark.py \
   --cache-datasets \
+  --process-timeout 3600 \
   --chunk-count "${SLURM_ARRAY_TASK_COUNT:-1}" \
   --chunk-index "${SLURM_ARRAY_TASK_ID:-0}" \
   "${memory_limit_args[@]}"

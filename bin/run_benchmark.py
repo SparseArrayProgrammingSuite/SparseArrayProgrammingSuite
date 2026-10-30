@@ -23,6 +23,7 @@ from asv.results import Results, get_filename
 from asv.runner import run_benchmarks
 
 from saps.benchmark_status import parameter_statuses
+from saps.generate_environment import check_generate_environment
 from saps.storage import (
     DEFAULT_CACHE_DIR,
     DEFAULT_REMOTE_STORAGE_BACKEND,
@@ -529,6 +530,8 @@ def main() -> int:
         if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
             parser.error(f"--{name} must be a positive finite number")
     if args.cache_datasets or args.trace_statistics:
+        # Both write freshness-keyed outputs, which must come from pinned versions.
+        check_generate_environment()
         measurement_timeout = None
 
     if args.rounds is not None and (type(args.rounds) is not int or args.rounds < 1):

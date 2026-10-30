@@ -17,6 +17,8 @@ def runner(monkeypatch):
     spec = importlib.util.spec_from_file_location("saps_run_benchmark", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    # These tests exercise runner logic, not the installed package versions.
+    monkeypatch.setattr(module, "check_generate_environment", lambda: None)
     return module
 
 

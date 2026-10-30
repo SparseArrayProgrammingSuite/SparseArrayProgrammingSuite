@@ -12,7 +12,12 @@ if ! command -v poetry >/dev/null 2>&1; then
 fi
 
 install_poetry_environment() {
-  poetry install --with test --no-interaction
+  # poetry.lock is not tracked; the generate group's exact pins make re-locking
+  # reproducible.
+  if ! poetry check --lock >/dev/null 2>&1; then
+    poetry lock --no-interaction
+  fi
+  poetry sync --with generate --no-interaction
 }
 
 mkdir -p .saps/locks

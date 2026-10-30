@@ -8,11 +8,19 @@ We take inspiration from benchmark suites in the database community, such as [pa
 
 ## Installation
 
-SparseApplicationBenchmark uses [Poetry](https://python-poetry.org/) for packaging. To install the project and its test/development dependencies:
+SparseApplicationBenchmark uses [Poetry](https://python-poetry.org/) for packaging. To install the project with its data generation and test/development dependencies:
 
 ```bash
-poetry install --with test
+poetry sync --with generate,test
 ```
+
+There are three environments:
+
+- **release**: the package's own dependencies, with compatible version ranges.
+- **generate** (`--with generate`): every package, including indirect dependencies, pinned to an exact version. Dataset freshness hashes include installed dependency versions, so `bin/generate_metadata.py`, `bin/run_benchmark.py --cache-datasets`, and `--trace-statistics` refuse to run unless the installed versions match these pins.
+- **test** (`--with test`): test and lint tools.
+
+Use `poetry sync` rather than `poetry install` so packages that drifted from the lock file are put back.
 
 Most commands below assume they are run from the repository root.
 
