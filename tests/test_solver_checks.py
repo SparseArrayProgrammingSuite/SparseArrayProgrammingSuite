@@ -132,8 +132,16 @@ def test_lsqr_checks_stationarity_for_inconsistent_system(ref_meta):
         _check(LSQRBenchmark, A, b, np.array([2.001]), ref_meta=ref_meta)
 
 
-@pytest.mark.parametrize("benchmark_cls", _SOLVERS)
-@pytest.mark.parametrize("generator_index", [0, 1])
+@pytest.mark.parametrize(
+    ("benchmark_cls", "generator_index"),
+    [
+        (benchmark_cls, generator_index)
+        for benchmark_cls in _SOLVERS
+        for generator_index in (0, 1)
+        # This generator fetches its block partition from remote storage.
+        if (benchmark_cls, generator_index) != (BlockJacobiPCGBenchmark, 1)
+    ],
+)
 def test_solver_generators_cache_input_dependent_checks(
     monkeypatch, tmp_path, benchmark_cls, generator_index
 ):
