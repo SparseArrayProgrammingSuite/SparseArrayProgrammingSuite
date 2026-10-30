@@ -36,11 +36,20 @@ poetry run ./bin/generate_metadata.py
 
 account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 upload_chunk_count="${SAPS_UPLOAD_CHUNK_COUNT:-8}"
+upload_memory="${SAPS_UPLOAD_MEMORY:-256G}"
+upload_memory_limit="${SAPS_UPLOAD_MEMORY_LIMIT:-224G}"
+upload_cpus="${SAPS_UPLOAD_CPUS:-32}"
+bigmem_chunk_count="${SAPS_BIGMEM_CHUNK_COUNT:-4}"
 trace_chunk_count="${SAPS_TRACE_CHUNK_COUNT:-8}"
 trace_array_end=$((trace_chunk_count - 1))
 
 if ((upload_chunk_count < 1)); then
   echo "SAPS_UPLOAD_CHUNK_COUNT must be at least 1" >&2
+  exit 1
+fi
+
+if ((bigmem_chunk_count < 1)); then
+  echo "SAPS_BIGMEM_CHUNK_COUNT must be at least 1" >&2
   exit 1
 fi
 
@@ -55,13 +64,30 @@ submit_job() {
   echo "${job_id%%;*}"
 }
 
+# Most datasets fit on a fraction of a node. Datasets that exceed the
+# per-process cap fail cleanly here and are retried by the big-memory pass,
+# which skips everything already uploaded.
 upload_job_id=$(
   submit_job \
     -A "$account" \
     --array="0-$((upload_chunk_count - 1))" \
+    --mem="$upload_memory" \
+    --cpus-per-task="$upload_cpus" \
     --output "$log_directory/upload-%A_%a.log" \
     --chdir "$repo_directory" \
-    --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
+    --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory",SAPS_MEMORY_LIMIT="$upload_memory_limit" \
+    "$script_directory/upload-dataset.slurm"
+)
+
+# The first pass exits nonzero whenever a dataset fails, so wait on any outcome.
+bigmem_job_id=$(
+  submit_job \
+    -A "$account" \
+    --dependency="afterany:$upload_job_id" \
+    --array="0-$((bigmem_chunk_count - 1))" \
+    --output "$log_directory/upload-bigmem-%A_%a.log" \
+    --chdir "$repo_directory" \
+    --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory",SAPS_MEMORY_LIMIT= \
     "$script_directory/upload-dataset.slurm"
 )
 
@@ -69,7 +95,7 @@ trace_job_id=$(
   submit_job \
     -A "$account" \
     -p cpu-small \
-    --dependency="afterok:$upload_job_id" \
+    --dependency="afterok:$bigmem_job_id" \
     --array="0-$trace_array_end" \
     --output "$log_directory/trace-%A_%a.log" \
     --chdir "$repo_directory" \
@@ -91,6 +117,7 @@ merge_job_id=$(
 cat <<EOF
 submitted SAPS data refresh:
   upload array:     $upload_job_id
+  big-memory array: $bigmem_job_id
   trace array:      $trace_job_id
   merge + metadata: $merge_job_id
 EOF

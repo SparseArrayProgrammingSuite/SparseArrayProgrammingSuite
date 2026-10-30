@@ -23,8 +23,15 @@ export REMOTE_STORAGE_BUCKET=sparse-array-programming-suite
 
 cd "$repo_directory"
 
+# A per-process cap makes oversized datasets fail cleanly instead of tripping
+# the Slurm OOM killer, so a later big-memory pass can retry just those.
+memory_limit_args=()
+if [[ -n "${SAPS_MEMORY_LIMIT:-}" ]]; then
+  memory_limit_args=(--memory-limit "$SAPS_MEMORY_LIMIT")
+fi
+
 poetry run ./bin/run_benchmark.py \
   --cache-datasets \
   --chunk-count "${SLURM_ARRAY_TASK_COUNT:-1}" \
   --chunk-index "${SLURM_ARRAY_TASK_ID:-0}" \
-  --memory-limit 320G
+  "${memory_limit_args[@]}"
