@@ -741,7 +741,8 @@ class MCLBenchmark(Benchmark):
         convergence_check_frequency = meta.get("convergence_check_frequency", 1)
 
         loops_matrix = array_api.eye(graph.shape[0], dtype=graph.dtype)
-        current_matrix = graph + loop_value * loops_matrix
+        # Dense first: PyTorch supports dense + sparse but not sparse + dense.
+        current_matrix = loop_value * loops_matrix + graph
         col_sums = array_api.sum(current_matrix, axis=0)
         col_sums = array_api.maximum(
             col_sums, array_api.finfo(current_matrix.dtype).eps
