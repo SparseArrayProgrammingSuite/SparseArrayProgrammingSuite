@@ -3,7 +3,6 @@ import os
 import requests  # type: ignore[import-untyped]
 import ssgetpy.matrix as ssm
 from ssgetpy import bundle
-from tqdm.auto import tqdm
 
 _CHUNK_SIZE = 16 * 1024
 
@@ -29,15 +28,10 @@ def _patched_ssget_download(self, format="MM", destpath=None, extract=False):
         response = requests.get(self.url(format), stream=True)
         # Otherwise an error page is saved as the archive and fails to extract.
         response.raise_for_status()
-        content_length = int(response.headers["content-length"])
 
-        with (
-            open(localdest, "wb") as outfile,
-            tqdm(total=content_length, desc=self.name, unit="B") as pbar,
-        ):
+        with open(localdest, "wb") as outfile:
             for chunk in response.iter_content(chunk_size=_CHUNK_SIZE):
                 outfile.write(chunk)
-                pbar.update(len(chunk))
 
         if extract and (format == "MM" or format == "RB"):
             bundle.extract(localdest)
