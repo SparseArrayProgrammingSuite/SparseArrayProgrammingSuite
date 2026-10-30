@@ -16257,12 +16257,12 @@
   "lth_conv2_onnx.pruned": {
     "digest": "46b3d838cee29fca1e5bc133a921d478ae92acc93693b5fe31b14d6faf324506",
     "file": "src/saps/benchmarks/lth_conv2.py",
-    "freshness": "050773371e1a7f8d9e4503d8d1a5563f89d4d8ec03139d3aea7ee88b23e68454"
+    "freshness": "c3257b9ea6f3c709d8b735a2d210f4a4b24e19f01b94fe2870c4b09e02fcec6c"
   },
   "lth_conv2_onnx.pruned_test": {
     "digest": "6b8f40487c95ba2f28ed82ae995851de7ae01b761fa1a65105d253d0ece14ee0",
     "file": "src/saps/benchmarks/lth_conv2.py",
-    "freshness": "050773371e1a7f8d9e4503d8d1a5563f89d4d8ec03139d3aea7ee88b23e68454"
+    "freshness": "c3257b9ea6f3c709d8b735a2d210f4a4b24e19f01b94fe2870c4b09e02fcec6c"
   },
   "matrix_multiplication_dense.large": {
     "digest": "79926870ecf56b24a7e59ffbc80dfa81c226abd744d663511a5ec55d9747f0cd",
