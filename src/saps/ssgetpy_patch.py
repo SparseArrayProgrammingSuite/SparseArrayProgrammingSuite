@@ -27,6 +27,8 @@ def _patched_ssget_download(self, format="MM", destpath=None, extract=False):
         os.makedirs(destpath, exist_ok=True)
 
         response = requests.get(self.url(format), stream=True)
+        # Otherwise an error page is saved as the archive and fails to extract.
+        response.raise_for_status()
         content_length = int(response.headers["content-length"])
 
         with (
@@ -35,7 +37,7 @@ def _patched_ssget_download(self, format="MM", destpath=None, extract=False):
         ):
             for chunk in response.iter_content(chunk_size=_CHUNK_SIZE):
                 outfile.write(chunk)
-                pbar.update(_CHUNK_SIZE)
+                pbar.update(len(chunk))
 
         if extract and (format == "MM" or format == "RB"):
             bundle.extract(localdest)

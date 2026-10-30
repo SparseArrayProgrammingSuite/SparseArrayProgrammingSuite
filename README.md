@@ -166,13 +166,20 @@ Slurm stdout and stderr logs go to the directory where you submit the job:
 `competition-cpu-%A_%a.log`, `competition-gpu-%A_%a.log`,
 `competition-combine-%j.log`, `upload-%A_%a.log`, `trace-%A_%a.log`, or
 `finalize-metadata-%j.log`. The refresh launcher (`scripts/submit-refresh-jobs.sh`)
-also preserves the directory where you invoked it for all three (or four, with
-`--with-competition`) jobs' logs. You can submit the Slurm scripts from the
+also preserves the directory where you invoked it for all four (or five, with
+`--with-competition`) jobs' logs, and writes the big-memory upload pass to
+`upload-bigmem-%A_%a.log`. You can submit the Slurm scripts from the
 repository root or any subdirectory.
 
-Dataset uploads run as an eight-task array. Set `SAPS_UPLOAD_CHUNK_COUNT` when
-using the refresh launcher to change the number of upload tasks. Tracing waits
-for every upload task to succeed.
+The refresh launcher uploads datasets in two passes to avoid paying for whole
+nodes. The first pass runs as an eight-task array on 32 CPUs and 256G per task,
+with each dataset process capped at 224G so oversized datasets fail with
+`MemoryError` instead of killing the task. A second, four-task array then
+reruns on whole big-memory nodes; it skips every dataset the first pass
+uploaded, so only the oversized ones are regenerated. Override the defaults
+with `SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`, `SAPS_UPLOAD_MEMORY`,
+`SAPS_UPLOAD_MEMORY_LIMIT`, and `SAPS_BIGMEM_CHUNK_COUNT`. Tracing waits for
+every big-memory task to succeed.
 
 Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
 competition run once the upload/trace/merge chain finishes successfully
@@ -255,6 +262,20 @@ with `cacheable: false`, preserving retained records regardless of freshness.
 Regenerate metadata first if benchmark definitions have changed. Use `--metadata`
 and `--manifest` for alternate files; the manifest also honors `SAPS_MANIFEST_PATH`.
 Pruning does not delete local cache files or remote objects.
+
+When a source change leaves generated data unchanged, or a source can no longer
+be downloaded, mark the existing uploads as current instead of regenerating them.
+Select datasets with `--tag`, `--no-tag`, `--re`, and `--no-re`, as for
+`run_benchmark.py`:
+
+```bash
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/mark_fresh.py --re '^suitesparse_matrix$' --dry-run
+poetry run ./bin/mark_fresh.py --re '^suitesparse_matrix$'
+```
+
+Only entries that already have an uploaded digest for the same source file are
+marked. Entries that were never cached are listed and left for `--cache-datasets`.
 
 Generators marked `cacheable = False` still assemble benchmark inputs during
 setup from their shared source datasets. Those transformations must preserve
