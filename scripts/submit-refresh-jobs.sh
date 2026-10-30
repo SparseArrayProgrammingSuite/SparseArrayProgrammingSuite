@@ -38,8 +38,10 @@ account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 upload_chunk_count="${SAPS_UPLOAD_CHUNK_COUNT:-8}"
 upload_memory="${SAPS_UPLOAD_MEMORY:-256G}"
 upload_memory_limit="${SAPS_UPLOAD_MEMORY_LIMIT:-224G}"
-upload_cpus="${SAPS_UPLOAD_CPUS:-32}"
+upload_cpus="${SAPS_UPLOAD_CPUS:-24}"
 bigmem_chunk_count="${SAPS_BIGMEM_CHUNK_COUNT:-4}"
+bigmem_memory="${SAPS_BIGMEM_MEMORY:-1450G}"
+bigmem_cpus="${SAPS_BIGMEM_CPUS:-192}"
 trace_chunk_count="${SAPS_TRACE_CHUNK_COUNT:-8}"
 trace_array_end=$((trace_chunk_count - 1))
 
@@ -80,11 +82,16 @@ upload_job_id=$(
 )
 
 # The first pass exits nonzero whenever a dataset fails, so wait on any outcome.
+# Only Granite Rapids nodes have enough memory for the datasets it could not fit.
 bigmem_job_id=$(
   submit_job \
     -A "$account" \
     --dependency="afterany:$upload_job_id" \
     --array="0-$((bigmem_chunk_count - 1))" \
+    --constraint=graniterapids \
+    --mem="$bigmem_memory" \
+    --cpus-per-task="$bigmem_cpus" \
+    --time=3-00:00:00 \
     --output "$log_directory/upload-bigmem-%A_%a.log" \
     --chdir "$repo_directory" \
     --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory",SAPS_MEMORY_LIMIT= \

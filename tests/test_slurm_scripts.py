@@ -71,9 +71,12 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     upload, bigmem = submissions[:2]
     assert f"--array=0-{int(upload_chunks or '8') - 1}" in upload
     assert "SAPS_MEMORY_LIMIT=224G" in upload[upload.index("--chdir") + 2]
+    assert "--cpus-per-task=24" in upload
     # The big-memory pass retries whatever the capped pass could not fit.
     assert "--dependency=afterany:12345" in bigmem
-    assert "--mem" not in " ".join(bigmem)
+    assert "--constraint=graniterapids" in bigmem
+    assert "--mem=1450G" in bigmem
+    assert "--cpus-per-task=192" in bigmem
     assert bigmem[bigmem.index("--chdir") + 2].endswith("SAPS_MEMORY_LIMIT=")
     assert "--dependency=afterok:12345" in submissions[2]
     for args, name in zip(submissions, names, strict=True):

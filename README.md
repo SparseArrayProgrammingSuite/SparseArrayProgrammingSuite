@@ -180,13 +180,15 @@ also preserves the directory where you invoked it for all four (or five, with
 repository root or any subdirectory.
 
 The refresh launcher uploads datasets in two passes to avoid paying for whole
-nodes. The first pass runs as an eight-task array on 32 CPUs and 256G per task,
+nodes. The first pass runs as an eight-task array on 24 CPUs and 256G per task,
 with each dataset process capped at 224G so oversized datasets fail with
 `MemoryError` instead of killing the task. A second, four-task array then
-reruns on whole big-memory nodes; it skips every dataset the first pass
-uploaded, so only the oversized ones are regenerated. Override the defaults
-with `SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`, `SAPS_UPLOAD_MEMORY`,
-`SAPS_UPLOAD_MEMORY_LIMIT`, and `SAPS_BIGMEM_CHUNK_COUNT`. Tracing waits for
+reruns on Granite Rapids nodes with 192 CPUs and 1450G per task for up to
+three days; it skips every dataset the first pass uploaded, so only the
+oversized ones are regenerated. Override the defaults with
+`SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`, `SAPS_UPLOAD_MEMORY`,
+`SAPS_UPLOAD_MEMORY_LIMIT`, `SAPS_BIGMEM_CHUNK_COUNT`, `SAPS_BIGMEM_MEMORY`, and
+`SAPS_BIGMEM_CPUS`. Tracing waits for
 every big-memory task to succeed.
 
 Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
