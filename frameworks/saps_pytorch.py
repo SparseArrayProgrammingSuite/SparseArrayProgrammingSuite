@@ -184,7 +184,14 @@ class PytorchFramework(Framework):
             dtype = torch.int64
         # Boolean bmm is unsupported; integer contraction counts matches, and
         # comparison with zero implements an OR reduction without changing +=.
-        result = torch.einsum(equation, *(operand.to(dtype) for operand in operands))
+        # CUDA has no integer bmm either, so count in float64 there (exact below
+        # 2**53) and return int64 as on the CPU.
+        compute_dtype = dtype
+        if dtype == torch.int64 and operands[0].is_cuda:
+            compute_dtype = torch.float64
+        result = torch.einsum(
+            equation, *(operand.to(compute_dtype) for operand in operands)
+        ).to(dtype)
         return result != 0 if logical_reduction else result
 
     def pad_constant(self, x, pad_width, *, fill_value=0):
@@ -381,6 +388,14 @@ class PytorchFramework(Framework):
 
     def matmul(self, x1, x2, /, **kwargs):
         x1, x2 = _cast_bool_to_wide_unsigned(x1, x2)
+        out_dtype = torch.result_type(x1, x2)
+        if x1.is_cuda and not (out_dtype.is_floating_point or out_dtype.is_complex):
+            # CUDA has no integer GEMM. Float64 is exact below 2**53, and going
+            # back through int64 wraps narrow dtypes like the CPU kernels do.
+            result = torch_xp.matmul(
+                x1.to(torch.float64), x2.to(torch.float64), **kwargs
+            )
+            return result.to(torch.int64).to(out_dtype)
         if x1.dtype in _WIDE_UNSIGNED or x2.dtype in _WIDE_UNSIGNED:
             out_dtype = torch.result_type(x1, x2)
             return torch_xp.matmul(x1.to(torch.int64), x2.to(torch.int64), **kwargs).to(
