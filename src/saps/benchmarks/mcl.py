@@ -5,7 +5,7 @@ import numpy as np
 import scipy.sparse as scipy_sparse
 
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -23,40 +23,52 @@ from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps.util.graphblas_process import call_graphblas
-from saps_framework.binsparse_utils import assert_coo_allclose
 
 # Bound on the multiplications, and so the unpruned nonzeros, of one column
 # block of an MCL expansion.
 _BLOCK_WORK = 1 << 28
 
-# Inputs weight each edge 1 plus a distinct offset below this. Symmetric graphs
-# otherwise tie exactly between attractors, and inflation lets each
-# implementation's rounding pick the winner.
-_WEIGHT_OFFSET = 2.0**-10
+
+def _inverse_degrees(graph: BinsparseTensor, loop_value: float) -> BinsparseTensor:
+    """Each column's 1 / (sum + loop_value), rounded down to a multiple of 2^-26.
+
+    MCL's first step divides each column of graph + loop_value * I by its sum.
+    Computing the reciprocals once, here, leaves every implementation the same
+    starting matrix.
+    """
+    sums = np.asarray(to_scipy(graph).sum(axis=0), dtype=np.float64).ravel()
+    return from_numpy(np.floor(2.0**26 / (sums + loop_value)) / 2.0**26)
 
 
-def _edge_offsets(rows: np.ndarray, cols: np.ndarray, n: int) -> np.ndarray:
-    """Each edge's weight offset, from the SplitMix64 hash of its position."""
-    z = rows.astype(np.uint64) * np.uint64(n) + cols.astype(np.uint64) + np.uint64(1)
-    z *= np.uint64(0x9E3779B97F4A7C15)
-    z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
-    z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
-    z ^= z >> np.uint64(31)
-    return (z >> np.uint64(11)).astype(np.float64) * (_WEIGHT_OFFSET * 2.0**-53)
+def _clusters(matrix: Any) -> set[bytes]:
+    """The clusters of a converged MCL matrix, given as a SciPy COO array.
+
+    Attractors keep weight on their own diagonal, and an attractor's cluster is
+    the set of columns with weight in its row. Each cluster is its sorted
+    column indices, as bytes.
+    """
+    present = matrix.data != 0
+    rows = matrix.row[present]
+    cols = matrix.col[present].astype(np.int64)
+    attractor = np.zeros(matrix.shape[0], dtype=bool)
+    attractor[rows[rows == cols]] = True
+    keep = attractor[rows]
+    rows, cols = rows[keep], cols[keep]
+    if not rows.size:
+        return set()
+    order = np.lexsort((cols, rows))
+    rows, cols = rows[order], cols[order]
+    starts = np.flatnonzero(np.diff(rows)) + 1
+    return {cluster.tobytes() for cluster in np.split(cols, starts)}
 
 
-def _with_weight_offsets(adjacency: BinsparseTensor) -> BinsparseTensor:
-    graph = to_scipy(adjacency).tocoo()
-    weights = graph.data.astype(np.float64) * (
-        1 + _edge_offsets(graph.row, graph.col, graph.shape[0])
-    )
-    return from_scipy(
-        scipy_sparse.coo_array((weights, (graph.row, graph.col)), shape=graph.shape)
-    )
-
-
-def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
+def _mcl_reference(
+    graph: Any, inverse_degrees: np.ndarray, meta: dict[str, Any]
+) -> Any:
     """Run MCL on a SciPy adjacency matrix to convergence, as a COO array.
+
+    It rounds where the benchmark does, so its sums are exact and it computes
+    the same bits as any implementation of the benchmark.
 
     SuiteSparse:GraphBLAS runs each step on every core. It is imported here so
     that the benchmarks themselves do not depend on it. Call it through
@@ -66,16 +78,26 @@ def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
 
     eps = np.finfo(float).eps
 
+    def rounded(matrix):
+        scaled = matrix.apply(gb.binary.times, right=2.0**26).new()
+        scaled = scaled.apply(gb.unary.floor).new()
+        return scaled.apply(gb.binary.truediv, right=2.0**26).new()
+
     def normalized(matrix):
         sums = matrix.reduce_columnwise(gb.monoid.plus).new()
-        scale = sums.apply(gb.binary.max, right=eps).new().apply(gb.unary.minv).new()
-        return matrix.mxm(scale.diag(), gb.semiring.plus_times).new()
+        sums = sums.apply(gb.binary.max, right=eps).new()
+        # Divide each entry by its column's sum, as the benchmark does, rather
+        # than multiply by a rounded reciprocal.
+        divisors = matrix.mxm(sums.diag(), gb.semiring.any_second).new()
+        return rounded(matrix.ewise_mult(divisors, gb.binary.truediv).new())
 
     n = graph.shape[0]
-    current = normalized(
+    current = (
         gb.io.from_scipy_sparse(
             graph.astype(float) + meta.get("loop_value", 1) * scipy_sparse.eye(n)
         )
+        .mxm(gb.Vector.from_dense(inverse_degrees).diag(), gb.semiring.plus_times)
+        .new()
     )
     threshold = meta.get("pruning_threshold", 1e-4)
     frequency = meta.get("pruning_frequency", 1)
@@ -100,7 +122,7 @@ def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
             old = previous[:, start:stop].new()
             expanded = old
             for _ in range(meta.get("expansion", 2) - 1):
-                expanded = previous.mxm(expanded, gb.semiring.plus_times).new()
+                expanded = rounded(previous.mxm(expanded, gb.semiring.plus_times).new())
             if threshold > 0 and (iteration + 1) % frequency == 0:
                 maxima = expanded.reduce_columnwise(gb.monoid.max).new()
                 column_maxima = expanded.mxm(
@@ -109,20 +131,21 @@ def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
                 keep = expanded.apply(gb.binary.ge, right=threshold).new()
                 keep(gb.binary.lor) << expanded.ewise_mult(column_maxima, gb.binary.eq)
                 expanded = expanded.dup(mask=keep.V)
-            block = normalized(
-                expanded.apply(gb.binary.pow, right=meta.get("inflation", 2)).new()
-            )
+            inflated = expanded
+            for _ in range(meta.get("inflation", 2) - 1):
+                inflated = inflated.ewise_mult(expanded, gb.binary.times).new()
+            block = normalized(inflated)
             if converged:
-                # |block - old| <= 1e-8 + 1e-5 * |old| entrywise, on the union
-                # of both patterns.
+                # |block - old| <= 2^-26 + 2^-17 * |old| entrywise, on the
+                # union of both patterns. Every step here is exact.
                 difference = block.ewise_add(old, gb.binary.minus).new()
                 difference = difference.apply(gb.unary.abs).new()
                 scaled = old.apply(gb.unary.abs).new()
-                scaled = scaled.apply(gb.binary.times, right=1e-5).new()
+                scaled = scaled.apply(gb.binary.times, right=2.0**-17).new()
                 excess = difference.ewise_add(scaled, gb.binary.minus).new()
                 converged = (
                     excess.nvals == 0
-                    or excess.reduce_scalar(gb.monoid.max).new().value <= 1e-8
+                    or excess.reduce_scalar(gb.monoid.max).new().value <= 2.0**-26
                 )
             blocks.append(block)
             start = stop
@@ -295,14 +318,20 @@ class MCLTestGenerator(Generator[MCLDataset]):
             indices_1=cols,
             values=A[rows, cols],
         )
+        meta = {"expansion": 2, "inflation": 2, "loop_value": 1}
         problem = DataInstance(
-            inputs=[_with_weight_offsets(A_bin)],
-            meta={"expansion": 2, "inflation": 2, "loop_value": 1},
+            inputs=[A_bin, _inverse_degrees(A_bin, meta["loop_value"])],
+            meta=meta,
             ref_meta={"expected_count": dataset.expected_count},
         )
         meta = problem.meta
         expected = from_scipy(
-            call_graphblas(_mcl_reference, graph_csr(problem.inputs[0]), meta)
+            call_graphblas(
+                _mcl_reference,
+                graph_csr(problem.inputs[0]),
+                to_numpy(problem.inputs[1]),
+                meta,
+            )
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
@@ -443,9 +472,8 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 
     def generate_inputs(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(
-            inputs=[_with_weight_offsets(zero_one_adjacency(raw.inputs[0]))], meta={}
-        )
+        graph = zero_one_adjacency(raw.inputs[0])
+        return DataInstance(inputs=[graph, _inverse_degrees(graph, 1)], meta={})
 
 
 class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
@@ -472,7 +500,12 @@ class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         problem = MCLSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         expected = from_scipy(
-            call_graphblas(_mcl_reference, graph_csr(problem.inputs[0]), meta)
+            call_graphblas(
+                _mcl_reference,
+                graph_csr(problem.inputs[0]),
+                to_numpy(problem.inputs[1]),
+                meta,
+            )
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
@@ -562,9 +595,8 @@ class MCLGAPGenerator(Generator[MCLDataset]):
 
     def generate_inputs(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[_with_weight_offsets(zero_one_adjacency(raw.inputs[0]))], meta={}
-        )
+        graph = zero_one_adjacency(raw.inputs[0])
+        return DataInstance(inputs=[graph, _inverse_degrees(graph, 1)], meta={})
 
 
 class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
@@ -591,7 +623,12 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         problem = MCLGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         expected = from_scipy(
-            call_graphblas(_mcl_reference, graph_csr(problem.inputs[0]), meta)
+            call_graphblas(
+                _mcl_reference,
+                graph_csr(problem.inputs[0]),
+                to_numpy(problem.inputs[1]),
+                meta,
+            )
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
@@ -706,7 +743,7 @@ class MCLBenchmark(Benchmark):
     def generators(self):
         return [MCLTestGenerator(), MCLSNAPGenerator()]  # MCLGAPGenerator()
 
-    def benchmark(self, xp, meta: dict[str, Any], graph):
+    def benchmark(self, xp, meta: dict[str, Any], graph, inverse_degrees):
         """
                 benchmark(data, meta)
 
@@ -716,8 +753,10 @@ class MCLBenchmark(Benchmark):
         ----
         array_api: The array API module to utilize
         graph_binsparse: The sparse adjacency matrix of the graph in binsparse format.
+        inverse_degrees: 1 / (column sum + loop_value) for each column of the
+                         graph, rounded down to a multiple of 2^-26.
         expansion: The cluster expansion factor.
-        inflation: The cluster inflation factor.
+        inflation: The cluster inflation factor, a positive integer.
         loop_value: The value to add to the diagonal for self loops.
         iterations: The maximum number of iterations.
         pruning_threshold: Threshold below which matrix elements will be set to 0.
@@ -743,20 +782,20 @@ class MCLBenchmark(Benchmark):
         pruning_frequency = meta.get("pruning_frequency", 1)
         convergence_check_frequency = meta.get("convergence_check_frequency", 1)
 
+        # Matrices that get multiplied hold multiples of 2^-26 in [0, 1], so
+        # every product is a multiple of 2^-52 and every partial sum stays
+        # below 2. Float64 then adds them exactly, in any order, and every
+        # implementation computes the same bits. Rounding down keeps zeros zero.
         loops_matrix = array_api.eye(graph.shape[0], dtype=graph.dtype)
-        current_matrix = graph + loop_value * loops_matrix
-        col_sums = array_api.sum(current_matrix, axis=0)
-        col_sums = array_api.maximum(
-            col_sums, array_api.finfo(current_matrix.dtype).eps
-        )
-        current_matrix = current_matrix / col_sums
+        current_matrix = (graph + loop_value * loops_matrix) * inverse_degrees
 
         for i in range(iterations):
             previous_matrix = current_matrix
 
             expanded_matrix = current_matrix
             for _ in range(expansion - 1):
-                expanded_matrix = array_api.matmul(expanded_matrix, current_matrix)
+                expanded_matrix = array_api.matmul(current_matrix, expanded_matrix)
+                expanded_matrix = array_api.floor(expanded_matrix * 2.0**26) / 2.0**26
 
             # As in HipMCL, prune the expanded matrix before inflating it.
             if pruning_threshold > 0 and i % pruning_frequency == (
@@ -768,18 +807,25 @@ class MCLBenchmark(Benchmark):
                 )
                 expanded_matrix = expanded_matrix * mask
 
-            inflated_matrix = expanded_matrix**inflation
+            # Multiplying rather than calling pow keeps squares of grid values
+            # exact, so the column sums below are exact at inflation 2.
+            inflated_matrix = expanded_matrix
+            for _ in range(inflation - 1):
+                inflated_matrix = inflated_matrix * expanded_matrix
             col_sums = array_api.sum(inflated_matrix, axis=0)
             col_sums = array_api.maximum(
                 col_sums, array_api.finfo(inflated_matrix.dtype).eps
             )
-            current_matrix = inflated_matrix / col_sums
+            current_matrix = (
+                array_api.floor(inflated_matrix / col_sums * 2.0**26) / 2.0**26
+            )
 
+            # Both tolerances are powers of two, so this test is exact too.
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1
             ) and array_api.all(
                 array_api.abs(current_matrix - previous_matrix)
-                <= 1e-8 + 1e-5 * array_api.abs(previous_matrix)
+                <= 2.0**-26 + 2.0**-17 * array_api.abs(previous_matrix)
             ):
                 break
 
@@ -790,24 +836,17 @@ class MCLBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is not None:
-            assert_coo_allclose(self._ref_outputs[0], self._output[0])
-        if not self._ref_meta or "expected_count" not in self._ref_meta:
-            return
-        expected_count = self._ref_meta["expected_count"]
-
         try:
             output = to_scipy(self._output[0]).tocoo()
         except TypeError:
             output = scipy_sparse.coo_array(to_numpy(self._output[0]))
-        rows = output.row
-        cols = output.col
-        values = output.data
-        present = values != 0
-        rows = rows[present]
-        cols = cols[present]
-        attractors = rows[rows == cols]
-        clusters = {
-            tuple(np.sort(cols[rows == attractor]).tolist()) for attractor in attractors
-        }
-        assert len(clusters) == expected_count
+        output.sum_duplicates()
+        assert output.data.min(initial=0) >= 0, "MCL output has negative entries"
+        # Rounding down to multiples of 2^-26 leaves columns a little under 1.
+        np.testing.assert_allclose(output.sum(axis=0), 1, atol=1e-3)
+        clusters = _clusters(output)
+        if self._ref_outputs is not None:
+            expected = _clusters(to_scipy(self._ref_outputs[0]).tocoo())
+            assert clusters == expected, "MCL clusters differ from the reference"
+        if self._ref_meta and "expected_count" in self._ref_meta:
+            assert len(clusters) == self._ref_meta["expected_count"]

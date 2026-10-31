@@ -14,7 +14,6 @@ from saps.benchmarks.bfs import (
     BFSDataset,
     BFSSNAPGenerator,
 )
-from saps.benchmarks.mcl import _edge_offsets
 from saps.benchmarks.snap import (
     _MAX_DEGREES,
     NUM_SNAP_SOURCES,
@@ -225,7 +224,10 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     manifest = backend.manifest_path.read_bytes()
 
     problem = consumer.cached_generate(dataset)
-    assert len(problem.inputs) == (2 if module_name in _MULTI_SOURCE else 1)
+    # MCL also takes its graph's rounded inverse degrees.
+    assert len(problem.inputs) == (
+        2 if module_name in _MULTI_SOURCE or module_name == "mcl" else 1
+    )
     if referenced:
         assert problem.ref_outputs is not None
     if getattr(dataset, "source_seed", None) is not None:
@@ -269,11 +271,6 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         np.testing.assert_array_equal(
             to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
         )
-    elif module_name == "mcl":
-        pattern = np.array([[0, 1, 0], [0, 0, 1], [0, 0, 1]])
-        expected = np.zeros((3, 3))
-        expected[np.nonzero(pattern)] = 1 + _edge_offsets(*np.nonzero(pattern), 3)
-        np.testing.assert_array_equal(to_scipy(problem.inputs[0]).toarray(), expected)
     elif getattr(dataset, "simple_undirected", False):
         np.testing.assert_array_equal(
             to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 0]]
