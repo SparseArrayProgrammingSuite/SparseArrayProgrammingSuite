@@ -31,12 +31,8 @@ _BLOCK_WORK = 1 << 28
 
 # Inputs weight each edge 1 plus a distinct offset below this. Symmetric graphs
 # otherwise tie exactly between attractors, and inflation lets each
-# implementation's rounding pick the winner. The reference's bounds record how
-# much rounding could still change the result.
+# implementation's rounding pick the winner.
 _WEIGHT_OFFSET = 2.0**-10
-
-_EPS = float(np.finfo(np.float64).eps)
-_TINY = float(np.finfo(np.float64).tiny)
 
 
 def _edge_offsets(rows: np.ndarray, cols: np.ndarray, n: int) -> np.ndarray:
@@ -59,25 +55,8 @@ def _with_weight_offsets(adjacency: BinsparseTensor) -> BinsparseTensor:
     )
 
 
-def _gamma(terms: np.ndarray) -> np.ndarray:
-    """Higham's bound on the relative error of `terms` rounded operations."""
-    rounded = terms * _EPS
-    if np.any(rounded >= 1):
-        raise ValueError("Too many rounding steps for a finite error bound")
-    return rounded / (1 - rounded)
-
-
 def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
-    """Run MCL to convergence on a SciPy adjacency matrix, as a COO array.
-
-    Each value carries a radius bounding how far any float64 evaluation of the
-    benchmark's arithmetic, summing in any order, can land from it. Where a
-    pruning or convergence decision could go either way within that range, the
-    bounds widen to cover every outcome: an entry some evaluations prune lies
-    between 0 and its upper bound, and an iteration some evaluations stop after
-    joins the result's bounds. Also returns how many decisions were ambiguous
-    and the final radius, which the check passes any correct implementation
-    within once it is below the check's tolerance.
+    """Run MCL on a SciPy adjacency matrix to convergence, as a COO array.
 
     SuiteSparse:GraphBLAS runs each step on every core. It is imported here so
     that the benchmarks themselves do not depend on it. Call it through
@@ -85,124 +64,24 @@ def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
     """
     import graphblas as gb
 
-    # Entries are nonnegative throughout, so bounds need no absolute values.
-    def scaled(matrix, factors):
-        return matrix.mxm(
-            gb.Vector.from_dense(factors).diag(), gb.semiring.plus_times
-        ).new()
+    eps = np.finfo(float).eps
 
-    def plus(a, b):
-        return a.ewise_add(b, gb.binary.plus).new()
-
-    def minus(a, b):
-        return a.ewise_add(b, gb.binary.minus).new()
-
-    def times(matrix, factor):
-        return matrix.apply(gb.binary.times, right=factor).new()
-
-    def column(matrix, monoid):
-        return matrix.reduce_columnwise(monoid).new().to_dense(fill_value=0)
-
-    def largest(matrix):
-        return matrix.reduce_scalar(gb.monoid.max).new().value if matrix.nvals else 0.0
-
-    def product(left, left_radius, right, right_radius):
-        """Bound left @ right for factors anywhere within their radii."""
-        value = left.mxm(right, gb.semiring.plus_times).new()
-        upper = (
-            plus(left, left_radius)
-            .mxm(plus(right, right_radius), gb.semiring.plus_times)
-            .new()
-        )
-        # Each entry sums at most as many products as its right column holds.
-        g = _gamma(column(right, gb.agg.count).astype(np.float64))
-        upper = scaled(upper, (1 + g) / (1 - g))
-        lower = scaled(value, (1 - g) / (1 + g))
-        # 4 eps covers rounding the scaling and the subtraction.
-        return value, plus(minus(upper, lower), times(upper, 4 * _EPS))
-
-    def broadcast(pattern, factors):
-        """Each entry of `pattern` set to its column's factor."""
-        return pattern.mxm(
-            gb.Vector.from_dense(factors).diag(), gb.semiring.any_second
-        ).new()
-
-    def divided(numerator, denominator):
-        # Zero numerators give zero, even over a zero denominator.
-        safe = denominator.apply(gb.binary.max, right=_TINY).new()
-        return numerator.ewise_mult(safe, gb.binary.truediv).new()
-
-    def normalized(value, radius, least=None):
-        """Divide each column by its sum, as the benchmark does.
-
-        x_i / sum_j x_j increases with x_i and decreases with every other x_j,
-        so its exact range takes x_i low and the rest high, or the reverse. That
-        keeps a column's shared sum from compounding the error: a lone entry
-        stays exactly 1. `least` optionally bounds each column's exact sum from
-        below.
-        """
-        terms = column(value, gb.agg.count).astype(np.float64)
-        # Summing a column, and rounding the bounds' own sums.
-        g = _gamma(np.maximum(terms - 1, 0))
-        low = minus(value, radius).apply(gb.binary.max, right=0.0).new()
-        high = plus(value, radius)
-        low_total = column(low, gb.monoid.plus)
-        high_total = column(high, gb.monoid.plus)
-        smallest = low_total * (1 - g)
-        if least is not None:
-            smallest = np.maximum(smallest, least * (1 - g) * (1 - 4 * _EPS))
-        # The benchmark divides by max(sum, eps), so a sum that could be below
-        # eps leaves those quotients anywhere from 0 up.
-        unbounded = smallest <= _EPS
-        slack = (g + 3 * _EPS) / (1 - g)
-        # Lowest quotient: x_i low, the others high, overestimated by rounding.
-        others = minus(broadcast(value, high_total), high)
-        denominator = plus(low, others)
-        shortfall = divided(broadcast(value, high_total * slack), denominator)
-        lowest = (
-            divided(low, denominator)
-            .ewise_mult(
-                shortfall.apply(gb.binary.minus, left=1.0).new(), gb.binary.times
-            )
-            .new()
-        )
-        lowest = lowest.apply(gb.binary.max, right=0.0).new()
-        # Highest quotient: x_i high, the others low, underestimated by rounding.
-        others = minus(broadcast(value, low_total), low)
-        others = minus(others, broadcast(value, low_total * slack))
-        denominator = plus(high, others.apply(gb.binary.max, right=0.0).new())
-        highest = divided(high, denominator)
-        # The benchmark's sum and division round each quotient by 1 -+ g, eps.
-        lowest = scaled(
-            lowest, np.where(unbounded, 0.0, (1 - _EPS) / (1 + g) * (1 - 4 * _EPS))
-        )
-        top = (1 + _EPS) / (1 - g) * (1 + 4 * _EPS)
-        highest = scaled(highest, top)
-        highest = highest.ewise_mult(broadcast(value, top), gb.binary.min).new()
-        result = times(plus(lowest, highest), 0.5)
-        result_radius = plus(
-            times(minus(highest, lowest), 0.5), times(highest, 2 * _EPS)
-        )
-        return result, result_radius
+    def normalized(matrix):
+        sums = matrix.reduce_columnwise(gb.monoid.plus).new()
+        scale = sums.apply(gb.binary.max, right=eps).new().apply(gb.unary.minv).new()
+        return matrix.mxm(scale.diag(), gb.semiring.plus_times).new()
 
     n = graph.shape[0]
-    # The benchmark's graph + loop_value * I rounds once per entry.
-    start_value = gb.io.from_scipy_sparse(
-        graph.astype(np.float64) + meta.get("loop_value", 1) * scipy_sparse.eye(n)
+    current = normalized(
+        gb.io.from_scipy_sparse(
+            graph.astype(float) + meta.get("loop_value", 1) * scipy_sparse.eye(n)
+        )
     )
-    current, radius = normalized(start_value, times(start_value, _EPS))
     threshold = meta.get("pruning_threshold", 1e-4)
     frequency = meta.get("pruning_frequency", 1)
-    inflation = meta.get("inflation", 2)
-    if inflation < 1:
-        raise ValueError("The MCL reference bounds inflation of at least 1")
-    ambiguous_entries = 0
-    stops = []
     for iteration in range(meta.get("iterations", 100)):
-        previous, previous_radius = current, radius
-        check = (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0
-        certainly_unconverged = False
-        possibly_unconverged = False
+        previous = current
+        converged = (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0
         # As in HipMCL, expand a block of columns at a time and prune it right
         # away, so the unpruned product never exists in full. Column j of the
         # product depends only on column j of its right factor, and pruning,
@@ -212,7 +91,6 @@ def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
         column_work = counts.vxm(previous, gb.semiring.plus_first).new(dtype=int)
         work = np.concatenate([[0], np.cumsum(column_work.to_dense(fill_value=0))])
         blocks = []
-        block_radii = []
         start = 0
         while start < n:
             stop = max(
@@ -220,102 +98,38 @@ def _mcl_reference(graph: Any, meta: dict[str, Any]) -> Any:
                 np.searchsorted(work, work[start] + _BLOCK_WORK, side="right") - 1,
             )
             old = previous[:, start:stop].new()
-            old_radius = previous_radius[:, start:stop].new()
-            expanded, expanded_radius = old, old_radius
+            expanded = old
             for _ in range(meta.get("expansion", 2) - 1):
-                expanded, expanded_radius = product(
-                    previous, previous_radius, expanded, expanded_radius
-                )
-            least = None
+                expanded = previous.mxm(expanded, gb.semiring.plus_times).new()
             if threshold > 0 and (iteration + 1) % frequency == 0:
-                # 2 eps covers rounding the bounds themselves.
-                margin = plus(expanded_radius, times(expanded, 2 * _EPS))
-                low = minus(expanded, margin)
-                high = plus(expanded, margin)
-                kept = low.apply(gb.binary.ge, right=threshold).new()
-                possible = high.apply(gb.binary.ge, right=threshold).new()
-                # Below the threshold, only each column's maximum survives:
-                # whichever entries could be the largest.
-                floor = column(low, gb.monoid.max)
-                floors = expanded.mxm(
-                    gb.Vector.from_dense(floor).diag(), gb.semiring.any_second
+                maxima = expanded.reduce_columnwise(gb.monoid.max).new()
+                column_maxima = expanded.mxm(
+                    maxima.diag(), gb.semiring.any_second
                 ).new()
-                contenders = high.ewise_mult(floors, gb.binary.ge).new()
-                contenders = contenders.select("==", True).new()
-                rivals = column(contenders, gb.agg.count)
-                below = floor < threshold
-                kept(gb.binary.lor) << contenders.mxm(
-                    gb.Vector.from_dense(below & (rivals == 1)).diag(),
-                    gb.semiring.any_second,
-                )
-                possible(gb.binary.lor) << contenders.mxm(
-                    gb.Vector.from_dense(below).diag(), gb.semiring.any_second
-                )
-                possible(gb.binary.lor) << kept
-                # Some evaluations keep these entries and others drop them, so
-                # they could be anywhere from 0 to their upper bound.
-                undecided = possible.ewise_mult(kept, gb.binary.gt).new()
-                undecided = undecided.select("==", True).new()
-                ambiguous_entries += undecided.nvals
-                half = times(high, 0.5)
-                expanded = expanded.dup(mask=kept.V)
-                expanded(mask=undecided.S) << half
-                expanded_radius = expanded_radius.dup(mask=kept.V)
-                expanded_radius(mask=undecided.S) << times(half, 1 + 2 * _EPS)
-                # Each column keeps its largest entry, which is at least floor.
-                least = np.maximum(floor, 0) ** inflation
-            powered = expanded.apply(gb.binary.pow, right=inflation).new()
-            ceiling = plus(expanded, expanded_radius)
-            # |x^p - v^p| <= p (v + r)^(p - 1) r, plus pow's rounding.
-            powered_radius = plus(
-                times(
-                    ceiling.apply(gb.binary.pow, right=inflation - 1)
-                    .new()
-                    .ewise_mult(expanded_radius, gb.binary.times)
-                    .new(),
-                    inflation,
-                ),
-                times(
-                    plus(ceiling.apply(gb.binary.pow, right=inflation).new(), powered),
-                    2 * _EPS,
-                ),
+                keep = expanded.apply(gb.binary.ge, right=threshold).new()
+                keep(gb.binary.lor) << expanded.ewise_mult(column_maxima, gb.binary.eq)
+                expanded = expanded.dup(mask=keep.V)
+            block = normalized(
+                expanded.apply(gb.binary.pow, right=meta.get("inflation", 2)).new()
             )
-            block, block_radius = normalized(
-                powered, times(powered_radius, 1 + 4 * _EPS), least
-            )
-            if check:
-                # The benchmark stops once |block - old| <= 1e-8 + 1e-5 |old|
-                # everywhere. Bound both sides of every comparison.
-                distance = minus(block, old).apply(gb.unary.abs).new()
-                spread = plus(block_radius, old_radius)
-                tolerance = times(minus(old, old_radius), 1e-5 * (1 - 3 * _EPS))
-                excess = minus(times(plus(distance, spread), 1 + 3 * _EPS), tolerance)
-                if largest(excess) > 1e-8 * (1 - 3 * _EPS):
-                    possibly_unconverged = True
-                tolerance = times(plus(old, old_radius), 1e-5 * (1 + 3 * _EPS))
-                excess = minus(times(minus(distance, spread), 1 - 3 * _EPS), tolerance)
-                if largest(excess) > 1e-8 * (1 + 3 * _EPS):
-                    certainly_unconverged = True
+            if converged:
+                # |block - old| <= 1e-8 + 1e-5 * |old| entrywise, on the union
+                # of both patterns.
+                difference = block.ewise_add(old, gb.binary.minus).new()
+                difference = difference.apply(gb.unary.abs).new()
+                scaled = old.apply(gb.unary.abs).new()
+                scaled = scaled.apply(gb.binary.times, right=1e-5).new()
+                excess = difference.ewise_add(scaled, gb.binary.minus).new()
+                converged = (
+                    excess.nvals == 0
+                    or excess.reduce_scalar(gb.monoid.max).new().value <= 1e-8
+                )
             blocks.append(block)
-            block_radii.append(block_radius)
             start = stop
         current = gb.ss.concat([blocks])
-        radius = gb.ss.concat([block_radii])
-        if check and not certainly_unconverged:
-            if not possibly_unconverged:
-                break
-            # Some evaluations stop here, so the result must cover this too.
-            stops.append((current, radius))
-    for stop_value, stop_radius in stops:
-        gap = minus(stop_value, current).apply(gb.unary.abs).new()
-        reach = times(plus(gap, stop_radius), 1 + 4 * _EPS)
-        radius = radius.ewise_add(reach, gb.binary.max).new()
-    rounding = {
-        "reference_ambiguous_entries": ambiguous_entries,
-        "reference_ambiguous_stops": len(stops),
-        "reference_radius": largest(radius),
-    }
-    return gb.io.to_scipy_sparse(current, format="coo"), rounding
+        if converged:
+            break
+    return gb.io.to_scipy_sparse(current, format="coo")
 
 
 class MCLDataset(Dataset):
@@ -487,16 +301,14 @@ class MCLTestGenerator(Generator[MCLDataset]):
             ref_meta={"expected_count": dataset.expected_count},
         )
         meta = problem.meta
-        result, rounding = call_graphblas(
-            _mcl_reference, graph_csr(problem.inputs[0]), meta
+        expected = from_scipy(
+            call_graphblas(_mcl_reference, graph_csr(problem.inputs[0]), meta)
         )
-        expected = from_scipy(result)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
             "reference_backend": "graphblas",
             "reference_algorithm": "mcl",
-            **rounding,
         }
         return problem
 
@@ -659,16 +471,14 @@ class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
     def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
         problem = MCLSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        result, rounding = call_graphblas(
-            _mcl_reference, graph_csr(problem.inputs[0]), meta
+        expected = from_scipy(
+            call_graphblas(_mcl_reference, graph_csr(problem.inputs[0]), meta)
         )
-        expected = from_scipy(result)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
             "reference_backend": "graphblas",
             "reference_algorithm": "mcl",
-            **rounding,
         }
         return DataInstance(
             inputs=[],
@@ -780,16 +590,14 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
     def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
         problem = MCLGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        result, rounding = call_graphblas(
-            _mcl_reference, graph_csr(problem.inputs[0]), meta
+        expected = from_scipy(
+            call_graphblas(_mcl_reference, graph_csr(problem.inputs[0]), meta)
         )
-        expected = from_scipy(result)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
             "reference_backend": "graphblas",
             "reference_algorithm": "mcl",
-            **rounding,
         }
         return DataInstance(
             inputs=[],
@@ -979,9 +787,9 @@ class MCLBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
         if self._ref_outputs is not None:
             assert_coo_allclose(self._ref_outputs[0], self._output[0])
         if not self._ref_meta or "expected_count" not in self._ref_meta:
