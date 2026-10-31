@@ -78,10 +78,15 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
         assert args[args.index("--chdir") + 1] == str(scripts.parent.resolve())
 
 
-def test_refresh_refuses_sso_profile(tmp_path):
+@pytest.mark.parametrize(
+    "setting,message",
+    [("sso_session", "uses SSO"), ("aws_session_token", "temporary keys")],
+)
+def test_refresh_refuses_expiring_credentials(tmp_path, setting, message):
     shell_env = tmp_path / "shell-env"
     shell_env.write_text(
-        'aws() { [[ "$1 $2 $3" == "configure get sso_session" ]]; }\n'
+        'aws() { [[ "$1 $2" != "configure get" || "$3" == aws_access_key_id '
+        f'|| "$3" == {setting} ]]; }}\n'
         "sbatch() { exit 1; }\n"
     )
     result = subprocess.run(
@@ -92,7 +97,7 @@ def test_refresh_refuses_sso_profile(tmp_path):
         text=True,
     )
     assert result.returncode == 1
-    assert "uses SSO" in result.stderr
+    assert message in result.stderr
 
 
 COMPETITION_SCRIPTS = {"competition-cpu.slurm": "cpu", "competition-gpu.slurm": "gpu"}

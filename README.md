@@ -188,7 +188,9 @@ upload task to succeed.
 
 Uploads use the `dataset-upload` AWS profile, which must hold long-lived
 access keys with write access to the bucket. Uploads run for days, longer
-than any SSO session lasts, so the launcher refuses an SSO profile. It prompts
+than any SSO session lasts, so the launcher refuses an SSO profile and
+temporary keys with an `aws_session_token`, such as those copied from the AWS
+access portal. Create IAM user access keys (IDs starting with `AKIA`). It prompts
 for keys if the profile has none, and checks them before submitting. Keep the
 keys readable only by you:
 

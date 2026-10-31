@@ -28,11 +28,17 @@ export PATH="$HOME/.local/bin:$PATH"
 # profile must hold long-lived access keys.
 if aws configure get sso_session --profile dataset-upload >/dev/null ||
   aws configure get sso_start_url --profile dataset-upload >/dev/null; then
-  echo "The dataset-upload profile uses SSO; configure it with access keys instead." >&2
+  echo "The dataset-upload profile uses SSO; remove the sso_* lines from" \
+    "[profile dataset-upload] in ~/.aws/config and use access keys instead." >&2
   exit 1
 fi
 if ! aws configure get aws_access_key_id --profile dataset-upload >/dev/null; then
   aws configure --profile dataset-upload
+fi
+if aws configure get aws_session_token --profile dataset-upload >/dev/null; then
+  echo "The dataset-upload profile has temporary keys (aws_session_token in" \
+    "~/.aws/credentials), which expire within hours; use IAM user access keys." >&2
+  exit 1
 fi
 aws sts get-caller-identity --profile dataset-upload >/dev/null
 cd "$repo_directory"
