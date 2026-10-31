@@ -1,0 +1,25 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-30-2026 23:23:11
+Job ID:    14726694
+User ID:   wahrens6
+Account:   gts-wahrens6-pose
+Job name:  dataset-upload
+Partition: cpu-large
+QOS:       inferno
+---------------------------------------
+INFO:root:Using SAPS config: {'environment_type': 'existing:same'}
+· Using SAPS config: {'environment_type': 'existing:same'}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-7
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-7INFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-7
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-7INFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3
+Discovered 8 benchmark entries for caching
+Using process timeout: 3600.0 seconds
+
+· Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3INFO:root:...ShellBenchmark.time_mcl_snap_reference_shell
+
+·· ...ShellBenchmark.time_mcl_snap_reference_shell

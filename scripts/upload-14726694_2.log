@@ -1,0 +1,183 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-30-2026 23:12:03
+Job ID:    14726697
+User ID:   wahrens6
+Account:   gts-wahrens6-pose
+Job name:  dataset-upload
+Partition: cpu-large
+QOS:       inferno
+---------------------------------------
+INFO:root:Using SAPS config: {'environment_type': 'existing:same'}
+· Using SAPS config: {'environment_type': 'existing:same'}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-2
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-2INFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-2
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-2INFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3
+Discovered 1 benchmark entries for caching
+Using process timeout: 3600.0 seconds
+
+· Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3INFO:root:...ShellBenchmark.time_mcl_snap_reference_shell
+
+·· ...ShellBenchmark.time_mcl_snap_reference_shell                 okINFO:root:============================================ =====
+                  dataset                         
+-------------------------------------------- -----
+      mcl_snap_reference.soc-Epinions1        n/a 
+    mcl_snap_reference.soc-LiveJournal1       n/a 
+        mcl_snap_reference.soc-Pokec          n/a 
+    mcl_snap_reference.soc-Slashdot0811       n/a 
+    mcl_snap_reference.soc-Slashdot0902       n/a 
+        mcl_snap_reference.wiki-Vote          n/a 
+        mcl_snap_reference.wiki-RfA           n/a 
+  mcl_snap_reference.soc-sign-bitcoin-otc     n/a 
+ mcl_snap_reference.soc-sign-bitcoin-alpha    n/a 
+     mcl_snap_reference.com-LiveJournal       n/a 
+     mcl_snap_reference.com-Friendster        n/a 
+        mcl_snap_reference.com-Orkut          n/a 
+       mcl_snap_reference.com-Youtube         n/a 
+        mcl_snap_reference.com-DBLP           n/a 
+       mcl_snap_reference.com-Amazon          n/a 
+      mcl_snap_reference.email-Eu-core        n/a 
+      mcl_snap_reference.wiki-topcats         n/a 
+       mcl_snap_reference.email-EuAll         n/a 
+       mcl_snap_reference.email-Enron         n/a 
+        mcl_snap_reference.wiki-Talk          n/a 
+        mcl_snap_reference.cit-HepPh          n/a 
+        mcl_snap_reference.cit-HepTh          n/a 
+       mcl_snap_reference.cit-Patents         n/a 
+       mcl_snap_reference.ca-AstroPh          n/a 
+       mcl_snap_reference.ca-CondMat          n/a 
+         mcl_snap_reference.ca-GrQc           n/a 
+        mcl_snap_reference.ca-HepPh           n/a 
+        mcl_snap_reference.ca-HepTh           n/a 
+      mcl_snap_reference.web-BerkStan         n/a 
+       mcl_snap_reference.web-Google          n/a 
+      mcl_snap_reference.web-NotreDame        n/a 
+      mcl_snap_reference.web-Stanford         n/a 
+       mcl_snap_reference.amazon0302          n/a 
+       mcl_snap_reference.amazon0312          n/a 
+       mcl_snap_reference.amazon0505          n/a 
+       mcl_snap_reference.amazon0601          n/a 
+     mcl_snap_reference.p2p-Gnutella04        n/a 
+     mcl_snap_reference.p2p-Gnutella05        n/a 
+     mcl_snap_reference.p2p-Gnutella06        n/a 
+     mcl_snap_reference.p2p-Gnutella08        n/a 
+     mcl_snap_reference.p2p-Gnutella09        n/a 
+     mcl_snap_reference.p2p-Gnutella24        n/a 
+     mcl_snap_reference.p2p-Gnutella25        n/a 
+     mcl_snap_reference.p2p-Gnutella30        n/a 
+     mcl_snap_reference.p2p-Gnutella31        n/a 
+       mcl_snap_reference.roadNet-CA          n/a 
+       mcl_snap_reference.roadNet-PA          n/a 
+       mcl_snap_reference.roadNet-TX          n/a 
+         mcl_snap_reference.as-735            n/a 
+       mcl_snap_reference.as-Skitter          n/a 
+        mcl_snap_reference.as-caida           n/a 
+        mcl_snap_reference.Oregon-1           n/a 
+        mcl_snap_reference.Oregon-2           n/a 
+    mcl_snap_reference.soc-sign-epinions      n/a 
+ mcl_snap_reference.soc-sign-Slashdot081106   n/a 
+ mcl_snap_reference.soc-sign-Slashdot090216   n/a 
+ mcl_snap_reference.soc-sign-Slashdot090221   n/a 
+       mcl_snap_reference.loc-Gowalla         n/a 
+     mcl_snap_reference.loc-Brightkite        n/a 
+    mcl_snap_reference.sx-stackoverflow       n/a 
+     mcl_snap_reference.sx-mathoverflow       n/a 
+      mcl_snap_reference.sx-superuser         n/a 
+      mcl_snap_reference.sx-askubuntu         n/a 
+   mcl_snap_reference.wiki-talk-temporal      n/a 
+ mcl_snap_reference.email-Eu-core-temporal    n/a 
+       mcl_snap_reference.CollegeMsg          n/a 
+        mcl_snap_reference.twitter7           n/a 
+      mcl_snap_reference.higgs-twitter        n/a 
+============================================ =====
+
+·· ============================================ =====
+                     dataset                         
+   -------------------------------------------- -----
+         mcl_snap_reference.soc-Epinions1        n/a 
+       mcl_snap_reference.soc-LiveJournal1       n/a 
+           mcl_snap_reference.soc-Pokec          n/a 
+       mcl_snap_reference.soc-Slashdot0811       n/a 
+       mcl_snap_reference.soc-Slashdot0902       n/a 
+           mcl_snap_reference.wiki-Vote          n/a 
+           mcl_snap_reference.wiki-RfA           n/a 
+     mcl_snap_reference.soc-sign-bitcoin-otc     n/a 
+    mcl_snap_reference.soc-sign-bitcoin-alpha    n/a 
+        mcl_snap_reference.com-LiveJournal       n/a 
+        mcl_snap_reference.com-Friendster        n/a 
+           mcl_snap_reference.com-Orkut          n/a 
+          mcl_snap_reference.com-Youtube         n/a 
+           mcl_snap_reference.com-DBLP           n/a 
+          mcl_snap_reference.com-Amazon          n/a 
+         mcl_snap_reference.email-Eu-core        n/a 
+         mcl_snap_reference.wiki-topcats         n/a 
+          mcl_snap_reference.email-EuAll         n/a 
+          mcl_snap_reference.email-Enron         n/a 
+           mcl_snap_reference.wiki-Talk          n/a 
+           mcl_snap_reference.cit-HepPh          n/a 
+           mcl_snap_reference.cit-HepTh          n/a 
+          mcl_snap_reference.cit-Patents         n/a 
+          mcl_snap_reference.ca-AstroPh          n/a 
+          mcl_snap_reference.ca-CondMat          n/a 
+            mcl_snap_reference.ca-GrQc           n/a 
+           mcl_snap_reference.ca-HepPh           n/a 
+           mcl_snap_reference.ca-HepTh           n/a 
+         mcl_snap_reference.web-BerkStan         n/a 
+          mcl_snap_reference.web-Google          n/a 
+         mcl_snap_reference.web-NotreDame        n/a 
+         mcl_snap_reference.web-Stanford         n/a 
+          mcl_snap_reference.amazon0302          n/a 
+          mcl_snap_reference.amazon0312          n/a 
+          mcl_snap_reference.amazon0505          n/a 
+          mcl_snap_reference.amazon0601          n/a 
+        mcl_snap_reference.p2p-Gnutella04        n/a 
+        mcl_snap_reference.p2p-Gnutella05        n/a 
+        mcl_snap_reference.p2p-Gnutella06        n/a 
+        mcl_snap_reference.p2p-Gnutella08        n/a 
+        mcl_snap_reference.p2p-Gnutella09        n/a 
+        mcl_snap_reference.p2p-Gnutella24        n/a 
+        mcl_snap_reference.p2p-Gnutella25        n/a 
+        mcl_snap_reference.p2p-Gnutella30        n/a 
+        mcl_snap_reference.p2p-Gnutella31        n/a 
+          mcl_snap_reference.roadNet-CA          n/a 
+          mcl_snap_reference.roadNet-PA          n/a 
+          mcl_snap_reference.roadNet-TX          n/a 
+            mcl_snap_reference.as-735            n/a 
+          mcl_snap_reference.as-Skitter          n/a 
+           mcl_snap_reference.as-caida           n/a 
+           mcl_snap_reference.Oregon-1           n/a 
+           mcl_snap_reference.Oregon-2           n/a 
+       mcl_snap_reference.soc-sign-epinions      n/a 
+    mcl_snap_reference.soc-sign-Slashdot081106   n/a 
+    mcl_snap_reference.soc-sign-Slashdot090216   n/a 
+    mcl_snap_reference.soc-sign-Slashdot090221   n/a 
+          mcl_snap_reference.loc-Gowalla         n/a 
+        mcl_snap_reference.loc-Brightkite        n/a 
+       mcl_snap_reference.sx-stackoverflow       n/a 
+        mcl_snap_reference.sx-mathoverflow       n/a 
+         mcl_snap_reference.sx-superuser         n/a 
+         mcl_snap_reference.sx-askubuntu         n/a 
+      mcl_snap_reference.wiki-talk-temporal      n/a 
+    mcl_snap_reference.email-Eu-core-temporal    n/a 
+          mcl_snap_reference.CollegeMsg          n/a 
+           mcl_snap_reference.twitter7           n/a 
+         mcl_snap_reference.higgs-twitter        n/a 
+   ============================================ =====
+cache summary: selected=8 failed_benchmark_entries=0
+---------------------------------------
+Begin Slurm Epilog: Oct-30-2026 23:19:16
+Job ID:        14726697
+Array Job ID:  14726694_2
+User ID:       wahrens6
+Account:       gts-wahrens6-pose
+Job name:      dataset-upload
+Resources:     cpu=24,mem=720G,node=1
+Rsrc Used:     cput=02:57:12,vmem=0,walltime=00:07:23,mem=100177156K,energy_used=0
+Partition:     cpu-large
+QOS:           inferno
+Nodes:         atl1-1-01-005-26-2
+---------------------------------------

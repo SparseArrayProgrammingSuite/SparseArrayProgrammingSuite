@@ -1,0 +1,1429 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-30-2026 23:12:03
+Job ID:    14726699
+User ID:   wahrens6
+Account:   gts-wahrens6-pose
+Job name:  dataset-upload
+Partition: cpu-large
+QOS:       inferno
+---------------------------------------
+INFO:root:Using SAPS config: {'environment_type': 'existing:same'}
+· Using SAPS config: {'environment_type': 'existing:same'}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-4
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-4INFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-4
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-4INFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3
+Discovered 7 benchmark entries for caching
+Using process timeout: 3600.0 seconds
+
+· Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3INFO:root:...ShellBenchmark.time_mcl_snap_reference_shell
+
+·· ...ShellBenchmark.time_mcl_snap_reference_shell        2/68 failedINFO:root:============================================ ========
+                  dataset                            
+-------------------------------------------- --------
+      mcl_snap_reference.soc-Epinions1         n/a   
+    mcl_snap_reference.soc-LiveJournal1        n/a   
+        mcl_snap_reference.soc-Pokec           n/a   
+    mcl_snap_reference.soc-Slashdot0811        n/a   
+    mcl_snap_reference.soc-Slashdot0902        n/a   
+        mcl_snap_reference.wiki-Vote           n/a   
+        mcl_snap_reference.wiki-RfA            n/a   
+  mcl_snap_reference.soc-sign-bitcoin-otc      n/a   
+ mcl_snap_reference.soc-sign-bitcoin-alpha     n/a   
+     mcl_snap_reference.com-LiveJournal        n/a   
+     mcl_snap_reference.com-Friendster         n/a   
+        mcl_snap_reference.com-Orkut           n/a   
+       mcl_snap_reference.com-Youtube          n/a   
+        mcl_snap_reference.com-DBLP            n/a   
+       mcl_snap_reference.com-Amazon           n/a   
+      mcl_snap_reference.email-Eu-core         n/a   
+      mcl_snap_reference.wiki-topcats         failed 
+       mcl_snap_reference.email-EuAll          n/a   
+       mcl_snap_reference.email-Enron          n/a   
+        mcl_snap_reference.wiki-Talk           n/a   
+        mcl_snap_reference.cit-HepPh           n/a   
+        mcl_snap_reference.cit-HepTh           n/a   
+       mcl_snap_reference.cit-Patents          n/a   
+       mcl_snap_reference.ca-AstroPh           n/a   
+       mcl_snap_reference.ca-CondMat           n/a   
+         mcl_snap_reference.ca-GrQc            n/a   
+        mcl_snap_reference.ca-HepPh            n/a   
+        mcl_snap_reference.ca-HepTh            n/a   
+      mcl_snap_reference.web-BerkStan          n/a   
+       mcl_snap_reference.web-Google           n/a   
+      mcl_snap_reference.web-NotreDame         n/a   
+      mcl_snap_reference.web-Stanford          n/a   
+       mcl_snap_reference.amazon0302           n/a   
+       mcl_snap_reference.amazon0312           n/a   
+       mcl_snap_reference.amazon0505           n/a   
+       mcl_snap_reference.amazon0601           n/a   
+     mcl_snap_reference.p2p-Gnutella04         n/a   
+     mcl_snap_reference.p2p-Gnutella05         n/a   
+     mcl_snap_reference.p2p-Gnutella06         n/a   
+     mcl_snap_reference.p2p-Gnutella08         n/a   
+     mcl_snap_reference.p2p-Gnutella09         n/a   
+     mcl_snap_reference.p2p-Gnutella24         n/a   
+     mcl_snap_reference.p2p-Gnutella25         n/a   
+     mcl_snap_reference.p2p-Gnutella30         n/a   
+     mcl_snap_reference.p2p-Gnutella31         n/a   
+       mcl_snap_reference.roadNet-CA           n/a   
+       mcl_snap_reference.roadNet-PA           n/a   
+       mcl_snap_reference.roadNet-TX           n/a   
+         mcl_snap_reference.as-735             n/a   
+       mcl_snap_reference.as-Skitter           n/a   
+        mcl_snap_reference.as-caida            n/a   
+        mcl_snap_reference.Oregon-1            n/a   
+        mcl_snap_reference.Oregon-2            n/a   
+    mcl_snap_reference.soc-sign-epinions       n/a   
+ mcl_snap_reference.soc-sign-Slashdot081106    n/a   
+ mcl_snap_reference.soc-sign-Slashdot090216    n/a   
+ mcl_snap_reference.soc-sign-Slashdot090221    n/a   
+       mcl_snap_reference.loc-Gowalla          n/a   
+     mcl_snap_reference.loc-Brightkite         n/a   
+    mcl_snap_reference.sx-stackoverflow        n/a   
+     mcl_snap_reference.sx-mathoverflow        n/a   
+      mcl_snap_reference.sx-superuser          n/a   
+      mcl_snap_reference.sx-askubuntu          n/a   
+   mcl_snap_reference.wiki-talk-temporal       n/a   
+ mcl_snap_reference.email-Eu-core-temporal     n/a   
+       mcl_snap_reference.CollegeMsg           n/a   
+        mcl_snap_reference.twitter7           failed 
+      mcl_snap_reference.higgs-twitter         n/a   
+============================================ ========
+For parameters: mcl_snap_reference.wiki-RfA
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-RfA", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/wiki-RfA found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-RfA", "phase": "teardown"}
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-RfA", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: mcl_snap_reference.wiki-topcats
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-topcats", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/wiki-topcats found in cache.
+
+
+asv: benchmark timed out (timeout 3600.0s)
+
+For parameters: mcl_snap_reference.email-Enron
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.email-Enron", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/email-Enron found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+INFO botocore.tokens: SSO Token refresh succeeded
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.email-Enron", "phase": "teardown"}
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.email-Enron", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: mcl_snap_reference.cit-HepPh
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.cit-HepPh", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/cit-HepPh found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.cit-HepPh", "phase": "teardown"}
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.cit-HepPh", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: mcl_snap_reference.p2p-Gnutella08
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.p2p-Gnutella08", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/p2p-Gnutella08 found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.p2p-Gnutella08", "phase": "teardown"}
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.p2p-Gnutella08", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: mcl_snap_reference.sx-askubuntu
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.sx-askubuntu", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/sx-askubuntu found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.sx-askubuntu", "phase": "teardown"}
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.sx-askubuntu", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: mcl_snap_reference.twitter7
+saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.twitter7", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/twitter7 found in cache.
+
+
+asv: benchmark timed out (timeout 3600.0s)
+
+·· ============================================ ========
+                     dataset                            
+   -------------------------------------------- --------
+         mcl_snap_reference.soc-Epinions1         n/a   
+       mcl_snap_reference.soc-LiveJournal1        n/a   
+           mcl_snap_reference.soc-Pokec           n/a   
+       mcl_snap_reference.soc-Slashdot0811        n/a   
+       mcl_snap_reference.soc-Slashdot0902        n/a   
+           mcl_snap_reference.wiki-Vote           n/a   
+           mcl_snap_reference.wiki-RfA            n/a   
+     mcl_snap_reference.soc-sign-bitcoin-otc      n/a   
+    mcl_snap_reference.soc-sign-bitcoin-alpha     n/a   
+        mcl_snap_reference.com-LiveJournal        n/a   
+        mcl_snap_reference.com-Friendster         n/a   
+           mcl_snap_reference.com-Orkut           n/a   
+          mcl_snap_reference.com-Youtube          n/a   
+           mcl_snap_reference.com-DBLP            n/a   
+          mcl_snap_reference.com-Amazon           n/a   
+         mcl_snap_reference.email-Eu-core         n/a   
+         mcl_snap_reference.wiki-topcats         failed 
+          mcl_snap_reference.email-EuAll          n/a   
+          mcl_snap_reference.email-Enron          n/a   
+           mcl_snap_reference.wiki-Talk           n/a   
+           mcl_snap_reference.cit-HepPh           n/a   
+           mcl_snap_reference.cit-HepTh           n/a   
+          mcl_snap_reference.cit-Patents          n/a   
+          mcl_snap_reference.ca-AstroPh           n/a   
+          mcl_snap_reference.ca-CondMat           n/a   
+            mcl_snap_reference.ca-GrQc            n/a   
+           mcl_snap_reference.ca-HepPh            n/a   
+           mcl_snap_reference.ca-HepTh            n/a   
+         mcl_snap_reference.web-BerkStan          n/a   
+          mcl_snap_reference.web-Google           n/a   
+         mcl_snap_reference.web-NotreDame         n/a   
+         mcl_snap_reference.web-Stanford          n/a   
+          mcl_snap_reference.amazon0302           n/a   
+          mcl_snap_reference.amazon0312           n/a   
+          mcl_snap_reference.amazon0505           n/a   
+          mcl_snap_reference.amazon0601           n/a   
+        mcl_snap_reference.p2p-Gnutella04         n/a   
+        mcl_snap_reference.p2p-Gnutella05         n/a   
+        mcl_snap_reference.p2p-Gnutella06         n/a   
+        mcl_snap_reference.p2p-Gnutella08         n/a   
+        mcl_snap_reference.p2p-Gnutella09         n/a   
+        mcl_snap_reference.p2p-Gnutella24         n/a   
+        mcl_snap_reference.p2p-Gnutella25         n/a   
+        mcl_snap_reference.p2p-Gnutella30         n/a   
+        mcl_snap_reference.p2p-Gnutella31         n/a   
+          mcl_snap_reference.roadNet-CA           n/a   
+          mcl_snap_reference.roadNet-PA           n/a   
+          mcl_snap_reference.roadNet-TX           n/a   
+            mcl_snap_reference.as-735             n/a   
+          mcl_snap_reference.as-Skitter           n/a   
+           mcl_snap_reference.as-caida            n/a   
+           mcl_snap_reference.Oregon-1            n/a   
+           mcl_snap_reference.Oregon-2            n/a   
+       mcl_snap_reference.soc-sign-epinions       n/a   
+    mcl_snap_reference.soc-sign-Slashdot081106    n/a   
+    mcl_snap_reference.soc-sign-Slashdot090216    n/a   
+    mcl_snap_reference.soc-sign-Slashdot090221    n/a   
+          mcl_snap_reference.loc-Gowalla          n/a   
+        mcl_snap_reference.loc-Brightkite         n/a   
+       mcl_snap_reference.sx-stackoverflow        n/a   
+        mcl_snap_reference.sx-mathoverflow        n/a   
+         mcl_snap_reference.sx-superuser          n/a   
+         mcl_snap_reference.sx-askubuntu          n/a   
+      mcl_snap_reference.wiki-talk-temporal       n/a   
+    mcl_snap_reference.email-Eu-core-temporal     n/a   
+          mcl_snap_reference.CollegeMsg           n/a   
+           mcl_snap_reference.twitter7           failed 
+         mcl_snap_reference.higgs-twitter         n/a   
+   ============================================ ========
+   For parameters: mcl_snap_reference.wiki-RfA
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-RfA", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/wiki-RfA found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-RfA", "phase": "teardown"}
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-RfA", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: mcl_snap_reference.wiki-topcats
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.wiki-topcats", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/wiki-topcats found in cache.
+   
+   
+   asv: benchmark timed out (timeout 3600.0s)
+   
+   For parameters: mcl_snap_reference.email-Enron
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.email-Enron", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/email-Enron found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   INFO botocore.tokens: SSO Token refresh succeeded
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.email-Enron", "phase": "teardown"}
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.email-Enron", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: mcl_snap_reference.cit-HepPh
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.cit-HepPh", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/cit-HepPh found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.cit-HepPh", "phase": "teardown"}
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.cit-HepPh", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: mcl_snap_reference.p2p-Gnutella08
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.p2p-Gnutella08", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/p2p-Gnutella08 found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.p2p-Gnutella08", "phase": "teardown"}
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.p2p-Gnutella08", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: mcl_snap_reference.sx-askubuntu
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.sx-askubuntu", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/sx-askubuntu found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.sx-askubuntu", "phase": "teardown"}
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.sx-askubuntu", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: mcl_snap_reference.twitter7
+   saps: status {"benchmark": "mcl_snap_reference_shell", "dataset": "mcl_snap_reference.twitter7", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/twitter7 found in cache.
+   
+   
+   asv: benchmark timed out (timeout 3600.0s)
+INFO:root:...ellBenchmark.time_msbfs_snap_reference_shell
+
+·· ...ellBenchmark.time_msbfs_snap_reference_shell                 okINFO:root:============================================== =====
+                   dataset                          
+---------------------------------------------- -----
+      msbfs_snap_reference.soc-Epinions1        n/a 
+    msbfs_snap_reference.soc-LiveJournal1       n/a 
+        msbfs_snap_reference.soc-Pokec          n/a 
+    msbfs_snap_reference.soc-Slashdot0811       n/a 
+    msbfs_snap_reference.soc-Slashdot0902       n/a 
+        msbfs_snap_reference.wiki-Vote          n/a 
+        msbfs_snap_reference.wiki-RfA           n/a 
+  msbfs_snap_reference.soc-sign-bitcoin-otc     n/a 
+ msbfs_snap_reference.soc-sign-bitcoin-alpha    n/a 
+     msbfs_snap_reference.com-LiveJournal       n/a 
+     msbfs_snap_reference.com-Friendster        n/a 
+        msbfs_snap_reference.com-Orkut          n/a 
+       msbfs_snap_reference.com-Youtube         n/a 
+        msbfs_snap_reference.com-DBLP           n/a 
+       msbfs_snap_reference.com-Amazon          n/a 
+      msbfs_snap_reference.email-Eu-core        n/a 
+      msbfs_snap_reference.wiki-topcats         n/a 
+       msbfs_snap_reference.email-EuAll         n/a 
+       msbfs_snap_reference.email-Enron         n/a 
+        msbfs_snap_reference.wiki-Talk          n/a 
+        msbfs_snap_reference.cit-HepPh          n/a 
+        msbfs_snap_reference.cit-HepTh          n/a 
+       msbfs_snap_reference.cit-Patents         n/a 
+       msbfs_snap_reference.ca-AstroPh          n/a 
+       msbfs_snap_reference.ca-CondMat          n/a 
+         msbfs_snap_reference.ca-GrQc           n/a 
+        msbfs_snap_reference.ca-HepPh           n/a 
+        msbfs_snap_reference.ca-HepTh           n/a 
+      msbfs_snap_reference.web-BerkStan         n/a 
+       msbfs_snap_reference.web-Google          n/a 
+      msbfs_snap_reference.web-NotreDame        n/a 
+      msbfs_snap_reference.web-Stanford         n/a 
+       msbfs_snap_reference.amazon0302          n/a 
+       msbfs_snap_reference.amazon0312          n/a 
+       msbfs_snap_reference.amazon0505          n/a 
+       msbfs_snap_reference.amazon0601          n/a 
+     msbfs_snap_reference.p2p-Gnutella04        n/a 
+     msbfs_snap_reference.p2p-Gnutella05        n/a 
+     msbfs_snap_reference.p2p-Gnutella06        n/a 
+     msbfs_snap_reference.p2p-Gnutella08        n/a 
+     msbfs_snap_reference.p2p-Gnutella09        n/a 
+     msbfs_snap_reference.p2p-Gnutella24        n/a 
+     msbfs_snap_reference.p2p-Gnutella25        n/a 
+     msbfs_snap_reference.p2p-Gnutella30        n/a 
+     msbfs_snap_reference.p2p-Gnutella31        n/a 
+       msbfs_snap_reference.roadNet-CA          n/a 
+       msbfs_snap_reference.roadNet-PA          n/a 
+       msbfs_snap_reference.roadNet-TX          n/a 
+         msbfs_snap_reference.as-735            n/a 
+       msbfs_snap_reference.as-Skitter          n/a 
+        msbfs_snap_reference.as-caida           n/a 
+        msbfs_snap_reference.Oregon-1           n/a 
+        msbfs_snap_reference.Oregon-2           n/a 
+    msbfs_snap_reference.soc-sign-epinions      n/a 
+ msbfs_snap_reference.soc-sign-Slashdot081106   n/a 
+ msbfs_snap_reference.soc-sign-Slashdot090216   n/a 
+ msbfs_snap_reference.soc-sign-Slashdot090221   n/a 
+       msbfs_snap_reference.loc-Gowalla         n/a 
+     msbfs_snap_reference.loc-Brightkite        n/a 
+    msbfs_snap_reference.sx-stackoverflow       n/a 
+     msbfs_snap_reference.sx-mathoverflow       n/a 
+      msbfs_snap_reference.sx-superuser         n/a 
+      msbfs_snap_reference.sx-askubuntu         n/a 
+   msbfs_snap_reference.wiki-talk-temporal      n/a 
+ msbfs_snap_reference.email-Eu-core-temporal    n/a 
+       msbfs_snap_reference.CollegeMsg          n/a 
+        msbfs_snap_reference.twitter7           n/a 
+      msbfs_snap_reference.higgs-twitter        n/a 
+============================================== =====
+
+·· ============================================== =====
+                      dataset                          
+   ---------------------------------------------- -----
+         msbfs_snap_reference.soc-Epinions1        n/a 
+       msbfs_snap_reference.soc-LiveJournal1       n/a 
+           msbfs_snap_reference.soc-Pokec          n/a 
+       msbfs_snap_reference.soc-Slashdot0811       n/a 
+       msbfs_snap_reference.soc-Slashdot0902       n/a 
+           msbfs_snap_reference.wiki-Vote          n/a 
+           msbfs_snap_reference.wiki-RfA           n/a 
+     msbfs_snap_reference.soc-sign-bitcoin-otc     n/a 
+    msbfs_snap_reference.soc-sign-bitcoin-alpha    n/a 
+        msbfs_snap_reference.com-LiveJournal       n/a 
+        msbfs_snap_reference.com-Friendster        n/a 
+           msbfs_snap_reference.com-Orkut          n/a 
+          msbfs_snap_reference.com-Youtube         n/a 
+           msbfs_snap_reference.com-DBLP           n/a 
+          msbfs_snap_reference.com-Amazon          n/a 
+         msbfs_snap_reference.email-Eu-core        n/a 
+         msbfs_snap_reference.wiki-topcats         n/a 
+          msbfs_snap_reference.email-EuAll         n/a 
+          msbfs_snap_reference.email-Enron         n/a 
+           msbfs_snap_reference.wiki-Talk          n/a 
+           msbfs_snap_reference.cit-HepPh          n/a 
+           msbfs_snap_reference.cit-HepTh          n/a 
+          msbfs_snap_reference.cit-Patents         n/a 
+          msbfs_snap_reference.ca-AstroPh          n/a 
+          msbfs_snap_reference.ca-CondMat          n/a 
+            msbfs_snap_reference.ca-GrQc           n/a 
+           msbfs_snap_reference.ca-HepPh           n/a 
+           msbfs_snap_reference.ca-HepTh           n/a 
+         msbfs_snap_reference.web-BerkStan         n/a 
+          msbfs_snap_reference.web-Google          n/a 
+         msbfs_snap_reference.web-NotreDame        n/a 
+         msbfs_snap_reference.web-Stanford         n/a 
+          msbfs_snap_reference.amazon0302          n/a 
+          msbfs_snap_reference.amazon0312          n/a 
+          msbfs_snap_reference.amazon0505          n/a 
+          msbfs_snap_reference.amazon0601          n/a 
+        msbfs_snap_reference.p2p-Gnutella04        n/a 
+        msbfs_snap_reference.p2p-Gnutella05        n/a 
+        msbfs_snap_reference.p2p-Gnutella06        n/a 
+        msbfs_snap_reference.p2p-Gnutella08        n/a 
+        msbfs_snap_reference.p2p-Gnutella09        n/a 
+        msbfs_snap_reference.p2p-Gnutella24        n/a 
+        msbfs_snap_reference.p2p-Gnutella25        n/a 
+        msbfs_snap_reference.p2p-Gnutella30        n/a 
+        msbfs_snap_reference.p2p-Gnutella31        n/a 
+          msbfs_snap_reference.roadNet-CA          n/a 
+          msbfs_snap_reference.roadNet-PA          n/a 
+          msbfs_snap_reference.roadNet-TX          n/a 
+            msbfs_snap_reference.as-735            n/a 
+          msbfs_snap_reference.as-Skitter          n/a 
+           msbfs_snap_reference.as-caida           n/a 
+           msbfs_snap_reference.Oregon-1           n/a 
+           msbfs_snap_reference.Oregon-2           n/a 
+       msbfs_snap_reference.soc-sign-epinions      n/a 
+    msbfs_snap_reference.soc-sign-Slashdot081106   n/a 
+    msbfs_snap_reference.soc-sign-Slashdot090216   n/a 
+    msbfs_snap_reference.soc-sign-Slashdot090221   n/a 
+          msbfs_snap_reference.loc-Gowalla         n/a 
+        msbfs_snap_reference.loc-Brightkite        n/a 
+       msbfs_snap_reference.sx-stackoverflow       n/a 
+        msbfs_snap_reference.sx-mathoverflow       n/a 
+         msbfs_snap_reference.sx-superuser         n/a 
+         msbfs_snap_reference.sx-askubuntu         n/a 
+      msbfs_snap_reference.wiki-talk-temporal      n/a 
+    msbfs_snap_reference.email-Eu-core-temporal    n/a 
+          msbfs_snap_reference.CollegeMsg          n/a 
+           msbfs_snap_reference.twitter7           n/a 
+         msbfs_snap_reference.higgs-twitter        n/a 
+   ============================================== =====
+INFO:root:...hellBenchmark.time_mssp_snap_reference_shell
+
+·· ...hellBenchmark.time_mssp_snap_reference_shell                 okINFO:root:============================================= =====
+                   dataset                         
+--------------------------------------------- -----
+      mssp_snap_reference.soc-Epinions1        n/a 
+     mssp_snap_reference.soc-LiveJournal1      n/a 
+        mssp_snap_reference.soc-Pokec          n/a 
+     mssp_snap_reference.soc-Slashdot0811      n/a 
+     mssp_snap_reference.soc-Slashdot0902      n/a 
+        mssp_snap_reference.wiki-Vote          n/a 
+         mssp_snap_reference.wiki-RfA          n/a 
+   mssp_snap_reference.soc-sign-bitcoin-otc    n/a 
+  mssp_snap_reference.soc-sign-bitcoin-alpha   n/a 
+     mssp_snap_reference.com-LiveJournal       n/a 
+      mssp_snap_reference.com-Friendster       n/a 
+        mssp_snap_reference.com-Orkut          n/a 
+       mssp_snap_reference.com-Youtube         n/a 
+         mssp_snap_reference.com-DBLP          n/a 
+        mssp_snap_reference.com-Amazon         n/a 
+      mssp_snap_reference.email-Eu-core        n/a 
+       mssp_snap_reference.wiki-topcats        n/a 
+       mssp_snap_reference.email-EuAll         n/a 
+       mssp_snap_reference.email-Enron         n/a 
+        mssp_snap_reference.wiki-Talk          n/a 
+        mssp_snap_reference.cit-HepPh          n/a 
+        mssp_snap_reference.cit-HepTh          n/a 
+       mssp_snap_reference.cit-Patents         n/a 
+        mssp_snap_reference.ca-AstroPh         n/a 
+        mssp_snap_reference.ca-CondMat         n/a 
+         mssp_snap_reference.ca-GrQc           n/a 
+         mssp_snap_reference.ca-HepPh          n/a 
+         mssp_snap_reference.ca-HepTh          n/a 
+       mssp_snap_reference.web-BerkStan        n/a 
+        mssp_snap_reference.web-Google         n/a 
+      mssp_snap_reference.web-NotreDame        n/a 
+       mssp_snap_reference.web-Stanford        n/a 
+        mssp_snap_reference.amazon0302         n/a 
+        mssp_snap_reference.amazon0312         n/a 
+        mssp_snap_reference.amazon0505         n/a 
+        mssp_snap_reference.amazon0601         n/a 
+      mssp_snap_reference.p2p-Gnutella04       n/a 
+      mssp_snap_reference.p2p-Gnutella05       n/a 
+      mssp_snap_reference.p2p-Gnutella06       n/a 
+      mssp_snap_reference.p2p-Gnutella08       n/a 
+      mssp_snap_reference.p2p-Gnutella09       n/a 
+      mssp_snap_reference.p2p-Gnutella24       n/a 
+      mssp_snap_reference.p2p-Gnutella25       n/a 
+      mssp_snap_reference.p2p-Gnutella30       n/a 
+      mssp_snap_reference.p2p-Gnutella31       n/a 
+        mssp_snap_reference.roadNet-CA         n/a 
+        mssp_snap_reference.roadNet-PA         n/a 
+        mssp_snap_reference.roadNet-TX         n/a 
+          mssp_snap_reference.as-735           n/a 
+        mssp_snap_reference.as-Skitter         n/a 
+         mssp_snap_reference.as-caida          n/a 
+         mssp_snap_reference.Oregon-1          n/a 
+         mssp_snap_reference.Oregon-2          n/a 
+    mssp_snap_reference.soc-sign-epinions      n/a 
+ mssp_snap_reference.soc-sign-Slashdot081106   n/a 
+ mssp_snap_reference.soc-sign-Slashdot090216   n/a 
+ mssp_snap_reference.soc-sign-Slashdot090221   n/a 
+       mssp_snap_reference.loc-Gowalla         n/a 
+      mssp_snap_reference.loc-Brightkite       n/a 
+     mssp_snap_reference.sx-stackoverflow      n/a 
+     mssp_snap_reference.sx-mathoverflow       n/a 
+       mssp_snap_reference.sx-superuser        n/a 
+       mssp_snap_reference.sx-askubuntu        n/a 
+    mssp_snap_reference.wiki-talk-temporal     n/a 
+  mssp_snap_reference.email-Eu-core-temporal   n/a 
+        mssp_snap_reference.CollegeMsg         n/a 
+         mssp_snap_reference.twitter7          n/a 
+      mssp_snap_reference.higgs-twitter        n/a 
+============================================= =====
+
+·· ============================================= =====
+                      dataset                         
+   --------------------------------------------- -----
+         mssp_snap_reference.soc-Epinions1        n/a 
+        mssp_snap_reference.soc-LiveJournal1      n/a 
+           mssp_snap_reference.soc-Pokec          n/a 
+        mssp_snap_reference.soc-Slashdot0811      n/a 
+        mssp_snap_reference.soc-Slashdot0902      n/a 
+           mssp_snap_reference.wiki-Vote          n/a 
+            mssp_snap_reference.wiki-RfA          n/a 
+      mssp_snap_reference.soc-sign-bitcoin-otc    n/a 
+     mssp_snap_reference.soc-sign-bitcoin-alpha   n/a 
+        mssp_snap_reference.com-LiveJournal       n/a 
+         mssp_snap_reference.com-Friendster       n/a 
+           mssp_snap_reference.com-Orkut          n/a 
+          mssp_snap_reference.com-Youtube         n/a 
+            mssp_snap_reference.com-DBLP          n/a 
+           mssp_snap_reference.com-Amazon         n/a 
+         mssp_snap_reference.email-Eu-core        n/a 
+          mssp_snap_reference.wiki-topcats        n/a 
+          mssp_snap_reference.email-EuAll         n/a 
+          mssp_snap_reference.email-Enron         n/a 
+           mssp_snap_reference.wiki-Talk          n/a 
+           mssp_snap_reference.cit-HepPh          n/a 
+           mssp_snap_reference.cit-HepTh          n/a 
+          mssp_snap_reference.cit-Patents         n/a 
+           mssp_snap_reference.ca-AstroPh         n/a 
+           mssp_snap_reference.ca-CondMat         n/a 
+            mssp_snap_reference.ca-GrQc           n/a 
+            mssp_snap_reference.ca-HepPh          n/a 
+            mssp_snap_reference.ca-HepTh          n/a 
+          mssp_snap_reference.web-BerkStan        n/a 
+           mssp_snap_reference.web-Google         n/a 
+         mssp_snap_reference.web-NotreDame        n/a 
+          mssp_snap_reference.web-Stanford        n/a 
+           mssp_snap_reference.amazon0302         n/a 
+           mssp_snap_reference.amazon0312         n/a 
+           mssp_snap_reference.amazon0505         n/a 
+           mssp_snap_reference.amazon0601         n/a 
+         mssp_snap_reference.p2p-Gnutella04       n/a 
+         mssp_snap_reference.p2p-Gnutella05       n/a 
+         mssp_snap_reference.p2p-Gnutella06       n/a 
+         mssp_snap_reference.p2p-Gnutella08       n/a 
+         mssp_snap_reference.p2p-Gnutella09       n/a 
+         mssp_snap_reference.p2p-Gnutella24       n/a 
+         mssp_snap_reference.p2p-Gnutella25       n/a 
+         mssp_snap_reference.p2p-Gnutella30       n/a 
+         mssp_snap_reference.p2p-Gnutella31       n/a 
+           mssp_snap_reference.roadNet-CA         n/a 
+           mssp_snap_reference.roadNet-PA         n/a 
+           mssp_snap_reference.roadNet-TX         n/a 
+             mssp_snap_reference.as-735           n/a 
+           mssp_snap_reference.as-Skitter         n/a 
+            mssp_snap_reference.as-caida          n/a 
+            mssp_snap_reference.Oregon-1          n/a 
+            mssp_snap_reference.Oregon-2          n/a 
+       mssp_snap_reference.soc-sign-epinions      n/a 
+    mssp_snap_reference.soc-sign-Slashdot081106   n/a 
+    mssp_snap_reference.soc-sign-Slashdot090216   n/a 
+    mssp_snap_reference.soc-sign-Slashdot090221   n/a 
+          mssp_snap_reference.loc-Gowalla         n/a 
+         mssp_snap_reference.loc-Brightkite       n/a 
+        mssp_snap_reference.sx-stackoverflow      n/a 
+        mssp_snap_reference.sx-mathoverflow       n/a 
+          mssp_snap_reference.sx-superuser        n/a 
+          mssp_snap_reference.sx-askubuntu        n/a 
+       mssp_snap_reference.wiki-talk-temporal     n/a 
+     mssp_snap_reference.email-Eu-core-temporal   n/a 
+           mssp_snap_reference.CollegeMsg         n/a 
+            mssp_snap_reference.twitter7          n/a 
+         mssp_snap_reference.higgs-twitter        n/a 
+   ============================================= =====
+INFO:root:...Benchmark.time_pagerank_snap_reference_shell
+
+·· ...Benchmark.time_pagerank_snap_reference_shell                 okINFO:root:================================================= =====
+                     dataset                           
+------------------------------------------------- -----
+      pagerank_snap_reference.soc-Epinions1        n/a 
+     pagerank_snap_reference.soc-LiveJournal1      n/a 
+        pagerank_snap_reference.soc-Pokec          n/a 
+     pagerank_snap_reference.soc-Slashdot0811      n/a 
+     pagerank_snap_reference.soc-Slashdot0902      n/a 
+        pagerank_snap_reference.wiki-Vote          n/a 
+         pagerank_snap_reference.wiki-RfA          n/a 
+   pagerank_snap_reference.soc-sign-bitcoin-otc    n/a 
+  pagerank_snap_reference.soc-sign-bitcoin-alpha   n/a 
+     pagerank_snap_reference.com-LiveJournal       n/a 
+      pagerank_snap_reference.com-Friendster       n/a 
+        pagerank_snap_reference.com-Orkut          n/a 
+       pagerank_snap_reference.com-Youtube         n/a 
+         pagerank_snap_reference.com-DBLP          n/a 
+        pagerank_snap_reference.com-Amazon         n/a 
+      pagerank_snap_reference.email-Eu-core        n/a 
+       pagerank_snap_reference.wiki-topcats        n/a 
+       pagerank_snap_reference.email-EuAll         n/a 
+       pagerank_snap_reference.email-Enron         n/a 
+        pagerank_snap_reference.wiki-Talk          n/a 
+        pagerank_snap_reference.cit-HepPh          n/a 
+        pagerank_snap_reference.cit-HepTh          n/a 
+       pagerank_snap_reference.cit-Patents         n/a 
+        pagerank_snap_reference.ca-AstroPh         n/a 
+        pagerank_snap_reference.ca-CondMat         n/a 
+         pagerank_snap_reference.ca-GrQc           n/a 
+         pagerank_snap_reference.ca-HepPh          n/a 
+         pagerank_snap_reference.ca-HepTh          n/a 
+       pagerank_snap_reference.web-BerkStan        n/a 
+        pagerank_snap_reference.web-Google         n/a 
+      pagerank_snap_reference.web-NotreDame        n/a 
+       pagerank_snap_reference.web-Stanford        n/a 
+        pagerank_snap_reference.amazon0302         n/a 
+        pagerank_snap_reference.amazon0312         n/a 
+        pagerank_snap_reference.amazon0505         n/a 
+        pagerank_snap_reference.amazon0601         n/a 
+      pagerank_snap_reference.p2p-Gnutella04       n/a 
+      pagerank_snap_reference.p2p-Gnutella05       n/a 
+      pagerank_snap_reference.p2p-Gnutella06       n/a 
+      pagerank_snap_reference.p2p-Gnutella08       n/a 
+      pagerank_snap_reference.p2p-Gnutella09       n/a 
+      pagerank_snap_reference.p2p-Gnutella24       n/a 
+      pagerank_snap_reference.p2p-Gnutella25       n/a 
+      pagerank_snap_reference.p2p-Gnutella30       n/a 
+      pagerank_snap_reference.p2p-Gnutella31       n/a 
+        pagerank_snap_reference.roadNet-CA         n/a 
+        pagerank_snap_reference.roadNet-PA         n/a 
+        pagerank_snap_reference.roadNet-TX         n/a 
+          pagerank_snap_reference.as-735           n/a 
+        pagerank_snap_reference.as-Skitter         n/a 
+         pagerank_snap_reference.as-caida          n/a 
+         pagerank_snap_reference.Oregon-1          n/a 
+         pagerank_snap_reference.Oregon-2          n/a 
+    pagerank_snap_reference.soc-sign-epinions      n/a 
+ pagerank_snap_reference.soc-sign-Slashdot081106   n/a 
+ pagerank_snap_reference.soc-sign-Slashdot090216   n/a 
+ pagerank_snap_reference.soc-sign-Slashdot090221   n/a 
+       pagerank_snap_reference.loc-Gowalla         n/a 
+      pagerank_snap_reference.loc-Brightkite       n/a 
+     pagerank_snap_reference.sx-stackoverflow      n/a 
+     pagerank_snap_reference.sx-mathoverflow       n/a 
+       pagerank_snap_reference.sx-superuser        n/a 
+       pagerank_snap_reference.sx-askubuntu        n/a 
+    pagerank_snap_reference.wiki-talk-temporal     n/a 
+  pagerank_snap_reference.email-Eu-core-temporal   n/a 
+        pagerank_snap_reference.CollegeMsg         n/a 
+         pagerank_snap_reference.twitter7          n/a 
+      pagerank_snap_reference.higgs-twitter        n/a 
+================================================= =====
+
+·· ================================================= =====
+                        dataset                           
+   ------------------------------------------------- -----
+         pagerank_snap_reference.soc-Epinions1        n/a 
+        pagerank_snap_reference.soc-LiveJournal1      n/a 
+           pagerank_snap_reference.soc-Pokec          n/a 
+        pagerank_snap_reference.soc-Slashdot0811      n/a 
+        pagerank_snap_reference.soc-Slashdot0902      n/a 
+           pagerank_snap_reference.wiki-Vote          n/a 
+            pagerank_snap_reference.wiki-RfA          n/a 
+      pagerank_snap_reference.soc-sign-bitcoin-otc    n/a 
+     pagerank_snap_reference.soc-sign-bitcoin-alpha   n/a 
+        pagerank_snap_reference.com-LiveJournal       n/a 
+         pagerank_snap_reference.com-Friendster       n/a 
+           pagerank_snap_reference.com-Orkut          n/a 
+          pagerank_snap_reference.com-Youtube         n/a 
+            pagerank_snap_reference.com-DBLP          n/a 
+           pagerank_snap_reference.com-Amazon         n/a 
+         pagerank_snap_reference.email-Eu-core        n/a 
+          pagerank_snap_reference.wiki-topcats        n/a 
+          pagerank_snap_reference.email-EuAll         n/a 
+          pagerank_snap_reference.email-Enron         n/a 
+           pagerank_snap_reference.wiki-Talk          n/a 
+           pagerank_snap_reference.cit-HepPh          n/a 
+           pagerank_snap_reference.cit-HepTh          n/a 
+          pagerank_snap_reference.cit-Patents         n/a 
+           pagerank_snap_reference.ca-AstroPh         n/a 
+           pagerank_snap_reference.ca-CondMat         n/a 
+            pagerank_snap_reference.ca-GrQc           n/a 
+            pagerank_snap_reference.ca-HepPh          n/a 
+            pagerank_snap_reference.ca-HepTh          n/a 
+          pagerank_snap_reference.web-BerkStan        n/a 
+           pagerank_snap_reference.web-Google         n/a 
+         pagerank_snap_reference.web-NotreDame        n/a 
+          pagerank_snap_reference.web-Stanford        n/a 
+           pagerank_snap_reference.amazon0302         n/a 
+           pagerank_snap_reference.amazon0312         n/a 
+           pagerank_snap_reference.amazon0505         n/a 
+           pagerank_snap_reference.amazon0601         n/a 
+         pagerank_snap_reference.p2p-Gnutella04       n/a 
+         pagerank_snap_reference.p2p-Gnutella05       n/a 
+         pagerank_snap_reference.p2p-Gnutella06       n/a 
+         pagerank_snap_reference.p2p-Gnutella08       n/a 
+         pagerank_snap_reference.p2p-Gnutella09       n/a 
+         pagerank_snap_reference.p2p-Gnutella24       n/a 
+         pagerank_snap_reference.p2p-Gnutella25       n/a 
+         pagerank_snap_reference.p2p-Gnutella30       n/a 
+         pagerank_snap_reference.p2p-Gnutella31       n/a 
+           pagerank_snap_reference.roadNet-CA         n/a 
+           pagerank_snap_reference.roadNet-PA         n/a 
+           pagerank_snap_reference.roadNet-TX         n/a 
+             pagerank_snap_reference.as-735           n/a 
+           pagerank_snap_reference.as-Skitter         n/a 
+            pagerank_snap_reference.as-caida          n/a 
+            pagerank_snap_reference.Oregon-1          n/a 
+            pagerank_snap_reference.Oregon-2          n/a 
+       pagerank_snap_reference.soc-sign-epinions      n/a 
+    pagerank_snap_reference.soc-sign-Slashdot081106   n/a 
+    pagerank_snap_reference.soc-sign-Slashdot090216   n/a 
+    pagerank_snap_reference.soc-sign-Slashdot090221   n/a 
+          pagerank_snap_reference.loc-Gowalla         n/a 
+         pagerank_snap_reference.loc-Brightkite       n/a 
+        pagerank_snap_reference.sx-stackoverflow      n/a 
+        pagerank_snap_reference.sx-mathoverflow       n/a 
+          pagerank_snap_reference.sx-superuser        n/a 
+          pagerank_snap_reference.sx-askubuntu        n/a 
+       pagerank_snap_reference.wiki-talk-temporal     n/a 
+     pagerank_snap_reference.email-Eu-core-temporal   n/a 
+           pagerank_snap_reference.CollegeMsg         n/a 
+            pagerank_snap_reference.twitter7          n/a 
+         pagerank_snap_reference.higgs-twitter        n/a 
+   ================================================= =====
+INFO:root:...block_jacobi_pcg_suitesparse_reference_shell
+
+·· ...block_jacobi_pcg_suitesparse_reference_shell                 okINFO:root:================================================================== =====
+                             dataset                                    
+------------------------------------------------------------------ -----
+      block_jacobi_pcg_suitesparse_reference.Andrews/Andrews        n/a 
+     block_jacobi_pcg_suitesparse_reference.Andrianov/net100        n/a 
+     block_jacobi_pcg_suitesparse_reference.Andrianov/net125        n/a 
+     block_jacobi_pcg_suitesparse_reference.Andrianov/net150        n/a 
+      block_jacobi_pcg_suitesparse_reference.Andrianov/net25        n/a 
+      block_jacobi_pcg_suitesparse_reference.Andrianov/net50        n/a 
+      block_jacobi_pcg_suitesparse_reference.Andrianov/net75        n/a 
+        block_jacobi_pcg_suitesparse_reference.Bai/dw256B           n/a 
+        block_jacobi_pcg_suitesparse_reference.Bai/dwb512           n/a 
+       block_jacobi_pcg_suitesparse_reference.Bai/mhd3200b          n/a 
+       block_jacobi_pcg_suitesparse_reference.Bai/mhd4800b          n/a 
+        block_jacobi_pcg_suitesparse_reference.Bai/mhdb416          n/a 
+       block_jacobi_pcg_suitesparse_reference.Bindel/ted_B          n/a 
+   block_jacobi_pcg_suitesparse_reference.Bindel/ted_B_unscaled     n/a 
+      block_jacobi_pcg_suitesparse_reference.Boeing/bcsstk34        n/a 
+      block_jacobi_pcg_suitesparse_reference.Boeing/bcsstm39        n/a 
+      block_jacobi_pcg_suitesparse_reference.Boeing/crystm01        n/a 
+      block_jacobi_pcg_suitesparse_reference.Boeing/crystm02        n/a 
+      block_jacobi_pcg_suitesparse_reference.Boeing/crystm03        n/a 
+ block_jacobi_pcg_suitesparse_reference.Botonakis/FEM_3D_thermal1   n/a 
+ block_jacobi_pcg_suitesparse_reference.Botonakis/FEM_3D_thermal2   n/a 
+  block_jacobi_pcg_suitesparse_reference.Botonakis/thermomech_TC    n/a 
+  block_jacobi_pcg_suitesparse_reference.Botonakis/thermomech_dM    n/a 
+    block_jacobi_pcg_suitesparse_reference.Brunetiere/thermal       n/a 
+     block_jacobi_pcg_suitesparse_reference.Cunningham/qa8fm        n/a 
+   block_jacobi_pcg_suitesparse_reference.FEMLAB/poisson2D_rhs0     n/a 
+      block_jacobi_pcg_suitesparse_reference.FEMLAB/problem1        n/a 
+        block_jacobi_pcg_suitesparse_reference.FIDAP/ex29           n/a 
+        block_jacobi_pcg_suitesparse_reference.FIDAP/ex37           n/a 
+         block_jacobi_pcg_suitesparse_reference.FIDAP/ex5           n/a 
+         block_jacobi_pcg_suitesparse_reference.FIDAP/ex7           n/a 
+  block_jacobi_pcg_suitesparse_reference.Freescale/circuit5M_dc     n/a 
+    block_jacobi_pcg_suitesparse_reference.GHS_psdef/jnlbrng1       n/a 
+    block_jacobi_pcg_suitesparse_reference.GHS_psdef/minsurfo       n/a 
+    block_jacobi_pcg_suitesparse_reference.GHS_psdef/obstclae       n/a 
+    block_jacobi_pcg_suitesparse_reference.GHS_psdef/wathen100      n/a 
+    block_jacobi_pcg_suitesparse_reference.GHS_psdef/wathen120      n/a 
+      block_jacobi_pcg_suitesparse_reference.Grund/poli_rhs0        n/a 
+     block_jacobi_pcg_suitesparse_reference.Guettel/TEM27623        n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstk01          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstk02          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstk03          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstk04          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstk05          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstk08          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstk22          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm02          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm05          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm06          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm07          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm08          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm09          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm11          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm12          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm19          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm20          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm21          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm22          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm23          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm24          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm25          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/bcsstm26          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/fs_541_1          n/a 
+        block_jacobi_pcg_suitesparse_reference.HB/gr_30_30          n/a 
+         block_jacobi_pcg_suitesparse_reference.HB/lund_a           n/a 
+         block_jacobi_pcg_suitesparse_reference.HB/lund_b           n/a 
+          block_jacobi_pcg_suitesparse_reference.HB/nos1            n/a 
+          block_jacobi_pcg_suitesparse_reference.HB/nos4            n/a 
+          block_jacobi_pcg_suitesparse_reference.HB/nos6            n/a 
+          block_jacobi_pcg_suitesparse_reference.HB/nos7            n/a 
+      block_jacobi_pcg_suitesparse_reference.Hamm/add32_rhs0        n/a 
+     block_jacobi_pcg_suitesparse_reference.Lourakis/bundle1        n/a 
+       block_jacobi_pcg_suitesparse_reference.MathWorks/Muu         n/a 
+   block_jacobi_pcg_suitesparse_reference.MathWorks/tomography      n/a 
+ block_jacobi_pcg_suitesparse_reference.MaxPlanck/shallow_water1    n/a 
+ block_jacobi_pcg_suitesparse_reference.MaxPlanck/shallow_water2    n/a 
+      block_jacobi_pcg_suitesparse_reference.Mulvey/finan512        n/a 
+    block_jacobi_pcg_suitesparse_reference.Nasa/nasa2146_rhs0       n/a 
+        block_jacobi_pcg_suitesparse_reference.Norris/fv1           n/a 
+        block_jacobi_pcg_suitesparse_reference.Norris/fv2           n/a 
+     block_jacobi_pcg_suitesparse_reference.Oberwolfach/LF10        n/a 
+     block_jacobi_pcg_suitesparse_reference.Oberwolfach/LFAT5       n/a 
+        block_jacobi_pcg_suitesparse_reference.PARSEC/Si2           n/a 
+       block_jacobi_pcg_suitesparse_reference.Pothen/bodyy4         n/a 
+      block_jacobi_pcg_suitesparse_reference.Pothen/mesh1e1         n/a 
+      block_jacobi_pcg_suitesparse_reference.Pothen/mesh1em1        n/a 
+      block_jacobi_pcg_suitesparse_reference.Pothen/mesh1em6        n/a 
+      block_jacobi_pcg_suitesparse_reference.Pothen/mesh2e1         n/a 
+      block_jacobi_pcg_suitesparse_reference.Pothen/mesh2em5        n/a 
+      block_jacobi_pcg_suitesparse_reference.Pothen/mesh3e1         n/a 
+      block_jacobi_pcg_suitesparse_reference.Pothen/mesh3em5        n/a 
+     block_jacobi_pcg_suitesparse_reference.Sandia/ASIC_100ks       n/a 
+     block_jacobi_pcg_suitesparse_reference.Sandia/ASIC_320ks       n/a 
+   block_jacobi_pcg_suitesparse_reference.Um/2cubes_sphere_rhs0     n/a 
+================================================================== =====
+
+·· ================================================================== =====
+                                dataset                                    
+   ------------------------------------------------------------------ -----
+         block_jacobi_pcg_suitesparse_reference.Andrews/Andrews        n/a 
+        block_jacobi_pcg_suitesparse_reference.Andrianov/net100        n/a 
+        block_jacobi_pcg_suitesparse_reference.Andrianov/net125        n/a 
+        block_jacobi_pcg_suitesparse_reference.Andrianov/net150        n/a 
+         block_jacobi_pcg_suitesparse_reference.Andrianov/net25        n/a 
+         block_jacobi_pcg_suitesparse_reference.Andrianov/net50        n/a 
+         block_jacobi_pcg_suitesparse_reference.Andrianov/net75        n/a 
+           block_jacobi_pcg_suitesparse_reference.Bai/dw256B           n/a 
+           block_jacobi_pcg_suitesparse_reference.Bai/dwb512           n/a 
+          block_jacobi_pcg_suitesparse_reference.Bai/mhd3200b          n/a 
+          block_jacobi_pcg_suitesparse_reference.Bai/mhd4800b          n/a 
+           block_jacobi_pcg_suitesparse_reference.Bai/mhdb416          n/a 
+          block_jacobi_pcg_suitesparse_reference.Bindel/ted_B          n/a 
+      block_jacobi_pcg_suitesparse_reference.Bindel/ted_B_unscaled     n/a 
+         block_jacobi_pcg_suitesparse_reference.Boeing/bcsstk34        n/a 
+         block_jacobi_pcg_suitesparse_reference.Boeing/bcsstm39        n/a 
+         block_jacobi_pcg_suitesparse_reference.Boeing/crystm01        n/a 
+         block_jacobi_pcg_suitesparse_reference.Boeing/crystm02        n/a 
+         block_jacobi_pcg_suitesparse_reference.Boeing/crystm03        n/a 
+    block_jacobi_pcg_suitesparse_reference.Botonakis/FEM_3D_thermal1   n/a 
+    block_jacobi_pcg_suitesparse_reference.Botonakis/FEM_3D_thermal2   n/a 
+     block_jacobi_pcg_suitesparse_reference.Botonakis/thermomech_TC    n/a 
+     block_jacobi_pcg_suitesparse_reference.Botonakis/thermomech_dM    n/a 
+       block_jacobi_pcg_suitesparse_reference.Brunetiere/thermal       n/a 
+        block_jacobi_pcg_suitesparse_reference.Cunningham/qa8fm        n/a 
+      block_jacobi_pcg_suitesparse_reference.FEMLAB/poisson2D_rhs0     n/a 
+         block_jacobi_pcg_suitesparse_reference.FEMLAB/problem1        n/a 
+           block_jacobi_pcg_suitesparse_reference.FIDAP/ex29           n/a 
+           block_jacobi_pcg_suitesparse_reference.FIDAP/ex37           n/a 
+            block_jacobi_pcg_suitesparse_reference.FIDAP/ex5           n/a 
+            block_jacobi_pcg_suitesparse_reference.FIDAP/ex7           n/a 
+     block_jacobi_pcg_suitesparse_reference.Freescale/circuit5M_dc     n/a 
+       block_jacobi_pcg_suitesparse_reference.GHS_psdef/jnlbrng1       n/a 
+       block_jacobi_pcg_suitesparse_reference.GHS_psdef/minsurfo       n/a 
+       block_jacobi_pcg_suitesparse_reference.GHS_psdef/obstclae       n/a 
+       block_jacobi_pcg_suitesparse_reference.GHS_psdef/wathen100      n/a 
+       block_jacobi_pcg_suitesparse_reference.GHS_psdef/wathen120      n/a 
+         block_jacobi_pcg_suitesparse_reference.Grund/poli_rhs0        n/a 
+        block_jacobi_pcg_suitesparse_reference.Guettel/TEM27623        n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstk01          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstk02          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstk03          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstk04          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstk05          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstk08          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstk22          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm02          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm05          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm06          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm07          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm08          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm09          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm11          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm12          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm19          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm20          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm21          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm22          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm23          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm24          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm25          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/bcsstm26          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/fs_541_1          n/a 
+           block_jacobi_pcg_suitesparse_reference.HB/gr_30_30          n/a 
+            block_jacobi_pcg_suitesparse_reference.HB/lund_a           n/a 
+            block_jacobi_pcg_suitesparse_reference.HB/lund_b           n/a 
+             block_jacobi_pcg_suitesparse_reference.HB/nos1            n/a 
+             block_jacobi_pcg_suitesparse_reference.HB/nos4            n/a 
+             block_jacobi_pcg_suitesparse_reference.HB/nos6            n/a 
+             block_jacobi_pcg_suitesparse_reference.HB/nos7            n/a 
+         block_jacobi_pcg_suitesparse_reference.Hamm/add32_rhs0        n/a 
+        block_jacobi_pcg_suitesparse_reference.Lourakis/bundle1        n/a 
+          block_jacobi_pcg_suitesparse_reference.MathWorks/Muu         n/a 
+      block_jacobi_pcg_suitesparse_reference.MathWorks/tomography      n/a 
+    block_jacobi_pcg_suitesparse_reference.MaxPlanck/shallow_water1    n/a 
+    block_jacobi_pcg_suitesparse_reference.MaxPlanck/shallow_water2    n/a 
+         block_jacobi_pcg_suitesparse_reference.Mulvey/finan512        n/a 
+       block_jacobi_pcg_suitesparse_reference.Nasa/nasa2146_rhs0       n/a 
+           block_jacobi_pcg_suitesparse_reference.Norris/fv1           n/a 
+           block_jacobi_pcg_suitesparse_reference.Norris/fv2           n/a 
+        block_jacobi_pcg_suitesparse_reference.Oberwolfach/LF10        n/a 
+        block_jacobi_pcg_suitesparse_reference.Oberwolfach/LFAT5       n/a 
+           block_jacobi_pcg_suitesparse_reference.PARSEC/Si2           n/a 
+          block_jacobi_pcg_suitesparse_reference.Pothen/bodyy4         n/a 
+         block_jacobi_pcg_suitesparse_reference.Pothen/mesh1e1         n/a 
+         block_jacobi_pcg_suitesparse_reference.Pothen/mesh1em1        n/a 
+         block_jacobi_pcg_suitesparse_reference.Pothen/mesh1em6        n/a 
+         block_jacobi_pcg_suitesparse_reference.Pothen/mesh2e1         n/a 
+         block_jacobi_pcg_suitesparse_reference.Pothen/mesh2em5        n/a 
+         block_jacobi_pcg_suitesparse_reference.Pothen/mesh3e1         n/a 
+         block_jacobi_pcg_suitesparse_reference.Pothen/mesh3em5        n/a 
+        block_jacobi_pcg_suitesparse_reference.Sandia/ASIC_100ks       n/a 
+        block_jacobi_pcg_suitesparse_reference.Sandia/ASIC_320ks       n/a 
+      block_jacobi_pcg_suitesparse_reference.Um/2cubes_sphere_rhs0     n/a 
+   ================================================================== =====
+INFO:root:...time_transitive_closure_snap_reference_shell
+
+·· ...time_transitive_closure_snap_reference_shell                 okINFO:root:=========================================================== =====
+                          dataset                                
+----------------------------------------------------------- -----
+      transitive_closure_snap_reference.soc-Epinions1        n/a 
+     transitive_closure_snap_reference.soc-LiveJournal1      n/a 
+        transitive_closure_snap_reference.soc-Pokec          n/a 
+     transitive_closure_snap_reference.soc-Slashdot0811      n/a 
+     transitive_closure_snap_reference.soc-Slashdot0902      n/a 
+        transitive_closure_snap_reference.wiki-Vote          n/a 
+         transitive_closure_snap_reference.wiki-RfA          n/a 
+   transitive_closure_snap_reference.soc-sign-bitcoin-otc    n/a 
+  transitive_closure_snap_reference.soc-sign-bitcoin-alpha   n/a 
+     transitive_closure_snap_reference.com-LiveJournal       n/a 
+      transitive_closure_snap_reference.com-Friendster       n/a 
+        transitive_closure_snap_reference.com-Orkut          n/a 
+       transitive_closure_snap_reference.com-Youtube         n/a 
+         transitive_closure_snap_reference.com-DBLP          n/a 
+        transitive_closure_snap_reference.com-Amazon         n/a 
+      transitive_closure_snap_reference.email-Eu-core        n/a 
+       transitive_closure_snap_reference.wiki-topcats        n/a 
+       transitive_closure_snap_reference.email-EuAll         n/a 
+       transitive_closure_snap_reference.email-Enron         n/a 
+        transitive_closure_snap_reference.wiki-Talk          n/a 
+        transitive_closure_snap_reference.cit-HepPh          n/a 
+        transitive_closure_snap_reference.cit-HepTh          n/a 
+       transitive_closure_snap_reference.cit-Patents         n/a 
+        transitive_closure_snap_reference.ca-AstroPh         n/a 
+        transitive_closure_snap_reference.ca-CondMat         n/a 
+         transitive_closure_snap_reference.ca-GrQc           n/a 
+         transitive_closure_snap_reference.ca-HepPh          n/a 
+         transitive_closure_snap_reference.ca-HepTh          n/a 
+       transitive_closure_snap_reference.web-BerkStan        n/a 
+        transitive_closure_snap_reference.web-Google         n/a 
+      transitive_closure_snap_reference.web-NotreDame        n/a 
+       transitive_closure_snap_reference.web-Stanford        n/a 
+        transitive_closure_snap_reference.amazon0302         n/a 
+        transitive_closure_snap_reference.amazon0312         n/a 
+        transitive_closure_snap_reference.amazon0505         n/a 
+        transitive_closure_snap_reference.amazon0601         n/a 
+      transitive_closure_snap_reference.p2p-Gnutella04       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella05       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella06       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella08       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella09       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella24       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella25       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella30       n/a 
+      transitive_closure_snap_reference.p2p-Gnutella31       n/a 
+        transitive_closure_snap_reference.roadNet-CA         n/a 
+        transitive_closure_snap_reference.roadNet-PA         n/a 
+        transitive_closure_snap_reference.roadNet-TX         n/a 
+          transitive_closure_snap_reference.as-735           n/a 
+        transitive_closure_snap_reference.as-Skitter         n/a 
+         transitive_closure_snap_reference.as-caida          n/a 
+         transitive_closure_snap_reference.Oregon-1          n/a 
+         transitive_closure_snap_reference.Oregon-2          n/a 
+    transitive_closure_snap_reference.soc-sign-epinions      n/a 
+ transitive_closure_snap_reference.soc-sign-Slashdot081106   n/a 
+ transitive_closure_snap_reference.soc-sign-Slashdot090216   n/a 
+ transitive_closure_snap_reference.soc-sign-Slashdot090221   n/a 
+       transitive_closure_snap_reference.loc-Gowalla         n/a 
+      transitive_closure_snap_reference.loc-Brightkite       n/a 
+     transitive_closure_snap_reference.sx-stackoverflow      n/a 
+     transitive_closure_snap_reference.sx-mathoverflow       n/a 
+       transitive_closure_snap_reference.sx-superuser        n/a 
+       transitive_closure_snap_reference.sx-askubuntu        n/a 
+    transitive_closure_snap_reference.wiki-talk-temporal     n/a 
+  transitive_closure_snap_reference.email-Eu-core-temporal   n/a 
+        transitive_closure_snap_reference.CollegeMsg         n/a 
+         transitive_closure_snap_reference.twitter7          n/a 
+      transitive_closure_snap_reference.higgs-twitter        n/a 
+=========================================================== =====
+
+·· =========================================================== =====
+                             dataset                                
+   ----------------------------------------------------------- -----
+         transitive_closure_snap_reference.soc-Epinions1        n/a 
+        transitive_closure_snap_reference.soc-LiveJournal1      n/a 
+           transitive_closure_snap_reference.soc-Pokec          n/a 
+        transitive_closure_snap_reference.soc-Slashdot0811      n/a 
+        transitive_closure_snap_reference.soc-Slashdot0902      n/a 
+           transitive_closure_snap_reference.wiki-Vote          n/a 
+            transitive_closure_snap_reference.wiki-RfA          n/a 
+      transitive_closure_snap_reference.soc-sign-bitcoin-otc    n/a 
+     transitive_closure_snap_reference.soc-sign-bitcoin-alpha   n/a 
+        transitive_closure_snap_reference.com-LiveJournal       n/a 
+         transitive_closure_snap_reference.com-Friendster       n/a 
+           transitive_closure_snap_reference.com-Orkut          n/a 
+          transitive_closure_snap_reference.com-Youtube         n/a 
+            transitive_closure_snap_reference.com-DBLP          n/a 
+           transitive_closure_snap_reference.com-Amazon         n/a 
+         transitive_closure_snap_reference.email-Eu-core        n/a 
+          transitive_closure_snap_reference.wiki-topcats        n/a 
+          transitive_closure_snap_reference.email-EuAll         n/a 
+          transitive_closure_snap_reference.email-Enron         n/a 
+           transitive_closure_snap_reference.wiki-Talk          n/a 
+           transitive_closure_snap_reference.cit-HepPh          n/a 
+           transitive_closure_snap_reference.cit-HepTh          n/a 
+          transitive_closure_snap_reference.cit-Patents         n/a 
+           transitive_closure_snap_reference.ca-AstroPh         n/a 
+           transitive_closure_snap_reference.ca-CondMat         n/a 
+            transitive_closure_snap_reference.ca-GrQc           n/a 
+            transitive_closure_snap_reference.ca-HepPh          n/a 
+            transitive_closure_snap_reference.ca-HepTh          n/a 
+          transitive_closure_snap_reference.web-BerkStan        n/a 
+           transitive_closure_snap_reference.web-Google         n/a 
+         transitive_closure_snap_reference.web-NotreDame        n/a 
+          transitive_closure_snap_reference.web-Stanford        n/a 
+           transitive_closure_snap_reference.amazon0302         n/a 
+           transitive_closure_snap_reference.amazon0312         n/a 
+           transitive_closure_snap_reference.amazon0505         n/a 
+           transitive_closure_snap_reference.amazon0601         n/a 
+         transitive_closure_snap_reference.p2p-Gnutella04       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella05       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella06       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella08       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella09       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella24       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella25       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella30       n/a 
+         transitive_closure_snap_reference.p2p-Gnutella31       n/a 
+           transitive_closure_snap_reference.roadNet-CA         n/a 
+           transitive_closure_snap_reference.roadNet-PA         n/a 
+           transitive_closure_snap_reference.roadNet-TX         n/a 
+             transitive_closure_snap_reference.as-735           n/a 
+           transitive_closure_snap_reference.as-Skitter         n/a 
+            transitive_closure_snap_reference.as-caida          n/a 
+            transitive_closure_snap_reference.Oregon-1          n/a 
+            transitive_closure_snap_reference.Oregon-2          n/a 
+       transitive_closure_snap_reference.soc-sign-epinions      n/a 
+    transitive_closure_snap_reference.soc-sign-Slashdot081106   n/a 
+    transitive_closure_snap_reference.soc-sign-Slashdot090216   n/a 
+    transitive_closure_snap_reference.soc-sign-Slashdot090221   n/a 
+          transitive_closure_snap_reference.loc-Gowalla         n/a 
+         transitive_closure_snap_reference.loc-Brightkite       n/a 
+        transitive_closure_snap_reference.sx-stackoverflow      n/a 
+        transitive_closure_snap_reference.sx-mathoverflow       n/a 
+          transitive_closure_snap_reference.sx-superuser        n/a 
+          transitive_closure_snap_reference.sx-askubuntu        n/a 
+       transitive_closure_snap_reference.wiki-talk-temporal     n/a 
+     transitive_closure_snap_reference.email-Eu-core-temporal   n/a 
+           transitive_closure_snap_reference.CollegeMsg         n/a 
+            transitive_closure_snap_reference.twitter7          n/a 
+         transitive_closure_snap_reference.higgs-twitter        n/a 
+   =========================================================== =====
+INFO:root:...me_transitive_reduction_snap_reference_shell
+
+·· ...me_transitive_reduction_snap_reference_shell        1/68 failedINFO:root:============================================================= ========
+                           dataset                                    
+------------------------------------------------------------- --------
+      transitive_reduction_snap_reference.soc-Epinions1         n/a   
+     transitive_reduction_snap_reference.soc-LiveJournal1       n/a   
+        transitive_reduction_snap_reference.soc-Pokec           n/a   
+     transitive_reduction_snap_reference.soc-Slashdot0811       n/a   
+     transitive_reduction_snap_reference.soc-Slashdot0902       n/a   
+        transitive_reduction_snap_reference.wiki-Vote           n/a   
+         transitive_reduction_snap_reference.wiki-RfA           n/a   
+   transitive_reduction_snap_reference.soc-sign-bitcoin-otc     n/a   
+  transitive_reduction_snap_reference.soc-sign-bitcoin-alpha    n/a   
+     transitive_reduction_snap_reference.com-LiveJournal        n/a   
+      transitive_reduction_snap_reference.com-Friendster        n/a   
+        transitive_reduction_snap_reference.com-Orkut           n/a   
+       transitive_reduction_snap_reference.com-Youtube          n/a   
+         transitive_reduction_snap_reference.com-DBLP           n/a   
+        transitive_reduction_snap_reference.com-Amazon          n/a   
+      transitive_reduction_snap_reference.email-Eu-core         n/a   
+       transitive_reduction_snap_reference.wiki-topcats         n/a   
+       transitive_reduction_snap_reference.email-EuAll          n/a   
+       transitive_reduction_snap_reference.email-Enron          n/a   
+        transitive_reduction_snap_reference.wiki-Talk           n/a   
+        transitive_reduction_snap_reference.cit-HepPh           n/a   
+        transitive_reduction_snap_reference.cit-HepTh           n/a   
+       transitive_reduction_snap_reference.cit-Patents          n/a   
+        transitive_reduction_snap_reference.ca-AstroPh          n/a   
+        transitive_reduction_snap_reference.ca-CondMat          n/a   
+         transitive_reduction_snap_reference.ca-GrQc            n/a   
+         transitive_reduction_snap_reference.ca-HepPh           n/a   
+         transitive_reduction_snap_reference.ca-HepTh           n/a   
+       transitive_reduction_snap_reference.web-BerkStan         n/a   
+        transitive_reduction_snap_reference.web-Google          n/a   
+      transitive_reduction_snap_reference.web-NotreDame         n/a   
+       transitive_reduction_snap_reference.web-Stanford         n/a   
+        transitive_reduction_snap_reference.amazon0302          n/a   
+        transitive_reduction_snap_reference.amazon0312          n/a   
+        transitive_reduction_snap_reference.amazon0505          n/a   
+        transitive_reduction_snap_reference.amazon0601          n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella04        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella05        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella06        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella08        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella09        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella24        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella25        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella30        n/a   
+      transitive_reduction_snap_reference.p2p-Gnutella31        n/a   
+        transitive_reduction_snap_reference.roadNet-CA          n/a   
+        transitive_reduction_snap_reference.roadNet-PA         failed 
+        transitive_reduction_snap_reference.roadNet-TX          n/a   
+          transitive_reduction_snap_reference.as-735            n/a   
+        transitive_reduction_snap_reference.as-Skitter          n/a   
+         transitive_reduction_snap_reference.as-caida           n/a   
+         transitive_reduction_snap_reference.Oregon-1           n/a   
+         transitive_reduction_snap_reference.Oregon-2           n/a   
+    transitive_reduction_snap_reference.soc-sign-epinions       n/a   
+ transitive_reduction_snap_reference.soc-sign-Slashdot081106    n/a   
+ transitive_reduction_snap_reference.soc-sign-Slashdot090216    n/a   
+ transitive_reduction_snap_reference.soc-sign-Slashdot090221    n/a   
+       transitive_reduction_snap_reference.loc-Gowalla          n/a   
+      transitive_reduction_snap_reference.loc-Brightkite        n/a   
+     transitive_reduction_snap_reference.sx-stackoverflow       n/a   
+     transitive_reduction_snap_reference.sx-mathoverflow        n/a   
+       transitive_reduction_snap_reference.sx-superuser         n/a   
+       transitive_reduction_snap_reference.sx-askubuntu         n/a   
+    transitive_reduction_snap_reference.wiki-talk-temporal      n/a   
+  transitive_reduction_snap_reference.email-Eu-core-temporal    n/a   
+        transitive_reduction_snap_reference.CollegeMsg          n/a   
+         transitive_reduction_snap_reference.twitter7           n/a   
+      transitive_reduction_snap_reference.higgs-twitter         n/a   
+============================================================= ========
+For parameters: transitive_reduction_snap_reference.soc-sign-bitcoin-otc
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-otc", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/soc-sign-bitcoin-otc found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+INFO botocore.tokens: SSO Token refresh succeeded
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-otc", "phase": "teardown"}
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-otc", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: transitive_reduction_snap_reference.soc-sign-bitcoin-alpha
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-alpha", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/soc-sign-bitcoin-alpha found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+INFO botocore.tokens: SSO Token refresh succeeded
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-alpha", "phase": "teardown"}
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-alpha", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: transitive_reduction_snap_reference.cit-HepPh
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.cit-HepPh", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/cit-HepPh found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+INFO botocore.tokens: SSO Token refresh succeeded
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.cit-HepPh", "phase": "teardown"}
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.cit-HepPh", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: transitive_reduction_snap_reference.ca-AstroPh
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.ca-AstroPh", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/ca-AstroPh found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+INFO botocore.tokens: SSO Token refresh succeeded
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.ca-AstroPh", "phase": "teardown"}
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.ca-AstroPh", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: transitive_reduction_snap_reference.p2p-Gnutella30
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.p2p-Gnutella30", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/p2p-Gnutella30 found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+INFO botocore.tokens: SSO Token refresh succeeded
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.p2p-Gnutella30", "phase": "teardown"}
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.p2p-Gnutella30", "phase": "finished"}
+asv: skipped: NotImplementedError('dataset cached')
+
+For parameters: transitive_reduction_snap_reference.roadNet-PA
+saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.roadNet-PA", "phase": "setup"}
+INFO root: Dataset suitesparse_matrix.SNAP/roadNet-PA found in cache.
+INFO botocore.tokens: Loading cached SSO token for pace-uploader
+WARNING botocore.tokens: SSO token refresh attempt failed
+Traceback (most recent call last):
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 304, in _refresh_access_token
+    return self._attempt_create_token(token)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 263, in _attempt_create_token
+    response = self._client.create_token(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/client.py", line 1094, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.errorfactory.InvalidRequestException: An error occurred (InvalidRequestException) when calling the CreateToken operation: Invalid request
+WARNING botocore.credentials: Refreshing temporary credentials failed during mandatory refresh period.
+Traceback (most recent call last):
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 600, in _protected_refresh
+    metadata = self._refresh_using()
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 750, in fetch_credentials
+    return self._get_cached_credentials()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 760, in _get_cached_credentials
+    response = self._get_credentials()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 2317, in _get_credentials
+    token = initial_token_data.get_frozen_token().token
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 89, in get_frozen_token
+    self._refresh()
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 102, in _refresh
+    self._protected_refresh()
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 129, in _protected_refresh
+    raise TokenRetrievalError(
+botocore.exceptions.TokenRetrievalError: Error when retrieving token from sso: Token has expired and refresh failed
+ERROR root: Error uploading file to S3: Error when retrieving token from sso: Token has expired and refresh failed
+Traceback (most recent call last):
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/server.py", line 179, in _run_server
+    _run(run_args)
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/run.py", line 65, in _run
+    skip = benchmark.do_setup()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/time.py", line 80, in do_setup
+    result = Benchmark.do_setup(self)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/_base.py", line 632, in do_setup
+    setup(*self._current_params)
+  File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/benchmark.py", line 381, in setup
+    raise RuntimeError(
+RuntimeError: Failed to cache dataset transitive_reduction_snap_reference.roadNet-PA
+
+·· ============================================================= ========
+                              dataset                                    
+   ------------------------------------------------------------- --------
+         transitive_reduction_snap_reference.soc-Epinions1         n/a   
+        transitive_reduction_snap_reference.soc-LiveJournal1       n/a   
+           transitive_reduction_snap_reference.soc-Pokec           n/a   
+        transitive_reduction_snap_reference.soc-Slashdot0811       n/a   
+        transitive_reduction_snap_reference.soc-Slashdot0902       n/a   
+           transitive_reduction_snap_reference.wiki-Vote           n/a   
+            transitive_reduction_snap_reference.wiki-RfA           n/a   
+      transitive_reduction_snap_reference.soc-sign-bitcoin-otc     n/a   
+     transitive_reduction_snap_reference.soc-sign-bitcoin-alpha    n/a   
+        transitive_reduction_snap_reference.com-LiveJournal        n/a   
+         transitive_reduction_snap_reference.com-Friendster        n/a   
+           transitive_reduction_snap_reference.com-Orkut           n/a   
+          transitive_reduction_snap_reference.com-Youtube          n/a   
+            transitive_reduction_snap_reference.com-DBLP           n/a   
+           transitive_reduction_snap_reference.com-Amazon          n/a   
+         transitive_reduction_snap_reference.email-Eu-core         n/a   
+          transitive_reduction_snap_reference.wiki-topcats         n/a   
+          transitive_reduction_snap_reference.email-EuAll          n/a   
+          transitive_reduction_snap_reference.email-Enron          n/a   
+           transitive_reduction_snap_reference.wiki-Talk           n/a   
+           transitive_reduction_snap_reference.cit-HepPh           n/a   
+           transitive_reduction_snap_reference.cit-HepTh           n/a   
+          transitive_reduction_snap_reference.cit-Patents          n/a   
+           transitive_reduction_snap_reference.ca-AstroPh          n/a   
+           transitive_reduction_snap_reference.ca-CondMat          n/a   
+            transitive_reduction_snap_reference.ca-GrQc            n/a   
+            transitive_reduction_snap_reference.ca-HepPh           n/a   
+            transitive_reduction_snap_reference.ca-HepTh           n/a   
+          transitive_reduction_snap_reference.web-BerkStan         n/a   
+           transitive_reduction_snap_reference.web-Google          n/a   
+         transitive_reduction_snap_reference.web-NotreDame         n/a   
+          transitive_reduction_snap_reference.web-Stanford         n/a   
+           transitive_reduction_snap_reference.amazon0302          n/a   
+           transitive_reduction_snap_reference.amazon0312          n/a   
+           transitive_reduction_snap_reference.amazon0505          n/a   
+           transitive_reduction_snap_reference.amazon0601          n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella04        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella05        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella06        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella08        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella09        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella24        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella25        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella30        n/a   
+         transitive_reduction_snap_reference.p2p-Gnutella31        n/a   
+           transitive_reduction_snap_reference.roadNet-CA          n/a   
+           transitive_reduction_snap_reference.roadNet-PA         failed 
+           transitive_reduction_snap_reference.roadNet-TX          n/a   
+             transitive_reduction_snap_reference.as-735            n/a   
+           transitive_reduction_snap_reference.as-Skitter          n/a   
+            transitive_reduction_snap_reference.as-caida           n/a   
+            transitive_reduction_snap_reference.Oregon-1           n/a   
+            transitive_reduction_snap_reference.Oregon-2           n/a   
+       transitive_reduction_snap_reference.soc-sign-epinions       n/a   
+    transitive_reduction_snap_reference.soc-sign-Slashdot081106    n/a   
+    transitive_reduction_snap_reference.soc-sign-Slashdot090216    n/a   
+    transitive_reduction_snap_reference.soc-sign-Slashdot090221    n/a   
+          transitive_reduction_snap_reference.loc-Gowalla          n/a   
+         transitive_reduction_snap_reference.loc-Brightkite        n/a   
+        transitive_reduction_snap_reference.sx-stackoverflow       n/a   
+        transitive_reduction_snap_reference.sx-mathoverflow        n/a   
+          transitive_reduction_snap_reference.sx-superuser         n/a   
+          transitive_reduction_snap_reference.sx-askubuntu         n/a   
+       transitive_reduction_snap_reference.wiki-talk-temporal      n/a   
+     transitive_reduction_snap_reference.email-Eu-core-temporal    n/a   
+           transitive_reduction_snap_reference.CollegeMsg          n/a   
+            transitive_reduction_snap_reference.twitter7           n/a   
+         transitive_reduction_snap_reference.higgs-twitter         n/a   
+   ============================================================= ========
+   For parameters: transitive_reduction_snap_reference.soc-sign-bitcoin-otc
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-otc", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/soc-sign-bitcoin-otc found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   INFO botocore.tokens: SSO Token refresh succeeded
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-otc", "phase": "teardown"}
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-otc", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: transitive_reduction_snap_reference.soc-sign-bitcoin-alpha
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-alpha", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/soc-sign-bitcoin-alpha found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   INFO botocore.tokens: SSO Token refresh succeeded
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-alpha", "phase": "teardown"}
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.soc-sign-bitcoin-alpha", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: transitive_reduction_snap_reference.cit-HepPh
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.cit-HepPh", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/cit-HepPh found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   INFO botocore.tokens: SSO Token refresh succeeded
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.cit-HepPh", "phase": "teardown"}
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.cit-HepPh", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: transitive_reduction_snap_reference.ca-AstroPh
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.ca-AstroPh", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/ca-AstroPh found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   INFO botocore.tokens: SSO Token refresh succeeded
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.ca-AstroPh", "phase": "teardown"}
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.ca-AstroPh", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: transitive_reduction_snap_reference.p2p-Gnutella30
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.p2p-Gnutella30", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/p2p-Gnutella30 found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   INFO botocore.tokens: SSO Token refresh succeeded
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.p2p-Gnutella30", "phase": "teardown"}
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.p2p-Gnutella30", "phase": "finished"}
+   asv: skipped: NotImplementedError('dataset cached')
+   
+   For parameters: transitive_reduction_snap_reference.roadNet-PA
+   saps: status {"benchmark": "transitive_reduction_snap_reference_shell", "dataset": "transitive_reduction_snap_reference.roadNet-PA", "phase": "setup"}
+   INFO root: Dataset suitesparse_matrix.SNAP/roadNet-PA found in cache.
+   INFO botocore.tokens: Loading cached SSO token for pace-uploader
+   WARNING botocore.tokens: SSO token refresh attempt failed
+   Traceback (most recent call last):
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 304, in _refresh_access_token
+       return self._attempt_create_token(token)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 263, in _attempt_create_token
+       response = self._client.create_token(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/client.py", line 606, in _api_call
+       return self._make_api_call(operation_name, kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/context.py", line 123, in wrapper
+       return func(*args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/client.py", line 1094, in _make_api_call
+       raise error_class(parsed_response, operation_name)
+   botocore.errorfactory.InvalidRequestException: An error occurred (InvalidRequestException) when calling the CreateToken operation: Invalid request
+   WARNING botocore.credentials: Refreshing temporary credentials failed during mandatory refresh period.
+   Traceback (most recent call last):
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 600, in _protected_refresh
+       metadata = self._refresh_using()
+                  ^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 750, in fetch_credentials
+       return self._get_cached_credentials()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 760, in _get_cached_credentials
+       response = self._get_credentials()
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/credentials.py", line 2317, in _get_credentials
+       token = initial_token_data.get_frozen_token().token
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 89, in get_frozen_token
+       self._refresh()
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 102, in _refresh
+       self._protected_refresh()
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/botocore/tokens.py", line 129, in _protected_refresh
+       raise TokenRetrievalError(
+   botocore.exceptions.TokenRetrievalError: Error when retrieving token from sso: Token has expired and refresh failed
+   ERROR root: Error uploading file to S3: Error when retrieving token from sso: Token has expired and refresh failed
+   Traceback (most recent call last):
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/server.py", line 179, in _run_server
+       _run(run_args)
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/run.py", line 65, in _run
+       skip = benchmark.do_setup()
+              ^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/time.py", line 80, in do_setup
+       result = Benchmark.do_setup(self)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+     File "/storage/home/hcoda1/7/wahrens6/.cache/pypoetry/virtualenvs/saps-RkeCTkZF-py3.12/lib/python3.12/site-packages/asv_runner/benchmarks/_base.py", line 632, in do_setup
+       setup(*self._current_params)
+     File "/storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/src/saps/benchmark.py", line 381, in setup
+       raise RuntimeError(
+   RuntimeError: Failed to cache dataset transitive_reduction_snap_reference.roadNet-PA
+cache summary: selected=22 failed_benchmark_entries=2
+---------------------------------------
+Begin Slurm Epilog: Oct-31-2026 01:22:51
+Job ID:        14726699
+Array Job ID:  14726694_4
+User ID:       wahrens6
+Account:       gts-wahrens6-pose
+Job name:      dataset-upload
+Resources:     cpu=24,mem=720G,node=1
+Rsrc Used:     cput=2-04:23:12,vmem=0,walltime=02:10:58,mem=301096260K,energy_used=0
+Partition:     cpu-large
+QOS:           inferno
+Nodes:         atl1-1-01-005-31-2
+---------------------------------------
