@@ -8,6 +8,7 @@ from binsparse import COORMatrix
 
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance
+from saps.benchmarks.mcl import _edge_offsets
 from saps.util.adjacency import zero_one_adjacency
 
 # These generators' references compute in-process here.
@@ -31,6 +32,9 @@ def _signed_graph():
 
 _PATTERN = [[0, 1, 0], [0, 0, 1], [0, 0, 1]]
 _UPPER_PATTERN = [[0, 1, 0], [0, 0, 1], [0, 0, 0]]
+# MCL weights each edge slightly differently to break symmetric ties.
+_MCL_INPUT = np.zeros((3, 3))
+_MCL_INPUT[np.nonzero(_PATTERN)] = 1 + _edge_offsets(*np.nonzero(_PATTERN), 3)
 inf = np.inf
 
 # (module, generator, expected first input, expected dtype)
@@ -51,7 +55,7 @@ _SNAP_CONSUMERS = [
         _UPPER_PATTERN,
         np.int64,
     ),
-    ("mcl", "MCLSNAPGenerator", _PATTERN, bool),
+    ("mcl", "MCLSNAPGenerator", _MCL_INPUT, np.float64),
     ("pagerank", "PageRankSNAPGenerator", _PATTERN, bool),
     ("transitive_closure", "TransitiveClosureSNAPGenerator", _PATTERN, bool),
     (
