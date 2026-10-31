@@ -1,10 +1,12 @@
 import os
 
+import numpy as np
+
 import array_api_compat.torch as torch_xp
 import torch
 import torch._dynamo
 import torch.nn.functional as F
-from binsparse.conversions import from_torch, to_torch
+from binsparse.conversions import from_numpy, from_torch, to_sparse, to_torch
 
 from saps_framework import (
     Framework,
@@ -50,6 +52,18 @@ def _is_sparse_tensor(array):
     }
 
 
+def _dense(array):
+    if torch.is_tensor(array) and _is_sparse_tensor(array):
+        return array.to_dense()
+    return array
+
+
+def _dense_if_mixed(x1, x2):
+    if any(torch.is_tensor(x) and x.layout == torch.strided for x in (x1, x2)):
+        return _dense(x1), _dense(x2)
+    return x1, x2
+
+
 class PytorchLinalg:
     @staticmethod
     def _dense(array):
@@ -67,6 +81,14 @@ class PytorchLinalg:
     def lstsq(A, b, **kwargs):
         result = torch.linalg.lstsq(PytorchLinalg._dense(A), b, **kwargs)
         return result.solution, result.residuals, result.rank, result.singular_values
+
+    @staticmethod
+    def pinv(A, **kwargs):
+        return torch.linalg.pinv(PytorchLinalg._dense(A), **kwargs)
+
+    @staticmethod
+    def svd(A, **kwargs):
+        return torch.linalg.svd(PytorchLinalg._dense(A), **kwargs)
 
 
 def _device() -> str:
@@ -106,12 +128,18 @@ class PytorchFramework(Framework):
         # default device, so this alone moves the whole benchmark to the GPU.
         self.device = _device()
         torch.set_default_device(self.device)
+        # Benchmarks are written against NumPy, whose default float is float64.
+        # Torch's float32 would break matmuls with float64 inputs and round
+        # values stored into arrays created without a dtype.
+        torch.set_default_dtype(torch.float64)
 
     @property
     def linalg(self):
         return PytorchLinalg
 
     def from_binsparse(self, array):
+        if array.fill and array.fill_value != 0:
+            return torch.asarray(np.asarray(to_sparse(array).todense()))
         result = to_torch(array)
         if self.sparse_layout == "CSR" and result.layout == torch.sparse_coo:
             if result.ndim != 2:
@@ -120,6 +148,9 @@ class PytorchFramework(Framework):
         return result
 
     def to_binsparse(self, array):
+        if not torch.is_tensor(array):
+            # Benchmarks may return NumPy arrays or Python scalars.
+            return from_numpy(np.asarray(array))
         return from_torch(array.detach().cpu())
 
     def lazy(self, array):
@@ -172,7 +203,14 @@ class PytorchFramework(Framework):
             dtype = torch.int64
         # Boolean bmm is unsupported; integer contraction counts matches, and
         # comparison with zero implements an OR reduction without changing +=.
-        result = torch.einsum(equation, *(operand.to(dtype) for operand in operands))
+        # CUDA has no integer bmm either, so count in float64 there (exact below
+        # 2**53) and return int64 as on the CPU.
+        compute_dtype = dtype
+        if dtype == torch.int64 and operands[0].is_cuda:
+            compute_dtype = torch.float64
+        result = torch.einsum(
+            equation, *(operand.to(compute_dtype) for operand in operands)
+        ).to(dtype)
         return result != 0 if logical_reduction else result
 
     def pad_constant(self, x, pad_width, *, fill_value=0):
@@ -369,12 +407,71 @@ class PytorchFramework(Framework):
 
     def matmul(self, x1, x2, /, **kwargs):
         x1, x2 = _cast_bool_to_wide_unsigned(x1, x2)
+        out_dtype = torch.result_type(x1, x2)
+        if x1.is_cuda and not (out_dtype.is_floating_point or out_dtype.is_complex):
+            # CUDA has no integer GEMM. Float64 is exact below 2**53, and going
+            # back through int64 wraps narrow dtypes like the CPU kernels do.
+            result = torch_xp.matmul(
+                x1.to(torch.float64), x2.to(torch.float64), **kwargs
+            )
+            return result.to(torch.int64).to(out_dtype)
         if x1.dtype in _WIDE_UNSIGNED or x2.dtype in _WIDE_UNSIGNED:
             out_dtype = torch.result_type(x1, x2)
             return torch_xp.matmul(x1.to(torch.int64), x2.to(torch.int64), **kwargs).to(
                 out_dtype
             )
         return torch_xp.matmul(x1, x2, **kwargs)
+
+    # Torch sparse has no where or logical ops, so sparse operands are densified.
+    # A binary op densifies only next to a dense operand, so it allocates no more
+    # than that operand does; two sparse operands still fail rather than densify.
+    def where(self, condition, x1, x2, /):
+        # With a zero else value, the result is sparse wherever the condition
+        # is: x1 at the condition's stored True entries.
+        if (
+            torch.is_tensor(condition)
+            and _is_sparse_tensor(condition)
+            and not torch.is_tensor(x2)
+            and x2 == 0
+            and (
+                not torch.is_tensor(x1)
+                or (x1.layout == torch.strided and x1.shape == condition.shape)
+            )
+        ):
+            mask = condition.to_sparse_coo().coalesce()
+            indices = mask.indices()[:, mask.values().to(torch.bool)]
+            if torch.is_tensor(x1):
+                values = x1[tuple(indices)]
+            else:
+                values = torch.full((indices.shape[1],), x1, device=indices.device)
+            return torch.sparse_coo_tensor(
+                indices,
+                values.to(torch.result_type(x1, x2)),
+                condition.shape,
+                is_coalesced=True,
+            )
+        return torch_xp.where(_dense(condition), _dense(x1), _dense(x2))
+
+    def logical_not(self, x, /):
+        return torch.logical_not(_dense(x))
+
+    def logical_and(self, x1, x2, /):
+        return torch.logical_and(*_dense_if_mixed(x1, x2))
+
+    def logical_or(self, x1, x2, /):
+        return torch.logical_or(*_dense_if_mixed(x1, x2))
+
+    def logical_xor(self, x1, x2, /):
+        return torch.logical_xor(*_dense_if_mixed(x1, x2))
+    # NumPy-style array(), which torch lacks. Code from saps.codegen calls
+    # xp.array(value, dtype=np.<dtype>), and torch only takes torch dtypes, so
+    # NumPy builds the value and torch.asarray converts it.
+    def array(self, obj, *args, **kwargs):
+        return torch.asarray(np.asarray(obj, *args, **kwargs))
+
+    # NumPy's transpose(x, axes); torch.transpose swaps two given dims instead.
+    def transpose(self, x, axes=None):
+        return x.permute(*(reversed(range(x.ndim)) if axes is None else axes))
 
     def maximum(self, x, y):
         if not torch.is_tensor(y):

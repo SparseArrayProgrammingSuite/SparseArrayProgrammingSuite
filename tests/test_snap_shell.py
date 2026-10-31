@@ -224,7 +224,10 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     manifest = backend.manifest_path.read_bytes()
 
     problem = consumer.cached_generate(dataset)
-    assert len(problem.inputs) == (2 if module_name in _MULTI_SOURCE else 1)
+    # MCL also takes its graph's rounded inverse degrees.
+    assert len(problem.inputs) == (
+        2 if module_name in _MULTI_SOURCE or module_name == "mcl" else 1
+    )
     if referenced:
         assert problem.ref_outputs is not None
     if getattr(dataset, "source_seed", None) is not None:

@@ -62,7 +62,12 @@ class NumpyFramework(Framework):
             # A two-array sum of products over floats, where every summed index
             # is in both arrays, is one batched matmul.
             case Einsum(
-                Call("*", [Access(a, a_idxs), Access(b, b_idxs)]), "+", _, c_idxs
+                arg=Call(
+                    func="*",
+                    args=[Access(tns=a, idxs=a_idxs), Access(tns=b, idxs=b_idxs)],
+                ),
+                op="+",
+                idxs=c_idxs,
             ) if (
                 np.result_type(kwargs[a], kwargs[b]).kind in "fc"
                 and set(a_idxs) <= set(b_idxs) | set(c_idxs)
