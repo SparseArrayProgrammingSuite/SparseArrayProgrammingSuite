@@ -24,11 +24,17 @@ repo_directory=$(cd -- "$script_directory/.." && pwd)
 
 export PATH="$HOME/.local/bin:$PATH"
 
-if ! aws configure list-profiles | grep -Fxq dataset-upload; then
-  aws configure sso --profile dataset-upload --use-device-code
+# Uploads run for days, longer than any SSO session, so the dataset-upload
+# profile must hold long-lived access keys.
+if aws configure get sso_session --profile dataset-upload >/dev/null ||
+  aws configure get sso_start_url --profile dataset-upload >/dev/null; then
+  echo "The dataset-upload profile uses SSO; configure it with access keys instead." >&2
+  exit 1
 fi
-
-aws sso login --profile dataset-upload --use-device-code
+if ! aws configure get aws_access_key_id --profile dataset-upload >/dev/null; then
+  aws configure --profile dataset-upload
+fi
+aws sts get-caller-identity --profile dataset-upload >/dev/null
 cd "$repo_directory"
 
 "$script_directory/ensure-poetry-env.sh"

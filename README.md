@@ -178,14 +178,27 @@ also preserves the directory where you invoked it for all three (or four, with
 `--with-competition`) jobs' logs. You can submit the Slurm scripts from the
 repository root or any subdirectory.
 
-The refresh launcher uploads datasets in two passes to avoid payingThe refresh launcher uploads datasets in one pass on the `cpu-large` partition,
+The refresh launcher uploads datasets in one pass on the `cpu-large` partition,
 as an eight-task array with 24 CPUs and 720G per task for up to three days.
 Each dataset process is capped at 680G, so an oversized dataset fails with
 `MemoryError` instead of getting the task killed and skipping the rest of its
 chunk. Override the defaults with `SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`,
 `SAPS_UPLOAD_MEMORY`, and `SAPS_UPLOAD_MEMORY_LIMIT`. Tracing waits for every
 upload task to succeed.
-lso submit a
+
+Uploads use the `dataset-upload` AWS profile, which must hold long-lived
+access keys with write access to the bucket. Uploads run for days, longer
+than any SSO session lasts, so the launcher refuses an SSO profile. It prompts
+for keys if the profile has none, and checks them before submitting. Keep the
+keys readable only by you:
+
+```bash
+aws configure --profile dataset-upload
+chmod 700 ~/.aws
+chmod 600 ~/.aws/credentials ~/.aws/config
+```
+
+Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
 competition run once the upload/trace/merge chain finishes successfully
 (`scripts/submit-competition.sh --after <merge job>`), instead of submitting
 it separately:

@@ -35,8 +35,7 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     )
     shell_env = tmp_path / "shell-env"
     shell_env.write_text(
-        'aws() { if [[ "$1 $2" == "configure list-profiles" ]]; then '
-        'printf "dataset-upload\\n"; fi; }\n'
+        'aws() { [[ "$1 $2" != "configure get" || "$3" == aws_access_key_id ]]; }\n'
         "poetry() { return 0; }\n"
         "sbatch() { "
         + shlex.quote(sys.executable)
@@ -77,6 +76,23 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
         expected = str(submission.resolve()).replace("%", "%%") + "/" + name
         assert args[args.index("--output") + 1] == expected
         assert args[args.index("--chdir") + 1] == str(scripts.parent.resolve())
+
+
+def test_refresh_refuses_sso_profile(tmp_path):
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text(
+        'aws() { [[ "$1 $2 $3" == "configure get sso_session" ]]; }\n'
+        "sbatch() { exit 1; }\n"
+    )
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts/submit-refresh-jobs.sh")],
+        cwd=tmp_path,
+        env={**os.environ, "BASH_ENV": str(shell_env)},
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert "uses SSO" in result.stderr
 
 
 COMPETITION_SCRIPTS = {"competition-cpu.slurm": "cpu", "competition-gpu.slurm": "gpu"}
