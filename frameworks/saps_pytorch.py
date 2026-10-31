@@ -50,6 +50,18 @@ def _is_sparse_tensor(array):
     }
 
 
+def _dense(array):
+    if torch.is_tensor(array) and _is_sparse_tensor(array):
+        return array.to_dense()
+    return array
+
+
+def _dense_if_mixed(x1, x2):
+    if any(torch.is_tensor(x) and x.layout == torch.strided for x in (x1, x2)):
+        return _dense(x1), _dense(x2)
+    return x1, x2
+
+
 class PytorchLinalg:
     @staticmethod
     def _dense(array):
@@ -375,6 +387,48 @@ class PytorchFramework(Framework):
                 out_dtype
             )
         return torch_xp.matmul(x1, x2, **kwargs)
+
+    # Torch sparse has no where or logical ops, so sparse operands are densified.
+    # A binary op densifies only next to a dense operand, so it allocates no more
+    # than that operand does; two sparse operands still fail rather than densify.
+    def where(self, condition, x1, x2, /):
+        # With a zero else value, the result is sparse wherever the condition
+        # is: x1 at the condition's stored True entries.
+        if (
+            torch.is_tensor(condition)
+            and _is_sparse_tensor(condition)
+            and not torch.is_tensor(x2)
+            and x2 == 0
+            and (
+                not torch.is_tensor(x1)
+                or (x1.layout == torch.strided and x1.shape == condition.shape)
+            )
+        ):
+            mask = condition.to_sparse_coo().coalesce()
+            indices = mask.indices()[:, mask.values().to(torch.bool)]
+            if torch.is_tensor(x1):
+                values = x1[tuple(indices)]
+            else:
+                values = torch.full((indices.shape[1],), x1, device=indices.device)
+            return torch.sparse_coo_tensor(
+                indices,
+                values.to(torch.result_type(x1, x2)),
+                condition.shape,
+                is_coalesced=True,
+            )
+        return torch_xp.where(_dense(condition), _dense(x1), _dense(x2))
+
+    def logical_not(self, x, /):
+        return torch.logical_not(_dense(x))
+
+    def logical_and(self, x1, x2, /):
+        return torch.logical_and(*_dense_if_mixed(x1, x2))
+
+    def logical_or(self, x1, x2, /):
+        return torch.logical_or(*_dense_if_mixed(x1, x2))
+
+    def logical_xor(self, x1, x2, /):
+        return torch.logical_xor(*_dense_if_mixed(x1, x2))
 
     def maximum(self, x, y):
         if not torch.is_tensor(y):
