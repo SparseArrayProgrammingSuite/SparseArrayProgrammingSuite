@@ -303,7 +303,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             PageRankDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
             PageRankDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
             PageRankDataset("com-LiveJournal", suites=["standard"]),
-            PageRankDataset("com-Friendster", suites=["standard"]),
+            # PageRankDataset("com-Friendster", suites=["standard"]),
             PageRankDataset("com-Orkut", suites=["standard"]),
             PageRankDataset("com-Youtube", suites=["standard"]),
             PageRankDataset("com-DBLP", suites=["standard"]),
