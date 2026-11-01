@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import functools
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -98,6 +100,17 @@ def test_refresh_refuses_expiring_credentials(tmp_path, setting, message):
     )
     assert result.returncode == 1
     assert message in result.stderr
+
+
+@functools.cache
+def run_benchmark_options() -> set[str]:
+    usage = subprocess.run(
+        [sys.executable, str(ROOT / "bin/run_benchmark.py"), "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    return set(re.findall(r"--[a-z][a-z-]*", usage))
 
 
 COMPETITION_SCRIPTS = {"competition-cpu.slurm": "cpu", "competition-gpu.slurm": "gpu"}
@@ -209,6 +222,7 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         '    [[ $# == 9 ]] || return 94\n'
         "  fi\n"
         '  printf "%s\\n" "$2" >> "$SAPS_TEST_COMMANDS"\n'
+        '  printf "%s\\n" "${@:3}" >> "$SAPS_TEST_COMMANDS.$(basename "$2")"\n'
         "}\n"
     )
     trace_dir = tmp_path / "trace"
@@ -245,6 +259,11 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         else f"./bin/{name}"
         for name in commands
     ]
+    # Every option a script passes must still exist in run_benchmark.py.
+    if "run_benchmark.py" in commands:
+        options = run_benchmark_options()
+        passed = (tmp_path / "commands.run_benchmark.py").read_text().split()
+        assert {arg for arg in passed if arg.startswith("--")} <= options
 
 
 @pytest.mark.parametrize("gpu_frameworks", [False, True])
