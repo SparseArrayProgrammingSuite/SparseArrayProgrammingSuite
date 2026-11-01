@@ -14019,8 +14019,18 @@
     "file": "src/saps/benchmarks/pcg.py",
     "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
   },
+  "block_jacobi_pcg_suitesparse_reference.HB/bcsstm20": {
+    "digest": "e5525484d48a12c644a79c6275ebceeb62a03c0bf550ea3cdf09d6b024d089d2",
+    "file": "src/saps/benchmarks/pcg.py",
+    "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
+  },
   "block_jacobi_pcg_suitesparse_reference.HB/bcsstm21": {
     "digest": "060380f8d0b3ec2746262ad5c44a8f9fe5b44883ec48d6fdcf12074f7c3bdf09",
+    "file": "src/saps/benchmarks/pcg.py",
+    "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
+  },
+  "block_jacobi_pcg_suitesparse_reference.HB/bcsstm22": {
+    "digest": "d7b8e378414f13ff8f180491be10dbd89dc95e7c45fa8b41520e3a028d6dd640",
     "file": "src/saps/benchmarks/pcg.py",
     "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
   },
@@ -14124,6 +14134,11 @@
     "file": "src/saps/benchmarks/pcg.py",
     "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
   },
+  "block_jacobi_pcg_suitesparse_reference.Norris/fv1": {
+    "digest": "6c6fc8879106fdca65e0cb26b45cc3a0cc57be8e5bee9c4855402a3225623a6a",
+    "file": "src/saps/benchmarks/pcg.py",
+    "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
+  },
   "block_jacobi_pcg_suitesparse_reference.Norris/fv2": {
     "digest": "af10f4bd2b210491b8595bd0b81f5d07024e821fa44352147b7c3c180901579d",
     "file": "src/saps/benchmarks/pcg.py",
@@ -14184,8 +14199,18 @@
     "file": "src/saps/benchmarks/pcg.py",
     "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
   },
+  "block_jacobi_pcg_suitesparse_reference.Sandia/ASIC_100ks": {
+    "digest": "42ab1adfbcfd48b2ca64123a660123e562be4492072b0d4aee922ddb2238cfdf",
+    "file": "src/saps/benchmarks/pcg.py",
+    "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
+  },
   "block_jacobi_pcg_suitesparse_reference.Sandia/ASIC_320ks": {
     "digest": "5ab2c54e23370a84f370611cfe41970026f36fa37e46d7e44154e53438b67fa2",
+    "file": "src/saps/benchmarks/pcg.py",
+    "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
+  },
+  "block_jacobi_pcg_suitesparse_reference.Um/2cubes_sphere_rhs0": {
+    "digest": "d834d249382c4ae86d8ac342a41f7a940cbcff72abd49e9d4d2e2d4f434483b4",
     "file": "src/saps/benchmarks/pcg.py",
     "freshness": "2766a63ec5fcf86ddb924b346cec36aec0d14ac49e7adb1246406ec8dfe0d536"
   },
@@ -16739,6 +16764,11 @@
     "file": "src/saps/benchmarks/mcl.py",
     "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
   },
+  "mcl_snap_reference.loc-Brightkite": {
+    "digest": "9d0be0aeeccdf32ed74d8209c9b9416e1865c9e1b90d746a39725d9824e33f7a",
+    "file": "src/saps/benchmarks/mcl.py",
+    "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
+  },
   "mcl_snap_reference.loc-Gowalla": {
     "digest": "26da0751fbade3dcee528f103d8e718428949da571307d1c3ac48e89e056e589",
     "file": "src/saps/benchmarks/mcl.py",
@@ -16764,6 +16794,11 @@
     "file": "src/saps/benchmarks/mcl.py",
     "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
   },
+  "mcl_snap_reference.p2p-Gnutella09": {
+    "digest": "97278c86a23de9dca615be4a87e4c9156753fe2f998892cc892cf01ba6e45feb",
+    "file": "src/saps/benchmarks/mcl.py",
+    "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
+  },
   "mcl_snap_reference.p2p-Gnutella24": {
     "digest": "2477aa46550aa9d069005a3a859d8ad669933db9ff09e19fcf52b16704045049",
     "file": "src/saps/benchmarks/mcl.py",
@@ -16771,6 +16806,11 @@
   },
   "mcl_snap_reference.p2p-Gnutella25": {
     "digest": "db89cf94c846e88a311fa396d4c5e1acfe33bdb741d3d5ac5983f48750b123b6",
+    "file": "src/saps/benchmarks/mcl.py",
+    "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
+  },
+  "mcl_snap_reference.p2p-Gnutella30": {
+    "digest": "0b8602189a1724d6ec6f6c641eaa868d198f62abb4ca9dfe52e734030fbbee5d",
     "file": "src/saps/benchmarks/mcl.py",
     "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
   },
@@ -16789,6 +16829,11 @@
     "file": "src/saps/benchmarks/mcl.py",
     "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
   },
+  "mcl_snap_reference.roadNet-TX": {
+    "digest": "d65b7eff783155cf084e75456d9334598c8ec720e0f522f2fff8f84464bc4c00",
+    "file": "src/saps/benchmarks/mcl.py",
+    "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
+  },
   "mcl_snap_reference.soc-Epinions1": {
     "digest": "ca8d587325f9c5153df7aa275152208a7789ffdad09b80a4267fbaf7639d50de",
     "file": "src/saps/benchmarks/mcl.py",
@@ -16801,6 +16846,16 @@
   },
   "mcl_snap_reference.soc-Slashdot0902": {
     "digest": "0bce216ef840837b3c4a32e0f280b1f7e166d2683deda73dcf21a718bc1506c8",
+    "file": "src/saps/benchmarks/mcl.py",
+    "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
+  },
+  "mcl_snap_reference.soc-sign-Slashdot081106": {
+    "digest": "a956304b4598b7dc48995691175079054eff64252b565cdc52325d4d32d639d8",
+    "file": "src/saps/benchmarks/mcl.py",
+    "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
+  },
+  "mcl_snap_reference.soc-sign-Slashdot090216": {
+    "digest": "96faa50847b61928620a3ce197ed63d64ce98349cdcb73c5bfc6156f632f8564",
     "file": "src/saps/benchmarks/mcl.py",
     "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
   },
@@ -16840,9 +16895,9 @@
     "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
   },
   "mcl_snap_reference.web-BerkStan": {
-    "digest": "b9fb597aa67f1f1164c64d9e03016dbc8916d655c0a1c7ae12b54633f8660b7b",
+    "digest": "ec3122411e508586c7ef27e39efc70aa6eddd48f06e8c13553cfc57a1fa2fa4a",
     "file": "src/saps/benchmarks/mcl.py",
-    "freshness": "a1aff8b1a718f5dea46aff9b0dcde355809ecd4363181f08c8233f97fa240bd9"
+    "freshness": "36f517f89ddba3d85dada242b0a83ff2ddbf3411f76130d109d72bb96f0dc66c"
   },
   "mcl_snap_reference.web-Google": {
     "digest": "3c7e6775d57160f6845427713cad463f6ff891119ef15f6c86626f4c86fbe970",
@@ -16959,13 +17014,33 @@
     "file": "src/saps/benchmarks/mri_sobel_edge_detection.py",
     "freshness": "8f5b634ca5d8fd55b0d85ce85386f17b1b5f4bb587d183af609d359681d4701a"
   },
+  "msbfs_snap_reference.CollegeMsg": {
+    "digest": "166c4bf056a41ae84e82b22b45c306fc8be306fdd17c46275d1b5cc43c961886",
+    "file": "src/saps/benchmarks/msbfs.py",
+    "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
+  },
   "msbfs_snap_reference.Oregon-1": {
     "digest": "bf627a174a2ac0851b5c9a65461062b0062986cd50a547c656e32d170fefb45b",
     "file": "src/saps/benchmarks/msbfs.py",
     "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
   },
+  "msbfs_snap_reference.Oregon-2": {
+    "digest": "3ee85e1dafabf503a3bb387f368deefd2b6a7b01f2ab9655b02f857ad2e50480",
+    "file": "src/saps/benchmarks/msbfs.py",
+    "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
+  },
+  "msbfs_snap_reference.amazon0302": {
+    "digest": "07c31fcc86aefd549c78b4933c31684b7c3350285a1f7f368bad99f34bc67dbe",
+    "file": "src/saps/benchmarks/msbfs.py",
+    "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
+  },
   "msbfs_snap_reference.amazon0312": {
     "digest": "3d84ba32c748e11a61255601706d22601b5dd9f6a8cedc4625b88b962fabd5f1",
+    "file": "src/saps/benchmarks/msbfs.py",
+    "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
+  },
+  "msbfs_snap_reference.amazon0505": {
+    "digest": "b271c8bb9fd45a3523d7318ac577ee6e3b49e7b3a0fdfbc4a8ac253caffeabda",
     "file": "src/saps/benchmarks/msbfs.py",
     "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
   },
@@ -17274,8 +17349,18 @@
     "file": "src/saps/benchmarks/msbfs.py",
     "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
   },
+  "msbfs_snap_reference.wiki-topcats": {
+    "digest": "f6ccc87db134c8bfcf40e398a0b559c914a2ce01589db585f659407b0d42b720",
+    "file": "src/saps/benchmarks/msbfs.py",
+    "freshness": "5f8874812066c1247ebe2e1fcd0503b7d23853be13c4b3ce0d88eec384d59e68"
+  },
   "mssp_snap_reference.CollegeMsg": {
     "digest": "fbb55ef208bb7a3f38a7472648145c8c8838b4cc83a17c0233077a406c1253cb",
+    "file": "src/saps/benchmarks/mssp.py",
+    "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
+  },
+  "mssp_snap_reference.Oregon-1": {
+    "digest": "9323b83d115b1617e268d747933901ff02bf48ce99ae9f8970d5a3a470e8feea",
     "file": "src/saps/benchmarks/mssp.py",
     "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
   },
@@ -17344,8 +17429,18 @@
     "file": "src/saps/benchmarks/mssp.py",
     "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
   },
+  "mssp_snap_reference.cit-HepPh": {
+    "digest": "d2dc4f91be0e9d03999a515b5463d67565be49d06304e31073d8a98198881497",
+    "file": "src/saps/benchmarks/mssp.py",
+    "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
+  },
   "mssp_snap_reference.cit-HepTh": {
     "digest": "084f53ef990affe69e9a37910e556ad7c741899deb78f83819370285e2f29ae2",
+    "file": "src/saps/benchmarks/mssp.py",
+    "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
+  },
+  "mssp_snap_reference.cit-Patents": {
+    "digest": "2537812fe74b3bc9cd34e53e72cc478b72f2e98cc2b3695fb6ec796424351bdd",
     "file": "src/saps/benchmarks/mssp.py",
     "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
   },
@@ -17426,6 +17521,11 @@
   },
   "mssp_snap_reference.p2p-Gnutella06": {
     "digest": "cb1ade1399bfe17769c866df17903da79d327a09b66e96a69b39d1ed2a6e7b17",
+    "file": "src/saps/benchmarks/mssp.py",
+    "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
+  },
+  "mssp_snap_reference.p2p-Gnutella08": {
+    "digest": "fb946f519e736f8451e8fb730a7c81acee439aa9fe63d2c5667b877dd2b5550d",
     "file": "src/saps/benchmarks/mssp.py",
     "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
   },
@@ -17554,6 +17654,11 @@
     "file": "src/saps/benchmarks/mssp.py",
     "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
   },
+  "mssp_snap_reference.web-Google": {
+    "digest": "7d8be91ca3a67af14e5c132dccfb1a1fbdb0730fbcd1569e62c583bc69d63656",
+    "file": "src/saps/benchmarks/mssp.py",
+    "freshness": "707dce671ba025430a2a24b2ba65d07a901a55603fda9df5eae6212a50c354fd"
+  },
   "mssp_snap_reference.web-NotreDame": {
     "digest": "263771c47ca0a96b3b956448b13a95a3dd2f1149a644781069b709a43421017a",
     "file": "src/saps/benchmarks/mssp.py",
@@ -17671,6 +17776,11 @@
   },
   "pagerank_snap_reference.CollegeMsg": {
     "digest": "5763ba5805466f75c99e575abe5e57f80cadf107d443725bb3bae1725c131481",
+    "file": "src/saps/benchmarks/pagerank.py",
+    "freshness": "03457c6cc208de045c628c54cb5eb322c01ee23111b1b49ef35838d627d4c6b0"
+  },
+  "pagerank_snap_reference.Oregon-1": {
+    "digest": "3868ac82136dcefe1ab45fc907c75e9cd5410ad0ccc6360c48843c6c45aaf125",
     "file": "src/saps/benchmarks/pagerank.py",
     "freshness": "03457c6cc208de045c628c54cb5eb322c01ee23111b1b49ef35838d627d4c6b0"
   },
@@ -17874,6 +17984,11 @@
     "file": "src/saps/benchmarks/pagerank.py",
     "freshness": "03457c6cc208de045c628c54cb5eb322c01ee23111b1b49ef35838d627d4c6b0"
   },
+  "pagerank_snap_reference.soc-Epinions1": {
+    "digest": "768cb63cb7607ae182824f0a0115052e9c0f3ab57c8f421d0fddbd8364e2ced2",
+    "file": "src/saps/benchmarks/pagerank.py",
+    "freshness": "03457c6cc208de045c628c54cb5eb322c01ee23111b1b49ef35838d627d4c6b0"
+  },
   "pagerank_snap_reference.soc-LiveJournal1": {
     "digest": "975fd797502a9f9542f793286915b6c22b894fa03c31974695b300510174c7ba",
     "file": "src/saps/benchmarks/pagerank.py",
@@ -17921,6 +18036,11 @@
   },
   "pagerank_snap_reference.soc-sign-epinions": {
     "digest": "22dedd59105202f615ef7907e22e9402c826063032a321e355d155493c403e7e",
+    "file": "src/saps/benchmarks/pagerank.py",
+    "freshness": "03457c6cc208de045c628c54cb5eb322c01ee23111b1b49ef35838d627d4c6b0"
+  },
+  "pagerank_snap_reference.sx-askubuntu": {
+    "digest": "00fca356a3f143868d07af40b1fbc2f51e311e9b5805e422df44af708bac0545",
     "file": "src/saps/benchmarks/pagerank.py",
     "freshness": "03457c6cc208de045c628c54cb5eb322c01ee23111b1b49ef35838d627d4c6b0"
   },
@@ -18079,8 +18199,18 @@
     "file": "src/saps/benchmarks/sddmm.py",
     "freshness": "6678664b2f668757f46f24a7c5d0e582c3ba18f704a5e472e848b754453b4a96"
   },
+  "simhash_ann_netflix_prize_dense_reference.netflix": {
+    "digest": "2d7587dc2317e662b15e2e1459ba1477d1916603df52315081c6a293e887e5e8",
+    "file": "src/saps/benchmarks/simhash_ann.py",
+    "freshness": "e347706eb4aeb3e9f906f0f68e1619fd54d71c0de42089d93f67adc04526bdb6"
+  },
   "simhash_ann_openml_dense_reference.cifar10": {
     "digest": "ec2712dad6107a785ed045610facbf6b1ca905e44c163ff2776424e2cff55bf3",
+    "file": "src/saps/benchmarks/simhash_ann.py",
+    "freshness": "e347706eb4aeb3e9f906f0f68e1619fd54d71c0de42089d93f67adc04526bdb6"
+  },
+  "simhash_ann_openml_dense_reference.mnist": {
+    "digest": "3c79e601e80c28c497b81b84b3af1aa037109feecde489a7ac866fdecedea20b",
     "file": "src/saps/benchmarks/simhash_ann.py",
     "freshness": "e347706eb4aeb3e9f906f0f68e1619fd54d71c0de42089d93f67adc04526bdb6"
   },
@@ -20729,6 +20859,11 @@
     "file": "src/saps/benchmarks/transitive_closure.py",
     "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
   },
+  "transitive_closure_snap_reference.as-735": {
+    "digest": "6638fba0f0d34abf5314624bebb6d16bfbaa61af582aaf84b63387a67a0760c3",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
   "transitive_closure_snap_reference.as-Skitter": {
     "digest": "f3ce77b9679d50c617933dc413c139e0e66549eb9c15e1f392831fbb8946632c",
     "file": "src/saps/benchmarks/transitive_closure.py",
@@ -20814,6 +20949,11 @@
     "file": "src/saps/benchmarks/transitive_closure.py",
     "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
   },
+  "transitive_closure_snap_reference.email-Eu-core": {
+    "digest": "4161b13f7a11b496fe6daf5e6dc9029d6dc33fcacce66932318077e68d52a090",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
   "transitive_closure_snap_reference.email-Eu-core-temporal": {
     "digest": "38b11494c00ba336e582344858922bfed6286f3de1d114d0c4ff55646bafc045",
     "file": "src/saps/benchmarks/transitive_closure.py",
@@ -20831,6 +20971,11 @@
   },
   "transitive_closure_snap_reference.loc-Brightkite": {
     "digest": "d8f473c557b44a7fe783430f51819add3e16f9d6b648f831fdf1e00f453567b8",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
+  "transitive_closure_snap_reference.loc-Gowalla": {
+    "digest": "d9b544a6276ef6f6127becc8cd3f391ecbd3db25002a6f9345775468c907c7eb",
     "file": "src/saps/benchmarks/transitive_closure.py",
     "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
   },
@@ -20874,6 +21019,16 @@
     "file": "src/saps/benchmarks/transitive_closure.py",
     "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
   },
+  "transitive_closure_snap_reference.p2p-Gnutella31": {
+    "digest": "1c47c6c5178397765d005ec6561287ba5d1da812a8c4558f29bd57d683fa2035",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
+  "transitive_closure_snap_reference.roadNet-CA": {
+    "digest": "4afc6958678536bb1f39f3f698f2601c38e914b8d16ebc691f46815827e8846b",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
   "transitive_closure_snap_reference.roadNet-PA": {
     "digest": "80617e9c079df8b9b8e8087a658e3851dc3514981a0aa131a2653281f2284ac1",
     "file": "src/saps/benchmarks/transitive_closure.py",
@@ -20881,6 +21036,11 @@
   },
   "transitive_closure_snap_reference.roadNet-TX": {
     "digest": "a2fae249fc8002b2f69bd60d3b9a440bf660dcb2223655c1ecf138e0fcfb94ad",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
+  "transitive_closure_snap_reference.soc-Epinions1": {
+    "digest": "76a06d5188b723d78aee25011ac2bf202ff79493ce259076078db6a55a4a65a8",
     "file": "src/saps/benchmarks/transitive_closure.py",
     "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
   },
@@ -20949,6 +21109,11 @@
     "file": "src/saps/benchmarks/transitive_closure.py",
     "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
   },
+  "transitive_closure_snap_reference.sx-superuser": {
+    "digest": "a350b2c8c9ae1cd35ff5ccb2390b288f5bd8b94af812b06744172db751cf62a5",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
   "transitive_closure_snap_reference.twitter7": {
     "digest": "850eac4e79dc1e759e95ebed77cec3e1962d7f8fb03b7fb73de98c2c5a8dcd57",
     "file": "src/saps/benchmarks/transitive_closure.py",
@@ -20971,6 +21136,11 @@
   },
   "transitive_closure_snap_reference.web-Stanford": {
     "digest": "41112512cbd27c877472e60aef0865f3722eca317e5bca200608c126adc92f05",
+    "file": "src/saps/benchmarks/transitive_closure.py",
+    "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
+  },
+  "transitive_closure_snap_reference.wiki-RfA": {
+    "digest": "aa736a2e9b00408ddf44fd385baefdf44c9204bb6f183add757a73fd661e6427",
     "file": "src/saps/benchmarks/transitive_closure.py",
     "freshness": "f9862b7f437ea9bea9d9e6f7818cd235bfb2169f9fc150d214413a340fdbd4cc"
   },
@@ -21004,8 +21174,23 @@
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
+  "transitive_reduction_snap_reference.Oregon-2": {
+    "digest": "6c66fe25c56811f6d0c84726c3b8c5c3ca75565aa1b216aa6aab81f2634f8e57",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
   "transitive_reduction_snap_reference.amazon0302": {
     "digest": "b07db004995b6ddb7f82ac57c7e4d62becf2600311e2fac72755a24e0d6b7457",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
+  "transitive_reduction_snap_reference.amazon0312": {
+    "digest": "44800a9625183897843f31bfb42440f9b28e7cf89c4dadaa1c33725f92c96a75",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
+  "transitive_reduction_snap_reference.amazon0505": {
+    "digest": "470e9ecda914920cedc45a55d2d789636253e163891870bc6aae9155c526d22b",
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
@@ -21024,8 +21209,18 @@
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
+  "transitive_reduction_snap_reference.as-caida": {
+    "digest": "f97dc48e483f7db953041a8c482933bb44e90e2560cbba16f2b7c0fcfa8d818c",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
   "transitive_reduction_snap_reference.ca-AstroPh": {
     "digest": "426c04baa5c8c5e57c202b2d82a71a30b0c7b8a7af1a412f93bfd1265fbd2084",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
+  "transitive_reduction_snap_reference.ca-CondMat": {
+    "digest": "753d6f9743a032aebcad5a22a3a9dac39c6bb7d5a776fc5f97807e2abc7c2244",
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
@@ -21109,6 +21304,11 @@
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
+  "transitive_reduction_snap_reference.loc-Brightkite": {
+    "digest": "c84fa074f62af7d0c5048500c688e8f90a5f19c5a4906cd71f1407cdafbe7a1c",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
   "transitive_reduction_snap_reference.loc-Gowalla": {
     "digest": "bb18bb86bdc00f39b770cf8f9fced5b29131320babdc0a7e6d8ab49bdd4f1b63",
     "file": "src/saps/benchmarks/transitive_reduction.py",
@@ -21116,6 +21316,11 @@
   },
   "transitive_reduction_snap_reference.p2p-Gnutella04": {
     "digest": "e90c24b5394f728a207ba5f6e43ddda78b1eda736bcfeb7d3d966d9533c5a83b",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
+  "transitive_reduction_snap_reference.p2p-Gnutella05": {
+    "digest": "a6535e36ee4d0bdad840c26e0b289104313bb9854f8b0fa329954f8d55d3e82b",
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
@@ -21154,6 +21359,16 @@
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
+  "transitive_reduction_snap_reference.roadNet-CA": {
+    "digest": "7c0d2ba03e011e2841fba33c587b9e4e04fe06a10857a28a3303af47a78275eb",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
+  "transitive_reduction_snap_reference.roadNet-PA": {
+    "digest": "d048e780348cf71401e003e33ebab01916a28ca9dbe3dea0bc4a2ace7575cdc9",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
   "transitive_reduction_snap_reference.roadNet-TX": {
     "digest": "69eed0f673c61d0711ed38e6116d74a3c2e306fb98f67627a86683c0ed0e053d",
     "file": "src/saps/benchmarks/transitive_reduction.py",
@@ -21171,6 +21386,11 @@
   },
   "transitive_reduction_snap_reference.soc-Pokec": {
     "digest": "87b20147bdff8501c8a46c0729aad6f9c7e0c6241cbb90fd613c5cb69c82aa57",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
+  "transitive_reduction_snap_reference.soc-Slashdot0811": {
+    "digest": "760c00b7128647e9510ebc1b4c9ff03e6572472d54366639488ba96907f4f2ff",
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
@@ -21229,6 +21449,11 @@
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
+  "transitive_reduction_snap_reference.web-BerkStan": {
+    "digest": "b36ca52ccc8ff4245fddd6c0678199abc7db56765eb2d37989a6741eb2b701a9",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
   "transitive_reduction_snap_reference.web-Google": {
     "digest": "6420b02ed98ec92c78129982e39147c94e765423b005f975b2275730a50b276c",
     "file": "src/saps/benchmarks/transitive_reduction.py",
@@ -21241,6 +21466,11 @@
   },
   "transitive_reduction_snap_reference.web-Stanford": {
     "digest": "3ad1d9932847a436890b5f905cc3b071f60b837083c01e93c7bb9676a07ae9ad",
+    "file": "src/saps/benchmarks/transitive_reduction.py",
+    "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
+  },
+  "transitive_reduction_snap_reference.wiki-RfA": {
+    "digest": "f447228abdebdd488e375c1e163c1ce52c672ac9e79f84235844b1a13afb94cb",
     "file": "src/saps/benchmarks/transitive_reduction.py",
     "freshness": "adf4f2047f31d7c550a91e6313db899f80d0d0b3268a98a69b16b23410e47378"
   },
