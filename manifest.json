@@ -21504,21 +21504,6 @@
     "file": "src/saps/benchmarks/weighted_model_counting.py",
     "freshness": "cf13f4d883048e61e300dbd7f6416821eaf28f16583a614095d33f03330ab9a6"
   },
-  "weighted_model_counting_mccomp.Track4_PWMC/random_pwmc_2": {
-    "digest": "f815cbc5096f12d6b1c19c9d4952c11f4f9c139e604967abb17f5a17507dfe0f",
-    "file": "src/saps/benchmarks/weighted_model_counting.py",
-    "freshness": "cf13f4d883048e61e300dbd7f6416821eaf28f16583a614095d33f03330ab9a6"
-  },
-  "weighted_model_counting_mccomp.Track4_PWMC/random_pwmc_3": {
-    "digest": "3277e16bb85198d4f7e80d85ebf6a2777ac1f9a94cc53839e2311c396a98aea8",
-    "file": "src/saps/benchmarks/weighted_model_counting.py",
-    "freshness": "cf13f4d883048e61e300dbd7f6416821eaf28f16583a614095d33f03330ab9a6"
-  },
-  "weighted_model_counting_mccomp.Track4_PWMC/random_pwmc_4": {
-    "digest": "de4b708293e5543e8ee1cdb46530faea17529c208523af8c4870f4b95f3f2998",
-    "file": "src/saps/benchmarks/weighted_model_counting.py",
-    "freshness": "cf13f4d883048e61e300dbd7f6416821eaf28f16583a614095d33f03330ab9a6"
-  },
   "weighted_model_counting_mccomp.Track4_PWMC/random_pwmc_5": {
     "digest": "a0122cc6e157fa1ef5b83b89409c0457fb8a875087cd89f08efd47eb364a6906",
     "file": "src/saps/benchmarks/weighted_model_counting.py",
