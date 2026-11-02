@@ -837,12 +837,6 @@ class GMRESSuiteSparseGenerator(Generator[GMRESDataset]):
                 rel_tol=1e-06,
             ),
             GMRESDataset(
-                "Morandini/rotor1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            GMRESDataset(
                 "Mulvey/finan512",
                 suites=["standard"],
                 max_iter=100,
