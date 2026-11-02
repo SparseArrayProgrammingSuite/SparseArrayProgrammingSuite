@@ -24,18 +24,33 @@ repo_directory=$(cd -- "$script_directory/.." && pwd)
 
 export PATH="$HOME/.local/bin:$PATH"
 
-if ! aws configure list-profiles | grep -Fxq dataset-upload; then
-  aws configure sso --profile dataset-upload --use-device-code
+# Uploads run for days, longer than any SSO session, so the dataset-upload
+# profile must hold long-lived access keys.
+if aws configure get sso_session --profile dataset-upload >/dev/null ||
+  aws configure get sso_start_url --profile dataset-upload >/dev/null; then
+  echo "The dataset-upload profile uses SSO; remove the sso_* lines from" \
+    "[profile dataset-upload] in ~/.aws/config and use access keys instead." >&2
+  exit 1
 fi
-
-aws sso login --profile dataset-upload --use-device-code
+if ! aws configure get aws_access_key_id --profile dataset-upload >/dev/null; then
+  aws configure --profile dataset-upload
+fi
+if aws configure get aws_session_token --profile dataset-upload >/dev/null; then
+  echo "The dataset-upload profile has temporary keys (aws_session_token in" \
+    "~/.aws/credentials), which expire within hours; use IAM user access keys." >&2
+  exit 1
+fi
+aws sts get-caller-identity --profile dataset-upload >/dev/null
 cd "$repo_directory"
 
 "$script_directory/ensure-poetry-env.sh"
 poetry run ./bin/generate_metadata.py
 
-account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6}"
+account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 upload_chunk_count="${SAPS_UPLOAD_CHUNK_COUNT:-8}"
+upload_memory="${SAPS_UPLOAD_MEMORY:-720G}"
+upload_memory_limit="${SAPS_UPLOAD_MEMORY_LIMIT:-680G}"
+upload_cpus="${SAPS_UPLOAD_CPUS:-24}"
 trace_chunk_count="${SAPS_TRACE_CHUNK_COUNT:-8}"
 trace_array_end=$((trace_chunk_count - 1))
 
@@ -55,13 +70,20 @@ submit_job() {
   echo "${job_id%%;*}"
 }
 
+# cpu-large nodes have enough memory for every dataset in one pass. The
+# per-process cap fails an oversized dataset cleanly instead of letting the
+# Slurm OOM killer end the task and skip the rest of its chunk.
 upload_job_id=$(
   submit_job \
     -A "$account" \
+    -p cpu-large \
     --array="0-$((upload_chunk_count - 1))" \
+    --mem="$upload_memory" \
+    --cpus-per-task="$upload_cpus" \
+    --time=3-00:00:00 \
     --output "$log_directory/upload-%A_%a.log" \
     --chdir "$repo_directory" \
-    --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
+    --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory",SAPS_MEMORY_LIMIT="$upload_memory_limit" \
     "$script_directory/upload-dataset.slurm"
 )
 

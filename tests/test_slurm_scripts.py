@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import functools
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -35,8 +37,7 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     )
     shell_env = tmp_path / "shell-env"
     shell_env.write_text(
-        'aws() { if [[ "$1 $2" == "configure list-profiles" ]]; then '
-        'printf "dataset-upload\\n"; fi; }\n'
+        'aws() { [[ "$1 $2" != "configure get" || "$3" == aws_access_key_id ]]; }\n'
         "poetry() { return 0; }\n"
         "sbatch() { "
         + shlex.quote(sys.executable)
@@ -61,14 +62,55 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
         text=True,
     )
     submissions = [json.loads(line) for line in record.read_text().splitlines()]
-    names = ["upload-%A_%a.log", "trace-%A_%a.log", "finalize-metadata-%j.log"]
+    names = [
+        "upload-%A_%a.log",
+        "trace-%A_%a.log",
+        "finalize-metadata-%j.log",
+    ]
     assert len(submissions) == len(names)
-    assert f"--array=0-{int(upload_chunks or '8') - 1}" in submissions[0]
+    upload = submissions[0]
+    assert f"--array=0-{int(upload_chunks or '8') - 1}" in upload
+    assert "cpu-large" in upload[upload.index("-p") + 1]
+    assert "--mem=720G" in upload
+    assert "SAPS_MEMORY_LIMIT=680G" in upload[upload.index("--chdir") + 2]
     assert "--dependency=afterok:12345" in submissions[1]
     for args, name in zip(submissions, names, strict=True):
         expected = str(submission.resolve()).replace("%", "%%") + "/" + name
         assert args[args.index("--output") + 1] == expected
         assert args[args.index("--chdir") + 1] == str(scripts.parent.resolve())
+
+
+@pytest.mark.parametrize(
+    "setting,message",
+    [("sso_session", "uses SSO"), ("aws_session_token", "temporary keys")],
+)
+def test_refresh_refuses_expiring_credentials(tmp_path, setting, message):
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text(
+        'aws() { [[ "$1 $2" != "configure get" || "$3" == aws_access_key_id '
+        f'|| "$3" == {setting} ]]; }}\n'
+        "sbatch() { exit 1; }\n"
+    )
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts/submit-refresh-jobs.sh")],
+        cwd=tmp_path,
+        env={**os.environ, "BASH_ENV": str(shell_env)},
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert message in result.stderr
+
+
+@functools.cache
+def run_benchmark_options() -> set[str]:
+    usage = subprocess.run(
+        [sys.executable, str(ROOT / "bin/run_benchmark.py"), "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    return set(re.findall(r"--[a-z][a-z-]*", usage))
 
 
 COMPETITION_SCRIPTS = {"competition-cpu.slurm": "cpu", "competition-gpu.slurm": "gpu"}
@@ -175,10 +217,12 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         '  [[ "$PWD" == "$SAPS_TEST_ROOT" ]] || return 90\n'
         '  [[ "$1" == run && -f "$2" ]] || return 91\n'
         '  if [[ "$SAPS_TEST_SCRIPT" == upload-dataset.slurm ]]; then\n'
-        '    [[ "$3 $4 $5" == "--cache-datasets --chunk-count 5" ]] || return 92\n'
-        '    [[ "$6 $7" == "--chunk-index 0" ]] || return 93\n'
+        '    [[ "$3 $4" == "--cache-datasets --process-timeout" ]] || return 92\n'
+        '    [[ "$6 $7 $8 $9" == "--chunk-count 5 --chunk-index 0" ]] || return 93\n'
+        "    [[ $# == 9 ]] || return 94\n"
         "  fi\n"
         '  printf "%s\\n" "$2" >> "$SAPS_TEST_COMMANDS"\n'
+        '  printf "%s\\n" "${@:3}" >> "$SAPS_TEST_COMMANDS.$(basename "$2")"\n'
         "}\n"
     )
     trace_dir = tmp_path / "trace"
@@ -200,6 +244,7 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
     }
     env.pop("SAPS_REPO_DIRECTORY", None)
     env.pop("SAPS_COMPETITION_ARGS", None)
+    env.pop("SAPS_MEMORY_LIMIT", None)
     subprocess.run(
         ["bash", str(spooled_script)],
         cwd=ROOT / "scripts",
@@ -214,6 +259,11 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         else f"./bin/{name}"
         for name in commands
     ]
+    # Every option a script passes must still exist in run_benchmark.py.
+    if "run_benchmark.py" in commands:
+        options = run_benchmark_options()
+        passed = (tmp_path / "commands.run_benchmark.py").read_text().split()
+        assert {arg for arg in passed if arg.startswith("--")} <= options
 
 
 @pytest.mark.parametrize("gpu_frameworks", [False, True])

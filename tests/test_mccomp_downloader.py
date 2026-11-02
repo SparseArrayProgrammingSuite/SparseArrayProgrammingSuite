@@ -147,14 +147,15 @@ def test_model_counting_mccomp_track1_generator_parses_downloaded_source(
         calls.append((self.name, dataset.source_path))
         return DataInstance(
             inputs=[],
-            meta={
-                "source_path": dataset.source_path,
-                "local_path": str(source_path),
-            },
+            meta={"source_path": dataset.source_path},
         )
 
     monkeypatch.setattr(
         MCCompInstanceGenerator, "cached_generate", fake_cached_generate
+    )
+    monkeypatch.setattr(
+        "saps.benchmarks.model_counting.download_mccomp_instance",
+        lambda _: source_path,
     )
     generator = ModelCountingMCCompGenerator()
 
@@ -229,10 +230,7 @@ def test_fetch_mccomp_instance_accepts_basename(monkeypatch):
         calls.append(dataset.source_path)
         return DataInstance(
             inputs=[],
-            meta={
-                "source_path": dataset.source_path,
-                "local_path": "/tmp/source.cnf",
-            },
+            meta={"source_path": dataset.source_path},
         )
 
     monkeypatch.setattr(
@@ -252,10 +250,7 @@ def test_fetch_mccomp_instance_accepts_suffixless_basename(monkeypatch):
         calls.append(dataset.source_path)
         return DataInstance(
             inputs=[],
-            meta={
-                "source_path": dataset.source_path,
-                "local_path": "/tmp/source.cnf",
-            },
+            meta={"source_path": dataset.source_path},
         )
 
     monkeypatch.setattr(

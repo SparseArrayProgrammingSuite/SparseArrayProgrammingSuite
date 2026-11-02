@@ -500,16 +500,16 @@ class LSQRBenchmark(Benchmark):
             np.result_type(A.dtype, x_sol.dtype),
         )
         roundoff += operation_error_bound(np, residual, residual.dtype)
+        rnorm = np.linalg.norm(residual)
+        rbound = np.linalg.norm(roundoff)
+        rbound += summation_error_bound(
+            np, residual.size + 2, rnorm + rbound, residual.dtype
+        )
+        assert np.isfinite(rnorm) and np.isfinite(rbound), (
+            "Non-finite residual or error bound"
+        )
         if self._ref_meta and self._ref_meta.get("convergence") == "residual":
-            rnorm = np.linalg.norm(residual)
-            bound = np.linalg.norm(roundoff)
-            bound += summation_error_bound(
-                np, residual.size + 2, rnorm + bound, residual.dtype
-            )
-            assert np.isfinite(rnorm) and np.isfinite(bound), (
-                "Non-finite residual or error bound"
-            )
-            assert rnorm < 1e-5 * self._ref_meta["bnorm"] + 1e-5 + bound
+            assert rnorm < 1e-5 * self._ref_meta["bnorm"] + 1e-5 + rbound
             return
 
         # Least squares is solved when A.T @ (b - Ax) is small.
@@ -529,10 +529,17 @@ class LSQRBenchmark(Benchmark):
             assert gradient < 1e-5 * scale + 1e-5 + bound
             return
 
+        # LSQR stops on either of Paige and Saunders' tests: a residual small
+        # relative to ||b|| + ||A|| ||x||, or a gradient small relative to
+        # ||A|| ||r||. ||A||_F bounds the estimate LSQR itself uses.
         rel_tol = (self._meta or {}).get("rel_tol", 1e-6)
-        limit = rel_tol * scale + bound
-        assert gradient <= limit, (
-            f"LSQR gradient too high for {param.dataset.name}: {gradient}"
+        Anorm = np.linalg.norm(A_coo.tocsr().data)
+        xnorm = np.linalg.norm(x_sol)
+        residual_limit = rel_tol * (self._ref_meta["bnorm"] + Anorm * xnorm) + rbound
+        gradient_limit = rel_tol * Anorm * (rnorm + rbound) + bound
+        assert rnorm <= residual_limit or gradient <= gradient_limit, (
+            f"LSQR did not converge for {param.dataset.name}: residual {rnorm} "
+            f"(limit {residual_limit}), gradient {gradient} (limit {gradient_limit})"
         )
 
     def benchmark(self, xp, meta: dict, A, b):

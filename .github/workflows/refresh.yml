@@ -17,7 +17,7 @@ jobs:
       - name: Configure Poetry
         run: poetry env use python3.12
       - name: Install package
-        run: poetry install --with test
+        run: poetry sync --with generate
       - name: Generate metadata
         run: poetry run ./bin/generate_metadata.py
       - name: Upload metadata
@@ -57,7 +57,7 @@ jobs:
       - name: Configure Poetry
         run: poetry env use python3.12
       - name: Install package
-        run: poetry install --with test
+        run: poetry sync --with generate
       - name: Trace statistics chunk
         run: |
           poetry run ./bin/run_benchmark.py \
@@ -109,7 +109,7 @@ jobs:
       - name: Configure Poetry
         run: poetry env use python3.12
       - name: Install package
-        run: poetry install --with test
+        run: poetry sync --with generate
       - name: Cache datasets chunk
         run: |
           poetry run ./bin/run_benchmark.py \
@@ -145,7 +145,7 @@ jobs:
       - name: Configure Poetry
         run: poetry env use python3.12
       - name: Install package
-        run: poetry install --with test
+        run: poetry sync --with generate
       - name: Merge statistics
         run: |
           poetry run ./bin/merge_statistics.py \

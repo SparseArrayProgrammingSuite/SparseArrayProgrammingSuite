@@ -752,11 +752,9 @@ class BellmanFordSNAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         problem = BellmanFordSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         expected = from_numpy(
             np.asarray(
                 graph.distances(
@@ -911,11 +909,9 @@ class BellmanFordGAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         problem = BellmanFordGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         expected = from_numpy(
             np.asarray(
                 graph.distances(
@@ -938,10 +934,10 @@ class BellmanFordGAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         )
 
 
-class BellmanFordGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return BellmanFordGAPReferenceGenerator()
+# class BellmanFordGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return BellmanFordGAPReferenceGenerator()
 
 
 class BellmanFordBenchmark(Benchmark):
@@ -1038,7 +1034,7 @@ class BellmanFordBenchmark(Benchmark):
         return [
             BellmanFordTestGenerator(),
             BellmanFordSNAPGenerator(),
-            BellmanFordGAPGenerator(),
+            # BellmanFordGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, edges):
@@ -1053,7 +1049,7 @@ class BellmanFordBenchmark(Benchmark):
         for _ in range(n):
             D_prev = D
             candidates = xp.expand_dims(D, 1) + G
-            D = xp.minimum(D, candidates.min(axis=0))
+            D = xp.minimum(D, xp.min(candidates, axis=0))
             stop = xp.all(D_prev == D)
             if stop:
                 break

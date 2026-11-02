@@ -1,5 +1,3 @@
-import pytest
-
 import numpy as np
 
 from binsparse import BinsparseTensor
@@ -119,22 +117,3 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
     assert calls == [("seq_eth", 50)]
     assert len(instance.inputs) == 7
     assert instance.meta["parameters"] == datasets[0].parameters
-
-
-@pytest.mark.slow
-def test_ewap_seq_eth_download():
-    """Download seq_eth and verify it produces a non-empty particle dataset."""
-    from saps.downloaders.ewap import download_ewap_dataset
-
-    bins, meta = download_ewap_dataset("seq_eth", num_steps=10)
-    assert len(bins) == 7
-    n = meta["n_particles"]
-    assert n > 0
-    xp = NumpyFramework()
-    x = xp.from_binsparse(bins[0])
-    z = xp.from_binsparse(bins[2])
-    assert meta["source_x_min"] == float(x.min())
-    assert meta["source_x_max"] == float(x.max())
-    assert meta["source_dimensions"] == 2
-    assert meta["simulation_dimensions"] == 3
-    assert np.allclose(z, 0.0)

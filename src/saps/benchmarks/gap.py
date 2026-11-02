@@ -10,7 +10,6 @@ from saps.benchmark import (
     Dataset,
     Generator,
     Ref,
-    ShellBenchmark,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
 
@@ -518,10 +517,10 @@ class GAPGraphGenerator(Generator[GAPDataset]):
         )
 
 
-class GAPGraphShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return GAPGraphGenerator()
+# class GAPGraphShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return GAPGraphGenerator()
 
 
 def gap_graph(name: str) -> GAPDataset:

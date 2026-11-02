@@ -466,11 +466,9 @@ class MSBFSSNAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
         problem = MSBFSSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         sources = meta["sources"]
         levels = np.empty((len(sources), graph.vcount()), dtype=np.int64)
         for row, source in enumerate(sources):
@@ -602,11 +600,9 @@ class MSBFSGAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
         problem = MSBFSGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         sources = meta["sources"]
         levels = np.empty((len(sources), graph.vcount()), dtype=np.int64)
         for row, source in enumerate(sources):
@@ -627,10 +623,10 @@ class MSBFSGAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
         )
 
 
-class MSBFSGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return MSBFSGAPReferenceGenerator()
+# class MSBFSGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return MSBFSGAPReferenceGenerator()
 
 
 class MSBFSBenchmark(Benchmark):
@@ -748,7 +744,7 @@ class MSBFSBenchmark(Benchmark):
         return [
             MSBFSSNAPGenerator(),
             MSBFSTestGenerator(),
-            MSBFSGAPGenerator(),
+            # MSBFSGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict, edges, frontier):

@@ -17,6 +17,8 @@ def runner(monkeypatch):
     spec = importlib.util.spec_from_file_location("saps_run_benchmark", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    # These tests exercise runner logic, not the installed package versions.
+    monkeypatch.setattr(module, "check_generate_environment", lambda: None)
     return module
 
 
@@ -280,7 +282,6 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
             "simhash_ann_openml_sparse.mnist",
             "simhash_ann_openml_sparse.cifar10",
             "simhash_ann_netflix_prize_dense.netflix",
-            "simhash_ann_netflix_prize_sparse.netflix",
         ][chunk_index::5]
     )
     assert kwargs["machine_params"].machine == "run_12345-task-0"

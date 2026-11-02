@@ -8,11 +8,19 @@ We take inspiration from benchmark suites in the database community, such as [pa
 
 ## Installation
 
-SparseApplicationBenchmark uses [Poetry](https://python-poetry.org/) for packaging. To install the project and its test/development dependencies:
+SparseApplicationBenchmark uses [Poetry](https://python-poetry.org/) for packaging. To install the project with its data generation and test/development dependencies:
 
 ```bash
-poetry install --with test
+poetry sync --with generate,test
 ```
+
+There are three environments:
+
+- **release**: the package's own dependencies, with compatible version ranges.
+- **generate** (`--with generate`): every package, including indirect dependencies, pinned to an exact version. Dataset freshness hashes include installed dependency versions, so `bin/generate_metadata.py`, `bin/run_benchmark.py --cache-datasets`, and `--trace-statistics` refuse to run unless the installed versions match these pins.
+- **test** (`--with test`): test and lint tools.
+
+Use `poetry sync` rather than `poetry install` so packages that drifted from the lock file are put back.
 
 Most commands below assume they are run from the repository root.
 
@@ -170,9 +178,27 @@ also preserves the directory where you invoked it for all three (or four, with
 `--with-competition`) jobs' logs. You can submit the Slurm scripts from the
 repository root or any subdirectory.
 
-Dataset uploads run as an eight-task array. Set `SAPS_UPLOAD_CHUNK_COUNT` when
-using the refresh launcher to change the number of upload tasks. Tracing waits
-for every upload task to succeed.
+The refresh launcher uploads datasets in one pass on the `cpu-large` partition,
+as an eight-task array with 24 CPUs and 720G per task for up to three days.
+Each dataset process is capped at 680G, so an oversized dataset fails with
+`MemoryError` instead of getting the task killed and skipping the rest of its
+chunk. Override the defaults with `SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`,
+`SAPS_UPLOAD_MEMORY`, and `SAPS_UPLOAD_MEMORY_LIMIT`. Tracing waits for every
+upload task to succeed.
+
+Uploads use the `dataset-upload` AWS profile, which must hold long-lived
+access keys with write access to the bucket. Uploads run for days, longer
+than any SSO session lasts, so the launcher refuses an SSO profile and
+temporary keys with an `aws_session_token`, such as those copied from the AWS
+access portal. Create IAM user access keys (IDs starting with `AKIA`). It prompts
+for keys if the profile has none, and checks them before submitting. Keep the
+keys readable only by you:
+
+```bash
+aws configure --profile dataset-upload
+chmod 700 ~/.aws
+chmod 600 ~/.aws/credentials ~/.aws/config
+```
 
 Pass `--with-competition` to `scripts/submit-refresh-jobs.sh` to also submit a
 competition run once the upload/trace/merge chain finishes successfully
@@ -255,6 +281,20 @@ with `cacheable: false`, preserving retained records regardless of freshness.
 Regenerate metadata first if benchmark definitions have changed. Use `--metadata`
 and `--manifest` for alternate files; the manifest also honors `SAPS_MANIFEST_PATH`.
 Pruning does not delete local cache files or remote objects.
+
+When a source change leaves generated data unchanged, or a source can no longer
+be downloaded, mark the existing uploads as current instead of regenerating them.
+Select datasets with `--tag`, `--no-tag`, `--re`, and `--no-re`, as for
+`run_benchmark.py`:
+
+```bash
+poetry run ./bin/generate_metadata.py
+poetry run ./bin/mark_fresh.py --re '^suitesparse_matrix$' --dry-run
+poetry run ./bin/mark_fresh.py --re '^suitesparse_matrix$'
+```
+
+Only entries that already have an uploaded digest for the same source file are
+marked. Entries that were never cached are listed and left for `--cache-datasets`.
 
 Generators marked `cacheable = False` still assemble benchmark inputs during
 setup from their shared source datasets. Those transformations must preserve

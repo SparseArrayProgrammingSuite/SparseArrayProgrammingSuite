@@ -106,9 +106,10 @@ def test_collection_references_are_cached_and_reject_wrong_results(
     problem = generator.generate(dataset)
     assert problem.ref_outputs is not None
     backend = (
-        "scipy"
-        if name
-        in {"floyd_warshall", "transitive_closure", "transitive_reduction", "mcl"}
+        "graphblas"
+        if name in {"mcl", "pagerank"}
+        else "scipy"
+        if name in {"floyd_warshall", "transitive_closure", "transitive_reduction"}
         else "igraph"
     )
     assert problem.ref_meta["reference_backend"] == backend
