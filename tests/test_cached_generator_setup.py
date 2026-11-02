@@ -76,12 +76,12 @@ def test_bellman_ford_large_graph_setup_and_cache_stay_sparse(monkeypatch, tmp_p
     monkeypatch.setattr(
         adjacency, "to_numpy", Mock(side_effect=AssertionError("densification"))
     )
-    generator = bellman_ford.BellmanFordGAPGenerator()
-    dataset = next(d for d in generator.datasets if d.src < size)
+    generator = bellman_ford.BellmanFordSNAPGenerator()
+    dataset = generator.datasets[0]
     monkeypatch.setattr(
         bellman_ford,
-        "fetch_gap_graph",
-        lambda _: DataInstance(inputs=[raw], meta={"sources": [dataset.src]}),
+        "fetch_snap_graph",
+        lambda _: DataInstance(inputs=[raw], meta={"sources": [0]}),
     )
     problem = generator.generate(dataset)
     distances = problem.inputs[0]

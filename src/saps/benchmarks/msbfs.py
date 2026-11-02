@@ -18,7 +18,6 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
-from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import (
     NUM_SNAP_SOURCES,
     fetch_snap_graph,
@@ -495,140 +494,6 @@ class MSBFSSNAPReferenceShellBenchmark(ShellBenchmark):
         return MSBFSSNAPReferenceGenerator()
 
 
-class MSBFSGAPGenerator(Generator[MSBFSDataset]):
-    @property
-    def name(self) -> str:
-        return "msbfs_gap"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search (MS-BFS) GAP"
-
-    @property
-    def description(self) -> str:
-        return (
-            "GAP input generator for multi-source breadth-first search, searching"
-            " from every published GAP source of each graph at once."
-        )
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return []
-
-    @property
-    def references(self) -> list[Ref]:
-        return [
-            Ref(
-                title="The GAP Benchmark Suite",
-                authors=[
-                    Author("Scott Beamer"),
-                    Author("Krste Asanović"),
-                    Author("David Patterson"),
-                ],
-                url="https://arxiv.org/abs/1508.03619",
-                year=2015,
-            ),
-        ]
-
-    @property
-    def ai_disclosure(self) -> str:
-        return "This generator was written with assistance from Claude."
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for multi-source breadth-first search."
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
-    def datasets(self) -> list[MSBFSDataset]:
-        # fmt: off
-        return [
-            MSBFSDataset("GAP-road", suites=["standard"]),
-            MSBFSDataset("GAP-twitter", suites=["standard"]),
-            MSBFSDataset("GAP-web", suites=["standard"]),
-            MSBFSDataset("GAP-kron", suites=["standard"]),
-            MSBFSDataset("GAP-urand", suites=["standard"]),
-        ]
-        # fmt: on
-
-    def generate(self, dataset: MSBFSDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
-        reference = MSBFSGAPReferenceGenerator().cached_generate(
-            ReferenceDataset(dataset)
-        )
-        problem.ref_outputs = reference.ref_outputs
-        problem.ref_meta = reference.ref_meta
-        return problem
-
-    def generate_inputs(self, dataset: MSBFSDataset) -> DataInstance:
-        raw = fetch_gap_graph(dataset.source_name)
-        return multi_source_bfs_instance(raw.inputs[0], raw.meta["sources"])
-
-
-class MSBFSGAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
-    @property
-    def name(self) -> str:
-        return "msbfs_gap_reference"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Multi-Source Breadth-First Search (MS-BFS) GAP Reference"
-
-    @property
-    def description(self) -> str:
-        return (
-            "Reference outputs for Multi-Source Breadth-First Search (MS-BFS) GAP,"
-            " cached apart from its inputs."
-        )
-
-    @property
-    def datasets(self) -> list[ReferenceDataset[MSBFSDataset]]:
-        return [ReferenceDataset(dataset) for dataset in MSBFSGAPGenerator().datasets]
-
-    def generate(self, dataset: ReferenceDataset[MSBFSDataset]) -> DataInstance:
-        problem = MSBFSGAPGenerator().generate_inputs(dataset.dataset)
-        meta = problem.meta
-        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(n=adjacency.shape[0], directed=True)
-        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
-        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
-        sources = meta["sources"]
-        levels = np.empty((len(sources), graph.vcount()), dtype=np.int64)
-        for row, source in enumerate(sources):
-            distances = np.asarray(graph.distances(source=[int(source)], mode="out")[0])
-            levels[row] = np.where(np.isfinite(distances), distances + 1, 0)
-        expected = from_numpy(levels)
-        problem.ref_outputs = [expected]
-        problem.ref_meta = {
-            **(problem.ref_meta or {}),
-            "reference_backend": "igraph",
-            "reference_algorithm": "msbfs",
-        }
-        return DataInstance(
-            inputs=[],
-            meta={},
-            ref_outputs=problem.ref_outputs,
-            ref_meta=problem.ref_meta,
-        )
-
-
-# class MSBFSGAPReferenceShellBenchmark(ShellBenchmark):
-#     @property
-#     def generator(self) -> Generator:
-#         return MSBFSGAPReferenceGenerator()
-
-
 class MSBFSBenchmark(Benchmark):
     @property
     def name(self):
@@ -744,7 +609,6 @@ class MSBFSBenchmark(Benchmark):
         return [
             MSBFSSNAPGenerator(),
             MSBFSTestGenerator(),
-            # MSBFSGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict, edges, frontier):

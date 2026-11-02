@@ -296,6 +296,14 @@ poetry run ./bin/mark_fresh.py --re '^suitesparse_matrix$'
 Only entries that already have an uploaded digest for the same source file are
 marked. Entries that were never cached are listed and left for `--cache-datasets`.
 
+The same selection also restamps trace records in `statistics.json` (or
+`--statistics`), including those for uncached generators, so their statistics
+tags survive the source change. Fold them back into metadata afterwards:
+
+```bash
+poetry run ./bin/generate_metadata.py --statistics statistics.json
+```
+
 Generators marked `cacheable = False` still assemble benchmark inputs during
 setup from their shared source datasets. Those transformations must preserve
 sparsity and use prepared data. The G-CARE downloader reads graph matrices,

@@ -4,7 +4,7 @@
 #SBATCH --mem=350G
 #SBATCH --cpus-per-task=24
 #SBATCH --time=08:00:00
-#SBATCH --array=0-5
+#SBATCH --array=0-1
 #SBATCH --output=graph-counts-%A_%a.log
 
 set -euo pipefail
@@ -27,7 +27,7 @@ export PYTHONUNBUFFERED=1
 
 cd "$repo_directory"
 
-dataset_names=(com-Friendster twitter7 GAP-twitter GAP-web GAP-kron GAP-urand)
+dataset_names=(com-Friendster twitter7)
 if (( SLURM_ARRAY_TASK_ID < 0 || SLURM_ARRAY_TASK_ID >= ${#dataset_names[@]} )); then
   echo "SLURM_ARRAY_TASK_ID must be between 0 and $((${#dataset_names[@]} - 1))" >&2
   exit 2

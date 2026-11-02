@@ -82,10 +82,9 @@ def check_reference(name, problem, output):
 
 
 @pytest.mark.parametrize("name,prefix", GRAPH_CLASSES)
-@pytest.mark.parametrize("collection", ["SNAP", "GAP"])
 @pytest.mark.parametrize("framework", [NumpyFramework, SmartSparseFramework])
 def test_collection_references_are_cached_and_reject_wrong_results(
-    monkeypatch, tmp_path, name, prefix, collection, framework
+    monkeypatch, tmp_path, name, prefix, framework
 ):
     module = importlib.import_module(f"saps.benchmarks.{name}")
     # A diamond, a cycle, an isolated self-loop, and an isolated vertex.
@@ -96,13 +95,9 @@ def test_collection_references_are_cached_and_reject_wrong_results(
         inputs=[from_scipy(adjacency)],
         meta={"sources": [0, 0, 2, 5] * 16, "max_degree": 2},
     )
-    monkeypatch.setattr(module, f"fetch_{collection.lower()}_graph", lambda _: raw)
-    generator = getattr(module, f"{prefix}{collection}Generator")()
+    monkeypatch.setattr(module, "fetch_snap_graph", lambda _: raw)
+    generator = getattr(module, f"{prefix}SNAPGenerator")()
     dataset = generator.datasets[0]
-    if collection == "GAP" and name in {"bfs", "bellman_ford"}:
-        dataset.src = 0
-    if collection == "GAP" and name == "betweenness_centrality":
-        dataset.sources = [0, 0, 2, 5]
     problem = generator.generate(dataset)
     assert problem.ref_outputs is not None
     backend = (

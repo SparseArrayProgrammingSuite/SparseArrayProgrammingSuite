@@ -97,6 +97,67 @@ def test_tag_filters_and_dry_run(marker, documents):
     assert manifest_path.read_text() == before
 
 
+def test_marks_selected_statistics_including_uncached(marker, documents, tmp_path):
+    metadata_path, _ = documents
+
+    def record(name, freshness, file="src/gen.py"):
+        return {"name": name, "file": file, "freshness": freshness, "statistics": []}
+
+    statistics_path = tmp_path / "statistics.json"
+    statistics_path.write_text(
+        json.dumps(
+            {
+                "benchmarks": [
+                    {
+                        "name": "spmv",
+                        "generators": [
+                            {"name": "spmv", "datasets": [record("x", "old")]},
+                            {
+                                "name": "adapter",
+                                "datasets": [
+                                    record("y", "old"),
+                                    record("z", "old"),
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        "name": "matrix_shell",
+                        "generators": [
+                            {
+                                "name": "matrix",
+                                "datasets": [
+                                    record("HB/a", "old", file="src/other.py"),
+                                    record("HB/fresh", "new"),
+                                ],
+                            }
+                        ],
+                    },
+                ]
+            }
+        )
+    )
+    datasets = marker.selected_datasets(
+        metadata_path, patterns=["."], cacheable_only=False
+    )
+    assert "adapter.y" in datasets
+
+    before = statistics_path.read_text()
+    marked = marker.mark_statistics_fresh(statistics_path, datasets, dry_run=True)
+    assert marked == ["spmv/adapter.y", "spmv/spmv.x"]
+    assert statistics_path.read_text() == before
+
+    marker.mark_statistics_fresh(statistics_path, datasets)
+    statistics = json.loads(statistics_path.read_text())
+    spmv, matrix = statistics["benchmarks"]
+    assert [d["freshness"] for g in spmv["generators"] for d in g["datasets"]] == [
+        "new",
+        "new",
+        "old",  # adapter.z is not in metadata
+    ]
+    assert matrix["generators"][0]["datasets"][0]["freshness"] == "old"
+
+
 def test_requires_a_filter(marker, documents):
     metadata_path, manifest_path = documents
     with pytest.raises(SystemExit):

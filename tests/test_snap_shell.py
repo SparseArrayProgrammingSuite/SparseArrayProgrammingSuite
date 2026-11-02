@@ -342,23 +342,6 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
     assert set(cached) <= generators
 
 
-@pytest.mark.skip(reason="GAP datasets are disabled for now")
-def test_each_gap_graph_problem_has_an_explicit_snap_generator():
-    problems = []
-    for benchmark in _benchmark_instances():
-        generators = benchmark.generators
-        if not any(type(g).__name__.endswith("GAPGenerator") for g in generators):
-            continue
-        problems.append(benchmark.name)
-        snap = [g for g in generators if type(g).__name__.endswith("SNAPGenerator")]
-        assert len(snap) == 1, benchmark.name
-        assert "SNAP" in snap[0].pretty_name
-        assert snap[0].name.endswith("_snap")
-        assert not snap[0].cacheable
-    assert "four_clique_counting" not in problems
-    assert len(problems) == 13
-
-
 @pytest.mark.usefixtures("uncached_references")
 def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
     from scipy.sparse import coo_array

@@ -261,31 +261,16 @@ def self_test(trials: int = 200, seed: int = 0) -> None:
 
 
 def _datasets():
-    from saps.benchmarks.triangle_counting import (
-        TriangleCountingGAPGenerator,
-        TriangleCountingSNAPGenerator,
-    )
+    from saps.benchmarks.triangle_counting import TriangleCountingSNAPGenerator
 
     # The 4-clique generators use the same strict upper-triangular inputs.
-    for generator in (TriangleCountingSNAPGenerator(), TriangleCountingGAPGenerator()):
-        for dataset in generator.datasets:
-            yield generator, dataset
-
-
-# Published edge counts for the GAP graphs (see saps.benchmarks.gap).
-_GAP_EDGES = {
-    "GAP-road": 58.3e6,
-    "GAP-twitter": 1468.4e6,
-    "GAP-web": 1949.4e6,
-    "GAP-kron": 2111.6e6,
-    "GAP-urand": 2147.4e6,
-}
+    generator = TriangleCountingSNAPGenerator()
+    for dataset in generator.datasets:
+        yield generator, dataset
 
 
 def declared_edges(name: str) -> float:
     """Edge count declared for a graph, without downloading it; inf if unknown."""
-    if name in _GAP_EDGES:
-        return _GAP_EDGES[name]
     from saps.benchmarks.snap import snap_graph
 
     try:

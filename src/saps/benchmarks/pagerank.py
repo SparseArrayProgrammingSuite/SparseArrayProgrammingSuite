@@ -18,7 +18,6 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
-from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps.util.graphblas_process import call_graphblas
@@ -432,141 +431,6 @@ class PageRankSNAPReferenceShellBenchmark(ShellBenchmark):
         return PageRankSNAPReferenceGenerator()
 
 
-class PageRankGAPGenerator(Generator[PageRankDataset]):
-    @property
-    def name(self) -> str:
-        return "pagerank_gap"
-
-    @property
-    def pretty_name(self) -> str:
-        return "PageRank GAP"
-
-    @property
-    def description(self) -> str:
-        return "Input GAP generator for PageRank benchmarks."
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return []
-
-    @property
-    def references(self) -> list[Ref]:
-        return [
-            Ref(
-                title="The GAP Benchmark Suite",
-                authors=[
-                    Author("Scott Beamer"),
-                    Author("Krste Asanović"),
-                    Author("David Patterson"),
-                ],
-                url="https://arxiv.org/abs/1508.03619",
-                year=2015,
-            ),
-        ]
-
-    @property
-    def ai_disclosure(self) -> str:
-        return (
-            "Generative AI was used to construct the generator and dataset structures."
-            " This statement was written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for PageRank."
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
-    def datasets(self) -> list[PageRankDataset]:
-        # fmt: off
-        return [
-            PageRankDataset("GAP-road", suites=["standard"]),
-            PageRankDataset("GAP-twitter", suites=["standard"]),
-            PageRankDataset("GAP-web", suites=["standard"]),
-            PageRankDataset("GAP-kron", suites=["standard"]),
-            PageRankDataset("GAP-urand", suites=["standard"]),
-        ]
-        # fmt: on
-
-    def generate(self, dataset: PageRankDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
-        reference = PageRankGAPReferenceGenerator().cached_generate(
-            ReferenceDataset(dataset)
-        )
-        problem.ref_outputs = reference.ref_outputs
-        problem.ref_meta = reference.ref_meta
-        return problem
-
-    def generate_inputs(self, dataset: PageRankDataset) -> DataInstance:
-        raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[zero_one_adjacency(raw.inputs[0])],
-            meta=dict(raw.meta),
-        )
-
-
-class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
-    @property
-    def name(self) -> str:
-        return "pagerank_gap_reference"
-
-    @property
-    def pretty_name(self) -> str:
-        return "PageRank GAP Reference"
-
-    @property
-    def description(self) -> str:
-        return "Reference outputs for PageRank GAP, cached apart from its inputs."
-
-    @property
-    def datasets(self) -> list[ReferenceDataset[PageRankDataset]]:
-        return [
-            ReferenceDataset(dataset) for dataset in PageRankGAPGenerator().datasets
-        ]
-
-    def generate(self, dataset: ReferenceDataset[PageRankDataset]) -> DataInstance:
-        problem = PageRankGAPGenerator().generate_inputs(dataset.dataset)
-        meta = problem.meta
-        alpha = meta.get("alpha", 0.85)
-        expected = from_numpy(
-            call_graphblas(_pagerank_reference, graph_csr(problem.inputs[0]), alpha)
-        )
-        problem.ref_outputs = [expected]
-        problem.ref_meta = {
-            **(problem.ref_meta or {}),
-            "reference_backend": "graphblas",
-            "reference_algorithm": "pagerank",
-            # L1 error bound for the benchmark's finite power iteration.
-            "reference_l1_tolerance": max(
-                2 * alpha ** meta.get("max_iter", 100),
-                meta.get("tol", 1e-8) / (1 - alpha),
-            ),
-        }
-        return DataInstance(
-            inputs=[],
-            meta={},
-            ref_outputs=problem.ref_outputs,
-            ref_meta=problem.ref_meta,
-        )
-
-
-# class PageRankGAPReferenceShellBenchmark(ShellBenchmark):
-#     @property
-#     def generator(self) -> Generator:
-#         return PageRankGAPReferenceGenerator()
-
-
 class PageRankBenchmark(Benchmark):
     @property
     def name(self):
@@ -673,7 +537,6 @@ class PageRankBenchmark(Benchmark):
         return [
             PageRankTestGenerator(),
             PageRankSNAPGenerator(),
-            # PageRankGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, A):
