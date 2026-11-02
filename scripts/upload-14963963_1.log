@@ -1,0 +1,127 @@
+---------------------------------------
+Begin Slurm Prolog: Nov-01-2026 20:03:47
+Job ID:    14964109
+User ID:   wahrens6
+Account:   gts-wahrens6-pose
+Job name:  dataset-upload
+Partition: cpu-large
+QOS:       inferno
+---------------------------------------
+INFO:root:Using SAPS config: {'environment_type': 'existing:same'}
+· Using SAPS config: {'environment_type': 'existing:same'}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-1
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-1INFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-1
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-1INFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3
+Discovered 1 benchmark entries for caching
+Using process timeout: 3600.0 seconds
+
+· Benchmarking existing-py_storage_home_hcoda1_7_wahrens6_.cache_pypoetry_virtualenvs_saps-RkeCTkZF-py3.12_bin_python3INFO:root:...nceShellBenchmark.time_mccomp_instance_shell
+
+·· ...nceShellBenchmark.time_mccomp_instance_shell                 okINFO:root:============================================ =====
+                  dataset                         
+-------------------------------------------- -----
+   mccomp_instance.Track1_MC/random_mc_1      n/a 
+   mccomp_instance.Track1_MC/random_mc_2      n/a 
+   mccomp_instance.Track1_MC/random_mc_3      n/a 
+   mccomp_instance.Track1_MC/random_mc_4      n/a 
+   mccomp_instance.Track1_MC/random_mc_5      n/a 
+   mccomp_instance.Track1_MC/random_mc_6      n/a 
+   mccomp_instance.Track1_MC/random_mc_7      n/a 
+   mccomp_instance.Track1_MC/random_mc_8      n/a 
+   mccomp_instance.Track1_MC/random_mc_9      n/a 
+   mccomp_instance.Track1_MC/random_mc_10     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_1     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_2     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_3     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_4     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_5     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_6     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_7     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_8     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_9     n/a 
+  mccomp_instance.Track3_PMC/random_pmc_10    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_1    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_2    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_3    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_4    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_5    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_6    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_7    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_8    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_9    n/a 
+ mccomp_instance.Track4_PWMC/random_pwmc_10   n/a 
+  mccomp_instance.Track5B_AMC/random_amc_1    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_2    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_3    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_4    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_5    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_6    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_7    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_8    n/a 
+  mccomp_instance.Track5B_AMC/random_amc_9    n/a 
+ mccomp_instance.Track5B_AMC/random_amc_10    n/a 
+============================================ =====
+
+·· ============================================ =====
+                     dataset                         
+   -------------------------------------------- -----
+      mccomp_instance.Track1_MC/random_mc_1      n/a 
+      mccomp_instance.Track1_MC/random_mc_2      n/a 
+      mccomp_instance.Track1_MC/random_mc_3      n/a 
+      mccomp_instance.Track1_MC/random_mc_4      n/a 
+      mccomp_instance.Track1_MC/random_mc_5      n/a 
+      mccomp_instance.Track1_MC/random_mc_6      n/a 
+      mccomp_instance.Track1_MC/random_mc_7      n/a 
+      mccomp_instance.Track1_MC/random_mc_8      n/a 
+      mccomp_instance.Track1_MC/random_mc_9      n/a 
+      mccomp_instance.Track1_MC/random_mc_10     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_1     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_2     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_3     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_4     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_5     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_6     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_7     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_8     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_9     n/a 
+     mccomp_instance.Track3_PMC/random_pmc_10    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_1    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_2    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_3    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_4    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_5    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_6    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_7    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_8    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_9    n/a 
+    mccomp_instance.Track4_PWMC/random_pwmc_10   n/a 
+     mccomp_instance.Track5B_AMC/random_amc_1    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_2    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_3    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_4    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_5    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_6    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_7    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_8    n/a 
+     mccomp_instance.Track5B_AMC/random_amc_9    n/a 
+    mccomp_instance.Track5B_AMC/random_amc_10    n/a 
+   ============================================ =====
+cache summary: selected=8 failed_benchmark_entries=0
+---------------------------------------
+Begin Slurm Epilog: Nov-01-2026 20:06:16
+Job ID:        14964109
+Array Job ID:  14963963_1
+User ID:       wahrens6
+Account:       gts-wahrens6-pose
+Job name:      dataset-upload
+Resources:     cpu=24,mem=720G,node=1
+Rsrc Used:     cput=01:00:48,vmem=0,walltime=00:02:32,mem=304104K,energy_used=0
+Partition:     cpu-large
+QOS:           inferno
+Nodes:         atl1-1-02-003-28-1
+---------------------------------------
