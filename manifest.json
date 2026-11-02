@@ -16444,6 +16444,206 @@
     "file": "src/saps/benchmarks/matrix_vector_multiplication.py",
     "freshness": "f824dc8ce608bb364e31abc2947efb796a721551fc57e039a37163cf40896139"
   },
+  "mccomp_instance.Track1_MC/random_mc_1": {
+    "digest": "c20e4a45d78fe6bd7371ff397b28333720e46abcdd21c2b2a36a39caea9eb0f7",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_10": {
+    "digest": "0dd1b8d84f907d6314e5e477c3b8d257f90cccaff7f12e87669789e3d5898692",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_2": {
+    "digest": "15374841e3eda7547552a614a779931ee9dd03fed819bec8fe6191f24b1d414a",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_3": {
+    "digest": "623d3f6f9d5254c7b28d23075067796ddee210ffa246861d72c6919201eb3e45",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_4": {
+    "digest": "d1f7952e1611fd8909ba1781c93ac42e75be8de001bef0e0b33667811918eab6",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_5": {
+    "digest": "a3a696b610732f769697dcb9b398c80d66f50d72d973a4a40ac1264dfe0c36f5",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_6": {
+    "digest": "aa45ff1c4334d10ffa426099790acda66d6ef1a1361fe6b1bfb219bca5c0c369",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_7": {
+    "digest": "958dfe6a30f1eafe82e22161a1c5bdda32b0dce009f070f01ddb4600a6bf46f9",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_8": {
+    "digest": "8655a7fbcd62496905eca09ec9507b03e390269ed1d8915a2eff82c1ec458922",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track1_MC/random_mc_9": {
+    "digest": "5129ddb6cc1e39d13934777abf99a8501d116f1f693f853cfb1204f967e1caf2",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_1": {
+    "digest": "019d3f785a68564ed33a53a24aee47092f8f4df0641388511d09d90b84e46d50",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_10": {
+    "digest": "e1f9ab6f30e404e25a0c60cf2f8052aada32a49a3e0060513f56bce2c45b670d",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_2": {
+    "digest": "3e68fd07c042a25481cfe7ef84c6c01ba4c330058dc87dc308b51cf1a5756d3a",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_3": {
+    "digest": "8f3b49149441b8cb55d2a0370e6cc68eca3fbf5d609c57a4063ef347e7dce306",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_4": {
+    "digest": "992f171a3f1265d5eaf3f578838c8b57f9962f0dc2629f22a3f55d9fecc2e97d",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_5": {
+    "digest": "5fb90e0f8bc6459e1e1ec21314fbee5561ab3282fc3e8b7952247a508cec8835",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_6": {
+    "digest": "31a17de6109b7681c3b5aea539f649b89ed2dc5b38cb43b16b1c666844f43f4a",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_7": {
+    "digest": "f0a08b05eacb8a2c066afb5e775913492a48852a90fdc15dff2700440113b59d",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_8": {
+    "digest": "c6d827f43f225f1038ff36f1e0385f1b2abf9f07d459ec114d7e24cd14fb285e",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track3_PMC/random_pmc_9": {
+    "digest": "fffb9bd197d18a51cc2cee361894d5f153b0ec96727612754609fef68042d5b9",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_1": {
+    "digest": "dc5286686d72f0745d84e89dce858a142e4b631a8927c25a1f2e8b383e1fd951",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_10": {
+    "digest": "025c8dbfbe6ef8e3cd3fda5c17d14f77bc3ecc2f2dd13d39095af949ebc57aea",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_2": {
+    "digest": "af7a993f7000abe88e3eb598885fa87e65b35779673f9626598a56004da36e14",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_3": {
+    "digest": "653075a1f3c5f6094170ab9810dc2d83192dce18c9267160d9f0a14e06a2e48c",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_4": {
+    "digest": "4fa0e80089ccd5e47878c6b1366226af8e715c14f5fb8ab51e7a3a30007c7dfd",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_5": {
+    "digest": "732abb728e93a7fb3078ef675a3909a99b1b7f94ac91e4227d0b5833dfeae0f0",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_6": {
+    "digest": "b6562500c626de4a17aa438f73f986f3bd29d191af0ddb0ab1782e234a785d9e",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_7": {
+    "digest": "49c3cfcd2df7ed4d036439dbebf94ee8c1f54564a0b4982cb0551238c1af926c",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_8": {
+    "digest": "81482743475952cbcd6feab4a4918f9fa6e371de926d0442c683248319dc0ffe",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track4_PWMC/random_pwmc_9": {
+    "digest": "db52dec4394efaceb0c91800eeb803b5f73dff3a09ab3f91ca2dc6a043dafab1",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_1": {
+    "digest": "3396f2bd9b660cca0b2fe8c57c22ee9578ab692c82b40beb0a8e44b7579b69c5",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_10": {
+    "digest": "007c1f46adb1ac787eb6238f9a7f228a36157da949117254768ffd936a466fbd",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_2": {
+    "digest": "3f5201ba986efc8aa14f2349f552810ef90afe45d35a192d397d88f706d4f804",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_3": {
+    "digest": "fd6608587577d71f8bbc73720c26ff478a0a7c4c0c990c91ed6798cfd30bd91c",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_4": {
+    "digest": "5cde62ef1a9a0b9bb0cdac7066ffd94ae000b7ecca6f159e6e06b99362baeb29",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_5": {
+    "digest": "b20fb36b7ff2fb74b6c56fc9d71a4944ec6dda831c72f54af3885f7ec3f86365",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_6": {
+    "digest": "5f96a258f2340ccda41414864ef2de06cb01837ac485dda0fbf7eac81fc84d38",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_7": {
+    "digest": "3fe1b52814b9781adae3357474e2cba8a7eabf15955f3bcccbcf35123ca3d42f",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_8": {
+    "digest": "0f5dd578f77cb263573500b8368f429cb105d4e3058c89d34c61d631dffe56e8",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "mccomp_instance.Track5B_AMC/random_amc_9": {
+    "digest": "835487d4c99e7e372d7b1b24c9223c3f5259497b3f1ca8d053f37b50229bd5ed",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
   "mcl_snap_reference.CollegeMsg": {
     "digest": "e6d003cea6445229d2dc13e9c62471b935037d45a226bb439e66951c3d09332f",
     "file": "src/saps/benchmarks/mcl.py",
@@ -16724,8 +16924,18 @@
     "file": "src/saps/benchmarks/mcl.py",
     "freshness": "bf068378fb7eea87ef9e8a4a9f0854280fe13edcf5b074e0d749c23a50511c65"
   },
+  "model_counting_mccomp.Track1_MC/random_mc_1": {
+    "digest": "803211fd0a025a3a3b7c2bfb5ec40ad3e2b631d895f6fd5abd4da4f5c52a669a",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
   "model_counting_mccomp.Track1_MC/random_mc_10": {
     "digest": "b3784403f60de56f1d2a21e81089d4f81f5634736f7be7da67f55e369c21a9ea",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "model_counting_mccomp.Track1_MC/random_mc_2": {
+    "digest": "1dbcabfc336d509f0a8a199b02f8c9087691ea7fef7d4f07e772ba4c0aa1af2e",
     "file": "src/saps/benchmarks/model_counting.py",
     "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
   },
@@ -16736,6 +16946,16 @@
   },
   "model_counting_mccomp.Track1_MC/random_mc_4": {
     "digest": "25ec89a536ae0e6b2161d2566ec649e7e65d539b1ec57c157023cae578fab982",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "model_counting_mccomp.Track1_MC/random_mc_5": {
+    "digest": "e44dd80a7993e31ba679c337f30329c5bf3b9d7e7d9500aa14ece8ac4225dfac",
+    "file": "src/saps/benchmarks/model_counting.py",
+    "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
+  },
+  "model_counting_mccomp.Track1_MC/random_mc_6": {
+    "digest": "95cff0590a672197d1b794bd0b0d1ebdca3832e4a8a748c3a8729ebda6f5b3ee",
     "file": "src/saps/benchmarks/model_counting.py",
     "freshness": "45fb5cfe34f8b72012402daf66643828bbf364de11b58e21387e9f86534f5160"
   },
