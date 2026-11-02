@@ -10,12 +10,8 @@ from saps.benchmark import DataInstance
 from saps.benchmarks import triangle_counting as triangle
 
 
-@pytest.mark.parametrize(
-    "generator",
-    [triangle.TriangleCountingSNAPGenerator(), triangle.TriangleCountingGAPGenerator()],
-)
 def test_triangle_sources_are_upper_triangles_of_simple_undirected_graphs(
-    monkeypatch, generator
+    monkeypatch,
 ):
     # A transitive directed triangle and a self-loop: trace(A^3) / 6 is 1/6
     # before normalization, and one ordinary triangle afterwards.
@@ -26,7 +22,7 @@ def test_triangle_sources_are_upper_triangles_of_simple_undirected_graphs(
         return DataInstance(inputs=[adjacency], meta=metadata)
 
     monkeypatch.setattr(triangle, "fetch_snap_graph", load)
-    monkeypatch.setattr(triangle, "fetch_gap_graph", load)
+    generator = triangle.TriangleCountingSNAPGenerator()
     for dataset in generator.datasets:
         problem = generator.generate(dataset)
         A = to_scipy(problem.inputs[0]).toarray()

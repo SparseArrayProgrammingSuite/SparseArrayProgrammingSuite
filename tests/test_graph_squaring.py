@@ -92,30 +92,24 @@ def test_zero_budget_does_not_contract():
     )
 
 
-@pytest.mark.parametrize("source", ["gap", "snap"])
-def test_closure_generators_attach_plan(monkeypatch, source):
+def test_closure_generator_attaches_plan(monkeypatch):
     raw = DataInstance(
         inputs=[from_scipy(coo_array((1000, 1000)))],
         meta={"max_degree": 1, "sources": [0]},
     )
-    monkeypatch.setattr(tc, f"fetch_{source}_graph", lambda _: raw)
-    generator = getattr(tc, f"TransitiveClosure{source.upper()}Generator")()
+    monkeypatch.setattr(tc, "fetch_snap_graph", lambda _: raw)
+    generator = tc.TransitiveClosureSNAPGenerator()
     problem = generator.generate(tc.TransitiveClosureDataset("graph"))
     assert problem.meta == {**raw.meta, "max_squarings": 1}
 
 
-@pytest.mark.parametrize("source", ["gap", "snap"])
-def test_distance_generators_attach_plan(monkeypatch, source):
+def test_distance_generator_attaches_plan(monkeypatch):
     raw = DataInstance(
         inputs=[from_scipy(coo_array((1000, 1000)))],
         meta={"max_degree": 1, "sources": [0]},
     )
-    fetch, generator_class = {
-        "gap": ("fetch_gap_graph", fw.FloydWarshallGAPGenerator),
-        "snap": ("fetch_snap_graph", fw.FloydWarshallSNAPGenerator),
-    }[source]
-    monkeypatch.setattr(fw, fetch, lambda _: raw)
-    generator = generator_class()
+    monkeypatch.setattr(fw, "fetch_snap_graph", lambda _: raw)
+    generator = fw.FloydWarshallSNAPGenerator()
     problem = generator.generate(fw.FloydWarshallDataset("graph", max_density=0.02))
     assert problem.meta == {**raw.meta, "max_squarings": 2}
 

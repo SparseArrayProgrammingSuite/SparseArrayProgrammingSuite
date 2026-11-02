@@ -18,7 +18,6 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
-from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import distance_matrix, graph_csr
 from saps_framework.binsparse_utils import assert_binsparse_allclose
@@ -370,171 +369,6 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
         )
 
 
-class MSSPGAPGenerator(Generator[MSSPDataset]):
-    @property
-    def name(self) -> str:
-        return "mssp_gap"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths (MSSP) GAP"
-
-    @property
-    def description(self) -> str:
-        return (
-            "Data is collected from the SuiteSparse Matrix Collection and standard"
-            " benchmark graph datasets, with sparse adjacency matrices converted into"
-            " unweighted all-pairs shortest path inputs. This generator uses real-world"
-            " networks, including the Chesapeake road network and soc-tribes network"
-            " from the Network Repository."
-        )
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return [
-            Contributor("Aarav Joglekar", "ajoglekar32@gatech.edu"),
-            Contributor("Joel Mathew Cherian", "jcherian32@gatech.edu"),
-        ]
-
-    @property
-    def references(self):
-        return [
-            Ref(
-                title=("Graph Algorithms in the Language of Linear Algebra"),
-                authors=[
-                    Author("Kepner, Jeremy"),
-                    Author("Gilbert, John"),
-                ],
-                journal="Society for Industrial and Applied Mathematics (SIAM)",
-                year=2011,
-            ),
-            Ref(
-                title=(
-                    "The Network Data Repository with Interactive"
-                    " Graph Analytics and Visualization"
-                ),
-                authors=[
-                    Author("Ryan A. Rossi"),
-                    Author("Nesreen K. Ahmed"),
-                ],
-                journal="AAAI",
-                url="https://networkrepository.com",
-                year=2015,
-            ),
-        ]
-
-    @property
-    def ai_disclosure(self) -> str:
-        return (
-            "No generative AI was used to construct the benchmark function itself."
-            " Generative AI might have been used to construct tests. This statement was"
-            " written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
-    def datasets(self) -> list[MSSPDataset]:
-        # fmt: off
-        return [
-            MSSPDataset("GAP-road", symmetrize=False, suites=["standard"]),
-            MSSPDataset("GAP-twitter", symmetrize=True, suites=["standard"]),
-            MSSPDataset("GAP-web", symmetrize=True, suites=["standard"]),
-            MSSPDataset("GAP-kron", symmetrize=False, suites=["standard"]),
-            MSSPDataset("GAP-urand", symmetrize=False, suites=["standard"]),
-        ]
-        # fmt: on
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    def generate(self, dataset: MSSPDataset) -> DataInstance:
-        problem = self.generate_inputs(dataset)
-        reference = MSSPGAPReferenceGenerator().cached_generate(
-            ReferenceDataset(dataset)
-        )
-        problem.ref_outputs = reference.ref_outputs
-        problem.ref_meta = reference.ref_meta
-        return problem
-
-    def generate_inputs(self, dataset: MSSPDataset) -> DataInstance:
-        raw = fetch_gap_graph(dataset.name)
-        n, m = raw.inputs[0].shape
-        if n != m:
-            raise ValueError(
-                f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}"
-            )
-
-        return multi_source_instance(
-            raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
-        )
-
-
-class MSSPGAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
-    @property
-    def name(self) -> str:
-        return "mssp_gap_reference"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Multi-Source Shortest Paths (MSSP) GAP Reference"
-
-    @property
-    def description(self) -> str:
-        return (
-            "Reference outputs for Multi-Source Shortest Paths (MSSP) GAP, cached"
-            " apart from its inputs."
-        )
-
-    @property
-    def datasets(self) -> list[ReferenceDataset[MSSPDataset]]:
-        return [ReferenceDataset(dataset) for dataset in MSSPGAPGenerator().datasets]
-
-    def generate(self, dataset: ReferenceDataset[MSSPDataset]) -> DataInstance:
-        problem = MSSPGAPGenerator().generate_inputs(dataset.dataset)
-        meta = problem.meta
-        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
-        graph = ig.Graph(n=adjacency.shape[0], directed=True)
-        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
-        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
-        sources = meta["sources"]
-        distances = np.empty((len(sources), graph.vcount()), dtype=float)
-        for row, source in enumerate(sources):
-            distances[row] = graph.distances(
-                source=[int(source)], weights=adjacency.data, mode="out"
-            )[0]
-        expected = from_numpy(distances)
-        problem.ref_outputs = [expected]
-        problem.ref_meta = {
-            **(problem.ref_meta or {}),
-            "reference_backend": "igraph",
-            "reference_algorithm": "mssp",
-        }
-        return DataInstance(
-            inputs=[],
-            meta={},
-            ref_outputs=problem.ref_outputs,
-            ref_meta=problem.ref_meta,
-        )
-
-
-# class MSSPGAPReferenceShellBenchmark(ShellBenchmark):
-#     @property
-#     def generator(self) -> Generator:
-#         return MSSPGAPReferenceGenerator()
-
-
 class MSSPSNAPGenerator(Generator[MSSPDataset]):
     @property
     def name(self) -> str:
@@ -817,7 +651,6 @@ class MSSPBenchmark(Benchmark):
     def generators(self):
         return [
             MSSPTestGenerator(),
-            # MSSPGAPGenerator(),
             MSSPSNAPGenerator(),
         ]
 

@@ -1,4 +1,4 @@
-from unittest.mock import Mock, call
+from unittest.mock import Mock
 
 import pytest
 
@@ -12,7 +12,6 @@ from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmark import DataInstance
 from saps.benchmarks import betweenness_centrality as bc
-from saps.benchmarks.gap import GAPGraphGenerator
 from saps.benchmarks.snap import SNAPGraphGenerator
 
 # These generators' references compute in-process here.
@@ -34,26 +33,10 @@ def test_betweenness_test_problems(framework, dataset):
     )
 
 
-def test_gap_trials_partition_published_sources():
-    datasets = bc.BetweennessCentralityGAPGenerator().datasets
-    assert len(datasets) == len({d.name for d in datasets}) == 80
-    for graph in GAPGraphGenerator().datasets:
-        trials = [d for d in datasets if d.source_name == graph.name]
-        assert [d.trial for d in trials] == list(range(16))
-        assert [source for d in trials for source in d.sources] == graph.sources
-        for dataset in trials:
-            assert len(dataset.sources) == 4
-            assert dataset.name == f"{graph.name}_trial{dataset.trial}"
-            assert dataset.suites == ["standard"]
-            assert dataset.metadata["sources"] == dataset.sources
-            assert dataset.metadata["trial"] == dataset.trial
-
-
 @pytest.mark.parametrize("trial", [-1, 16])
 @pytest.mark.parametrize(
     ("dataset_class", "source_name"),
     [
-        (bc.BetweennessCentralityGAPDataset, "GAP-road"),
         (bc.BetweennessCentralitySNAPDataset, "roadNet-CA"),
     ],
 )
@@ -114,31 +97,6 @@ def test_snap_generator_rejects_incomplete_trial(monkeypatch):
     dataset = bc.BetweennessCentralitySNAPDataset("roadNet-CA", 0)
     with pytest.raises(ValueError, match="four source vertices"):
         bc.BetweennessCentralitySNAPGenerator().generate(dataset)
-
-
-def test_gap_generator_selects_trial_and_discards_weights(monkeypatch):
-    raw = DataInstance(
-        inputs=[from_scipy(coo_array([[0, 7, 0], [0, 0, 3], [0, 0, 0]]))],
-        meta={"sources": list(range(64)), "max_degree": 1},
-    )
-    fetch = Mock(return_value=raw)
-    monkeypatch.setattr(bc, "fetch_gap_graph", fetch)
-    dataset = bc.BetweennessCentralityGAPDataset("GAP-road", 3)
-    # Published IDs are tested separately; numerical checks need local vertices.
-    dataset.sources = [0, 1, 2, 0]
-    problem = bc.BetweennessCentralityGAPGenerator().generate(dataset)
-    # An in-process reference fetches the graph again.
-    assert fetch.call_args_list == [call("GAP-road")] * fetch.call_count
-    assert problem.meta["bc_sources"] == dataset.sources
-    assert problem.meta["trial"] == 3
-    assert problem.meta["include_source"] is True
-    assert problem.meta["normalize"] is True
-    np.testing.assert_array_equal(
-        to_scipy(problem.inputs[0]).toarray(), [[0, 1, 0], [0, 0, 1], [0, 0, 0]]
-    )
-    problem.meta["bc_sources"].append(-1)
-    assert len(dataset.sources) == len(dataset.meta["bc_sources"]) == 4
-    assert raw.meta == {"sources": list(range(64)), "max_degree": 1}
 
 
 @pytest.mark.parametrize("framework", [NumpyFramework, PyDataSparseFramework])

@@ -67,11 +67,6 @@ _SNAP_CONSUMERS = [
         np.float64,
     ),
 ]
-_GAP_CONSUMERS = [
-    (module, generator.replace("SNAPGenerator", "GAPGenerator"), expected, dtype)
-    for module, generator, expected, dtype in _SNAP_CONSUMERS
-    if module != "four_clique_counting"
-]
 
 
 def test_zero_one_adjacency_keeps_only_nonzero_edges():
@@ -106,24 +101,21 @@ def test_upper_triangle_unions_both_edge_directions_first():
 
 
 @pytest.mark.parametrize(
-    "module_name,class_prefix,name",
+    "module_name,class_prefix",
     [
-        ("triangle_counting", "TriangleCounting", "twitter7"),
-        ("triangle_counting", "TriangleCounting", "GAP-twitter"),
-        ("triangle_counting", "TriangleCounting", "GAP-web"),
-        ("four_clique_counting", "FourCliqueCounting", "twitter7"),
+        ("triangle_counting", "TriangleCounting"),
+        ("four_clique_counting", "FourCliqueCounting"),
     ],
 )
 def test_directed_clique_inputs_match_published_convention(
-    monkeypatch, module_name, class_prefix, name
+    monkeypatch, module_name, class_prefix
 ):
     module = importlib.import_module(f"saps.benchmarks.{module_name}")
-    group = "GAP" if name.startswith("GAP-") else "SNAP"
-    generator = getattr(module, f"{class_prefix}{group}Generator")()
-    dataset = next(d for d in generator.datasets if d.name == name)
+    generator = getattr(module, f"{class_prefix}SNAPGenerator")()
+    dataset = next(d for d in generator.datasets if d.name == "twitter7")
     monkeypatch.setattr(
         module,
-        f"fetch_{group.lower()}_graph",
+        "fetch_snap_graph",
         lambda _: DataInstance(inputs=[_signed_graph()], meta={}),
     )
     actual = NumpyFramework().from_binsparse(generator.generate(dataset).inputs[0])
@@ -138,10 +130,6 @@ def _check_first_input(
     module = importlib.import_module(f"saps.benchmarks.{module_name}")
     generator = getattr(module, generator_name)()
     dataset = generator.datasets[0]
-    if fetch == "fetch_gap_graph" and module_name == "bfs":
-        dataset.src = 0
-    if fetch == "fetch_gap_graph" and module_name == "betweenness_centrality":
-        dataset.sources = [0, 1, 2, 0]
     src = getattr(dataset, "src", None)
     raw = DataInstance(
         inputs=[_signed_graph()],
@@ -159,15 +147,6 @@ def test_snap_connectivity_inputs_are_zero_one(
 ):
     _check_first_input(
         monkeypatch, module, generator, "fetch_snap_graph", expected, dtype
-    )
-
-
-@pytest.mark.parametrize(("module", "generator", "expected", "dtype"), _GAP_CONSUMERS)
-def test_gap_connectivity_inputs_are_zero_one(
-    monkeypatch, module, generator, expected, dtype
-):
-    _check_first_input(
-        monkeypatch, module, generator, "fetch_gap_graph", expected, dtype
     )
 
 

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Stamp cached manifest entries with the current freshness from metadata.
+"""Stamp cached manifest entries and trace statistics with the current freshness
+from metadata.
 
-Use this when a source change does not affect generated data (or the data can
-no longer be regenerated), so the existing uploads should count as current.
+Use this when a source change does not affect generated data or traced behavior
+(or the data can no longer be regenerated), so the existing uploads and trace
+statistics should count as current.
 """
 
 from __future__ import annotations
@@ -25,10 +27,12 @@ def selected_datasets(
     no_tags: list[str] = (),
     patterns: list[str] = (),
     no_patterns: list[str] = (),
+    cacheable_only: bool = True,
 ) -> dict[str, dict[str, Any]]:
-    """Cacheable datasets matching the filters, keyed by manifest key.
+    """Datasets matching the filters, keyed by manifest key.
 
     The filters behave like run_benchmark.py's --tag, --no-tag, --re, and --no-re.
+    Uncached generators are skipped unless *cacheable_only* is false.
     """
     include_tags = {tag.strip() for tag in tags if tag.strip()}
     exclude_tags = {tag.strip() for tag in no_tags if tag.strip()}
@@ -42,7 +46,7 @@ def selected_datasets(
     selected = {}
     for benchmark in metadata["benchmarks"]:
         for generator in benchmark["generators"]:
-            if not generator["cacheable"]:
+            if cacheable_only and not generator["cacheable"]:
                 continue
             for dataset in generator["datasets"]:
                 dataset_tags = set(dataset.get("tags", []))
@@ -84,23 +88,52 @@ def mark_fresh(
                 record["freshness"] = dataset["freshness"]
                 marked.append(key)
         if marked and not dry_run:
-            with tempfile.TemporaryDirectory(
-                prefix=".saps-", dir=manifest_path.parent
-            ) as staging:
-                staging_path = Path(staging) / "manifest.json"
-                staging_path.write_text(
-                    json.dumps(manifest, indent=2, sort_keys=True) + "\n",
-                    encoding="utf-8",
-                )
-                staging_path.replace(manifest_path)
+            _replace_json(manifest_path, manifest)
     return marked, uncached, already_fresh
+
+
+def mark_statistics_fresh(
+    statistics_path: Path, datasets: dict[str, dict[str, Any]], *, dry_run: bool = False
+) -> list[str]:
+    """Return the trace statistics records restamped for the selected datasets.
+
+    Only records traced from the same source file are marked.
+    """
+    statistics = json.loads(statistics_path.read_text(encoding="utf-8"))
+    marked = []
+    for benchmark in statistics.get("benchmarks", []):
+        for generator in benchmark.get("generators", []):
+            for record in generator.get("datasets", []):
+                key = f"{generator['name']}.{record['name']}"
+                dataset = datasets.get(key)
+                if (
+                    dataset is None
+                    or record.get("file") != dataset["file"]
+                    or record.get("freshness") in (None, dataset["freshness"])
+                ):
+                    continue
+                record["freshness"] = dataset["freshness"]
+                marked.append(f"{benchmark['name']}/{key}")
+    if marked and not dry_run:
+        _replace_json(statistics_path, statistics)
+    return sorted(marked)
+
+
+def _replace_json(path: Path, document: Any) -> None:
+    with tempfile.TemporaryDirectory(prefix=".saps-", dir=path.parent) as staging:
+        staging_path = Path(staging) / path.name
+        staging_path.write_text(
+            json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        staging_path.replace(path)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Mark cached manifest entries as fresh for the current source, "
-            "without regenerating them. Regenerate metadata.json first."
+            "Mark cached manifest entries and trace statistics as fresh for the "
+            "current source, without regenerating them. Regenerate metadata.json "
+            "first."
         )
     )
     parser.add_argument(
@@ -114,6 +147,12 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         default=Path(os.environ.get("SAPS_MANIFEST_PATH") or "manifest.json"),
         help="Manifest to update (default: SAPS_MANIFEST_PATH or manifest.json).",
+    )
+    parser.add_argument(
+        "--statistics",
+        type=Path,
+        default=Path("statistics.json"),
+        help="Trace statistics to update, if present (default: statistics.json).",
     )
     parser.add_argument(
         "--tag",
@@ -145,7 +184,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="List entries that would be marked without changing the manifest.",
+        help=(
+            "List entries that would be marked without changing the manifest or "
+            "statistics."
+        ),
     )
     args = parser.parse_args(argv)
     if not (args.tag or args.re):
@@ -171,6 +213,27 @@ def main(argv: list[str] | None = None) -> int:
     )
     for key in uncached:
         print(f"  not cached: {key}")
+
+    statistics_path = args.statistics.expanduser()
+    if statistics_path.exists():
+        # Trace statistics cover uncached generators too.
+        traced = selected_datasets(
+            args.metadata.expanduser(),
+            tags=args.tag,
+            no_tags=args.no_tag,
+            patterns=args.re,
+            no_patterns=args.no_re,
+            cacheable_only=False,
+        )
+        restamped = mark_statistics_fresh(statistics_path, traced, dry_run=args.dry_run)
+        for key in restamped:
+            print(key)
+        print(f"{action} {len(restamped)} trace statistics records fresh")
+        if restamped and not args.dry_run:
+            print(
+                "Rerun generate_metadata.py --statistics "
+                f"{statistics_path} to fold in their tags."
+            )
     return 0
 
 
