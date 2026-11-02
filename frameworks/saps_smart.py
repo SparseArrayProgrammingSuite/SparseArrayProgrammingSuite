@@ -328,8 +328,17 @@ class _MutableCOO(sp.COO):
                 new_coords = np.empty((2, len(nonfill)), dtype=self.coords.dtype)
                 new_coords[varying_axis] = nonfill
                 new_coords[fixed_axis] = fixed_index
-                self.coords = np.concatenate([self.coords[:, keep], new_coords], axis=1)
-                self.data = np.concatenate([self.data[keep], value[nonfill]])
+                # COO operations assume sorted coordinates, which appending the
+                # new row/column breaks; the constructor restores the order.
+                updated = sp.COO(
+                    np.concatenate([self.coords[:, keep], new_coords], axis=1),
+                    np.concatenate([self.data[keep], value[nonfill]]),
+                    shape=self.shape,
+                    fill_value=self.fill_value,
+                    has_duplicates=False,
+                )
+                self.coords = updated.coords
+                self.data = updated.data
                 self._cache = None
                 return
         builder = sp.DOK.from_coo(self)
