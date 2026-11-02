@@ -219,7 +219,7 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         '  if [[ "$SAPS_TEST_SCRIPT" == upload-dataset.slurm ]]; then\n'
         '    [[ "$3 $4" == "--cache-datasets --process-timeout" ]] || return 92\n'
         '    [[ "$6 $7 $8 $9" == "--chunk-count 5 --chunk-index 0" ]] || return 93\n'
-        '    [[ $# == 9 ]] || return 94\n'
+        "    [[ $# == 9 ]] || return 94\n"
         "  fi\n"
         '  printf "%s\\n" "$2" >> "$SAPS_TEST_COMMANDS"\n'
         '  printf "%s\\n" "${@:3}" >> "$SAPS_TEST_COMMANDS.$(basename "$2")"\n'

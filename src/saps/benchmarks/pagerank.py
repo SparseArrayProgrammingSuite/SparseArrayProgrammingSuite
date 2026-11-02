@@ -702,9 +702,9 @@ class PageRankBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
 
         result = to_numpy(self._output[0])
 
@@ -713,13 +713,13 @@ class PageRankBenchmark(Benchmark):
             assert result.shape == expected.shape
             if self._ref_meta and "reference_l1_tolerance" in self._ref_meta:
                 error = np.sum(np.abs(result - expected))
-                assert (
-                    error <= self._ref_meta["reference_l1_tolerance"] + 1e-12
-                ), f"PageRank output mismatch for {param.dataset.name}"
+                assert error <= self._ref_meta["reference_l1_tolerance"] + 1e-12, (
+                    f"PageRank output mismatch for {param.dataset.name}"
+                )
             else:
-                assert np.allclose(
-                    result, expected, atol=1e-2
-                ), f"PageRank output mismatch for {param.dataset.name}"
+                assert np.allclose(result, expected, atol=1e-2), (
+                    f"PageRank output mismatch for {param.dataset.name}"
+                )
 
         if self._ref_meta is None:
             return

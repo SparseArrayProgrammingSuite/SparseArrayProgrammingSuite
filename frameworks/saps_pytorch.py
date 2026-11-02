@@ -463,6 +463,7 @@ class PytorchFramework(Framework):
 
     def logical_xor(self, x1, x2, /):
         return torch.logical_xor(*_dense_if_mixed(x1, x2))
+
     # NumPy-style array(), which torch lacks. Code from saps.codegen calls
     # xp.array(value, dtype=np.<dtype>), and torch only takes torch dtypes, so
     # NumPy builds the value and torch.asarray converts it.
