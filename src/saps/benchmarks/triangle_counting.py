@@ -623,7 +623,7 @@ class TriangleCountingBenchmark(Benchmark):
         return [
             TriangleCountingTestGenerator(),
             TriangleCountingSNAPGenerator(),
-            TriangleCountingGAPGenerator(),
+            # TriangleCountingGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict, A):

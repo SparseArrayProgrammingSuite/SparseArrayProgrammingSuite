@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -22,12 +23,7 @@ def download_suitesparse_matrix(
     result. Matrices are cached under ``$SAPS_CACHE_DIR/suitesparse/group/name``
     unless *data_dir* overrides the SuiteSparse cache root.
     """
-    # Imported lazily: importing ssgetpy fetches the SuiteSparse index.
-    import ssgetpy
-
-    import saps.ssgetpy_patch  # noqa: F401
-
-    matrix = _find_suitesparse_matrix(ssgetpy, source_name)
+    matrix = _find_suitesparse_matrix(_import_ssgetpy(), source_name)
     root = Path(data_dir) if data_dir is not None else source_cache_dir("suitesparse")
     parent = root / matrix.group
     parent.mkdir(parents=True, exist_ok=True)
@@ -47,6 +43,24 @@ def _split_suitesparse_source_name(source_name: str) -> tuple[str, str]:
             f"SuiteSparse source names must use 'group/name', got '{source_name}'"
         )
     return group, matrix_name
+
+
+def _import_ssgetpy() -> Any:
+    """Import ssgetpy with its index in the SAPS cache rather than ~/.ssgetpy."""
+    # Imported lazily: importing ssgetpy fetches the SuiteSparse index into
+    # $HOME/.ssgetpy, a path it fixes on first import and offers no override for.
+    home = os.environ.get("HOME")
+    os.environ["HOME"] = str(source_cache_dir("suitesparse").resolve())
+    try:
+        import ssgetpy
+
+        import saps.ssgetpy_patch  # noqa: F401
+    finally:
+        if home is None:
+            del os.environ["HOME"]
+        else:
+            os.environ["HOME"] = home
+    return ssgetpy
 
 
 def _find_suitesparse_matrix(ssgetpy: Any, source_name: str) -> Any:

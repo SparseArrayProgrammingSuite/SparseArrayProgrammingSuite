@@ -29,6 +29,13 @@ from saps.util.error_bounds import operation_error_bound, summation_error_bound
 BLOCK_JACOBI_BLOCK_SIZE = 16
 
 
+def _dense(array: BinsparseTensor):
+    try:
+        return to_numpy(array)
+    except TypeError:
+        return np.asarray(to_sparse(array).todense())
+
+
 def _block_jacobi_preconditioner(A_bin):
     """Lower Cholesky factors of A's diagonal blocks, as one block-diagonal matrix.
 
@@ -1804,7 +1811,8 @@ class _PCGBenchmarkBase(Benchmark, ABC):
         assert self._ref_meta is not None, "No cached reference norms"
         abs_A = to_sparse(self._ref_outputs[0])
         b = to_numpy(b_bin)
-        x_sol = to_numpy(self._output[0])
+        # A sparse framework may return x as a sparse vector.
+        x_sol = _dense(self._output[0])
         r = np.asarray(b - A @ x_sol).ravel()
         # Bound the matrix-vector product and the subtraction separately.
         roundoff = summation_error_bound(

@@ -389,14 +389,13 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
 
     def generate(self, dataset: MCCompDataset):
         source_path = normalize_mccomp_source_path(dataset.source_path)
-        local_path = download_mccomp_instance(source_path)
+        # No local path: it would point into whichever machine cached this.
         return DataInstance(
             inputs=[],
             meta={
                 "source_repository": MCCOMP_REPOSITORY_URL,
                 "source_path": source_path,
                 "source_url": mccomp_source_url(source_path),
-                "local_path": str(local_path),
                 "track": dataset.track,
             },
         )
@@ -467,7 +466,8 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
 
     def generate(self, dataset: MCCompDataset):
         source = fetch_mccomp_instance(dataset.source_path)
-        cnf_text = Path(source.meta["local_path"]).read_text(encoding="utf-8")
+        local_path = download_mccomp_instance(source.meta["source_path"])
+        cnf_text = Path(local_path).read_text(encoding="utf-8")
         num_vars, clauses = parse_dimacs(cnf_text)
         expr = clauses_to_einsum(clauses)
         exact_type, exact_value = parse_mccomp_exact(cnf_text)

@@ -103,6 +103,19 @@ def test_setitem_sparse_value_into_dense_array(xp):
     np.testing.assert_array_equal(target, [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
 
 
+def test_column_replace_keeps_coordinates_sorted(xp):
+    # GMRES's pattern: fill basis columns one at a time, then multiply by a
+    # column slice. pydata/sparse assumes sorted coordinates in both.
+    expected_Q = np.arange(1.0, 13.0).reshape(4, 3)
+    Q = xp.zeros((4, 3), dtype=float)
+    H = xp.zeros((3, 2), dtype=float)
+    for i in range(3):
+        Q[:, i] = expected_Q[:, i]
+    H[:, 1] = np.array([1.0, 2.0, 3.0])
+
+    np.testing.assert_array_equal(Q[:, :2] @ H[:2, 1], expected_Q[:, :2] @ [1, 2])
+
+
 def test_scalar_conversions_and_array_methods(xp):
     total = xp.sum(xp.eye(3))
 

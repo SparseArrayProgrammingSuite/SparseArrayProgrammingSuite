@@ -7,7 +7,13 @@ import numpy as np
 import scipy.sparse as sps
 
 import sparse as pydata_sparse
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
+from binsparse.conversions import (
+    from_numpy,
+    from_scipy,
+    from_sparse,
+    to_numpy,
+    to_scipy,
+)
 
 from saps.benchmarks.cg import CGBenchmark
 from saps.benchmarks.gmres import GMRESBenchmark
@@ -37,7 +43,9 @@ _CHECKS = [pytest.param(cls, None, id=cls.__name__) for cls in _SOLVERS] + [
 ]
 
 
-def _check(benchmark_cls, A, b, x, *, sparse=False, meta=None, ref_meta=None):
+def _check(
+    benchmark_cls, A, b, x, *, sparse=False, meta=None, ref_meta=None, x_sparse=False
+):
     benchmark = benchmark_cls()
     benchmark._input = [
         from_scipy(sps.coo_array(A)) if sparse else from_numpy(A),
@@ -47,7 +55,9 @@ def _check(benchmark_cls, A, b, x, *, sparse=False, meta=None, ref_meta=None):
         benchmark._input.append(from_numpy(np.zeros_like(x)))
     if benchmark_cls in (BlockJacobiPCGBenchmark, JacobiPCGBenchmark):
         benchmark._input.append(from_numpy(np.eye(A.shape[0], dtype=A.dtype)))
-    benchmark._output = [from_numpy(x)]
+    benchmark._output = [
+        from_sparse(pydata_sparse.COO.from_numpy(x)) if x_sparse else from_numpy(x)
+    ]
     benchmark._meta = meta or {}
     benchmark._ref_outputs = [from_scipy(sps.coo_array(np.abs(A)))]
     benchmark._ref_meta = {**(ref_meta or {}), "bnorm": float(np.linalg.norm(b))}
@@ -70,6 +80,9 @@ def test_solver_checks_allow_cancellation_but_reject_wrong_solutions(
     b = scale * np.ones(3, dtype=dtype)
     x = np.ones(3, dtype=dtype)
     _check(benchmark_cls, A, b, x, sparse=sparse, ref_meta=ref_meta)
+    if benchmark_cls is LSQRBenchmark and ref_meta is None:
+        # LSQR's residual test allows tol * ||A|| * ||x||, and ||A|| ~ 2**power.
+        return
     x[1] = 100
     with pytest.raises(AssertionError):
         _check(benchmark_cls, A, b, x, sparse=sparse, ref_meta=ref_meta)
@@ -83,9 +96,29 @@ def test_solver_checks_reject_errors_above_convergence_tolerance(
     b = np.ones(3)
     meta = {"rel_tol": 1e-4}
     _check(benchmark_cls, A, b, b - 1e-7, meta=meta, ref_meta=ref_meta)
+    # LSQR's residual test also allows tol * ||A||_F * ||x|| = 3e-4.
+    error = 5e-4 if benchmark_cls is LSQRBenchmark and ref_meta is None else 2e-4
     # A factor-of-ten allowance would accept this unconverged solution.
     with pytest.raises(AssertionError):
-        _check(benchmark_cls, A, b, b - 2e-4, meta=meta, ref_meta=ref_meta)
+        _check(benchmark_cls, A, b, b - error, meta=meta, ref_meta=ref_meta)
+
+
+@pytest.mark.parametrize("benchmark_cls", [BlockJacobiPCGBenchmark, JacobiPCGBenchmark])
+def test_pcg_checks_accept_a_sparse_solution_vector(benchmark_cls):
+    # SmartSparseFramework returns x as a sparse vector.
+    _check(benchmark_cls, np.eye(3), np.ones(3), np.ones(3), x_sparse=True)
+    with pytest.raises(AssertionError):
+        _check(benchmark_cls, np.eye(3), np.ones(3), np.zeros(3), x_sparse=True)
+
+
+def test_lsqr_check_accepts_a_gradient_small_relative_to_the_residual():
+    # b is nearly orthogonal to range(A), so ||A.T b|| is far below ||A|| ||r||.
+    A = np.array([[1.0], [0.0]])
+    b = np.array([1e-3, 1.0])
+    meta = {"rel_tol": 1e-4}
+    _check(LSQRBenchmark, A, b, np.array([1e-3 + 1e-5]), meta=meta)
+    with pytest.raises(AssertionError):
+        _check(LSQRBenchmark, A, b, np.array([1e-3 + 1e-3]), meta=meta)
 
 
 @pytest.mark.parametrize(
@@ -132,8 +165,16 @@ def test_lsqr_checks_stationarity_for_inconsistent_system(ref_meta):
         _check(LSQRBenchmark, A, b, np.array([2.001]), ref_meta=ref_meta)
 
 
-@pytest.mark.parametrize("benchmark_cls", _SOLVERS)
-@pytest.mark.parametrize("generator_index", [0, 1])
+@pytest.mark.parametrize(
+    ("benchmark_cls", "generator_index"),
+    [
+        (benchmark_cls, generator_index)
+        for benchmark_cls in _SOLVERS
+        for generator_index in (0, 1)
+        # This generator fetches its block partition from remote storage.
+        if (benchmark_cls, generator_index) != (BlockJacobiPCGBenchmark, 1)
+    ],
+)
 def test_solver_generators_cache_input_dependent_checks(
     monkeypatch, tmp_path, benchmark_cls, generator_index
 ):

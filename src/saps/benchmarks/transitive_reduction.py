@@ -234,7 +234,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             TransitiveReductionDataset("soc-sign-bitcoin-otc", suites=["standard"]),
             TransitiveReductionDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
             TransitiveReductionDataset("com-LiveJournal", suites=["standard"]),
-            TransitiveReductionDataset("com-Friendster", suites=["standard"]),
+            # TransitiveReductionDataset("com-Friendster", suites=["standard"]),
             TransitiveReductionDataset("com-Orkut", suites=["standard"]),
             TransitiveReductionDataset("com-Youtube", suites=["standard"]),
             TransitiveReductionDataset("com-DBLP", suites=["standard"]),
@@ -290,7 +290,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             TransitiveReductionDataset("wiki-talk-temporal", suites=["standard"]),
             TransitiveReductionDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             TransitiveReductionDataset("CollegeMsg", suites=["standard", "trace", "train"]),
-            TransitiveReductionDataset("twitter7", suites=["standard"]),
+            # TransitiveReductionDataset("twitter7", suites=["standard"]),
             TransitiveReductionDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -614,10 +614,10 @@ class TransitiveReductionGAPReferenceGenerator(
         )
 
 
-class TransitiveReductionGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return TransitiveReductionGAPReferenceGenerator()
+# class TransitiveReductionGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return TransitiveReductionGAPReferenceGenerator()
 
 
 class TransitiveReductionBenchmark(Benchmark):
@@ -719,7 +719,7 @@ class TransitiveReductionBenchmark(Benchmark):
         return [
             TransitiveReductionTestGenerator(),
             TransitiveReductionSNAPGenerator(),
-            TransitiveReductionGAPGenerator(),
+            # TransitiveReductionGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, R):

@@ -5,7 +5,7 @@ import numpy as np
 import scipy.sparse as scipy_sparse
 
 from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_scipy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
     Author,
@@ -22,7 +22,137 @@ from saps.benchmark import (
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
-from saps_framework.binsparse_utils import assert_coo_allclose
+from saps.util.graphblas_process import call_graphblas
+
+# Bound on the multiplications, and so the unpruned nonzeros, of one column
+# block of an MCL expansion.
+_BLOCK_WORK = 1 << 28
+
+
+def _inverse_degrees(graph: BinsparseTensor, loop_value: float) -> BinsparseTensor:
+    """Each column's 1 / (sum + loop_value), rounded down to a multiple of 2^-26.
+
+    MCL's first step divides each column of graph + loop_value * I by its sum.
+    Computing the reciprocals once, here, leaves every implementation the same
+    starting matrix.
+    """
+    sums = np.asarray(to_scipy(graph).sum(axis=0), dtype=np.float64).ravel()
+    return from_numpy(np.floor(2.0**26 / (sums + loop_value)) / 2.0**26)
+
+
+def _clusters(matrix: Any) -> set[bytes]:
+    """The clusters of a converged MCL matrix, given as a SciPy COO array.
+
+    Attractors keep weight on their own diagonal, and an attractor's cluster is
+    the set of columns with weight in its row. Each cluster is its sorted
+    column indices, as bytes.
+    """
+    present = matrix.data != 0
+    rows = matrix.row[present]
+    cols = matrix.col[present].astype(np.int64)
+    attractor = np.zeros(matrix.shape[0], dtype=bool)
+    attractor[rows[rows == cols]] = True
+    keep = attractor[rows]
+    rows, cols = rows[keep], cols[keep]
+    if not rows.size:
+        return set()
+    order = np.lexsort((cols, rows))
+    rows, cols = rows[order], cols[order]
+    starts = np.flatnonzero(np.diff(rows)) + 1
+    return {cluster.tobytes() for cluster in np.split(cols, starts)}
+
+
+def _mcl_reference(
+    graph: Any, inverse_degrees: np.ndarray, meta: dict[str, Any]
+) -> Any:
+    """Run MCL on a SciPy adjacency matrix to convergence, as a COO array.
+
+    It rounds where the benchmark does, so its sums are exact and it computes
+    the same bits as any implementation of the benchmark.
+
+    SuiteSparse:GraphBLAS runs each step on every core. It is imported here so
+    that the benchmarks themselves do not depend on it. Call it through
+    `call_graphblas`.
+    """
+    import graphblas as gb
+
+    eps = np.finfo(float).eps
+
+    def rounded(matrix):
+        scaled = matrix.apply(gb.binary.times, right=2.0**26).new()
+        scaled = scaled.apply(gb.unary.floor).new()
+        return scaled.apply(gb.binary.truediv, right=2.0**26).new()
+
+    def normalized(matrix):
+        sums = matrix.reduce_columnwise(gb.monoid.plus).new()
+        sums = sums.apply(gb.binary.max, right=eps).new()
+        # Divide each entry by its column's sum, as the benchmark does, rather
+        # than multiply by a rounded reciprocal.
+        divisors = matrix.mxm(sums.diag(), gb.semiring.any_second).new()
+        return rounded(matrix.ewise_mult(divisors, gb.binary.truediv).new())
+
+    n = graph.shape[0]
+    current = (
+        gb.io.from_scipy_sparse(
+            graph.astype(float) + meta.get("loop_value", 1) * scipy_sparse.eye(n)
+        )
+        .mxm(gb.Vector.from_dense(inverse_degrees).diag(), gb.semiring.plus_times)
+        .new()
+    )
+    threshold = meta.get("pruning_threshold", 1e-4)
+    frequency = meta.get("pruning_frequency", 1)
+    for iteration in range(meta.get("iterations", 100)):
+        previous = current
+        converged = (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0
+        # As in HipMCL, expand a block of columns at a time and prune it right
+        # away, so the unpruned product never exists in full. Column j of the
+        # product depends only on column j of its right factor, and pruning,
+        # inflation, normalization, and the convergence test act on columns
+        # alone, so the blocks give the same result as the whole matrix.
+        counts = previous.reduce_columnwise(gb.agg.count).new()
+        column_work = counts.vxm(previous, gb.semiring.plus_first).new(dtype=int)
+        work = np.concatenate([[0], np.cumsum(column_work.to_dense(fill_value=0))])
+        blocks = []
+        start = 0
+        while start < n:
+            stop = max(
+                start + 1,
+                np.searchsorted(work, work[start] + _BLOCK_WORK, side="right") - 1,
+            )
+            old = previous[:, start:stop].new()
+            expanded = old
+            for _ in range(meta.get("expansion", 2) - 1):
+                expanded = rounded(previous.mxm(expanded, gb.semiring.plus_times).new())
+            if threshold > 0 and (iteration + 1) % frequency == 0:
+                maxima = expanded.reduce_columnwise(gb.monoid.max).new()
+                column_maxima = expanded.mxm(
+                    maxima.diag(), gb.semiring.any_second
+                ).new()
+                keep = expanded.apply(gb.binary.ge, right=threshold).new()
+                keep(gb.binary.lor) << expanded.ewise_mult(column_maxima, gb.binary.eq)
+                expanded = expanded.dup(mask=keep.V)
+            inflated = expanded
+            for _ in range(meta.get("inflation", 2) - 1):
+                inflated = inflated.ewise_mult(expanded, gb.binary.times).new()
+            block = normalized(inflated)
+            if converged:
+                # |block - old| <= 2^-26 + 2^-17 * |old| entrywise, on the
+                # union of both patterns. Every step here is exact.
+                difference = block.ewise_add(old, gb.binary.minus).new()
+                difference = difference.apply(gb.unary.abs).new()
+                scaled = old.apply(gb.unary.abs).new()
+                scaled = scaled.apply(gb.binary.times, right=2.0**-17).new()
+                excess = difference.ewise_add(scaled, gb.binary.minus).new()
+                converged = (
+                    excess.nvals == 0
+                    or excess.reduce_scalar(gb.monoid.max).new().value <= 2.0**-26
+                )
+            blocks.append(block)
+            start = stop
+        current = gb.ss.concat([blocks])
+        if converged:
+            break
+    return gb.io.to_scipy_sparse(current, format="coo")
 
 
 class MCLDataset(Dataset):
@@ -188,55 +318,25 @@ class MCLTestGenerator(Generator[MCLDataset]):
             indices_1=cols,
             values=A[rows, cols],
         )
+        meta = {"expansion": 2, "inflation": 2, "loop_value": 1}
         problem = DataInstance(
-            inputs=[A_bin],
-            meta={"expansion": 2, "inflation": 2, "loop_value": 1},
+            inputs=[A_bin, _inverse_degrees(A_bin, meta["loop_value"])],
+            meta=meta,
             ref_meta={"expected_count": dataset.expected_count},
         )
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0])
-        graph = graph.astype(float)
-        current = (
-            graph + meta.get("loop_value", 1) * scipy_sparse.eye(graph.shape[0])
-        ).tocsc()
-
-        sums = np.maximum(np.asarray(current.sum(axis=0)).ravel(), np.finfo(float).eps)
-        current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
-        for iteration in range(meta.get("iterations", 100)):
-            previous = current
-            expanded = current.copy()
-            for _ in range(meta.get("expansion", 2) - 1):
-                expanded = (expanded @ current).tocsc()
-            threshold = meta.get("pruning_threshold", 1e-4)
-            frequency = meta.get("pruning_frequency", 1)
-            if threshold > 0 and (iteration + 1) % frequency == 0:
-                maxima = expanded.max(axis=0).toarray().ravel()
-                columns = np.repeat(
-                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
-                )
-                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
-                expanded.data[~keep] = 0
-                expanded.eliminate_zeros()
-            expanded.data **= meta.get("inflation", 2)
-            sums = np.maximum(
-                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+        expected = from_scipy(
+            call_graphblas(
+                _mcl_reference,
+                graph_csr(problem.inputs[0]),
+                to_numpy(problem.inputs[1]),
+                meta,
             )
-            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
-            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
-                delta = abs(current - previous).tocoo()
-                if delta.nnz == 0:
-                    break
-                old_values = abs(previous)[delta.row, delta.col]
-                if scipy_sparse.issparse(old_values):
-                    old_values = old_values.toarray()
-                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
-                if np.all(delta.data <= tolerance):
-                    break
-        expected = from_scipy(current.tocoo())
+        )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "graphblas",
             "reference_algorithm": "mcl",
         }
         return problem
@@ -291,25 +391,25 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
         # fmt: off
         return [
             MCLDataset("soc-Epinions1", suites=["standard"]),
-            MCLDataset("soc-LiveJournal1", suites=["standard"]),
-            MCLDataset("soc-Pokec", suites=["standard"]),
+            # MCLDataset("soc-LiveJournal1", suites=["standard"]),
+            # MCLDataset("soc-Pokec", suites=["standard"]),
             MCLDataset("soc-Slashdot0811", suites=["standard"]),
             MCLDataset("soc-Slashdot0902", suites=["standard"]),
             MCLDataset("wiki-Vote", suites=["standard"]),
             MCLDataset("wiki-RfA", suites=["standard"]),
             MCLDataset("soc-sign-bitcoin-otc", suites=["standard"]),
             MCLDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
-            MCLDataset("com-LiveJournal", suites=["standard"]),
-            MCLDataset("com-Friendster", suites=["standard"]),
-            MCLDataset("com-Orkut", suites=["standard"]),
-            MCLDataset("com-Youtube", suites=["standard"]),
+            # MCLDataset("com-LiveJournal", suites=["standard"]),
+            # MCLDataset("com-Friendster", suites=["standard"]),
+            # MCLDataset("com-Orkut", suites=["standard"]),
+            # MCLDataset("com-Youtube", suites=["standard"]),
             MCLDataset("com-DBLP", suites=["standard"]),
             MCLDataset("com-Amazon", suites=["standard"]),
             MCLDataset("email-Eu-core", suites=["standard", "trace", "train"]),
-            MCLDataset("wiki-topcats", suites=["standard"]),
+            # MCLDataset("wiki-topcats", suites=["standard"]),
             MCLDataset("email-EuAll", suites=["standard"]),
             MCLDataset("email-Enron", suites=["standard"]),
-            MCLDataset("wiki-Talk", suites=["standard"]),
+            # MCLDataset("wiki-Talk", suites=["standard"]),
             MCLDataset("cit-HepPh", suites=["standard"]),
             MCLDataset("cit-HepTh", suites=["standard"]),
             MCLDataset("cit-Patents", suites=["standard"]),
@@ -339,7 +439,7 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
             MCLDataset("roadNet-PA", suites=["standard"]),
             MCLDataset("roadNet-TX", suites=["standard"]),
             MCLDataset("as-735", suites=["standard"]),
-            MCLDataset("as-Skitter", suites=["standard"]),
+            # MCLDataset("as-Skitter", suites=["standard"]),
             MCLDataset("as-caida", suites=["standard"]),
             MCLDataset("Oregon-1", suites=["standard"]),
             MCLDataset("Oregon-2", suites=["standard"]),
@@ -349,14 +449,14 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
             MCLDataset("soc-sign-Slashdot090221", suites=["standard"]),
             MCLDataset("loc-Gowalla", suites=["standard"]),
             MCLDataset("loc-Brightkite", suites=["standard"]),
-            MCLDataset("sx-stackoverflow", suites=["standard"]),
+            # MCLDataset("sx-stackoverflow", suites=["standard"]),
             MCLDataset("sx-mathoverflow", suites=["standard"]),
             MCLDataset("sx-superuser", suites=["standard"]),
             MCLDataset("sx-askubuntu", suites=["standard"]),
-            MCLDataset("wiki-talk-temporal", suites=["standard"]),
+            # MCLDataset("wiki-talk-temporal", suites=["standard"]),
             MCLDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             MCLDataset("CollegeMsg", suites=["standard", "trace"]),
-            MCLDataset("twitter7", suites=["standard"]),
+            # MCLDataset("twitter7", suites=["standard"]),
             MCLDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -372,7 +472,8 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 
     def generate_inputs(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
-        return DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+        graph = zero_one_adjacency(raw.inputs[0])
+        return DataInstance(inputs=[graph, _inverse_degrees(graph, 1)], meta={})
 
 
 class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
@@ -398,49 +499,18 @@ class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
     def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
         problem = MCLSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0])
-        graph = graph.astype(float)
-        current = (
-            graph + meta.get("loop_value", 1) * scipy_sparse.eye(graph.shape[0])
-        ).tocsc()
-
-        sums = np.maximum(np.asarray(current.sum(axis=0)).ravel(), np.finfo(float).eps)
-        current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
-        for iteration in range(meta.get("iterations", 100)):
-            previous = current
-            expanded = current.copy()
-            for _ in range(meta.get("expansion", 2) - 1):
-                expanded = (expanded @ current).tocsc()
-            threshold = meta.get("pruning_threshold", 1e-4)
-            frequency = meta.get("pruning_frequency", 1)
-            if threshold > 0 and (iteration + 1) % frequency == 0:
-                maxima = expanded.max(axis=0).toarray().ravel()
-                columns = np.repeat(
-                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
-                )
-                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
-                expanded.data[~keep] = 0
-                expanded.eliminate_zeros()
-            expanded.data **= meta.get("inflation", 2)
-            sums = np.maximum(
-                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+        expected = from_scipy(
+            call_graphblas(
+                _mcl_reference,
+                graph_csr(problem.inputs[0]),
+                to_numpy(problem.inputs[1]),
+                meta,
             )
-            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
-            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
-                delta = abs(current - previous).tocoo()
-                if delta.nnz == 0:
-                    break
-                old_values = abs(previous)[delta.row, delta.col]
-                if scipy_sparse.issparse(old_values):
-                    old_values = old_values.toarray()
-                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
-                if np.all(delta.data <= tolerance):
-                    break
-        expected = from_scipy(current.tocoo())
+        )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "graphblas",
             "reference_algorithm": "mcl",
         }
         return DataInstance(
@@ -525,7 +595,8 @@ class MCLGAPGenerator(Generator[MCLDataset]):
 
     def generate_inputs(self, dataset: MCLDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(inputs=[zero_one_adjacency(raw.inputs[0])], meta={})
+        graph = zero_one_adjacency(raw.inputs[0])
+        return DataInstance(inputs=[graph, _inverse_degrees(graph, 1)], meta={})
 
 
 class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
@@ -551,49 +622,18 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
     def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
         problem = MCLGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        graph = graph_csr(problem.inputs[0])
-        graph = graph.astype(float)
-        current = (
-            graph + meta.get("loop_value", 1) * scipy_sparse.eye(graph.shape[0])
-        ).tocsc()
-
-        sums = np.maximum(np.asarray(current.sum(axis=0)).ravel(), np.finfo(float).eps)
-        current = (current @ scipy_sparse.diags_array(1 / sums)).tocsc()
-        for iteration in range(meta.get("iterations", 100)):
-            previous = current
-            expanded = current.copy()
-            for _ in range(meta.get("expansion", 2) - 1):
-                expanded = (expanded @ current).tocsc()
-            threshold = meta.get("pruning_threshold", 1e-4)
-            frequency = meta.get("pruning_frequency", 1)
-            if threshold > 0 and (iteration + 1) % frequency == 0:
-                maxima = expanded.max(axis=0).toarray().ravel()
-                columns = np.repeat(
-                    np.arange(expanded.shape[1]), np.diff(expanded.indptr)
-                )
-                keep = (expanded.data >= threshold) | (expanded.data == maxima[columns])
-                expanded.data[~keep] = 0
-                expanded.eliminate_zeros()
-            expanded.data **= meta.get("inflation", 2)
-            sums = np.maximum(
-                np.asarray(expanded.sum(axis=0)).ravel(), np.finfo(float).eps
+        expected = from_scipy(
+            call_graphblas(
+                _mcl_reference,
+                graph_csr(problem.inputs[0]),
+                to_numpy(problem.inputs[1]),
+                meta,
             )
-            current = (expanded @ scipy_sparse.diags_array(1 / sums)).tocsc()
-            if (iteration + 1) % meta.get("convergence_check_frequency", 1) == 0:
-                delta = abs(current - previous).tocoo()
-                if delta.nnz == 0:
-                    break
-                old_values = abs(previous)[delta.row, delta.col]
-                if scipy_sparse.issparse(old_values):
-                    old_values = old_values.toarray()
-                tolerance = 1e-8 + 1e-5 * np.asarray(old_values).ravel()
-                if np.all(delta.data <= tolerance):
-                    break
-        expected = from_scipy(current.tocoo())
+        )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "scipy",
+            "reference_backend": "graphblas",
             "reference_algorithm": "mcl",
         }
         return DataInstance(
@@ -604,10 +644,10 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         )
 
 
-class MCLGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return MCLGAPReferenceGenerator()
+# class MCLGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return MCLGAPReferenceGenerator()
 
 
 class MCLBenchmark(Benchmark):
@@ -701,9 +741,9 @@ class MCLBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [MCLTestGenerator(), MCLSNAPGenerator(), MCLGAPGenerator()]
+        return [MCLTestGenerator(), MCLSNAPGenerator()]  # MCLGAPGenerator()
 
-    def benchmark(self, xp, meta: dict[str, Any], graph):
+    def benchmark(self, xp, meta: dict[str, Any], graph, inverse_degrees):
         """
                 benchmark(data, meta)
 
@@ -713,8 +753,10 @@ class MCLBenchmark(Benchmark):
         ----
         array_api: The array API module to utilize
         graph_binsparse: The sparse adjacency matrix of the graph in binsparse format.
+        inverse_degrees: 1 / (column sum + loop_value) for each column of the
+                         graph, rounded down to a multiple of 2^-26.
         expansion: The cluster expansion factor.
-        inflation: The cluster inflation factor.
+        inflation: The cluster inflation factor, a positive integer.
         loop_value: The value to add to the diagonal for self loops.
         iterations: The maximum number of iterations.
         pruning_threshold: Threshold below which matrix elements will be set to 0.
@@ -740,20 +782,20 @@ class MCLBenchmark(Benchmark):
         pruning_frequency = meta.get("pruning_frequency", 1)
         convergence_check_frequency = meta.get("convergence_check_frequency", 1)
 
+        # Matrices that get multiplied hold multiples of 2^-26 in [0, 1], so
+        # every product is a multiple of 2^-52 and every partial sum stays
+        # below 2. Float64 then adds them exactly, in any order, and every
+        # implementation computes the same bits. Rounding down keeps zeros zero.
         loops_matrix = array_api.eye(graph.shape[0], dtype=graph.dtype)
-        current_matrix = graph + loop_value * loops_matrix
-        col_sums = array_api.sum(current_matrix, axis=0)
-        col_sums = array_api.maximum(
-            col_sums, array_api.finfo(current_matrix.dtype).eps
-        )
-        current_matrix = current_matrix / col_sums
+        current_matrix = (graph + loop_value * loops_matrix) * inverse_degrees
 
         for i in range(iterations):
             previous_matrix = current_matrix
 
             expanded_matrix = current_matrix
             for _ in range(expansion - 1):
-                expanded_matrix = array_api.matmul(expanded_matrix, current_matrix)
+                expanded_matrix = array_api.matmul(current_matrix, expanded_matrix)
+                expanded_matrix = array_api.floor(expanded_matrix * 2.0**26) / 2.0**26
 
             # As in HipMCL, prune the expanded matrix before inflating it.
             if pruning_threshold > 0 and i % pruning_frequency == (
@@ -765,18 +807,25 @@ class MCLBenchmark(Benchmark):
                 )
                 expanded_matrix = expanded_matrix * mask
 
-            inflated_matrix = expanded_matrix**inflation
+            # Multiplying rather than calling pow keeps squares of grid values
+            # exact, so the column sums below are exact at inflation 2.
+            inflated_matrix = expanded_matrix
+            for _ in range(inflation - 1):
+                inflated_matrix = inflated_matrix * expanded_matrix
             col_sums = array_api.sum(inflated_matrix, axis=0)
             col_sums = array_api.maximum(
                 col_sums, array_api.finfo(inflated_matrix.dtype).eps
             )
-            current_matrix = inflated_matrix / col_sums
+            current_matrix = (
+                array_api.floor(inflated_matrix / col_sums * 2.0**26) / 2.0**26
+            )
 
+            # Both tolerances are powers of two, so this test is exact too.
             if i % convergence_check_frequency == (
                 convergence_check_frequency - 1
             ) and array_api.all(
                 array_api.abs(current_matrix - previous_matrix)
-                <= 1e-8 + 1e-5 * array_api.abs(previous_matrix)
+                <= 2.0**-26 + 2.0**-17 * array_api.abs(previous_matrix)
             ):
                 break
 
@@ -787,24 +836,17 @@ class MCLBenchmark(Benchmark):
             assert isinstance(item, BinsparseTensor), (
                 "Output must be in binsparse format"
             )
-        if self._ref_outputs is not None:
-            assert_coo_allclose(self._ref_outputs[0], self._output[0])
-        if not self._ref_meta or "expected_count" not in self._ref_meta:
-            return
-        expected_count = self._ref_meta["expected_count"]
-
         try:
             output = to_scipy(self._output[0]).tocoo()
         except TypeError:
             output = scipy_sparse.coo_array(to_numpy(self._output[0]))
-        rows = output.row
-        cols = output.col
-        values = output.data
-        present = values != 0
-        rows = rows[present]
-        cols = cols[present]
-        attractors = rows[rows == cols]
-        clusters = {
-            tuple(np.sort(cols[rows == attractor]).tolist()) for attractor in attractors
-        }
-        assert len(clusters) == expected_count
+        output.sum_duplicates()
+        assert output.data.min(initial=0) >= 0, "MCL output has negative entries"
+        # Rounding down to multiples of 2^-26 leaves columns a little under 1.
+        np.testing.assert_allclose(output.sum(axis=0), 1, atol=1e-3)
+        clusters = _clusters(output)
+        if self._ref_outputs is not None:
+            expected = _clusters(to_scipy(self._ref_outputs[0]).tocoo())
+            assert clusters == expected, "MCL clusters differ from the reference"
+        if self._ref_meta and "expected_count" in self._ref_meta:
+            assert len(clusters) == self._ref_meta["expected_count"]

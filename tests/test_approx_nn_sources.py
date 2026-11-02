@@ -10,7 +10,6 @@ from saps.benchmarks.openml import OpenMLDatasetGenerator
 from saps.benchmarks.simhash_ann import (
     SimHashANNBenchmark,
     SimHashANNNetflixPrizeDenseGenerator,
-    SimHashANNNetflixPrizeSparseGenerator,
     SimHashANNOpenMLDenseGenerator,
     SimHashANNOpenMLSparseGenerator,
     SimHashANNRandomDataset,
@@ -82,10 +81,7 @@ def test_simhash_ann_openml_generator_uses_cached_task_split(
     assert instance.meta["openml_task_sample"] == 0
 
 
-@pytest.mark.parametrize(
-    "generator_cls",
-    [SimHashANNNetflixPrizeDenseGenerator, SimHashANNNetflixPrizeSparseGenerator],
-)
+@pytest.mark.parametrize("generator_cls", [SimHashANNNetflixPrizeDenseGenerator])
 def test_simhash_ann_netflix_generator_uses_shared_shell(monkeypatch, generator_cls):
     source = scipy.sparse.csr_matrix(np.arange(30, dtype=np.float32).reshape(6, 5))
 

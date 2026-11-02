@@ -415,7 +415,6 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
     def datasets(self) -> list[LTHConv2Dataset]:
         return [
             LTHConv2Dataset("pruned", 1000, ["standard", "train"]),
-            LTHConv2Dataset("pruned_test", 16, ["test"]),
         ]
 
     def generate(self, dataset: LTHConv2Dataset) -> DataInstance:

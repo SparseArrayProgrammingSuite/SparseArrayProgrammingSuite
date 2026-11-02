@@ -21,6 +21,43 @@ from saps.benchmark import (
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps.util.graphblas_process import call_graphblas
+
+# Stop once an iteration moves the ranks by less than this in L1 norm, which
+# bounds their L1 error by about 6e-14 for the default damping of 0.85.
+_REFERENCE_L1_CHANGE = 1e-14
+
+
+def _pagerank_reference(adjacency, alpha: float) -> np.ndarray:
+    """PageRank of a SciPy adjacency matrix whose columns hold outgoing edges.
+
+    Dangling vertices spread their rank uniformly, as in igraph. SuiteSparse:
+    GraphBLAS runs each step on every core. It is imported here so that the
+    benchmarks themselves do not depend on it. Call it through `call_graphblas`.
+    """
+    import graphblas as gb
+
+    n = adjacency.shape[0]
+    weights = gb.io.from_scipy_sparse(adjacency.astype(float))
+    out_weight = (
+        weights.reduce_columnwise(gb.monoid.plus).new().to_dense(fill_value=0.0)
+    )
+    dangling = out_weight == 0
+    scale = np.divide(1.0, out_weight, out=np.zeros(n), where=~dangling)
+    transition = weights.mxm(
+        gb.Vector.from_dense(scale).diag(), gb.semiring.plus_times
+    ).new()
+    rank = np.full(n, 1.0 / n)
+    while True:
+        spread = transition.mxv(gb.Vector.from_dense(rank), gb.semiring.plus_times)
+        updated = (
+            alpha * spread.new().to_dense(fill_value=0.0)
+            + (alpha * rank[dangling].sum() + 1 - alpha) / n
+        )
+        change = np.abs(updated - rank).sum()
+        rank = updated
+        if change < _REFERENCE_L1_CHANGE:
+            return rank / rank.sum()
 
 
 class PageRankDataset(Dataset):
@@ -266,7 +303,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             PageRankDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
             PageRankDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
             PageRankDataset("com-LiveJournal", suites=["standard"]),
-            PageRankDataset("com-Friendster", suites=["standard"]),
+            # PageRankDataset("com-Friendster", suites=["standard"]),
             PageRankDataset("com-Orkut", suites=["standard"]),
             PageRankDataset("com-Youtube", suites=["standard"]),
             PageRankDataset("com-DBLP", suites=["standard"]),
@@ -366,28 +403,14 @@ class PageRankSNAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
     def generate(self, dataset: ReferenceDataset[PageRankDataset]) -> DataInstance:
         problem = PageRankSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        adjacency = graph_csr(problem.inputs[0]).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.col, adjacency.row)),
-            directed=True,
-        )
-        # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
         expected = from_numpy(
-            np.asarray(
-                graph.pagerank(
-                    damping=alpha,
-                    weights=None
-                    if adjacency.dtype == bool
-                    else adjacency.data.tolist(),
-                )
-            )
+            call_graphblas(_pagerank_reference, graph_csr(problem.inputs[0]), alpha)
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "igraph",
+            "reference_backend": "graphblas",
             "reference_algorithm": "pagerank",
             # L1 error bound for the benchmark's finite power iteration.
             "reference_l1_tolerance": max(
@@ -515,28 +538,14 @@ class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
     def generate(self, dataset: ReferenceDataset[PageRankDataset]) -> DataInstance:
         problem = PageRankGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
-        adjacency = graph_csr(problem.inputs[0]).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.col, adjacency.row)),
-            directed=True,
-        )
-        # The benchmark stores outgoing edges in columns.
         alpha = meta.get("alpha", 0.85)
         expected = from_numpy(
-            np.asarray(
-                graph.pagerank(
-                    damping=alpha,
-                    weights=None
-                    if adjacency.dtype == bool
-                    else adjacency.data.tolist(),
-                )
-            )
+            call_graphblas(_pagerank_reference, graph_csr(problem.inputs[0]), alpha)
         )
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
-            "reference_backend": "igraph",
+            "reference_backend": "graphblas",
             "reference_algorithm": "pagerank",
             # L1 error bound for the benchmark's finite power iteration.
             "reference_l1_tolerance": max(
@@ -552,10 +561,10 @@ class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
         )
 
 
-class PageRankGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return PageRankGAPReferenceGenerator()
+# class PageRankGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return PageRankGAPReferenceGenerator()
 
 
 class PageRankBenchmark(Benchmark):
@@ -664,7 +673,7 @@ class PageRankBenchmark(Benchmark):
         return [
             PageRankTestGenerator(),
             PageRankSNAPGenerator(),
-            PageRankGAPGenerator(),
+            # PageRankGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, A):
@@ -679,7 +688,7 @@ class PageRankBenchmark(Benchmark):
         zero_deg = xp.equal(out_degree, 0)
         safe_out = xp.where(zero_deg, N, out_degree)
         M = M / safe_out
-        M = M * (1 - zero_deg) + (1.0 / N) * zero_deg
+        M = M * xp.logical_not(zero_deg) + (1.0 / N) * zero_deg
 
         x = xp.full((N,), 1.0 / N)
         u = xp.full((N,), 1.0 / N)

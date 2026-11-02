@@ -75,8 +75,9 @@ def test_mccomp_generator_records_reference_count(monkeypatch, tmp_path):
     monkeypatch.setattr(
         model_counting,
         "fetch_mccomp_instance",
-        lambda _: DataInstance(inputs=[], meta={"local_path": str(path)}),
+        lambda _: DataInstance(inputs=[], meta={"source_path": path.name}),
     )
+    monkeypatch.setattr(model_counting, "download_mccomp_instance", lambda _: path)
     problem = ModelCountingMCCompGenerator().generate(
         MCCompDataset("Track1_MC/random_mc_1")
     )

@@ -41,7 +41,7 @@ log_directory="${submission_directory//%/%%}"
 script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
 repo_directory=$(cd -- "$script_directory/.." && pwd)
 
-account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6}"
+account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 competition_config="${SAPS_COMPETITION_CONFIG:-$repo_directory/competition.config.json}"
 chunk_count="${SAPS_CHUNK_COUNT:-64}"
 

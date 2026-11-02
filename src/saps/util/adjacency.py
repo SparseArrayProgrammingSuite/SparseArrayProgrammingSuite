@@ -5,8 +5,8 @@ import scipy.sparse as scipy_sparse
 from scipy.sparse import coo_array, triu
 
 import sparse
-from binsparse import BinsparseTensor
-from binsparse.conversions import from_scipy, from_sparse, to_numpy, to_scipy
+from binsparse import BinsparseTensor, COORMatrix
+from binsparse.conversions import from_scipy, to_numpy, to_scipy
 
 from saps_framework.binsparse_utils import tensor_data
 
@@ -43,6 +43,14 @@ def zero_one_adjacency(
     return from_scipy(pattern.tocoo().astype(np.dtype(dtype)))
 
 
+def _row_major(row, col, n):
+    """Row-major positions in an n-column matrix, without full-size temporaries."""
+    linear = row.astype(np.int64)
+    linear *= n
+    linear += col
+    return linear
+
+
 def distance_matrix(
     adjacency: BinsparseTensor, *, keep_weights: bool = False, symmetrize: bool = False
 ) -> BinsparseTensor:
@@ -57,14 +65,38 @@ def distance_matrix(
         edges = to_scipy(adjacency).tocoo()
     except TypeError:
         edges = coo_array(to_numpy(adjacency))
-    # The constructor sums repeated entries. COO.from_scipy_sparse would not,
-    # since binsparse marks its scipy matrices canonical even when they repeat.
-    A = sparse.COO(np.stack([edges.row, edges.col]), edges.data, shape=edges.shape)
-    G = sparse.where(A != 0, A if keep_weights else 1.0, np.inf)
-    G = sparse.where(sparse.eye(A.shape[0], dtype=bool), 0.0, G)
+    shape, n = edges.shape, edges.shape[0]
+    # Rebuild the COO so tocsr sums repeated entries and sorts each row, since
+    # binsparse marks its scipy matrices canonical even when they repeat. Large
+    # GAP graphs only fit if no step makes more than a few copies of the edges.
+    edges = coo_array((edges.data, (edges.row, edges.col)), shape=edges.shape)
+    edges = edges.tocsr().tocoo()
+    keep = (edges.data != 0) & (edges.row != edges.col)
+    row, col = edges.row[keep], edges.col[keep]
+    if keep_weights:
+        length = edges.data[keep].astype(np.result_type(edges.data, 1.0), copy=False)
+    else:
+        length = np.ones(row.size)
+    del edges, keep
     if symmetrize:
-        G = np.minimum(G, G.T)
-    return from_sparse(G)
+        row, col = np.concatenate([row, col]), np.concatenate([col, row])
+        order = np.argsort(_row_major(row, col, n), kind="stable")
+        row, col, length = row[order], col[order], np.concatenate([length, length])
+        first = np.flatnonzero(np.diff(_row_major(row, col, n), prepend=-1))
+        length = np.minimum.reduceat(length[order], first) if first.size else length
+        row, col = row[first], col[first]
+        del order, first
+    diagonal = np.arange(n, dtype=row.dtype)
+    at = np.searchsorted(_row_major(row, col, n), _row_major(diagonal, diagonal, n))
+    return COORMatrix(
+        shape,
+        row.size + n,
+        fill=True,
+        fill_value=np.inf,
+        indices_0=np.insert(row, at, diagonal),
+        indices_1=np.insert(col, at, diagonal),
+        values=np.insert(length, at, 0),
+    )
 
 
 def squaring_count(

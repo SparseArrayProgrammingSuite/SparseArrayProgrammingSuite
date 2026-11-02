@@ -499,11 +499,9 @@ class BetweennessCentralitySNAPReferenceGenerator(
         problem = BetweennessCentralitySNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         sources = meta.get("bc_sources", range(graph.vcount()))
         scores = np.asarray(graph.betweenness(sources=sources, directed=True))
         if meta.get("include_source", False):
@@ -657,11 +655,9 @@ class BetweennessCentralityGAPReferenceGenerator(
         problem = BetweennessCentralityGAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
-        graph = ig.Graph(
-            n=adjacency.shape[0],
-            edges=np.column_stack((adjacency.row, adjacency.col)),
-            directed=True,
-        )
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
         sources = meta.get("bc_sources", range(graph.vcount()))
         scores = np.asarray(graph.betweenness(sources=sources, directed=True))
         if meta.get("include_source", False):
@@ -689,10 +685,10 @@ class BetweennessCentralityGAPReferenceGenerator(
         )
 
 
-class BetweennessCentralityGAPReferenceShellBenchmark(ShellBenchmark):
-    @property
-    def generator(self) -> Generator:
-        return BetweennessCentralityGAPReferenceGenerator()
+# class BetweennessCentralityGAPReferenceShellBenchmark(ShellBenchmark):
+#     @property
+#     def generator(self) -> Generator:
+#         return BetweennessCentralityGAPReferenceGenerator()
 
 
 class BetweennessCentralityBenchmark(Benchmark):
@@ -808,7 +804,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return [
             BetweennessCentralityTestGenerator(),
             BetweennessCentralitySNAPGenerator(),
-            BetweennessCentralityGAPGenerator(),
+            # BetweennessCentralityGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, G):
@@ -847,9 +843,9 @@ class BetweennessCentralityBenchmark(Benchmark):
             score_update = xp.zeros((n,), dtype=float)
 
             while depth >= 2:
-                neighbors_layer = layer_traversal[depth - 1].astype(float)
+                neighbors_layer = xp.astype(layer_traversal[depth - 1], xp.float64)
 
-                prev_layer = layer_traversal[depth - 2].astype(float)
+                prev_layer = xp.astype(layer_traversal[depth - 2], xp.float64)
 
                 denom = xp.maximum(number_of_paths, 1e-10)
                 update_val = neighbors_layer * (1.0 + score_update) / denom

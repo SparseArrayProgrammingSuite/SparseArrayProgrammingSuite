@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from saps.generate_environment import check_generate_environment
 from saps.metadata import write_metadata_document
 
 
@@ -27,6 +28,7 @@ def main() -> int:
         help="Metadata output path (default: metadata.json).",
     )
     args = parser.parse_args()
+    check_generate_environment()
 
     document = write_metadata_document(args.output, args.statistics)
     print(f"generated metadata for {len(document['benchmarks'])} benchmarks")

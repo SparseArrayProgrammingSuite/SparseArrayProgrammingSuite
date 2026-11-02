@@ -1,3 +1,4 @@
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -60,6 +61,22 @@ def test_download_and_read_matrix_returns_canonical_coo(monkeypatch, tmp_path):
     assert tensor.indices_0 is A.row
     assert tensor.indices_1 is A.col
     assert tensor.values is A.data
+
+
+def test_ssgetpy_index_lives_in_saps_cache(monkeypatch, tmp_path):
+    # ssgetpy reads HOME on first import to place its index.
+    modules = tmp_path / "modules"
+    modules.mkdir()
+    (modules / "ssgetpy.py").write_text("import os\nhome = os.environ['HOME']\n")
+    monkeypatch.syspath_prepend(str(modules))
+    monkeypatch.delitem(sys.modules, "ssgetpy", raising=False)
+    monkeypatch.setenv("SAPS_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+
+    ssgetpy = suitesparse._import_ssgetpy()
+
+    assert ssgetpy.home == str((tmp_path / "cache/suitesparse").resolve())
+    assert os.environ["HOME"] == str(tmp_path / "home")
 
 
 def test_download_suitesparse_matrix_requires_group_name(monkeypatch, tmp_path):
