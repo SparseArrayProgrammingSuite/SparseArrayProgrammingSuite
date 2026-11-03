@@ -273,9 +273,18 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
     scripts = tmp_path / "repo" / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
-    include = [{"env_nobuild": {"SAPS_FRAMEWORK": "frameworks/saps_numpy.py"}}]
+    include = [
+        {
+            "env_nobuild": {
+                "SAPS_FRAMEWORK": "frameworks/saps_numpy.py",
+                "SAPS_FRAMEWORK_NAME": "numpy",
+            }
+        }
+    ]
     if gpu_frameworks:
-        include.append({"env_nobuild": {"SAPS_DEVICE": "gpu"}})
+        include.append(
+            {"env_nobuild": {"SAPS_FRAMEWORK_NAME": "torch-gpu", "SAPS_DEVICE": "gpu"}}
+        )
     config = tmp_path / "competition.config.json"
     config.write_text(json.dumps({"include": include}))
     record = tmp_path / "submissions.jsonl"
@@ -337,13 +346,67 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
     assert str(run_directory) in combine[combine.index("--wrap") + 1]
 
 
+@pytest.mark.parametrize(
+    "include,message",
+    [
+        ([{"env_nobuild": {"SAPS_DEVICE": "gpu"}}], "lack SAPS_FRAMEWORK_NAME"),
+        (
+            [
+                {"env_nobuild": {"SAPS_FRAMEWORK_NAME": "torch"}},
+                {"env_nobuild": {"SAPS_FRAMEWORK_NAME": "torch"}},
+            ],
+            "duplicate SAPS_FRAMEWORK_NAME",
+        ),
+    ],
+)
+def test_submit_competition_rejects_unnamed_or_duplicate_frameworks(
+    tmp_path, include, message
+):
+    scripts = tmp_path / "repo" / "scripts"
+    scripts.mkdir(parents=True)
+    shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
+    config = tmp_path / "competition.config.json"
+    config.write_text(json.dumps({"include": include}))
+    submitted = tmp_path / "submitted"
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text('sbatch() { touch "$SAPS_TEST_SUBMITTED"; echo 100; }\n')
+    env = {
+        **os.environ,
+        "BASH_ENV": str(shell_env),
+        "SAPS_TEST_SUBMITTED": str(submitted),
+        "SAPS_COMPETITION_CONFIG": str(config),
+    }
+    result = subprocess.run(
+        ["bash", str(scripts / "submit-competition.sh")],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert message in result.stderr
+    # Nothing was queued.
+    assert not submitted.exists()
+
+
 def test_submit_competition_cancels_earlier_arrays_when_a_submission_fails(tmp_path):
     scripts = tmp_path / "repo" / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
     config = tmp_path / "competition.config.json"
     config.write_text(
-        json.dumps({"include": [{"env_nobuild": {"SAPS_DEVICE": "gpu"}}]})
+        json.dumps(
+            {
+                "include": [
+                    {
+                        "env_nobuild": {
+                            "SAPS_FRAMEWORK_NAME": "torch-gpu",
+                            "SAPS_DEVICE": "gpu",
+                        }
+                    }
+                ]
+            }
+        )
     )
     cancelled = tmp_path / "cancelled"
     # The CPU array submits as job 100; the GPU array is rejected.

@@ -50,8 +50,10 @@ if ((chunk_count < 1)); then
   exit 1
 fi
 
-# Skip the GPU array when no framework needs a GPU, rather than holding GPU
-# nodes only for the runner to find nothing to do.
+# Every framework needs a unique SAPS_FRAMEWORK_NAME, which the combine job
+# uses to tell results apart, so refuse a bad config before queuing anything.
+# Also skip the GPU array when no framework needs a GPU, rather than holding
+# GPU nodes only for the runner to find nothing to do.
 uses_gpu=$(
   python3 - "$competition_config" <<'EOF'
 import json
@@ -59,11 +61,19 @@ import sys
 
 with open(sys.argv[1]) as f:
     config = json.load(f)
+includes = config.get("include", [])
+names = [include.get("env_nobuild", {}).get("SAPS_FRAMEWORK_NAME") for include in includes]
+missing = [i for i, name in enumerate(names) if not name]
+if missing:
+    sys.exit(f"{sys.argv[1]}: include entries {missing} lack SAPS_FRAMEWORK_NAME")
+duplicates = sorted({name for name in names if names.count(name) > 1})
+if duplicates:
+    sys.exit(f"{sys.argv[1]}: duplicate SAPS_FRAMEWORK_NAME {duplicates}")
 print(
     "true"
     if any(
         include.get("env_nobuild", {}).get("SAPS_DEVICE") == "gpu"
-        for include in config.get("include", [])
+        for include in includes
     )
     else "false"
 )

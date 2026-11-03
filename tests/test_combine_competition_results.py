@@ -52,6 +52,7 @@ def write_result(path, values, *, machine="node-a", details=None):
         "env_name": "test-env",
         "env_vars": {
             "SAPS_FRAMEWORK": "/repo/frameworks/saps_numpy.py",
+            "SAPS_FRAMEWORK_NAME": "numpy",
             "SAPS_REPO_ROOT": "/repo",
         },
         "params": {
@@ -216,6 +217,30 @@ def test_measurement_timeout_does_not_split_frameworks(combiner, metadata, tmp_p
         path.write_text(json.dumps(document))
     combined, _ = combiner.combine_results(tmp_path, metadata)
     assert len(combined["frameworks"]) == 1
+
+
+def test_framework_name_tells_runs_of_one_file_apart(combiner, metadata, tmp_path):
+    for name in ("pytorch", "pytorch-gpu"):
+        path = tmp_path / f"results/node-a/{name}.json"
+        document = write_result(path, [float("nan"), 1.0, None])
+        document["env_vars"]["SAPS_FRAMEWORK"] = "/repo/frameworks/saps_pytorch.py"
+        document["env_vars"]["SAPS_FRAMEWORK_NAME"] = name
+        if name.endswith("-gpu"):
+            document["env_vars"]["SAPS_DEVICE"] = "gpu"
+        path.write_text(json.dumps(document))
+    combined, _ = combiner.combine_results(tmp_path, metadata)
+    frameworks = sorted(combined["frameworks"].values(), key=lambda item: item["name"])
+    assert [item["name"] for item in frameworks] == ["pytorch", "pytorch-gpu"]
+    assert all("SAPS_FRAMEWORK_NAME" not in item["env_vars"] for item in frameworks)
+
+
+def test_result_without_framework_name_is_rejected(combiner, metadata, tmp_path):
+    path = tmp_path / "results/node-a/unnamed.json"
+    document = write_result(path, [float("nan"), 1.0, None])
+    del document["env_vars"]["SAPS_FRAMEWORK_NAME"]
+    path.write_text(json.dumps(document))
+    with pytest.raises(ValueError, match="SAPS_FRAMEWORK_NAME"):
+        combiner.combine_results(tmp_path, metadata)
 
 
 def test_missing_metadata_match_is_reported(combiner, metadata, tmp_path):

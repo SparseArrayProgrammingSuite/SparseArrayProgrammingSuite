@@ -162,6 +162,12 @@ runner arguments as well.
 
 A framework needs a GPU when its `include` entry in `competition.config.json`
 sets `"SAPS_DEVICE": "gpu"` in `env_nobuild`; entries without it run on CPU.
+Every `include` entry must also set a unique `SAPS_FRAMEWORK_NAME` in
+`env_nobuild`, which names the framework in the combined results. The launcher
+refuses a config with a missing or duplicate name, and the combiner rejects
+result files without one. A framework can run on both devices by appearing
+twice, once with and once without `SAPS_DEVICE`, as PyTorch does with the
+names `pytorch` and `pytorch-gpu`.
 Each array passes `--device cpu` or `--device gpu` to the runner, which only
 builds the matching environments. The launcher skips the GPU array when no
 framework needs a GPU. On PACE Phoenix the GPU type selects the partition: an
