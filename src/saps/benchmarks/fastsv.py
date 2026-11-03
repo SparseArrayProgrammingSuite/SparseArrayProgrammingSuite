@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -353,6 +352,8 @@ class FastSVSNAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
         return [ReferenceDataset(dataset) for dataset in FastSVSNAPGenerator().datasets]
 
     def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
+        import igraph as ig
+
         problem = FastSVSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(n=adjacency.shape[0], directed=True)

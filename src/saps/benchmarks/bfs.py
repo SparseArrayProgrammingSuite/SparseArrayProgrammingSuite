@@ -2,7 +2,6 @@
 import numpy as np
 from scipy.sparse import coo_array
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy
 
@@ -230,6 +229,8 @@ class BFSTestGenerator(Generator[BFSDataset]):
         ]
 
     def generate(self, dataset: BFSDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.source_seed is not None:
             if dataset.A is None:
                 raise ValueError("Seeded BFS tests require an adjacency matrix.")
@@ -624,6 +625,8 @@ class BFSSNAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
         return [ReferenceDataset(dataset) for dataset in BFSSNAPGenerator().datasets]
 
     def generate(self, dataset: ReferenceDataset[BFSDataset]) -> DataInstance:
+        import igraph as ig
+
         problem = BFSSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()

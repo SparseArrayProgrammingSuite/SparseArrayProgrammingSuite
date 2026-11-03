@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
@@ -169,6 +168,8 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         ]
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("Connected-components test datasets must define A.")
 
@@ -376,6 +377,8 @@ class ConnectedComponentsSNAPReferenceGenerator(
     def generate(
         self, dataset: ReferenceDataset[ConnectedComponentsDataset]
     ) -> DataInstance:
+        import igraph as ig
+
         problem = ConnectedComponentsSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(n=adjacency.shape[0], directed=True)

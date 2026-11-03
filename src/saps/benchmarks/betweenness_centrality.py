@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -257,6 +256,8 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         ]
 
     def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("Centrality test datasets must define A.")
         expected = dataset.expected
@@ -459,6 +460,8 @@ class BetweennessCentralitySNAPReferenceGenerator(
     def generate(
         self, dataset: ReferenceDataset[BetweennessCentralitySNAPDataset]
     ) -> DataInstance:
+        import igraph as ig
+
         problem = BetweennessCentralitySNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()

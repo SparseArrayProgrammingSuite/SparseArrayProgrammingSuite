@@ -4,7 +4,6 @@ from array import array
 import numpy as np
 import scipy.sparse as scipy_sparse
 
-import igraph as ig
 import sparse
 import sparse as sp
 from binsparse import BinsparseTensor
@@ -328,6 +327,8 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         ]
 
     def generate(self, dataset: FloydWarshallDataset):
+        import igraph as ig
+
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )

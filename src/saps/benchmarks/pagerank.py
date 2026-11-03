@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
@@ -198,6 +197,8 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         ]
 
     def generate(self, dataset: PageRankDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("PageRank test datasets must define A.")
         ref_outputs = None
