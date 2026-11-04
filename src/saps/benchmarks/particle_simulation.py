@@ -1193,9 +1193,9 @@ class ParticleSimulationBenchmark(Benchmark):
             own_x = xp.zeros((n_particles, nx), dtype=xp.uint8)
             own_y = xp.zeros((n_particles, ny), dtype=xp.uint8)
             own_z = xp.zeros((n_particles, nz), dtype=xp.uint8)
-            own_x[particle_index, bx] = 1
-            own_y[particle_index, by] = 1
-            own_z[particle_index, bz] = 1
+            own_x = xp.at(own_x, (particle_index, bx)).set(1)
+            own_y = xp.at(own_y, (particle_index, by)).set(1)
+            own_z = xp.at(own_z, (particle_index, bz)).set(1)
 
             band_x = (
                 xp.eye(nx, k=-1, dtype=xp.uint8)

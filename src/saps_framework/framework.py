@@ -1,12 +1,26 @@
 import keyword
 from abc import ABC, abstractmethod
 
+import array_api_extra as xpx
+
 from saps_framework.einsum import reduction_ops
 from saps_framework.unfold import (
     normalize_pad_width,
     normalize_unfold_args,
     normalize_unfold_padding,
 )
+
+
+class _At:
+    """``xpx.at(x, idx)`` with a framework as its namespace."""
+
+    def __init__(self, xp, x, idx):
+        self.xp = xp
+        self.x = x
+        self.idx = idx
+
+    def set(self, y, /):
+        return xpx.at(self.x, self.idx).set(y, xp=self.xp)
 
 
 class Framework(ABC):
@@ -32,6 +46,11 @@ class Framework(ABC):
 
     def compile(self, func):
         return func
+
+    # x[idx] = y as xp.at(x, idx).set(y), which returns the updated array and
+    # may or may not modify x (see xpx.at).
+    def at(self, x, idx, /):
+        return _At(self, x, idx)
 
     @abstractmethod
     def einsum(self, prgm, **kwargs):
