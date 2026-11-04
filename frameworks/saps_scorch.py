@@ -1,25 +1,34 @@
+"""SAPS adapter for Scorch (https://github.com/bobbyyyan/scorch).
+
+Scorch is used as a drop-in PyTorch namespace (``import scorch as torch``):
+arrays stay ``torch.Tensor`` objects (dense, COO or CSR, as binsparse provides
+them), ``scorch.matmul`` and ``scorch.einsum`` run Scorch's sparse kernels, and
+every other name falls through to PyTorch through Scorch's module
+``__getattr__``. Scorch returns its own ``STensor`` from sparse kernels; the
+only conversion it provides back to PyTorch is ``STensor.to_torch()``, which
+yields a dense tensor.
+
+Install from source (PyPI's ``scorch`` is an unrelated package):
+``pip install --no-build-isolation git+https://github.com/bobbyyyan/scorch``;
+it builds a C++ extension against the installed torch and JIT-compiles kernels
+with a C++ compiler and OpenMP at run time.
+"""
+
 import array_api_compat.torch as torch_xp
+import scorch
 import torch
-import torch._dynamo
 import torch.nn.functional as F
 from binsparse.conversions import from_torch, to_torch
 
 from saps_framework import Framework, normalize_unfold_args
 from saps_framework.einsum import Access, parse_einsum
 
-torch._dynamo.config.suppress_errors = True
 torch_xp.power = torch.pow  # type: ignore[attr-defined]
 
-#https://github.com/bobbyyyan/scorch
-
-
-# Keep parsing and subscript translation outside Dynamo; tensor operations remain
-# traceable, including the native torch.einsum call.
-@torch.compiler.disable
-def _parse_einsum(prgm):
-    parsed = parse_einsum(prgm)
-    return parsed, parsed.native_contraction()
-
+# Value dtypes Scorch's kernel generator supports (scorch/utils.py).
+_SCORCH_DTYPES = frozenset(
+    {torch.float32, torch.float64, torch.int32, torch.int64, torch.int8, torch.uint8}
+)
 
 # torch can't promote these with bool (or run matmul on them), so bool operands
 # are cast to the unsigned dtype first.
@@ -46,43 +55,26 @@ def _is_sparse_tensor(array):
     }
 
 
-class PytorchLinalg:
-    @staticmethod
-    def _dense(array):
-        return array.to_dense() if _is_sparse_tensor(array) else array
-
-    @staticmethod
-    def solve(A, b, **kwargs):
-        return torch.linalg.solve(PytorchLinalg._dense(A), b, **kwargs)
-
-    @staticmethod
-    def norm(x, **kwargs):
-        return torch.linalg.norm(PytorchLinalg._dense(x), **kwargs)
-
-    @staticmethod
-    def lstsq(A, b, **kwargs):
-        result = torch.linalg.lstsq(PytorchLinalg._dense(A), b, **kwargs)
-        return result.solution, result.residuals, result.rank, result.singular_values
+# Scorch's code generator is built around float32: it has no float64 pointer
+# type or int64 workspaces, so float64 results can't leave Scorch and int64
+# kernels don't compile. Scorch's sparse kernels therefore run in float32, and
+# results are cast back to the dtype the Array API expects.
+_KERNEL_DTYPE = torch.float32
 
 
-class PytorchFramework(Framework):
-    def __init__(self, sparse_layout: str = "COO"):
-        self.sparse_layout = sparse_layout
+def _to_torch(result):
+    """Scorch kernels may return an STensor; continue with PyTorch tensors."""
+    if isinstance(result, scorch.STensor):
+        return result.to_torch()
+    return result
 
-    @property
-    def linalg(self):
-        return PytorchLinalg
 
+class ScorchFramework(Framework):
     def from_binsparse(self, array):
-        result = to_torch(array)
-        if self.sparse_layout == "CSR" and result.layout == torch.sparse_coo:
-            if result.ndim != 2:
-                raise ValueError("PyTorch CSR only works for 2D matrices")
-            return result.to_sparse_csr()
-        return result
+        return to_torch(array)
 
     def to_binsparse(self, array):
-        return from_torch(array.detach().cpu())
+        return from_torch(_to_torch(array).detach().cpu())
 
     def lazy(self, array):
         return array
@@ -90,11 +82,9 @@ class PytorchFramework(Framework):
     def compute(self, array):
         return array
 
-    def compile(self, func):
-        return torch.compile(func)
-
     def einsum(self, prgm, **kwargs):
-        parsed, contraction = _parse_einsum(prgm)
+        parsed = parse_einsum(prgm)
+        contraction = parsed.native_contraction()
         if contraction is not NotImplemented:
             result = self._native_einsum(parsed.op, contraction, kwargs)
             if result is not NotImplemented:
@@ -103,19 +93,27 @@ class PytorchFramework(Framework):
 
     @staticmethod
     def _native_einsum(reduction, contraction, kwargs):
+        """Run a sum-of-products contraction with scorch.einsum.
+
+        scorch.einsum multiplies all operands and sums the dropped indices. It
+        needs a nonempty output, operands without repeated indices, one shared
+        value dtype from _SCORCH_DTYPES, and COO, CSR or dense layouts.
+        """
         equation, leaves, bitwise = contraction
-        arrays = [kwargs[leaf.tns] for leaf in leaves if isinstance(leaf, Access)]
-        # Torch's einsum does not support sparse layouts. Keep their existing
-        # evaluator rather than densifying the tensor to enter the fast path.
-        if any(array.layout != torch.strided for array in arrays):
+        if not all(isinstance(leaf, Access) for leaf in leaves):
             return NotImplemented
-        device = arrays[0].device if arrays else None
-        operands = [
-            kwargs[leaf.tns]
-            if isinstance(leaf, Access)
-            else torch.tensor(leaf.value, device=device)
-            for leaf in leaves
-        ]
+        inputs, output = equation.split("->")
+        terms = inputs.split(",")
+        if not output or any(not t or len(set(t)) != len(t) for t in terms):
+            return NotImplemented
+        operands = [kwargs[leaf.tns] for leaf in leaves]
+        if any(op.layout == torch.sparse_csc for op in operands):
+            return NotImplemented
+        sizes: dict[str, int] = {}
+        for operand, term in zip(operands, terms, strict=True):
+            for idx, size in zip(term, operand.shape, strict=True):
+                if sizes.setdefault(idx, size) != size:
+                    return NotImplemented
         boolean = all(operand.dtype == torch.bool for operand in operands)
         logical_reduction = reduction in {"|", "or"}
         if (bitwise or logical_reduction) and not boolean:
@@ -125,16 +123,22 @@ class PytorchFramework(Framework):
             if dtype in _WIDE_UNSIGNED or operand.dtype in _WIDE_UNSIGNED:
                 return NotImplemented
             dtype = torch.promote_types(dtype, operand.dtype)
-        if dtype in _WIDE_UNSIGNED:
-            return NotImplemented
         if not dtype.is_floating_point and not dtype.is_complex:
             if not boolean and len(operands) > 1 and dtype != torch.int64:
                 # Preserve overflow in narrow integer products before summing.
                 return NotImplemented
+            # Summing booleans counts matches, as the Array API sum does; a
+            # nonzero count implements an OR reduction.
             dtype = torch.int64
-        # Boolean bmm is unsupported; integer contraction counts matches, and
-        # comparison with zero implements an OR reduction without changing +=.
-        result = torch.einsum(equation, *(operand.to(dtype) for operand in operands))
+        if dtype not in _SCORCH_DTYPES:
+            return NotImplemented
+        if all(op.layout == torch.strided for op in operands):
+            kernel_dtype = dtype
+        else:
+            kernel_dtype = _KERNEL_DTYPE
+        result = _to_torch(
+            scorch.einsum(equation, *(operand.to(kernel_dtype) for operand in operands))
+        ).to(dtype)
         return result != 0 if logical_reduction else result
 
     def unfold(
@@ -235,14 +239,12 @@ class PytorchFramework(Framework):
                 return result
         return torch.where(torch.isnan(arr) if old != old else arr == old, new, arr)
 
-    def matmul(self, x1, x2, /, **kwargs):
-        x1, x2 = _cast_bool_to_wide_unsigned(x1, x2)
-        if x1.dtype in _WIDE_UNSIGNED or x2.dtype in _WIDE_UNSIGNED:
-            out_dtype = torch.result_type(x1, x2)
-            return torch_xp.matmul(x1.to(torch.int64), x2.to(torch.int64), **kwargs).to(
-                out_dtype
-            )
-        return torch_xp.matmul(x1, x2, **kwargs)
+    def matmul(self, x1, x2, /):
+        if not (_is_sparse_tensor(x1) or _is_sparse_tensor(x2)):
+            return _to_torch(scorch.matmul(x1, x2))
+        dtype = torch.promote_types(x1.dtype, x2.dtype)
+        result = scorch.matmul(x1.to(_KERNEL_DTYPE), x2.to(_KERNEL_DTYPE))
+        return _to_torch(result).to(dtype)
 
     def maximum(self, x, y):
         if not torch.is_tensor(y):
@@ -255,8 +257,12 @@ class PytorchFramework(Framework):
         return torch.minimum(x, y)
 
     def __getattr__(self, name):
+        # Array API spellings first, then Scorch's namespace, which falls
+        # through to torch for everything Scorch doesn't define.
         attr = (
-            getattr(torch_xp, name) if hasattr(torch_xp, name) else getattr(torch, name)
+            getattr(torch_xp, name)
+            if hasattr(torch_xp, name)
+            else getattr(scorch, name)
         )
         if name in _BOOL_PROMOTED_OPS:
 
@@ -267,4 +273,4 @@ class PytorchFramework(Framework):
         return attr
 
 
-xp = PytorchFramework()
+xp = ScorchFramework()

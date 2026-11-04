@@ -21,8 +21,12 @@ if not hasattr(cusp, "csr_array"):  # pragma: no cover - depends on the host
     )
 
 from frameworks.saps_cupy import CuPyFramework  # noqa: E402
+from saps.benchmarks.bfs import BFSBenchmark  # noqa: E402
 from saps.benchmarks.elementwise_multiplication import (  # noqa: E402
     ElementwiseMultiplicationBenchmark,
+)
+from saps.benchmarks.matrix_multiplication import (  # noqa: E402
+    MatrixMultiplicationBenchmark,
 )
 
 
@@ -413,3 +417,32 @@ def test_multiply_matches_scipy_on_sparse(xp):
     np.testing.assert_array_equal(
         host(result), to_scipy(from_scipy(left.multiply(right))).toarray()
     )
+
+
+# ------------------------------------------------- end-to-end benchmark checks
+
+
+def _test_suite_params(benchmark):
+    return [
+        pytest.param(param, id=f"{param.generator.name}.{param.dataset.name}")
+        for param in benchmark.params
+        if "test" in param.dataset.suites
+        and param.generator.name != "matrix_multiplication_suitesparse"
+    ]
+
+
+def _run_and_check(benchmark, param, xp):
+    # teardown runs the benchmark's own correctness check against the reference.
+    benchmark.setup(param, use_cache=False, xp=xp)
+    benchmark.run(param)
+    benchmark.teardown(param)
+
+
+@pytest.mark.parametrize("param", _test_suite_params(MatrixMultiplicationBenchmark()))
+def test_matrix_multiplication_benchmark(xp, param):
+    _run_and_check(MatrixMultiplicationBenchmark(), param, xp)
+
+
+@pytest.mark.parametrize("param", _test_suite_params(BFSBenchmark()))
+def test_bfs_benchmark(xp, param):
+    _run_and_check(BFSBenchmark(), param, xp)

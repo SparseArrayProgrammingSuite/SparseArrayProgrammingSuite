@@ -1,86 +1,106 @@
+"""SAPS adapter for finch-tensor's Julia backend with the Galley scheduler.
+
+Install finch-tensor (with its ``julia`` extra) from
+https://github.com/finch-tensor/finch-tensor; ``COMPILE_JULIA_GALLEY`` is not in
+the 0.7.0 release. Every eager finch operation computes with finch's default
+scheduler, so the adapter makes Galley that default rather than steering
+individual operations.
+"""
+
 import numpy as np
+
+import binsparse as bsp
 import finch as ft
-from binsparse import (
-    COORMatrix,
-    CSCMatrix,
-    CSRMatrix,
-    CustomTensor,
-    DenseLevel,
-    DMATCMatrix,
-    DMATRMatrix,
-    DVECVector,
-    ElementLevel,
-    SparseLevel,
-)
-from binsparse.conversions import from_numpy, to_numpy, to_scipy
+from binsparse.conversions import from_numpy, to_scipy
+from finch.algebra import as_fill
 from finch.autoschedule import COMPILE_JULIA_GALLEY
+from finch.compile_jl.interop import jl_tensor_to_python, tensor_to_jl
+from finch.compile_jl.julia import jl
 
 from saps_framework import Framework
 
+# Eager operations (zeros, where, logical_or, sum, matmul, ...) call
+# ft.compute with the thread-local default scheduler.
+ft.set_default_scheduler(COMPILE_JULIA_GALLEY)
+
+
+def _reformat(tensor, *, dense):
+    """Copy a FiberTensor into CSR-like (or dense) levels with Finch.jl."""
+    level = jl.Element(tensor.fill_value)
+    for depth in range(tensor.ndim):
+        sparse_level = not dense and depth == 0
+        level = jl.SparseList(level) if sparse_level else jl.Dense(level)
+    return jl_tensor_to_python(jl.Tensor(level, tensor_to_jl(tensor)))
+
+
+# Binsparse formats SAPS's correctness checkers can read.
+_READABLE = (
+    bsp.CSRMatrix,
+    bsp.CSCMatrix,
+    bsp.COORMatrix,
+    bsp.DMATRMatrix,
+    bsp.DMATCMatrix,
+    bsp.DVECVector,
+)
+
+
+def _canonical(tensor):
+    """Parse a custom Binsparse descriptor as its standard format, if any."""
+    container = bsp.InMemoryBinsparseContainer()
+    tensor.serialize(container, alias=False)
+    return bsp.BinsparseTensor.parse(container, alias=True)
+
 
 class FinchFramework(Framework):
-    """SAPS adapter for Finch's Julia backend with the Galley scheduler."""
-
     def from_binsparse(self, array):
-        match array:
-            case DVECVector() | DMATRMatrix() | DMATCMatrix():
-                return ft.asarray(to_numpy(array))
-            case CustomTensor(shape=(), transpose=None, level=ElementLevel()):
-                return ft.asarray(to_numpy(array))
-            case CustomTensor(
-                shape=shape,
-                transpose=None,
-                level=DenseLevel(rank=rank, level=ElementLevel()),
-            ) if rank == len(shape):
-                return ft.asarray(to_numpy(array))
-            case CSCMatrix() | CSRMatrix() | COORMatrix():
-                return ft.asarray(to_scipy(array).tocsr())
-            case CustomTensor(
-                shape=(size,),
-                transpose=None,
-                level=SparseLevel(
-                    rank=1,
-                    level=ElementLevel(values=values),
-                    indices=(indices,),
-                    pointers_to_next=None,
-                ),
-            ):
-                values = np.asarray(values)
-                indices = np.asarray(indices)
-                fill_value = array.fill_value if array.fill is True else 0
-                index_type = ft.ftype(indices.dtype)
-                element_format = ft.element(
-                    fill_value=fill_value,
-                    element_type=ft.ftype(values.dtype),
-                    position_type=index_type,
-                )
-                return ft.FiberTensor(
-                    ft.SparseListLevel(
-                        ft.ElementLevel(element_format, ft.NumpyBuffer(values)),
-                        dimension=indices.dtype.type(size),
-                        ptr=ft.NumpyBuffer(
-                            np.array([0, len(values)], dtype=indices.dtype)
-                        ),
-                        idx=ft.NumpyBuffer(indices),
-                    )
-                )
-            case CustomTensor():
-                raise NotImplementedError(
-                    "Finch only supports rank-1 flat sparse CustomTensor inputs."
-                )
-            case _:
-                raise NotImplementedError(
-                    f"Finch does not support BinSparse input {type(array).__name__}."
-                )
+        try:
+            return ft.from_binsparse(array)
+        except NotImplementedError:
+            # Finch has no transposed (CSC) Binsparse layout; read through
+            # SciPy CSR, which finch.asarray imports natively.
+            return ft.asarray(to_scipy(array).tocsr())
 
     def to_binsparse(self, array):
-        return from_numpy(np.asarray(array))
+        if isinstance(array, ft.LazyTensor):
+            array = self.compute(array)
+        if hasattr(array, "raw_julia_obj") and array.ndim > 0:
+            # Results Julia owns (JuliaOwnedTensor); its to_numpy assumes dense
+            # storage, so read the Julia tensor's levels instead.
+            array = jl_tensor_to_python(array.raw_julia_obj)
+        if not isinstance(array, ft.FiberTensor):
+            # Scalars and BufferizedNDArrays are dense.
+            return from_numpy(np.asarray(ft.to_numpy(array)))
+        try:
+            tensor = _canonical(ft.to_binsparse(array))
+        except NotImplementedError:
+            # Galley may choose levels without a Binsparse equivalent (hash,
+            # bytemap); Finch.jl copies them into a CSR-like layout.
+            tensor = _canonical(ft.to_binsparse(_reformat(array, dense=False)))
+        # SAPS's checkers read CSR/CSC/COO matrices with zero fill and dense
+        # tensors. Other sparse matrices (e.g. DCSR) are copied to CSR by
+        # Finch.jl; everything else is exported densely.
+        zero_fill = not (tensor.fill is True and tensor.fill_value != 0)
+        if zero_fill and isinstance(tensor, _READABLE):
+            return tensor
+        if zero_fill and array.ndim == 2:
+            tensor = _canonical(ft.to_binsparse(_reformat(array, dense=False)))
+            if isinstance(tensor, _READABLE):
+                return tensor
+        return _canonical(ft.to_binsparse(_reformat(array, dense=True)))
 
     def lazy(self, array):
         return ft.defer(array)
 
     def compute(self, array):
         return ft.compute(array, ctx=COMPILE_JULIA_GALLEY)
+
+    def compile(self, func):
+        # The default scheduler is thread-local; pin it wherever func runs.
+        def compiled(*args, **kwargs):
+            with ft.with_default_scheduler(COMPILE_JULIA_GALLEY):
+                return func(*args, **kwargs)
+
+        return compiled
 
     def einsum(self, prgm, **kwargs):
         inputs = {name: ft.defer(value) for name, value in kwargs.items()}
@@ -97,22 +117,15 @@ class FinchFramework(Framework):
         padding=None,
         fill_value=0,
     ):
-        return self.compute(
-            ft.unfold(
-                x,
-                kernel_shape,
-                axes=axes,
-                strides=strides,
-                dilations=dilations,
-                padding=padding,
-                fill_value=fill_value,
-            )
-        )
+        raise NotImplementedError("Finch has no unfold operation.")
+
+    def replace(self, arr, old, new):
+        matches = ft.isnan(arr) if old != old else ft.equal(arr, old)
+        return ft.where(matches, new, arr)
 
     def with_fill_value(self, array, value):
-        if value != 0:
-            raise ValueError("Finch SAPS adapter supports only a zero fill value.")
-        return array
+        # Reinterpret missing entries, sharing the stored data.
+        return array.with_fill(as_fill(value))
 
     def __getattr__(self, name):
         return getattr(ft, name)
