@@ -66,6 +66,7 @@ Every benchmark function has a fixed parameter list. If the inputs differ betwee
 Benchmark functions should:
 
 - Use Array API style operations through `xp`.
+- Write indexed assignment `x[idx] = y` as `x = xp.at(x, idx).set(y)`. Some frameworks' arrays are immutable, so `set` may return a new array rather than updating `x`; always use its result.
 - Use basic Python syntax, including `for`, `while`, and `if` when needed.
 - Avoid framework-specific shortcuts that only one implementation can support.
 - Avoid file I/O, threads, networking, global mutable state, recursion, and non-determinism.

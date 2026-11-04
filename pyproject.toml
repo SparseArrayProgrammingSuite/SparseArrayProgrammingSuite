@@ -158,7 +158,8 @@ types-requests = "==2.33.0.20260712"
 optional = true
 
 [tool.poetry.group.gpu.dependencies]
-cupy-cuda13x = ">=14.2.0"
+# CUDA 12: the cluster's V100s (sm_70) aren't a CUDA 13 target.
+cupy-cuda12x = ">=14.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.8"]
