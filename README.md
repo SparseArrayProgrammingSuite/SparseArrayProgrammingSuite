@@ -146,7 +146,7 @@ poetry run ./bin/run_benchmark.py \
 On Slurm, submit a competition with the launcher. It submits two arrays that
 share one run directory: `scripts/competition-cpu.slurm` runs the CPU frameworks
 on CPU nodes and `scripts/competition-gpu.slurm` runs the GPU frameworks on GPU
-nodes (a whole V100 node, `--gres=gpu:V100:2 --exclusive`). A final job combines both arrays' results. Both wrappers
+nodes (a whole A100 node, `--gres=gpu:A100:1 --exclusive`). A final job combines both arrays' results. Both wrappers
 source the shared body in `scripts/competition.sh`.
 
 ```bash
@@ -174,7 +174,9 @@ framework needs a GPU. On PACE Phoenix the GPU type selects the partition: an
 A100 request lands on `gpu-a100`, an RTX 6000 on `gpu-rtx6000`, and a request
 without a type falls through to `gpu-v100`. To use another GPU type, override
 the request when submitting the GPU wrapper directly:
-`sbatch --gres=gpu:A100:1 scripts/competition-gpu.slurm --resume competition/run_12345`.
+`sbatch --gres=gpu:H100:1 scripts/competition-gpu.slurm --resume competition/run_12345`.
+The V100 is not an option with the pinned torch wheel, which has no kernels
+for it.
 
 Slurm stdout and stderr logs go to the directory where you submit the job:
 `competition-cpu-%A_%a.log`, `competition-gpu-%A_%a.log`,
@@ -228,8 +230,8 @@ dataset-caching, and tracing modes retain their stricter exit behavior.
 
 The competition config selects the standard datasets and uses one timing round
 per benchmark, with ASV's normal repeated measurements. The launcher submits
-64-task arrays by default (set `SAPS_CHUNK_COUNT` to change that), with an
-eight-hour time limit per task. Each task runs a deterministic set of the
+128-task arrays by default (set `SAPS_CHUNK_COUNT` to change that), with an
+twelve-hour time limit per task. Each task runs a deterministic set of the
 selected datasets. All competition outputs live in the run directory, named
 after the CPU array's job ID. GPU tasks write to `task_gpu_<index>/`:
 
@@ -517,9 +519,9 @@ results for each environment. To continue a Slurm run, submit the same array sha
 and configuration with its existing run directory:
 
 ```bash
-SAPS_CHUNK_COUNT=64 scripts/submit-competition.sh --resume competition/run_12345
+SAPS_CHUNK_COUNT=128 scripts/submit-competition.sh --resume competition/run_12345
 # Or rerun part of one array; SAPS_CHUNK_COUNT keeps the original chunking:
-SAPS_CHUNK_COUNT=64 sbatch --array=19-23 scripts/competition-cpu.slurm \
+SAPS_CHUNK_COUNT=128 sbatch --array=19-23 scripts/competition-cpu.slurm \
   --resume competition/run_12345
 ```
 

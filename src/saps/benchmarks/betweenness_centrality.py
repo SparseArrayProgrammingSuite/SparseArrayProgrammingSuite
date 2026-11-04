@@ -398,8 +398,14 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             ("higgs-twitter", ["standard"]),
         ]
         # fmt: on
+        # The train suite holds one dataset per benchmark, so only the first
+        # trial of the train graph carries that suite.
         return [
-            BetweennessCentralitySNAPDataset(name, trial, suites=suites)
+            BetweennessCentralitySNAPDataset(
+                name,
+                trial,
+                suites=suites if trial == 0 else [s for s in suites if s != "train"],
+            )
             for name, suites in graphs
             for trial in range(16)
         ]

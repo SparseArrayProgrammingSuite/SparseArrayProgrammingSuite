@@ -43,7 +43,7 @@ repo_directory=$(cd -- "$script_directory/.." && pwd)
 
 account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 competition_config="${SAPS_COMPETITION_CONFIG:-$repo_directory/competition.config.json}"
-chunk_count="${SAPS_CHUNK_COUNT:-64}"
+chunk_count="${SAPS_CHUNK_COUNT:-128}"
 
 if ((chunk_count < 1)); then
   echo "SAPS_CHUNK_COUNT must be at least 1" >&2
