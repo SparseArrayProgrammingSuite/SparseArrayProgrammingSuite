@@ -77,6 +77,12 @@ fi
 
 cd "$repo_directory"
 
+# Sync the runner's Poetry environment with the lock file before importing
+# saps, so a newly pinned dependency does not fail every task at import time.
+# Array tasks share one environment; ensure-poetry-env.sh serializes installs.
+# SAPS_ENSURE_POETRY_ENV points at a replacement script (tests stub it).
+"${SAPS_ENSURE_POETRY_ENV:-$repo_directory/scripts/ensure-poetry-env.sh}"
+
 set +e
 poetry run ./bin/run_benchmark.py \
   --config "$competition_config" \

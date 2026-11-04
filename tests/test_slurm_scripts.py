@@ -19,6 +19,14 @@ pytestmark = pytest.mark.skipif(
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def stub_ensure_poetry_env(tmp_path):
+    """A no-op stand-in for scripts/ensure-poetry-env.sh (see competition.sh)."""
+    stub = tmp_path / "ensure-poetry-env.sh"
+    stub.write_text("#!/usr/bin/env bash\nexit 0\n")
+    stub.chmod(0o755)
+    return stub
+
+
 @pytest.mark.parametrize("upload_chunks", [None, "3"])
 def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     scripts = tmp_path / "repo" / "scripts"
@@ -145,6 +153,7 @@ def test_competition_resume_uses_original_task_directory(
         "BASH_ENV": str(shell_env),
         "SAPS_TEST_COMMANDS": str(record),
         "SAPS_REPO_DIRECTORY": str(ROOT),
+        "SAPS_ENSURE_POETRY_ENV": str(stub_ensure_poetry_env(tmp_path)),
         "SLURM_ARRAY_JOB_ID": "99999",
         "SLURM_ARRAY_TASK_ID": "2",
         "SLURM_ARRAY_TASK_COUNT": "5",
@@ -239,6 +248,7 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         "SAPS_TEST_COMMANDS": str(record),
         "SAPS_TEST_SCRIPT": script_name,
         "SLURM_SUBMIT_DIR": str(ROOT / "scripts"),
+        "SAPS_ENSURE_POETRY_ENV": str(stub_ensure_poetry_env(tmp_path)),
         "SLURM_ARRAY_JOB_ID": "12345",
         "SLURM_ARRAY_TASK_ID": "0",
         "SLURM_ARRAY_TASK_COUNT": "5",

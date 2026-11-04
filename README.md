@@ -147,7 +147,9 @@ On Slurm, submit a competition with the launcher. It submits two arrays that
 share one run directory: `scripts/competition-cpu.slurm` runs the CPU frameworks
 on CPU nodes and `scripts/competition-gpu.slurm` runs the GPU frameworks on GPU
 nodes (a whole V100 node, `--gres=gpu:V100:2 --exclusive`). A final job combines both arrays' results. Both wrappers
-source the shared body in `scripts/competition.sh`.
+source the shared body in `scripts/competition.sh`, which first runs
+`scripts/ensure-poetry-env.sh` so each task's Poetry environment matches the
+lock file (set `SAPS_ENSURE_POETRY_ENV` to a replacement script to skip it).
 
 ```bash
 scripts/submit-competition.sh
