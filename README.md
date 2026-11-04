@@ -146,13 +146,13 @@ poetry run ./bin/run_benchmark.py \
 On Slurm, submit a competition with the launcher. It submits two arrays that
 share one run directory: `scripts/competition-cpu.slurm` runs the CPU frameworks
 on CPU nodes and `scripts/competition-gpu.slurm` runs the GPU frameworks on GPU
-nodes (a whole A100 node, `--gres=gpu:A100:1 --exclusive`). A final job combines both arrays' results. Both wrappers
+nodes (a whole V100 node, `--gres=gpu:V100:2 --exclusive`). A final job combines both arrays' results. Both wrappers
 source the shared body in `scripts/competition.sh`.
 
 ```bash
 scripts/submit-competition.sh
-# Training set, as a smaller array:
-SAPS_CHUNK_COUNT=8 scripts/submit-competition.sh --tag suite-train
+# Training set, as smaller arrays:
+SAPS_CHUNK_COUNT=8 SAPS_GPU_CHUNK_COUNT=4 scripts/submit-competition.sh --tag suite-train
 ```
 
 Arguments other than `--resume` and `--after` go to `bin/run_benchmark.py` in
@@ -170,13 +170,11 @@ twice, once with and once without `SAPS_DEVICE`, as PyTorch does with the
 names `pytorch` and `pytorch-gpu`.
 Each array passes `--device cpu` or `--device gpu` to the runner, which only
 builds the matching environments. The launcher skips the GPU array when no
-framework needs a GPU. On PACE Phoenix the GPU type selects the partition: an
-A100 request lands on `gpu-a100`, an RTX 6000 on `gpu-rtx6000`, and a request
-without a type falls through to `gpu-v100`. To use another GPU type, override
-the request when submitting the GPU wrapper directly:
-`sbatch --gres=gpu:H100:1 scripts/competition-gpu.slurm --resume competition/run_12345`.
-The V100 is not an option with the pinned torch wheel, which has no kernels
-for it.
+framework needs a GPU. The GPU array runs on V100s (`gpu-v100` on PACE
+Phoenix), not A100s, where competition jobs die. V100s are compute capability
+7.0, which CUDA 13 no longer targets, so GPU frameworks need CUDA 12 builds:
+the GPU wrapper sets `PIP_EXTRA_INDEX_URL` to PyTorch's cu126 index, whose
+`torch==2.12.1+cu126` pip prefers over PyPI's CUDA 13 build.
 
 Slurm stdout and stderr logs go to the directory where you submit the job:
 `competition-cpu-%A_%a.log`, `competition-gpu-%A_%a.log`,
@@ -229,9 +227,10 @@ result-writing failures still produce a nonzero exit status. Correctness-check,
 dataset-caching, and tracing modes retain their stricter exit behavior.
 
 The competition config selects the standard datasets and uses one timing round
-per benchmark, with ASV's normal repeated measurements. The launcher submits
-128-task arrays by default (set `SAPS_CHUNK_COUNT` to change that), with an
-twelve-hour time limit per task. Each task runs a deterministic set of the
+per benchmark, with ASV's normal repeated measurements. The launcher submits a
+128-task CPU array and a 32-task GPU array, so it holds fewer GPU nodes, with a
+twelve-hour time limit per task (set `SAPS_CHUNK_COUNT` and
+`SAPS_GPU_CHUNK_COUNT` to change the sizes). Each task runs a deterministic set of the
 selected datasets. All competition outputs live in the run directory, named
 after the CPU array's job ID. GPU tasks write to `task_gpu_<index>/`:
 
@@ -519,9 +518,12 @@ results for each environment. To continue a Slurm run, submit the same array sha
 and configuration with its existing run directory:
 
 ```bash
-SAPS_CHUNK_COUNT=128 scripts/submit-competition.sh --resume competition/run_12345
+SAPS_CHUNK_COUNT=128 SAPS_GPU_CHUNK_COUNT=32 scripts/submit-competition.sh --resume competition/run_12345
 # Or rerun part of one array; SAPS_CHUNK_COUNT keeps the original chunking:
 SAPS_CHUNK_COUNT=128 sbatch --array=19-23 scripts/competition-cpu.slurm \
+  --resume competition/run_12345
+# SAPS_GPU_CHUNK_COUNT does the same for the GPU array:
+SAPS_GPU_CHUNK_COUNT=32 sbatch --array=3 scripts/competition-gpu.slurm \
   --resume competition/run_12345
 ```
 

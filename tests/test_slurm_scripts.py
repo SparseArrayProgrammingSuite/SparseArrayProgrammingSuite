@@ -148,9 +148,12 @@ def test_competition_resume_uses_original_task_directory(
         "SLURM_ARRAY_JOB_ID": "99999",
         "SLURM_ARRAY_TASK_ID": "2",
         "SLURM_ARRAY_TASK_COUNT": "5",
+        # The CPU array's chunk count; GPU tasks chunk by their own array.
+        "SAPS_CHUNK_COUNT": "64",
         "TMPDIR": str(tmp_path / "local scratch"),
     }
     env.pop("SAPS_COMPETITION_ARGS", None)
+    env.pop("SAPS_GPU_CHUNK_COUNT", None)
     subprocess.run(
         [
             "bash",
@@ -182,6 +185,7 @@ def test_competition_resume_uses_original_task_directory(
     assert run[run.index("--results-dir") + 1] == task_directory + "/results"
     assert run[run.index("--machine") + 1] == f"run_12345-task-{task_label}"
     assert run[run.index("--device") + 1] == device
+    assert run[run.index("--chunk-count") + 1] == ("64" if device == "cpu" else "5")
     # Wrapper arguments other than --resume reach the runner unchanged.
     assert run[len(run) - len(forwarded) :] == forwarded
     assert combine[:2] == ["run", "./scripts/combine_competition_results.py"]
@@ -310,6 +314,7 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
         "SAPS_TEST_SUBMISSIONS": str(record),
         "SAPS_COMPETITION_CONFIG": str(config),
         "SAPS_CHUNK_COUNT": "8",
+        "SAPS_GPU_CHUNK_COUNT": "4",
     }
     subprocess.run(
         [
@@ -333,7 +338,7 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
     assert len(arrays) == len(devices)
     for device, args in zip(devices, arrays, strict=True):
         wrapper = args.index(str(scripts / f"competition-{device}.slurm"))
-        assert "--array=0-7" in args
+        assert ("--array=0-7" if device == "cpu" else "--array=0-3") in args
         assert "--dependency=afterok:42" in args
         assert args[-2:] == ["--tag", "suite-train"]
         # The GPU array joins the run directory named after the CPU array.

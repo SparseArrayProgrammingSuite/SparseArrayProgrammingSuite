@@ -24,8 +24,13 @@ competition_config="${SAPS_COMPETITION_CONFIG:-$repo_directory/competition.confi
 job_id="${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-local}}"
 task_index="${SLURM_ARRAY_TASK_ID:-0}"
 # A partial rerun (e.g. --array=19-23) must keep the original chunk count, so
-# SAPS_CHUNK_COUNT overrides the size of the submitted array.
-task_count="${SAPS_CHUNK_COUNT:-${SLURM_ARRAY_TASK_COUNT:-1}}"
+# SAPS_CHUNK_COUNT (SAPS_GPU_CHUNK_COUNT for the GPU array, which has fewer
+# tasks) overrides the size of the submitted array.
+if [[ "$competition_device" == gpu ]]; then
+  task_count="${SAPS_GPU_CHUNK_COUNT:-${SLURM_ARRAY_TASK_COUNT:-1}}"
+else
+  task_count="${SAPS_CHUNK_COUNT:-${SLURM_ARRAY_TASK_COUNT:-1}}"
+fi
 competition_run_root="$repo_directory/competition/run_$job_id"
 forwarded_args=()
 while (( $# > 0 )); do
