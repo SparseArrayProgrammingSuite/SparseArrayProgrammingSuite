@@ -23981,6 +23981,31 @@
         {
           "datasets": [
             {
+              "file": "src/saps/benchmarks/lth_conv2.py",
+              "freshness": "ab3b4633a712261204bc9087e7032a2b23703fe4d357de120fe0032fa6b127e1",
+              "name": "pruned",
+              "statistics": [
+                "feature-dense",
+                "feature-fancy-ops",
+                "feature-large-query",
+                "feature-linalg-ops",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            }
+          ],
+          "name": "lth_conv2_onnx",
+          "statistics": []
+        }
+      ],
+      "name": "lth_conv2",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
               "file": "src/saps/benchmarks/mcl.py",
               "freshness": "08530ed20e55e0e1d7ce43d37f27bf168b009a0381ee7462b35893bd5f955d22",
               "name": "CollegeMsg",

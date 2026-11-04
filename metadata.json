@@ -156020,6 +156020,12 @@
                 "train"
               ],
               "tags": [
+                "feature-dense",
+                "feature-fancy-ops",
+                "feature-large-query",
+                "feature-linalg-ops",
+                "feature-shape-ops",
+                "feature-tensor",
                 "suite-lth",
                 "suite-standard",
                 "suite-standard-machine-learning",
@@ -156044,6 +156050,12 @@
             "lth"
           ],
           "tags": [
+            "feature-dense",
+            "feature-fancy-ops",
+            "feature-large-query",
+            "feature-linalg-ops",
+            "feature-shape-ops",
+            "feature-tensor",
             "suite-lth",
             "suite-standard-machine-learning"
           ],
@@ -156063,6 +156075,12 @@
         "standard-machine-learning"
       ],
       "tags": [
+        "feature-dense",
+        "feature-fancy-ops",
+        "feature-large-query",
+        "feature-linalg-ops",
+        "feature-shape-ops",
+        "feature-tensor",
         "suite-lth",
         "suite-standard-machine-learning"
       ],
