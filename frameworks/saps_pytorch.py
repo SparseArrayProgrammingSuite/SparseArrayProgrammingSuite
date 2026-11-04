@@ -64,6 +64,22 @@ def _dense_if_mixed(x1, x2):
     return x1, x2
 
 
+class _TensorAt:
+    """xp.at(x, idx) for a tensor: set writes x in place, as xpx.at would.
+
+    Dynamo fails tracing array-api-compat's probes of an xpx.at index (x.dtype
+    under try/except AttributeError), so compiled benchmarks skip xpx.at.
+    """
+
+    def __init__(self, x, idx):
+        self.x = x
+        self.idx = idx
+
+    def set(self, y, /):
+        self.x[self.idx] = y
+        return self.x
+
+
 class PytorchLinalg:
     @staticmethod
     def _dense(array):
@@ -161,6 +177,9 @@ class PytorchFramework(Framework):
 
     def compile(self, func):
         return torch.compile(func)
+
+    def at(self, x, idx, /):
+        return _TensorAt(x, idx)
 
     def einsum(self, prgm, **kwargs):
         parsed, contraction = _parse_einsum(prgm)

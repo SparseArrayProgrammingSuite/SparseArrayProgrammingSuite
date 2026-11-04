@@ -16,6 +16,7 @@ dependencies = [
     "boto3>=1.43.8,<2.0.0",
     "botocore[crt]>=1.43.10,<2.0.0",
     "binsparse (>=0.1.4,<0.2.0)",
+    "array-api-extra>=0.11.5,<0.12.0",
 ]
 
 [tool.poetry]
@@ -40,6 +41,7 @@ boto3 = "==1.43.34"
 botocore = {version = "==1.43.34", extras = ["crt"]}
 pandas = "==2.3.3"
 "array-api-compat" = "==1.15.0"
+"array-api-extra" = "==0.11.5"
 arxiv = "==4.0.0"
 donfig = "==0.8.1.post1"
 gdown = "==6.1.0"
@@ -150,6 +152,14 @@ mypy = "==1.15.0"
 pytest-mypy = "==1.0.1"
 pytest-regressions = "==2.8.3"
 types-requests = "==2.33.0.20260712"
+
+# CuPy 14.2 adds the cupyx sparse array API used by this framework.
+[tool.poetry.group.gpu]
+optional = true
+
+[tool.poetry.group.gpu.dependencies]
+# CUDA 12: the cluster's V100s (sm_70) aren't a CUDA 13 target.
+cupy-cuda12x = ">=14.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.8"]

@@ -1,0 +1,88 @@
+# Test environments for the frameworks Poetry's generate group doesn't install.
+# Each task runs the framework's own tests, if any, and every suite-test
+# dataset under it (tests/test_framework_datasets.py), e.g.
+#   pixi run test-finch
+#   pixi run test-finch -k bellman_ford
+# Poetry remains the environment for everything else.
+
+[workspace]
+name = "saps"
+channels = ["conda-forge"]
+platforms = [
+    { name = "linux-64", platform = "linux-64" },
+    { name = "linux-64-cuda", platform = "linux-64", cuda = "12" },
+    { name = "macos-arm64", platform = "osx-arm64", macos = "15.0" },
+]
+requires-pixi = ">=0.72.0"
+
+[dependencies]
+python = "3.12.*"
+
+[pypi-dependencies]
+saps = { path = ".", editable = true }
+# What each competition environment installs (competition.config.json).
+array-api-compat = "==1.15.0"
+array-api-extra = "==0.11.5"
+networkx = "==3.6"
+numpy = "==2.3.5"
+scipy = "==1.17.1"
+ssgetpy = "==1.0rc2"
+pytest = "==7.4.4"
+# The dataset test runs in one process, so a hung dataset must not stall the
+# rest: --timeout fails it after 10 minutes, as ASV's process_timeout would.
+pytest-timeout = "==2.4.0"
+
+[environments]
+cupy = ["cupy"]
+finch = ["finch"]
+galley = ["galley"]
+scorch = ["scorch"]
+
+# CuPy 14.2 adds the cupyx sparse array API that frameworks/saps_cupy.py uses.
+# The cluster's GPUs are V100s (sm_70), which CUDA 13 no longer targets.
+[feature.cupy]
+platforms = ["linux-64-cuda"]
+
+# conda's cupy depends on numpy, so pin it to the PyPI numpy above.
+[feature.cupy.dependencies]
+cupy = ">=14.2"
+cuda-version = "12.*"
+numpy = "2.3.5.*"
+
+[feature.cupy.tasks]
+test-cupy = { cmd = "pytest -o addopts= --timeout=600 tests/test_cupy_framework.py tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_cupy.py" } }
+
+# COMPILE_JULIA_GALLEY is not in a finch-tensor release yet. juliapkg installs
+# the Julia packages, and Julia itself if none is on PATH, on first import.
+[feature.finch.pypi-dependencies]
+finch-tensor = { git = "https://github.com/finch-tensor/finch-tensor.git", branch = "main", extras = ["julia"] }
+
+[feature.finch.tasks]
+test-finch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_finch.py" } }
+
+[feature.galley.pypi-dependencies]
+galley-jl-python = "==0.1.0"
+
+[feature.galley.tasks]
+test-galley = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_galley.py" } }
+
+# Scorch builds a C++ extension against the installed torch and JIT-compiles
+# kernels with OpenMP at run time. On macOS its setup.py uses Apple clang,
+# torch's bundled libomp and Homebrew's libomp headers (brew install libomp).
+# Its setup.py imports torch, so pixi can't lock it as a PyPI dependency;
+# install-scorch builds it into the environment instead.
+# torch 2.12.1 requires setuptools<82, which conda's pip would otherwise exceed.
+[feature.scorch.dependencies]
+pip = "*"
+setuptools = "<82"
+
+[feature.scorch.pypi-dependencies]
+torch = "==2.12.1"
+ninja = "*"
+
+[feature.scorch.target.linux-64.dependencies]
+cxx-compiler = "*"
+
+[feature.scorch.tasks]
+install-scorch = "python -c 'import scorch' 2>/dev/null || pip install --no-build-isolation git+https://github.com/bobbyyyan/scorch.git"
+test-scorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_scorch.py" }, depends-on = ["install-scorch"] }

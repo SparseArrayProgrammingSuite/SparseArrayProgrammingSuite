@@ -1,7 +1,6 @@
 # ruff: noqa: E501
 import numpy as np
 
-import igraph as ig
 import sparse as sp
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy
@@ -346,6 +345,8 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
         ]
 
     def generate(self, dataset: MSSPDataset):
+        import igraph as ig
+
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
@@ -527,6 +528,8 @@ class MSSPSNAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
         return [ReferenceDataset(dataset) for dataset in MSSPSNAPGenerator().datasets]
 
     def generate(self, dataset: ReferenceDataset[MSSPDataset]) -> DataInstance:
+        import igraph as ig
+
         problem = MSSPSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()

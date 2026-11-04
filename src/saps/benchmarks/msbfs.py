@@ -2,7 +2,6 @@
 import numpy as np
 from scipy.sparse import coo_array
 
-import igraph as ig
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, from_scipy
 
@@ -283,6 +282,8 @@ class MSBFSTestGenerator(Generator[MSBFSDataset]):
         ]
 
     def generate(self, dataset: MSBFSDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("Multi-source BFS test datasets must define A.")
         adjacency = from_scipy(coo_array(dataset.A))
@@ -462,6 +463,8 @@ class MSBFSSNAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
         return [ReferenceDataset(dataset) for dataset in MSBFSSNAPGenerator().datasets]
 
     def generate(self, dataset: ReferenceDataset[MSBFSDataset]) -> DataInstance:
+        import igraph as ig
+
         problem = MSBFSSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()

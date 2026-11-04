@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -257,6 +256,8 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         ]
 
     def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("Centrality test datasets must define A.")
         expected = dataset.expected
@@ -397,8 +398,14 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             ("higgs-twitter", ["standard"]),
         ]
         # fmt: on
+        # The train suite holds one dataset per benchmark, so only the first
+        # trial of the train graph carries that suite.
         return [
-            BetweennessCentralitySNAPDataset(name, trial, suites=suites)
+            BetweennessCentralitySNAPDataset(
+                name,
+                trial,
+                suites=suites if trial == 0 else [s for s in suites if s != "train"],
+            )
             for name, suites in graphs
             for trial in range(16)
         ]
@@ -459,6 +466,8 @@ class BetweennessCentralitySNAPReferenceGenerator(
     def generate(
         self, dataset: ReferenceDataset[BetweennessCentralitySNAPDataset]
     ) -> DataInstance:
+        import igraph as ig
+
         problem = BetweennessCentralitySNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()

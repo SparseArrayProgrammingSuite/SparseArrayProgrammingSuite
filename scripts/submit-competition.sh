@@ -4,7 +4,9 @@
 # competition config) on GPU nodes. A final job combines both arrays' results.
 #
 # Arguments other than --resume and --after go to bin/run_benchmark.py in both
-# arrays, for example: SAPS_CHUNK_COUNT=8 $0 --tag suite-train
+# arrays. SAPS_CHUNK_COUNT and SAPS_GPU_CHUNK_COUNT set the arrays' sizes, for
+# example for the training set:
+#   SAPS_CHUNK_COUNT=8 SAPS_GPU_CHUNK_COUNT=4 $0 --tag suite-train
 set -euo pipefail
 
 usage() {
@@ -43,15 +45,24 @@ repo_directory=$(cd -- "$script_directory/.." && pwd)
 
 account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 competition_config="${SAPS_COMPETITION_CONFIG:-$repo_directory/competition.config.json}"
-chunk_count="${SAPS_CHUNK_COUNT:-64}"
+chunk_count="${SAPS_CHUNK_COUNT:-128}"
+# Fewer GPU tasks, so the GPU array holds fewer V100 nodes at once.
+gpu_chunk_count="${SAPS_GPU_CHUNK_COUNT:-32}"
 
 if ((chunk_count < 1)); then
   echo "SAPS_CHUNK_COUNT must be at least 1" >&2
   exit 1
 fi
 
-# Skip the GPU array when no framework needs a GPU, rather than holding GPU
-# nodes only for the runner to find nothing to do.
+if ((gpu_chunk_count < 1)); then
+  echo "SAPS_GPU_CHUNK_COUNT must be at least 1" >&2
+  exit 1
+fi
+
+# Every framework needs a unique SAPS_FRAMEWORK_NAME, which the combine job
+# uses to tell results apart, so refuse a bad config before queuing anything.
+# Also skip the GPU array when no framework needs a GPU, rather than holding
+# GPU nodes only for the runner to find nothing to do.
 uses_gpu=$(
   python3 - "$competition_config" <<'EOF'
 import json
@@ -59,11 +70,19 @@ import sys
 
 with open(sys.argv[1]) as f:
     config = json.load(f)
+includes = config.get("include", [])
+names = [include.get("env_nobuild", {}).get("SAPS_FRAMEWORK_NAME") for include in includes]
+missing = [i for i, name in enumerate(names) if not name]
+if missing:
+    sys.exit(f"{sys.argv[1]}: include entries {missing} lack SAPS_FRAMEWORK_NAME")
+duplicates = sorted({name for name in names if names.count(name) > 1})
+if duplicates:
+    sys.exit(f"{sys.argv[1]}: duplicate SAPS_FRAMEWORK_NAME {duplicates}")
 print(
     "true"
     if any(
         include.get("env_nobuild", {}).get("SAPS_DEVICE") == "gpu"
-        for include in config.get("include", [])
+        for include in includes
     )
     else "false"
 )
@@ -92,11 +111,12 @@ submit_job() {
 
 submit_array() {
   local device=$1
-  shift
+  local count=$2
+  shift 2
   submit_job \
     -A "$account" \
     ${dependency[@]+"${dependency[@]}"} \
-    --array="0-$((chunk_count - 1))" \
+    --array="0-$((count - 1))" \
     --output "$log_directory/competition-$device-%A_%a.log" \
     --chdir "$repo_directory" \
     --export=ALL,SAPS_REPO_DIRECTORY="$repo_directory" \
@@ -106,11 +126,11 @@ submit_array() {
 }
 
 if [[ -n "$run_directory" ]]; then
-  cpu_job_id=$(submit_array cpu --resume "$run_directory")
+  cpu_job_id=$(submit_array cpu "$chunk_count" --resume "$run_directory")
   submitted+=("$cpu_job_id")
 else
   # A new run is named after the CPU array; the GPU array joins it.
-  cpu_job_id=$(submit_array cpu)
+  cpu_job_id=$(submit_array cpu "$chunk_count")
   submitted+=("$cpu_job_id")
   run_directory="$repo_directory/competition/run_$cpu_job_id"
   mkdir -p "$run_directory"
@@ -119,7 +139,7 @@ fi
 gpu_job_id=""
 combine_after="afterany:$cpu_job_id"
 if $uses_gpu; then
-  gpu_job_id=$(submit_array gpu --resume "$run_directory")
+  gpu_job_id=$(submit_array gpu "$gpu_chunk_count" --resume "$run_directory")
   submitted+=("$gpu_job_id")
   combine_after="$combine_after:$gpu_job_id"
 fi

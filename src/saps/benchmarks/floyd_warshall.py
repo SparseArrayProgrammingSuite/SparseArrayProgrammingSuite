@@ -4,7 +4,6 @@ from array import array
 import numpy as np
 import scipy.sparse as scipy_sparse
 
-import igraph as ig
 import sparse
 import sparse as sp
 from binsparse import BinsparseTensor
@@ -328,6 +327,8 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         ]
 
     def generate(self, dataset: FloydWarshallDataset):
+        import igraph as ig
+
         inputs = (
             dataset.A.todense() if isinstance(dataset.A, sp.SparseArray) else dataset.A
         )
@@ -411,7 +412,7 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
             FloydWarshallDataset("com-Youtube", suites=["standard", "trace"]),
             FloydWarshallDataset("com-DBLP", suites=["standard", "trace"]),
             FloydWarshallDataset("com-Amazon", suites=["standard", "trace"]),
-            FloydWarshallDataset("email-Eu-core", suites=["standard", "trace"]),
+            FloydWarshallDataset("email-Eu-core", suites=["standard", "trace", "train"]),
             FloydWarshallDataset("wiki-topcats", suites=["standard", "trace"]),
             FloydWarshallDataset("email-EuAll", suites=["standard", "trace"]),
             FloydWarshallDataset("email-Enron", suites=["standard", "trace"]),
@@ -455,7 +456,7 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
             FloydWarshallDataset("soc-sign-Slashdot090221", suites=["standard", "trace"]),
             FloydWarshallDataset("loc-Gowalla", suites=["standard", "trace"]),
             FloydWarshallDataset("loc-Brightkite", suites=["standard", "trace"]),
-            FloydWarshallDataset("sx-stackoverflow", suites=["standard", "trace", "train"]),
+            FloydWarshallDataset("sx-stackoverflow", suites=["standard", "trace"]),
             FloydWarshallDataset("sx-mathoverflow", suites=["standard", "trace"]),
             FloydWarshallDataset("sx-superuser", suites=["standard", "trace"]),
             FloydWarshallDataset("sx-askubuntu", suites=["standard", "trace"]),

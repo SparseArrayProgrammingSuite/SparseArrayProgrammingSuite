@@ -62,6 +62,9 @@ def test_snap_trials_partition_source_seeds():
         "email-Eu-core",
         "email-Eu-core-temporal",
     }
+    assert [d.name for d in datasets if "train" in d.suites] == [
+        "email-Eu-core-temporal_trial0"
+    ]
 
 
 def test_snap_generator_preserves_source_order_and_repeats(monkeypatch):

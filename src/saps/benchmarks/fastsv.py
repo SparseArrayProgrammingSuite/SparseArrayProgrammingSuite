@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -353,6 +352,8 @@ class FastSVSNAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
         return [ReferenceDataset(dataset) for dataset in FastSVSNAPGenerator().datasets]
 
     def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
+        import igraph as ig
+
         problem = FastSVSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(n=adjacency.shape[0], directed=True)
@@ -494,7 +495,7 @@ class FastSVBenchmark(Benchmark):
             # step 1: stochastic hooking
             mngf = xp.min(xp.where(A, xp.expand_dims(gf, 0), int_max), axis=1)
             B = xp.zeros((n, n), dtype=bool)
-            B[f, xp.arange(n)] = True
+            B = xp.at(B, (f, xp.arange(n))).set(True)
             f = xp.min(xp.where(B, xp.expand_dims(mngf, 0), int_max), axis=1)
 
             # step 2: aggressive hooking

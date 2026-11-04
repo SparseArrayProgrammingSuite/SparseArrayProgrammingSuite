@@ -2,7 +2,6 @@
 import numpy as np
 import scipy.sparse as sps
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy
 
@@ -349,6 +348,8 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         ]
 
     def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("Bellman-Ford test datasets must define A.")
         if dataset.source_seed is not None:
@@ -748,6 +749,8 @@ class BellmanFordSNAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         ]
 
     def generate(self, dataset: ReferenceDataset[BellmanFordDataset]) -> DataInstance:
+        import igraph as ig
+
         problem = BellmanFordSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
@@ -885,7 +888,7 @@ class BellmanFordBenchmark(Benchmark):
 
         G = xp.asarray(edges, dtype=float)
         D = xp.full((n,), xp.inf)
-        D[src] = 0
+        D = xp.at(D, src).set(0)
 
         for _ in range(n):
             D_prev = D

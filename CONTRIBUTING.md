@@ -66,6 +66,7 @@ Every benchmark function has a fixed parameter list. If the inputs differ betwee
 Benchmark functions should:
 
 - Use Array API style operations through `xp`.
+- Write indexed assignment `x[idx] = y` as `x = xp.at(x, idx).set(y)`. Some frameworks' arrays are immutable, so `set` may return a new array rather than updating `x`; always use its result.
 - Use basic Python syntax, including `for`, `while`, and `if` when needed.
 - Avoid framework-specific shortcuts that only one implementation can support.
 - Avoid file I/O, threads, networking, global mutable state, recursion, and non-determinism.
@@ -255,6 +256,17 @@ poetry run ./bin/run_benchmark.py --cache-datasets
 ```
 
 Dataset digests should be content hashes of serialized data. Freshness records belong in manifest metadata; they should not force a new remote object when the data bytes have not changed.
+
+## Testing Other Frameworks
+
+Poetry's `generate` group installs the NumPy, SciPy, pydata/sparse, smart, tagger, PyTorch and GraphBLAS frameworks. `pixi.toml` defines an environment for each of the others (CuPy, Finch, Galley, Scorch). Each environment's task runs that framework's tests and every `suite-test` dataset under it, in one process:
+
+```bash
+pixi run test-finch
+pixi run test-finch -k bellman_ford
+```
+
+The CuPy environment needs Linux with an NVIDIA GPU and uses CUDA 12, the last CUDA release that targets V100s. Scorch on macOS needs Homebrew's OpenMP headers (`brew install libomp`).
 
 ## Tracing
 

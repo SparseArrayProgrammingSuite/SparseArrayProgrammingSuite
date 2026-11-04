@@ -7,8 +7,8 @@
 #SBATCH --exclusive
 #SBATCH --mem=160G
 #SBATCH --tmp=50G
-#SBATCH --time=08:00:00
-#SBATCH --array=0-63
+#SBATCH --time=12:00:00
+#SBATCH --array=0-127
 #SBATCH --output=competition-cpu-%A_%a.log
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=ahrens@gatech.edu
