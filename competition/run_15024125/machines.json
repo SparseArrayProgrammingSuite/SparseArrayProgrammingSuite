@@ -62,5 +62,13 @@
     "arch": "x86_64",
     "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
     "ram": "196137368"
+  },
+  "machine_e2edd1aa40e59220": {
+    "machine": "atl1-1-03-002-27-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196105060"
   }
 }
