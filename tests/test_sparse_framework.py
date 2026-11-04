@@ -76,10 +76,13 @@ def test_argsort_preserves_nonzero_fill_and_stable_ties():
 def test_zeros_scatter_does_not_materialize_large_hash_axis():
     xp = PyDataSparseFramework()
     array = xp.zeros((100_000, 2**31), dtype=xp.bool)
-    array[
-        np.array([0, 99_999], dtype=np.uint64),
-        np.array([2**31 - 1, 17], dtype=np.uint32),
-    ] = True
+    array = xp.at(
+        array,
+        (
+            np.array([0, 99_999], dtype=np.uint64),
+            np.array([2**31 - 1, 17], dtype=np.uint32),
+        ),
+    ).set(True)
 
     assert isinstance(array, sp.COO)
     assert array.nnz == 2
@@ -93,14 +96,28 @@ def test_sparse_scatter_updates_and_matrix_product():
     array = xp.zeros((3, 4), dtype=xp.int64)
     rows = sp.asarray([0, 1, 2])
     columns = sp.asarray([1, 1, 3])
-    array[rows, columns] = sp.asarray([1, 2, 3])
-    array[1, 1] = 0
-    array[0, 1] = 4
+    array = xp.at(array, (rows, columns)).set(sp.asarray([1, 2, 3]))
+    array = xp.at(array, (1, 1)).set(0)
+    array = xp.at(array, (0, 1)).set(4)
 
     expected = np.array([[0, 4, 0, 0], [0, 0, 0, 0], [0, 0, 0, 3]])
     np.testing.assert_array_equal(array.todense(), expected)
     product = xp.matmul(array, xp.matrix_transpose(array))
     np.testing.assert_array_equal(product.todense(), expected @ expected.T)
+
+
+def test_at_set_leaves_sparse_arrays_unchanged():
+    xp = PyDataSparseFramework()
+    zeros = xp.zeros((2, 2), dtype=xp.int64)
+    updated = xp.at(zeros, (0, 1)).set(3)
+    updated = xp.at(updated, (1, 1)).set(2)
+    np.testing.assert_array_equal(zeros.todense(), [[0, 0], [0, 0]])
+    np.testing.assert_array_equal(updated.todense(), [[0, 3], [0, 2]])
+
+    sparse_input = sp.asarray(np.array([[1, 0], [0, 2]]))
+    updated = xp.at(sparse_input, (slice(None), 1)).set(np.array([5, 6]))
+    np.testing.assert_array_equal(sparse_input.todense(), [[1, 0], [0, 2]])
+    np.testing.assert_array_equal(updated.todense(), [[1, 5], [0, 6]])
 
 
 @pytest.mark.parametrize("sparse_input", [False, True])

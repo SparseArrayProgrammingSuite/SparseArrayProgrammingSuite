@@ -1550,17 +1550,27 @@ Nearest neighbor algorithms</concept_desc>
             query_indicator = xp.zeros(
                 (n_queries, n_tables * (n_buckets + 1)), dtype=xp.uint8
             )
-            query_indicator[
-                xp.reshape(xp.arange(n_queries)[:, None] + offsets * 0, (-1,)),
-                xp.reshape(xp.add(xp.astype(masked_query, xp.int64), offsets), (-1,)),
-            ] = 1
+            query_indicator = xp.at(
+                query_indicator,
+                (
+                    xp.reshape(xp.arange(n_queries)[:, None] + offsets * 0, (-1,)),
+                    xp.reshape(
+                        xp.add(xp.astype(masked_query, xp.int64), offsets), (-1,)
+                    ),
+                ),
+            ).set(1)
             data_indicator = xp.zeros(
                 (n_samples, n_tables * (n_buckets + 1)), dtype=xp.uint8
             )
-            data_indicator[
-                xp.reshape(xp.arange(n_samples)[:, None] + offsets * 0, (-1,)),
-                xp.reshape(xp.add(xp.astype(masked_data, xp.int64), offsets), (-1,)),
-            ] = 1
+            data_indicator = xp.at(
+                data_indicator,
+                (
+                    xp.reshape(xp.arange(n_samples)[:, None] + offsets * 0, (-1,)),
+                    xp.reshape(
+                        xp.add(xp.astype(masked_data, xp.int64), offsets), (-1,)
+                    ),
+                ),
+            ).set(1)
             matches = (
                 xp.matmul(query_indicator, xp.permute_dims(data_indicator, (1, 0))) > 0
             )

@@ -888,7 +888,7 @@ class BellmanFordBenchmark(Benchmark):
 
         G = xp.asarray(edges, dtype=float)
         D = xp.full((n,), xp.inf)
-        D[src] = 0
+        D = xp.at(D, src).set(0)
 
         for _ in range(n):
             D_prev = D

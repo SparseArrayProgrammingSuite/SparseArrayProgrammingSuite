@@ -762,7 +762,7 @@ class BFSBenchmark(Benchmark):
         assert n == m
         visited = xp.zeros((n,), dtype=bool)
         frontier = xp.zeros((n,), dtype=bool)
-        frontier[src] = True
+        frontier = xp.at(frontier, src).set(True)
         level = xp.zeros((n,), dtype=int)
         level_idx = 1
         frontier_count = 1

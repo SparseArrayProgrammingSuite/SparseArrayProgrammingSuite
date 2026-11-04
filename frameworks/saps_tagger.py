@@ -436,6 +436,10 @@ class TaggedArray:
             return data.astype(dtype)
         return data
 
+    def __array_namespace__(self, *, api_version=None):
+        # xpx.at writes in place only to arrays that declare a namespace.
+        return self.framework
+
     def __getattr__(self, name):
         attr = getattr(self.array, name)
         if callable(attr):
