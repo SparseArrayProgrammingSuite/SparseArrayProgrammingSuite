@@ -13,7 +13,7 @@ from binsparse import (
     SparseLevel,
 )
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
-import galley
+import galley # https://github.com/finch-tensor/galley-jl-python # on pypi
 
 from saps_framework import Framework
 
