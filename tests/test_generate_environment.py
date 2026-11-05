@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import importlib.metadata
 import re
-import tomllib
+import sys
 from pathlib import Path
 
-from saps.generate_environment import generate_environment_mismatches
+import pytest
+
+import yaml  # type: ignore[import-untyped]
+
+from saps.generate_environment import generate_environment_mismatches, generate_pins
 
 ROOT = Path(__file__).parents[1]
 
@@ -14,10 +18,10 @@ def _canonical(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
-def _write_pyproject(tmp_path: Path, dependencies: str) -> Path:
-    path = tmp_path / "pyproject.toml"
+def _write_manifest(tmp_path: Path, dependencies: str, targets: str = "") -> Path:
+    path = tmp_path / "pixi.toml"
     path.write_text(
-        "[tool.poetry.group.generate.dependencies]\n" + dependencies,
+        "[feature.generate.pypi-dependencies]\n" + dependencies + targets,
         encoding="utf-8",
     )
     return path
@@ -25,12 +29,12 @@ def _write_pyproject(tmp_path: Path, dependencies: str) -> Path:
 
 def test_matching_pins_pass(tmp_path):
     version = importlib.metadata.version("packaging")
-    path = _write_pyproject(tmp_path, f'packaging = "=={version}"\n')
+    path = _write_manifest(tmp_path, f'packaging = "=={version}"\n')
     assert generate_environment_mismatches(path) == []
 
 
 def test_reports_wrong_and_missing_packages(tmp_path):
-    path = _write_pyproject(
+    path = _write_manifest(
         tmp_path,
         'packaging = "==0.0.1"\nsaps-not-a-real-package = "==1.0"\n',
     )
@@ -40,34 +44,42 @@ def test_reports_wrong_and_missing_packages(tmp_path):
     assert mismatches[1] == "saps-not-a-real-package: not installed"
 
 
-def test_skips_pins_whose_markers_do_not_apply(tmp_path):
-    path = _write_pyproject(
+def test_skips_pins_for_other_platforms(tmp_path):
+    other = "linux" if sys.platform == "win32" else "win"
+    path = _write_manifest(
         tmp_path,
-        "saps-not-a-real-package = "
-        '{version = "==1.0", markers = "python_version < \'3\'"}\n',
+        "",
+        f"[feature.generate.target.{other}.pypi-dependencies]\n"
+        'saps-not-a-real-package = "==1.0"\n',
     )
     assert generate_environment_mismatches(path) == []
 
 
-def test_generate_group_pins_every_locked_package():
+_LOCK_PLATFORMS = {"darwin": "macos-arm64", "linux": "linux-64", "win32": "win-64"}
+
+
+def test_generate_feature_pins_every_locked_package():
     """Every package the generate environment installs is pinned at its locked
     version, so freshness hashes only change when a pin does."""
-    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    pins = {
-        _canonical(name): spec
-        for name, spec in pyproject["tool"]["poetry"]["group"]["generate"][
-            "dependencies"
-        ].items()
+    lock_path = ROOT / "pixi.lock"
+    if not lock_path.exists():
+        pytest.skip("pixi.lock is written by `pixi install`")
+    lock = yaml.safe_load(lock_path.read_text(encoding="utf-8"))
+    platform = _LOCK_PLATFORMS[sys.platform]
+    urls = {
+        entry["pypi"]
+        for entry in lock["environments"]["generate"]["packages"][platform]
+        if "pypi" in entry
     }
-    lock = tomllib.loads((ROOT / "poetry.lock").read_text(encoding="utf-8"))
-    for package in lock["package"]:
-        if not {"main", "generate"} & set(package["groups"]):
+    pins = {_canonical(name): spec for name, spec in generate_pins().items()}
+    for package in lock["packages"]:
+        if package.get("pypi") not in urls or package["name"] == "saps":
             continue
         spec = pins.get(_canonical(package["name"]))
         assert spec is not None, f"{package['name']} is not pinned"
         if isinstance(spec, str):
             spec = {"version": spec}
         if "git" in spec:
-            assert spec["rev"] == package["source"]["resolved_reference"]
+            assert package["pypi"].endswith("#" + spec["rev"]), package["name"]
         else:
             assert spec["version"] == f"=={package['version']}", package["name"]

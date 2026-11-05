@@ -21,7 +21,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
-from saps.util.graphblas_process import call_graphblas
 
 # Bound on the multiplications, and so the unpruned nonzeros, of one column
 # block of an MCL expansion.
@@ -70,8 +69,7 @@ def _mcl_reference(
     the same bits as any implementation of the benchmark.
 
     SuiteSparse:GraphBLAS runs each step on every core. It is imported here so
-    that the benchmarks themselves do not depend on it. Call it through
-    `call_graphblas`.
+    that the benchmarks themselves do not depend on it.
     """
     import graphblas as gb
 
@@ -325,8 +323,7 @@ class MCLTestGenerator(Generator[MCLDataset]):
         )
         meta = problem.meta
         expected = from_scipy(
-            call_graphblas(
-                _mcl_reference,
+            _mcl_reference(
                 graph_csr(problem.inputs[0]),
                 to_numpy(problem.inputs[1]),
                 meta,
@@ -499,8 +496,7 @@ class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         problem = MCLSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         expected = from_scipy(
-            call_graphblas(
-                _mcl_reference,
+            _mcl_reference(
                 graph_csr(problem.inputs[0]),
                 to_numpy(problem.inputs[1]),
                 meta,

@@ -19,7 +19,6 @@ from saps.benchmark import (
 )
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
-from saps.util.graphblas_process import call_graphblas
 
 # Stop once an iteration moves the ranks by less than this in L1 norm, which
 # bounds their L1 error by about 6e-14 for the default damping of 0.85.
@@ -31,7 +30,7 @@ def _pagerank_reference(adjacency, alpha: float) -> np.ndarray:
 
     Dangling vertices spread their rank uniformly, as in igraph. SuiteSparse:
     GraphBLAS runs each step on every core. It is imported here so that the
-    benchmarks themselves do not depend on it. Call it through `call_graphblas`.
+    benchmarks themselves do not depend on it.
     """
     import graphblas as gb
 
@@ -404,9 +403,7 @@ class PageRankSNAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
         problem = PageRankSNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         alpha = meta.get("alpha", 0.85)
-        expected = from_numpy(
-            call_graphblas(_pagerank_reference, graph_csr(problem.inputs[0]), alpha)
-        )
+        expected = from_numpy(_pagerank_reference(graph_csr(problem.inputs[0]), alpha))
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),

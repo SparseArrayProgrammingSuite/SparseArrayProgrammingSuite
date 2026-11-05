@@ -6,12 +6,12 @@ from scipy import sparse
 from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
 from frameworks.saps_numpy import NumpyFramework
-from frameworks.saps_pytorch import PytorchFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_smart import SmartSparseFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.four_clique_counting import FourCliqueCountingBenchmark
 from saps.benchmarks.triangle_counting import TriangleCountingBenchmark
+from tests.optional_pytorch import PytorchFramework, pytorch_param
 
 
 @pytest.fixture(params=[TriangleCountingBenchmark, FourCliqueCountingBenchmark])
@@ -52,7 +52,7 @@ def test_count_checks_reject_non_integer_or_non_scalar_outputs(
     "framework",
     [
         NumpyFramework,
-        PytorchFramework,
+        pytorch_param(PytorchFramework),
         SciPyFramework,
         SmartSparseFramework,
         PyDataSparseFramework,

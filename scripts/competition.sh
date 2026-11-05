@@ -14,7 +14,7 @@
 # Every other argument goes to bin/run_benchmark.py, for example
 # --tag suite-train to run the training set instead of the config's datasets.
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 export AWS_PROFILE="${AWS_PROFILE:-dataset-upload}"
 export REMOTE_STORAGE_BACKEND="${REMOTE_STORAGE_BACKEND:-s3}"
 export REMOTE_STORAGE_BUCKET="${REMOTE_STORAGE_BUCKET:-sparse-array-programming-suite}"
@@ -77,20 +77,20 @@ fi
 
 cd "$repo_directory"
 
-# Sync the runner's Poetry environment with the lock file before importing
+# Install the runner's pixi environment before importing
 # saps, so a newly pinned dependency does not fail every task at import time.
-# Array tasks share one environment; ensure-poetry-env.sh serializes installs.
-# SAPS_ENSURE_POETRY_ENV points at a replacement script (tests stub it).
-"${SAPS_ENSURE_POETRY_ENV:-$repo_directory/scripts/ensure-poetry-env.sh}"
+# Array tasks share one environment; ensure-pixi-env.sh serializes installs.
+# SAPS_ENSURE_PIXI_ENV points at a replacement script (tests stub it).
+"${SAPS_ENSURE_PIXI_ENV:-$repo_directory/scripts/ensure-pixi-env.sh}"
 
 set +e
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --config "$competition_config" \
   "${benchmark_args[@]}"
 benchmark_status=$?
 set -e
 
-poetry run ./scripts/combine_competition_results.py \
+pixi run ./scripts/combine_competition_results.py \
   --run-directory "$competition_run_root"
 
 exit "$benchmark_status"

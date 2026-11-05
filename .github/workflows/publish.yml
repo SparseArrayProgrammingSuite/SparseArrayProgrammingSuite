@@ -9,21 +9,16 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install pixi environment
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          python-version: '3.13'
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Configure Poetry
-        run: poetry env use python3.13
-      - name: Install package
-        run: poetry sync --with generate,test
+          pixi-version: v0.83.0
+          environments: default
       - name: Run freshness tests
-        run: poetry run pytest -m freshness
+        run: pixi run pytest -m freshness
       - name: Get version
         run: |
-            VERSION=$(poetry run python -c 'import tomllib; print("v" + tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+            VERSION=$(pixi run python -c 'import tomllib; print("v" + tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
             if [ $? -ne 0 ]; then exit 1; fi
             echo "VERSION=$VERSION" >> $GITHUB_ENV
       - name: Create Release

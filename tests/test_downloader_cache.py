@@ -174,36 +174,32 @@ def test_concurrent_gcare_downloads_and_extractions_run_once(
         assert (tmp_path / name / "complete.txt").read_bytes() == b"data"
 
 
-def test_concurrent_ogb_downloads_reuse_processed_cache(
+def test_concurrent_ogb_downloads_reuse_raw_files(
     monkeypatch, tmp_path, blocked_waiter
 ):
     monkeypatch.setenv("SAPS_CACHE_DIR", str(tmp_path))
     downloads = []
 
-    def dataset(name, root):
-        processed = Path(root) / name.replace("-", "_") / "processed/data_processed"
-        if not processed.exists():
-            assert blocked_waiter.wait(timeout=10)
-            downloads.append(name)
-            processed.parent.mkdir(parents=True)
-            processed.write_bytes(b"complete")
-        return "dataset"
+    def download(url, filename):
+        assert blocked_waiter.wait(timeout=10)
+        downloads.append(url)
+        with zipfile.ZipFile(filename, "w") as release:
+            release.writestr("arxiv/raw/edge.csv.gz", b"complete")
 
-    module = SimpleNamespace(
-        decide_download=lambda url: False, download_url=lambda url, folder: None
-    )
-    monkeypatch.setitem(
-        sys.modules,
-        "ogb.nodeproppred",
-        SimpleNamespace(NodePropPredDataset=dataset, dataset=module),
-    )
+    monkeypatch.setattr(urllib.request, "urlretrieve", download)
+    monkeypatch.setattr(ogb, "_OGBDataset", lambda directory, source: directory)
     monkeypatch.setattr(ogb, "_prepare_ogb_nodeprop_dataset", lambda name, data: data)
-    assert _concurrent(lambda: ogb.load_ogb_nodeprop_dataset("ogbn-test")) == [
-        "dataset",
-        "dataset",
+    directory = tmp_path / "ogb/ogbn_arxiv"
+    assert _concurrent(lambda: ogb.load_ogb_nodeprop_dataset("ogbn-arxiv")) == [
+        directory,
+        directory,
     ]
-    assert downloads == ["ogbn-test"]
-    assert (tmp_path / "ogb/ogbn_test/processed/data_processed").exists()
+    assert downloads == ["https://snap.stanford.edu/ogb/data/nodeproppred/arxiv.zip"]
+    assert (directory / "raw/edge.csv.gz").read_bytes() == b"complete"
+    assert sorted(path.name for path in (tmp_path / "ogb").iterdir()) == [
+        "ogbn_arxiv",
+        "ogbn_arxiv.lock",
+    ]
 
 
 def test_kaggle_failure_is_not_cached_and_explicit_root_wins(monkeypatch, tmp_path):

@@ -18,7 +18,7 @@ repo_directory=$(git -C "$repo_directory" rev-parse --show-toplevel)
 : "${SAPS_TRACE_CHUNK_COUNT:?SAPS_TRACE_CHUNK_COUNT must be set}"
 : "${SLURM_ARRAY_TASK_ID:?SLURM_ARRAY_TASK_ID must be set}"
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 export AWS_PROFILE=dataset-upload
 export REMOTE_STORAGE_BACKEND=s3
 export REMOTE_STORAGE_BUCKET=sparse-array-programming-suite
@@ -36,7 +36,7 @@ rm -rf "$tagger_stats_dir"
 export SAPS_STATISTICS_PATH="$statistics_path"
 export SAPS_TAGGER_STATS_DIR="$tagger_stats_dir"
 
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --trace-statistics \
   --tag suite-trace \
   --chunk-count "$SAPS_TRACE_CHUNK_COUNT" \
