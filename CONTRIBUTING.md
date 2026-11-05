@@ -260,7 +260,7 @@ Dataset digests should be content hashes of serialized data. Freshness records b
 
 ## Testing Other Frameworks
 
-The default pixi environment installs the NumPy, SciPy, pydata/sparse, smart, tagger and GraphBLAS frameworks, which data generation uses for reference solutions. `pixi.toml` defines an environment for each of the others (CuPy, Finch, Galley, PyTorch). Each environment's task runs that framework's tests and every `suite-test` dataset under it, in one process:
+The default pixi environment installs the NumPy, SciPy, pydata/sparse, smart, tagger and GraphBLAS frameworks, which data generation uses for reference solutions. `pixi.toml` defines an environment for each of the others (CuPy, Finch, Galley, PyTorch, Scorch). Each environment's task runs that framework's tests and every `suite-test` dataset under it, in one process:
 
 ```bash
 pixi run test-finch
@@ -269,7 +269,7 @@ pixi run test-finch -k bellman_ford
 
 Tests that cover PyTorch alongside other frameworks import it through `tests/optional_pytorch.py`, so their PyTorch cases skip in the default environment and run under `pixi run test-pytorch`.
 
-The CuPy environment needs Linux with an NVIDIA GPU and uses CUDA 12, the last CUDA release that targets V100s.
+The CuPy environment needs Linux with an NVIDIA GPU and uses CUDA 12, the last CUDA release that targets V100s. Scorch on macOS needs Homebrew's OpenMP headers (`brew install libomp`).
 
 ## Tracing
 
