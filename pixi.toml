@@ -36,6 +36,7 @@ pytest-timeout = "==2.4.0"
 cupy = ["cupy"]
 finch = ["finch"]
 galley = ["galley"]
+scorch = ["scorch"]
 
 # CuPy 14.2 adds the cupyx sparse array API that frameworks/saps_cupy.py uses.
 # The cluster's GPUs are V100s (sm_70), which CUDA 13 no longer targets.
@@ -64,3 +65,26 @@ galley-jl-python = "==0.1.0"
 
 [feature.galley.tasks]
 test-galley = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_galley.py" } }
+
+# Scorch builds a C++ extension against the installed torch and JIT-compiles
+# kernels with OpenMP at run time. On macOS its setup.py uses Apple clang,
+# torch's bundled libomp and Homebrew's libomp headers (brew install libomp).
+# Its setup.py imports torch, so pixi can't lock it as a PyPI dependency;
+# install-scorch builds it into the environment instead, as an editable
+# checkout: Scorch finds its C++ sources next to its setup.py, which a regular
+# install leaves behind (scripts/install_editable_git.py explains).
+# torch 2.12.1 requires setuptools<82, which conda's pip would otherwise exceed.
+[feature.scorch.dependencies]
+pip = "*"
+setuptools = "<82"
+
+[feature.scorch.pypi-dependencies]
+torch = "==2.12.1"
+ninja = "*"
+
+[feature.scorch.target.linux-64.dependencies]
+cxx-compiler = "*"
+
+[feature.scorch.tasks]
+install-scorch = { cmd = "python scripts/install_editable_git.py", env = { SAPS_EDITABLE_GIT = "https://github.com/bobbyyyan/scorch.git@b3b5d4b77a3bbdd395b19c289bf181cb3cf7df73" } }
+test-scorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_scorch.py" }, depends-on = ["install-scorch"] }
