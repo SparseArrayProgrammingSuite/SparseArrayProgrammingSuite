@@ -166,13 +166,24 @@ pandas = "==2.3.3"
 python-graphblas = "==2025.2.0"
 
 # PyTorch, CPU and CUDA alike (frameworks/saps_pytorch.py). Data generation
-# doesn't need it, and on macOS its OpenMP runtime aborts GraphBLAS, which the
-# default environment uses for reference solutions.
+# doesn't need it.
+#
+# The test datasets use GraphBLAS for reference solutions. On macOS the PyPI
+# wheels of torch and GraphBLAS each bundle LLVM's OpenMP runtime, and the
+# second copy aborts the process, so there both come from conda-forge and share
+# its llvm-openmp. Linux wheels use GNU OpenMP, which tolerates several copies.
 [feature.pytorch]
 platforms = ["linux-64", "macos-arm64"]
 
-[feature.pytorch.pypi-dependencies]
+[feature.pytorch.target.linux-64.pypi-dependencies]
 torch = "==2.12.1"
+
+[feature.pytorch.target.osx-arm64.dependencies]
+filelock = "3.*"
+networkx = "==3.6"
+numpy = "2.3.5.*"
+pytorch = "==2.12.1"
+python-graphblas = "==2025.2.0"
 
 [feature.pytorch.tasks]
 # Every test that covers PyTorch (the default environment skips their PyTorch
