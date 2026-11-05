@@ -673,7 +673,7 @@ def main() -> int:
         "html_dir": str(outputs_dir / "html"),
         "matrix": matrix,
     }
-    for key in ("include", "exclude", "pythons"):
+    for key in ("include", "exclude", "pythons", "install_timeout"):
         if key in saps_config_data:
             asv_config_dict[key] = saps_config_data[key]
 
