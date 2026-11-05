@@ -14,9 +14,9 @@ guaranteed to stay below the target. The bounds hold for every graph with the
 same row degrees, so a matrix often stays sparse well past its step count.
 
 Example:
-    poetry run python scripts/measure_fill_in.py --output fill-in.json
-    poetry run python scripts/measure_fill_in.py --datasets SNAP --output snap.json
-    poetry run python scripts/measure_fill_in.py --merge run/*/*.json --output all.json
+    pixi run python scripts/measure_fill_in.py --output fill-in.json
+    pixi run python scripts/measure_fill_in.py --datasets SNAP --output snap.json
+    pixi run python scripts/measure_fill_in.py --merge run/*/*.json --output all.json
 
 Dataset names without a slash select every manifest entry in that SuiteSparse
 group; the default is all GAP and SNAP matrices. Missing cache files are

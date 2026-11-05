@@ -220,7 +220,7 @@ def _load_metadata(metadata_path: Path) -> list[dict]:
     if not metadata_path.exists():
         raise RuntimeError(
             f"{metadata_path} does not exist; run generate metadata first with "
-            "`poetry run ./bin/generate_metadata.py`."
+            "`pixi run ./bin/generate_metadata.py`."
         )
     document = json.loads(metadata_path.read_text(encoding="utf-8"))
     return document.get("benchmarks", [])

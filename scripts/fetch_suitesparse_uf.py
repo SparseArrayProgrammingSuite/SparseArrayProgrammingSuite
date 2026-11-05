@@ -13,9 +13,9 @@ It also copies the ssgetpy index from `~/.ssgetpy/index.db` to
 `$SAPS_CACHE_DIR/suitesparse/.ssgetpy/index.db`, where `_import_ssgetpy` looks
 for it, unless the cache already holds a newer index.
 
-    poetry run python scripts/fetch_suitesparse_uf.py --dry-run
-    poetry run python scripts/fetch_suitesparse_uf.py
-    poetry run python scripts/fetch_suitesparse_uf.py HB/ash85 LPnetlib/lp_afiro
+    pixi run python scripts/fetch_suitesparse_uf.py --dry-run
+    pixi run python scripts/fetch_suitesparse_uf.py
+    pixi run python scripts/fetch_suitesparse_uf.py HB/ash85 LPnetlib/lp_afiro
 """
 
 import argparse

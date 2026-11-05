@@ -144,7 +144,7 @@ if $uses_gpu; then
   combine_after="$combine_after:$gpu_job_id"
 fi
 
-combine_command="export PATH=\"\$HOME/.local/bin:\$PATH\" && poetry run ./scripts/combine_competition_results.py --run-directory $(printf %q "$run_directory")"
+combine_command="export PATH=\"\$HOME/.pixi/bin:\$PATH\" && pixi run ./scripts/combine_competition_results.py --run-directory $(printf %q "$run_directory")"
 combine_job_id=$(
   submit_job \
     -A "$account" \

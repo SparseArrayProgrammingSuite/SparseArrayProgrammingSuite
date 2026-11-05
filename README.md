@@ -8,19 +8,18 @@ We take inspiration from benchmark suites in the database community, such as [pa
 
 ## Installation
 
-SparseApplicationBenchmark uses [Poetry](https://python-poetry.org/) for packaging. To install the project with its data generation and test/development dependencies:
+SparseApplicationBenchmark uses [pixi](https://pixi.sh) for its environments. To install the project with its data generation and test/development dependencies:
 
 ```bash
-poetry sync --with generate,test
+pixi install
 ```
 
-There are three environments:
+`pixi.toml` defines the environments:
 
-- **release**: the package's own dependencies, with compatible version ranges.
-- **generate** (`--with generate`): every package, including indirect dependencies, pinned to an exact version. Dataset freshness hashes include installed dependency versions, so `bin/generate_metadata.py`, `bin/run_benchmark.py --cache-datasets`, and `--trace-statistics` refuse to run unless the installed versions match these pins.
-- **test** (`--with test`): test and lint tools.
+- **default**: the `generate` and `test` features. `generate` pins every package, including indirect dependencies, to an exact version. Dataset freshness hashes include installed dependency versions, so `bin/generate_metadata.py`, `bin/run_benchmark.py --cache-datasets`, and `--trace-statistics` refuse to run unless the installed versions match these pins. `test` adds test and lint tools.
+- **cupy**, **finch**, **galley**, **pytorch**: one framework each, for the frameworks the default environment doesn't install (see [CONTRIBUTING.md](CONTRIBUTING.md#testing-other-frameworks)).
 
-Use `poetry sync` rather than `poetry install` so packages that drifted from the lock file are put back.
+The package's own dependencies in `pyproject.toml` keep compatible version ranges, for installing `saps` elsewhere (each competition environment does). `pixi run` installs or updates an environment before running a command, so packages that drifted from `pixi.toml` are put back.
 
 Most commands below assume they are run from the repository root.
 
@@ -29,7 +28,7 @@ Most commands below assume they are run from the repository root.
 The main entry point is `bin/run_benchmark.py`. By default it builds an ASV benchmark matrix using the built-in framework wrappers in `frameworks/`:
 
 ```bash
-poetry run ./bin/run_benchmark.py
+pixi run ./bin/run_benchmark.py
 ```
 
 Useful runner options:
@@ -51,9 +50,9 @@ Useful runner options:
 For example:
 
 ```bash
-poetry run ./bin/run_benchmark.py --tag suite-test --quick --process-timeout 30
-poetry run ./bin/run_benchmark.py --tag suite-standard --metrics time peakmem
-poetry run ./bin/run_benchmark.py --re bfs --no-re toy
+pixi run ./bin/run_benchmark.py --tag suite-test --quick --process-timeout 30
+pixi run ./bin/run_benchmark.py --tag suite-standard --metrics time peakmem
+pixi run ./bin/run_benchmark.py --re bfs --no-re toy
 ```
 
 Runner outputs are written under `.saps/outputs/`, including ASV result files and cached datasets.
@@ -64,7 +63,7 @@ Bound how many Boolean squarings each prepared GAP and SNAP matrix can take befo
 it reaches 1% density:
 
 ```bash
-poetry run python scripts/measure_fill_in.py --output .saps/outputs/fill-in.json
+pixi run python scripts/measure_fill_in.py --output .saps/outputs/fill-in.json
 ```
 
 The script bounds the fill-in of `I OR (A != 0)` under repeated squaring,
@@ -103,7 +102,7 @@ sbatch scripts/measure-fill-in.slurm
 ```
 
 Each task requests one CPU, 16 GB of memory, and a one-hour wall time. The job
-uses the existing Poetry environment and prepared shared cache; `SAPS_CACHE_DIR`
+uses the existing pixi environment and prepared shared cache; `SAPS_CACHE_DIR`
 and `SAPS_MANIFEST_PATH` select alternate inputs. Task indices follow
 `scripts/measure_fill_in.py --list-datasets`; the array covers the 73 GAP and SNAP
 manifest entries, so update `--array` if that count changes. Results go to
@@ -115,7 +114,7 @@ name, such as `--target-density 0.05`, are passed to every task.
 Combine the per-task results into one step list once the array finishes:
 
 ```bash
-poetry run python scripts/measure_fill_in.py \
+pixi run python scripts/measure_fill_in.py \
   --merge .saps/outputs/fill-in/run_<array-job-id>/*/*.json \
   --output .saps/outputs/fill-in/run_<array-job-id>.json
 ```
@@ -138,7 +137,7 @@ run. It uses ASV-native `include` entries so every framework can pin a different
 set of dependencies:
 
 ```bash
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --config competition.config.json \
   --metrics time peakmem
 ```
@@ -148,8 +147,9 @@ share one run directory: `scripts/competition-cpu.slurm` runs the CPU frameworks
 on CPU nodes and `scripts/competition-gpu.slurm` runs the GPU frameworks on GPU
 nodes (a whole V100 node, `--gres=gpu:V100:2 --exclusive`). A final job combines both arrays' results. Both wrappers
 source the shared body in `scripts/competition.sh`, which first runs
-`scripts/ensure-poetry-env.sh` so each task's Poetry environment matches the
-lock file (set `SAPS_ENSURE_POETRY_ENV` to a replacement script to skip it).
+`scripts/ensure-pixi-env.sh` so each task's pixi environment matches
+`pixi.toml`, installing pixi itself into `~/.pixi/bin` if needed (set
+`SAPS_ENSURE_PIXI_ENV` to a replacement script to skip it).
 
 ```bash
 scripts/submit-competition.sh
@@ -255,7 +255,7 @@ Slurm benchmark environments and pip/virtualenv caches live under
 requests 50 GB of local temporary disk per node with `--tmp=50G`. These files are
 removed by Slurm when the job ends and rebuilt when resuming; saved results stay
 in the run directory. This avoids filling the shared scratch file-count quota
-with separate Python installations for every task. The existing Poetry
+with separate Python installations for every task. The existing pixi
 environment is still used to launch the runner.
 
 Older runs may still have `task_*/env` directories on shared storage. Delete those
@@ -281,8 +281,8 @@ runs never regenerate cacheable inputs or write manifest metadata.
 Prune unused manifest entries using `metadata.json` as the source of truth:
 
 ```bash
-poetry run ./bin/prune_manifest.py --dry-run
-poetry run ./bin/prune_manifest.py
+pixi run ./bin/prune_manifest.py --dry-run
+pixi run ./bin/prune_manifest.py
 ```
 
 The script removes entries absent from metadata or belonging only to generators
@@ -297,9 +297,9 @@ Select datasets with `--tag`, `--no-tag`, `--re`, and `--no-re`, as for
 `run_benchmark.py`:
 
 ```bash
-poetry run ./bin/generate_metadata.py
-poetry run ./bin/mark_fresh.py --re '^suitesparse_matrix$' --dry-run
-poetry run ./bin/mark_fresh.py --re '^suitesparse_matrix$'
+pixi run ./bin/generate_metadata.py
+pixi run ./bin/mark_fresh.py --re '^suitesparse_matrix$' --dry-run
+pixi run ./bin/mark_fresh.py --re '^suitesparse_matrix$'
 ```
 
 Only entries that already have an uploaded digest for the same source file are
@@ -310,7 +310,7 @@ The same selection also restamps trace records in `statistics.json` (or
 tags survive the source change. Fold them back into metadata afterwards:
 
 ```bash
-poetry run ./bin/generate_metadata.py --statistics statistics.json
+pixi run ./bin/generate_metadata.py --statistics statistics.json
 ```
 
 Generators marked `cacheable = False` still assemble benchmark inputs during
@@ -323,7 +323,7 @@ the downloader or reading source files.
 Older G-CARE caches need a one-time refresh from the repository root:
 
 ```bash
-poetry run ./bin/run_benchmark.py --cache-datasets --re '^gcare_graph$'
+pixi run ./bin/run_benchmark.py --cache-datasets --re '^gcare_graph$'
 ```
 
 Run this in the dataset-upload environment with its configured storage backend.
@@ -339,8 +339,8 @@ Older caches that stored one entry per RHS need a one-time refresh in the
 dataset-upload environment:
 
 ```bash
-poetry run ./bin/generate_metadata.py
-poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
+pixi run ./bin/generate_metadata.py
+pixi run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
 ```
 
 SNAP graphs are prepared by `suitesparse_matrix_shell` and stored once under
@@ -414,8 +414,8 @@ Regenerate metadata and prepare the SuiteSparse cache before running these consu
 with the SuiteSparse sources:
 
 ```bash
-poetry run ./bin/generate_metadata.py
-poetry run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
+pixi run ./bin/generate_metadata.py
+pixi run ./bin/run_benchmark.py --cache-datasets --re '^suitesparse_matrix_shell$'
 ```
 
 The 68 SuiteSparse SNAP sources are explicitly listed in
@@ -432,7 +432,7 @@ clustering generators can still consume the complete feature matrix. Refresh old
 OpenML caches that contain only the feature matrix with:
 
 ```bash
-poetry run ./bin/run_benchmark.py --cache-datasets --re '^openml_dataset$'
+pixi run ./bin/run_benchmark.py --cache-datasets --re '^openml_dataset$'
 ```
 
 All source downloaders honor `SAPS_CACHE_DIR` (default `.saps/outputs/cache`)
@@ -448,14 +448,14 @@ Each finishing task refreshes the combined files with the results saved so far.
 To rebuild the highest-numbered Slurm run, run from the repository root:
 
 ```bash
-poetry run ./scripts/combine_competition_results.py
+pixi run ./scripts/combine_competition_results.py
 ```
 
-The script also works from `scripts/` as `poetry run ./combine_competition_results.py`.
+The script also works from `scripts/` as `pixi run ./combine_competition_results.py`.
 To select an earlier run explicitly:
 
 ```bash
-poetry run ./scripts/combine_competition_results.py \
+pixi run ./scripts/combine_competition_results.py \
   --run-directory competition/run_12345
 ```
 
@@ -541,7 +541,7 @@ environment, or benchmark version are not reused.
 The runner auto-detects `saps.conf.json` in the current directory, or you can pass one explicitly:
 
 ```bash
-poetry run ./bin/run_benchmark.py --config path/to/saps.conf.json
+pixi run ./bin/run_benchmark.py --config path/to/saps.conf.json
 ```
 
 The config file can set runner options and supported ASV environment fields. A small config for running only one framework in the current environment looks like:
@@ -576,7 +576,7 @@ with underscores: `remote_storage_backend` for `--remote-storage-backend`,
 
 The ASV fields SAPS supports directly are:
 
-- `environment_type`: ASV environment type for normal benchmark runs. The default is `"virtualenv"`. Use `"existing:same"` to run in the current Poetry environment, which is often easiest while developing a framework wrapper. Tracing and dataset caching always use the current environment; metadata generation runs directly in the environment used to invoke `bin/generate_metadata.py`.
+- `environment_type`: ASV environment type for normal benchmark runs. The default is `"virtualenv"`. Use `"existing:same"` to run in the current pixi environment, which is often easiest while developing a framework wrapper. Tracing and dataset caching always use the current environment; metadata generation runs directly in the environment used to invoke `bin/generate_metadata.py`.
 - `install_command`: ASV install command list. The default reinstalls the project into each ASV environment with `python -mpip install {build_dir} --force-reinstall`.
 - `pythons`: Python versions ASV should use when constructing environments.
 - `saps_dir`: Directory where SAPS writes runner-owned outputs such as machine files and HTML. The SAPS default is `.saps`; dataset inputs use a shared cache independently of this setting.
@@ -646,7 +646,7 @@ To benchmark your own sparse framework, create a Python file that defines an `xp
 Then run:
 
 ```bash
-poetry run ./bin/run_benchmark.py --config saps.conf.json --tag suite-test --quick
+pixi run ./bin/run_benchmark.py --config saps.conf.json --tag suite-test --quick
 ```
 
 A framework wrapper is responsible for:
@@ -665,7 +665,7 @@ See `frameworks/saps_numpy.py`, `frameworks/saps_scipy.py`, and `frameworks/saps
 Run the full test suite with:
 
 ```bash
-poetry run pytest
+pixi run pytest
 ```
 
 Every benchmark run checks its output for correctness in teardown, after each
@@ -698,7 +698,7 @@ sampling would change the guarantee to a probabilistic one.
 For a quick runner smoke test over CI-sized datasets:
 
 ```bash
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --tag suite-test \
   --metrics time \
   --quick \
@@ -713,7 +713,7 @@ Freshness tests check that generated artifacts still match the source code and m
 - Every concrete generator is reachable through a benchmark, including shell benchmarks for intentionally standalone generators.
 - Every manifest record points to a dataset object that exists in the configured remote storage backend.
 
-Freshness tests are marked with `freshness` and are skipped by default. Run them with `poetry run pytest -m freshness tests/test_freshness.py`.
+Freshness tests are marked with `freshness` and are skipped by default. Run them with `pixi run pytest -m freshness tests/test_freshness.py`.
 
 When freshness tests fail after a benchmark, generator, dependency, or storage change, regenerate the affected artifacts rather than editing hashes by hand.
 
@@ -732,7 +732,7 @@ Public reads should not require AWS credentials. Uploads to S3 do require creden
 AWS_ACCESS_KEY_ID=... \
 AWS_SECRET_ACCESS_KEY=... \
 AWS_DEFAULT_REGION=us-east-1 \
-  poetry run ./bin/run_benchmark.py --cache-datasets
+  pixi run ./bin/run_benchmark.py --cache-datasets
 ```
 
 If you use temporary credentials, also set `AWS_SESSION_TOKEN`. If you use long-lived IAM keys, leave `AWS_SESSION_TOKEN` unset.
@@ -740,7 +740,7 @@ If you use temporary credentials, also set `AWS_SESSION_TOKEN`. If you use long-
 For local-only testing of dataset caching:
 
 ```bash
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --cache-datasets \
   --remote-storage-backend local \
   --remote-storage-bucket /tmp/saps-remote-storage
@@ -751,13 +751,13 @@ poetry run ./bin/run_benchmark.py \
 Regenerate benchmark metadata after changing benchmark, generator, or dataset metadata:
 
 ```bash
-poetry run ./bin/generate_metadata.py
+pixi run ./bin/generate_metadata.py
 ```
 
 Trace statistics are generated by running selected benchmarks with the tagger framework:
 
 ```bash
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --trace-statistics \
   --tag suite-trace \
   --process-timeout 30 \
@@ -767,7 +767,7 @@ poetry run ./bin/run_benchmark.py \
 Datasets get traced when their generated metadata has the `suite-trace` tag. Tracing executes the benchmark with `frameworks/saps_tagger.py`, records which array operations and sparsity-relevant behaviors were observed, and writes those derived tags with a `feature-` prefix to `statistics.json`. Fold fresh trace-derived tags into `metadata.json` with:
 
 ```bash
-poetry run ./bin/generate_metadata.py --statistics statistics.json
+pixi run ./bin/generate_metadata.py --statistics statistics.json
 ```
 
 Dataset caching and statistics tracing append diagnostics to
