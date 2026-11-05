@@ -54,11 +54,6 @@ task_scratch="${TMPDIR:?Slurm must provide TMPDIR for task-local storage}/saps-c
 mkdir -p "$task_scratch"
 export PIP_CACHE_DIR="$task_scratch/pip-cache"
 export VIRTUALENV_OVERRIDE_APP_DATA="$task_scratch/virtualenv-cache"
-# Scorch compiles kernels with torch's cpp_extension, which guards each build
-# with a lock file. A benchmark killed mid-build leaves its lock behind, and in
-# the shared default (~/.cache/torch_extensions) that would stall the kernel on
-# every node, so each task builds its own.
-export TORCH_EXTENSIONS_DIR="$task_scratch/torch-extensions"
 
 benchmark_args=(
   --resume
