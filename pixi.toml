@@ -70,7 +70,9 @@ test-galley = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_dat
 # kernels with OpenMP at run time. On macOS its setup.py uses Apple clang,
 # torch's bundled libomp and Homebrew's libomp headers (brew install libomp).
 # Its setup.py imports torch, so pixi can't lock it as a PyPI dependency;
-# install-scorch builds it into the environment instead.
+# install-scorch builds it into the environment instead, as an editable
+# checkout: Scorch finds its C++ sources next to its setup.py, which a regular
+# install leaves behind (scripts/install_editable_git.py explains).
 # torch 2.12.1 requires setuptools<82, which conda's pip would otherwise exceed.
 [feature.scorch.dependencies]
 pip = "*"
@@ -84,5 +86,5 @@ ninja = "*"
 cxx-compiler = "*"
 
 [feature.scorch.tasks]
-install-scorch = "python -c 'import scorch' 2>/dev/null || pip install --no-build-isolation git+https://github.com/bobbyyyan/scorch.git"
+install-scorch = { cmd = "python scripts/install_editable_git.py", env = { SAPS_EDITABLE_GIT = "https://github.com/bobbyyyan/scorch.git@b3b5d4b77a3bbdd395b19c289bf181cb3cf7df73" } }
 test-scorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_scorch.py" }, depends-on = ["install-scorch"] }

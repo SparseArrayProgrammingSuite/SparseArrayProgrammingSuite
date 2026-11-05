@@ -9,6 +9,7 @@ from saps_framework.unfold import (
     normalize_unfold_args,
     normalize_unfold_padding,
 )
+from saps_framework.where_at import WhereAt
 
 
 class _At:
@@ -48,8 +49,11 @@ class Framework(ABC):
         return func
 
     # x[idx] = y as xp.at(x, idx).set(y), which returns the updated array and
-    # may or may not modify x (see xpx.at).
+    # may or may not modify x (see xpx.at). Arrays without __setitem__ are
+    # updated with where (WhereAt), returning a new array.
     def at(self, x, idx, /):
+        if not hasattr(x, "__setitem__"):
+            return WhereAt(self, x, idx)
         return _At(self, x, idx)
 
     @abstractmethod

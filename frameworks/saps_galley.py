@@ -1,21 +1,24 @@
 """SAPS adapter for galley-jl-python: Finch.jl tensors with the Galley scheduler.
 
 Install with ``pip install galley-jl-python`` (import name ``galley_jl_python``;
-the unrelated PyPI package ``galley`` is a Docker test tool). The adapter only
+the unrelated PyPI package ``galley`` is a Docker test tool). The adapter
 converts inputs and outputs, translates NumPy-style dtypes to galley's Julia
-dtypes, and forwards every operation to galley's own namespace. Operations
-galley does not provide, such as ``__setitem__`` and ``logical_not``, are left
+dtypes, and forwards every operation to galley's own namespace. It also spells
+a few standard operations galley has under other names or can compose from its
+own (``vecdot``, ``transpose``, ``linalg.norm``, ``replace``); galley's tensors
+are read-only, so ``xp.at`` updates them with ``where`` (Framework.at).
+Operations galley cannot do, such as ``concat`` and ``linalg.pinv``, are left
 unsupported.
 """
 
 import inspect
+import types
 from functools import wraps
 
 import numpy as np
 
 import galley_jl_python as galley
 from binsparse import (
-    COORMatrix,
     CSCMatrix,
     CSRMatrix,
     CustomTensor,
@@ -25,7 +28,8 @@ from binsparse import (
     DVECVector,
     ElementLevel,
 )
-from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
+from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_sparse
+from galley_jl_python.julia import jl
 
 from saps_framework import Framework
 
@@ -70,6 +74,85 @@ def _translate_dtype(func):
     return wrapper
 
 
+def _fill_value(array):
+    """A Binsparse tensor's fill value; without an explicit fill it is zero."""
+    return array.fill_value if array.fill is True else 0
+
+
+def _element(values, fill_value):
+    """Finch.jl's Element level over values, with a fill of the same Julia type.
+
+    Finch.jl requires an isbits fill. Julia converts NumPy's numeric scalars to
+    the matching Julia number, but not ``np.bool_``, so a Boolean fill is passed
+    as a Python bool. (galley's own sparse constructors pass ``np.bool_``, which
+    Finch.jl rejects with "Finch currently only supports isbits defaults".)
+    """
+    values = np.ascontiguousarray(values)
+    fill_value = np.asarray(fill_value).item()
+    if values.dtype == np.bool_:
+        fill_value = bool(fill_value)
+    else:
+        fill_value = values.dtype.type(fill_value)
+    return jl.Element(fill_value, values)
+
+
+def _indices(indices):
+    return jl.PlusOneVector(np.ascontiguousarray(indices))
+
+
+def _compressed(array, *, row_major):
+    """A CSR (row_major) or CSC matrix as Finch.jl's Dense(SparseList(Element)).
+
+    Finch.jl stores tensors column-major, so a CSR matrix is the transpose of a
+    CSC one, swizzled back, as galley's own CSR constructor builds it.
+    """
+    rows, cols = array.shape
+    outer, inner = (rows, cols) if row_major else (cols, rows)
+    level = jl.SparseList(
+        _element(array.values, _fill_value(array)),
+        inner,
+        _indices(array.pointers_to_1),
+        _indices(array.indices_1),
+    )
+    tensor = jl.Tensor(jl.Dense(level, outer))
+    return galley.Tensor(jl.swizzle(tensor, *((2, 1) if row_major else (1, 2))))
+
+
+def _coo(array):
+    """Any sparse Binsparse tensor as Finch.jl's SparseCOO level, without
+    densifying it, keeping its fill value.
+
+    A row-major tensor is stored with its dimensions reversed, so its first
+    axis is outermost; SparseCOO requires coordinates sorted outermost first.
+    """
+    coo = to_sparse(array)
+    coords, data = coo.coords, coo.data
+    order = np.lexsort(coords[::-1])
+    coords, data = coords[:, order], data[order]
+    if coords.shape[1] > 1:
+        new = np.any(coords[:, 1:] != coords[:, :-1], axis=0)
+        if not new.all():
+            starts = np.flatnonzero(np.concatenate(([True], new)))
+            coords, data = coords[:, starts], np.add.reduceat(data, starts)
+    ndim = coo.ndim
+    level = jl.SparseCOO[ndim](
+        _element(data, coo.fill_value),
+        tuple(int(size) for size in coo.shape[::-1]),
+        jl.Vector[jl.Int]([1, len(data) + 1]),
+        tuple(_indices(axis) for axis in coords[::-1]),
+    )
+    return galley.Tensor(jl.swizzle(jl.Tensor(level), *range(ndim, 0, -1)))
+
+
+def _norm(x, ord=None, axis=None, keepdims=False):
+    """``linalg.norm`` of a vector, or the Frobenius norm of a whole array."""
+    if axis is not None and x.ndim != 1:
+        raise NotImplementedError("galley-jl-python has no norm along an axis.")
+    if ord not in (None, 2, "fro") or (ord == 2 and x.ndim != 1):
+        raise NotImplementedError(f"galley-jl-python has no {ord!r} norm.")
+    return galley.linalg.vector_norm(x, keepdims=keepdims)
+
+
 class GalleyFramework(Framework):
     """SAPS adapter for galley-jl-python with the Galley scheduler."""
 
@@ -90,16 +173,15 @@ class GalleyFramework(Framework):
                 level=DenseLevel(rank=rank, level=ElementLevel()),
             ) if rank == len(shape):
                 return galley.asarray(to_numpy(array))
-            case CSRMatrix() | CSCMatrix() | COORMatrix():
-                # galley's Tensor constructor reads SciPy CSR, CSC and COO.
-                return galley.asarray(to_scipy(array))
+            # galley's sparse constructors go through SciPy, which drops
+            # nonzero fill values, and only take 2-D COO, so the adapter builds
+            # Finch.jl's levels itself.
+            case CSCMatrix():  # Before CSRMatrix, which it subclasses.
+                return _compressed(array, row_major=False)
+            case CSRMatrix():
+                return _compressed(array, row_major=True)
             case _:
-                # galley has no sparse constructor for other ranks, so build a
-                # NumPy array and let galley convert it to its COO format.
-                coo = to_sparse(array)
-                return galley.asarray(
-                    coo.todense(), format="coo", fill_value=coo.fill_value
-                )
+                return _coo(array)
 
     def to_binsparse(self, array):
         if not isinstance(array, galley.Tensor):
@@ -124,6 +206,29 @@ class GalleyFramework(Framework):
         # galley's einop takes the same program syntax as SAPS.
         return galley.einop(prgm, **kwargs)
 
+    def asarray(self, obj, /, **kwargs):
+        # galley reads Python lists but not tuples.
+        if isinstance(obj, tuple):
+            obj = list(obj)
+        return _translate_dtype(galley.asarray)(obj, **kwargs)
+
+    def vecdot(self, x1, x2, /, *, axis=-1):
+        if x1.dtype in (galley.complex64, galley.complex128):
+            x1 = galley.conj(x1)
+        return galley.sum(galley.multiply(x1, x2), axis=axis)
+
+    def transpose(self, x, axes=None):
+        if axes is None:
+            axes = tuple(range(x.ndim - 1, -1, -1))
+        return galley.permute_dims(x, tuple(axes))
+
+    @property
+    def linalg(self):
+        return types.SimpleNamespace(
+            **{name: getattr(galley.linalg, name) for name in galley.linalg.__all__},
+            norm=_norm,
+        )
+
     def where(self, condition, x1, x2, /):
         # The Array API allows Python scalars here; galley's where reads tensors.
         x1 = x1 if isinstance(x1, galley.Tensor) else galley.asarray(x1)
@@ -144,7 +249,8 @@ class GalleyFramework(Framework):
         raise NotImplementedError("galley-jl-python has no unfold.")
 
     def replace(self, arr, old, new):
-        raise NotImplementedError("galley-jl-python has no replace.")
+        matches = galley.isnan(arr) if old != old else arr == old
+        return self.where(matches, new, arr)
 
     def __getattr__(self, name):
         attr = getattr(galley, name)

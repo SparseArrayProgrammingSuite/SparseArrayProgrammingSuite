@@ -3,8 +3,10 @@
   "// SAPS_DEVICE": "Add \"SAPS_DEVICE\": \"gpu\" to a framework's env_nobuild to run it in the GPU array of scripts/submit-competition.sh (saps_pytorch.py then uses CUDA). Without it, frameworks run in the CPU array.",
   "// SAPS_FRAMEWORK_NAME": "Required and unique per include: the framework's name in combined results. One framework file can appear more than once (PyTorch runs on both CPU and GPU).",
   "environment_type": "virtualenv",
+  "// install_command": "install_editable_git.py installs a framework from a git checkout when its include sets SAPS_EDITABLE_GIT in env (env, unlike env_nobuild, reaches install commands); warm_julia_env.py starts Julia once for finch and galley. Both do nothing in other environments.",
   "install_command": [
     "in-dir={env_dir} python -mpip install {build_dir}",
+    "in-dir={env_dir} python {build_dir}/scripts/install_editable_git.py",
     "in-dir={env_dir} python {build_dir}/scripts/warm_julia_env.py"
   ],
   "// install_timeout": "Seconds for each install command. warm_julia_env.py installs and precompiles Julia for finch and galley, which takes longer than ASV's 600 s default.",
@@ -211,8 +213,10 @@
         "ssgetpy": "1.0rc2",
         "torch": "2.12.1",
         "ninja": "1.13.2",
-        "setuptools": "81.0.0",
-        "pip+--no-build-isolation git+https://github.com/bobbyyyan/scorch.git@b3b5d4b77a3bbdd395b19c289bf181cb3cf7df73": ""
+        "setuptools": "81.0.0"
+      },
+      "env": {
+        "SAPS_EDITABLE_GIT": "https://github.com/bobbyyyan/scorch.git@b3b5d4b77a3bbdd395b19c289bf181cb3cf7df73"
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_scorch.py",

@@ -7,6 +7,8 @@ scheduler, so the adapter makes Galley that default rather than steering
 individual operations.
 """
 
+import types
+
 import numpy as np
 
 import binsparse as bsp
@@ -24,9 +26,16 @@ from saps_framework import Framework
 ft.set_default_scheduler(COMPILE_JULIA_GALLEY)
 
 
+def _julia_fill(value):
+    """A fill Julia reads as an isbits value of the same type. Julia converts
+    NumPy's numeric scalars, but not np.bool_ or 0-d arrays."""
+    value = np.asarray(value)[()]
+    return bool(value) if isinstance(value, np.bool_) else value
+
+
 def _reformat(tensor, *, dense):
     """Copy a FiberTensor into CSR-like (or dense) levels with Finch.jl."""
-    level = jl.Element(tensor.fill_value)
+    level = jl.Element(_julia_fill(tensor.fill_value))
     for depth in range(tensor.ndim):
         sparse_level = not dense and depth == 0
         level = jl.SparseList(level) if sparse_level else jl.Dense(level)
@@ -49,6 +58,22 @@ def _canonical(tensor):
     container = bsp.InMemoryBinsparseContainer()
     tensor.serialize(container, alias=False)
     return bsp.BinsparseTensor.parse(container, alias=True)
+
+
+def _norm(x, ord=None, axis=None, keepdims=False):
+    """NumPy's ``linalg.norm`` of a vector, or the Frobenius norm of a whole
+    array, as NumPy computes them: sqrt(sum(x * x)). (finch's vector_norm
+    reduces scaled squares, which its Julia backend cannot compile.)"""
+    if axis is not None and x.ndim != 1:
+        raise NotImplementedError("finch's linalg.norm adapter takes no axis.")
+    if ord not in (None, 2, "fro") or (ord == 2 and x.ndim != 1):
+        raise NotImplementedError(f"finch's linalg.norm adapter has no {ord!r} norm.")
+    squares = (
+        ft.real(ft.multiply(ft.conj(x), x))
+        if ft.isdtype(x.dtype, "complex floating")
+        else ft.multiply(x, x)
+    )
+    return ft.sqrt(ft.sum(squares, keepdims=keepdims))
 
 
 class FinchFramework(Framework):
@@ -118,6 +143,29 @@ class FinchFramework(Framework):
         fill_value=0,
     ):
         raise NotImplementedError("Finch has no unfold operation.")
+
+    def diagonal(self, x, /, *, offset=0):
+        # NumPy's spelling; the Array API's is linalg.diagonal.
+        return ft.linalg.diagonal(x, offset=offset)
+
+    def at(self, x, idx, /):
+        # LazyTensor's __setitem__ raises; compute it, then update the result
+        # in place or, if it is read-only, with where (Framework.at).
+        if isinstance(x, ft.LazyTensor):
+            x = self.compute(x)
+        return super().at(x, idx)
+
+    def transpose(self, x, axes=None):
+        if axes is None:
+            axes = tuple(range(x.ndim - 1, -1, -1))
+        return ft.permute_dims(x, tuple(axes))
+
+    @property
+    def linalg(self):
+        return types.SimpleNamespace(
+            **{name: getattr(ft.linalg, name) for name in ft.linalg.__all__},
+            norm=_norm,
+        )
 
     def replace(self, arr, old, new):
         matches = ft.isnan(arr) if old != old else ft.equal(arr, old)
