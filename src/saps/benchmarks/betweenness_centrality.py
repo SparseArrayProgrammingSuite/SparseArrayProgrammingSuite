@@ -17,6 +17,7 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import fetch_snap_graph, snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import assert_binsparse_allclose
@@ -60,6 +61,42 @@ class BetweennessCentralityDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+
+class BetweennessCentralityGAPDataset(BetweennessCentralityDataset):
+    def __init__(
+        self, source_name: str, trial: int, *, suites: list[str] | None = None
+    ):
+        if not 0 <= trial < 16:
+            raise ValueError("GAP betweenness trial must be between 0 and 15.")
+        graph = gap_graph(source_name)
+        self.source_name = graph.name
+        self.trial = trial
+        self.sources = graph.sources[4 * trial : 4 * (trial + 1)]
+        super().__init__(
+            name=f"{graph.name}_trial{trial}",
+            pretty_name=f"{graph.name} (Trial {trial})",
+            description=(
+                f"GAP betweenness trial {trial} on {graph.name}, using the four"
+                " published sources in order, including source dependencies and"
+                " normalizing by the maximum score."
+            ),
+            suites=suites,
+            meta={
+                "bc_sources": list(self.sources),
+                "include_source": True,
+                "normalize": True,
+            },
+        )
+
+    @property
+    def metadata(self):
+        return {
+            **super().metadata,
+            "source_name": self.source_name,
+            "trial": self.trial,
+            "sources": list(self.sources),
+        }
 
 
 class BetweennessCentralitySNAPDataset(BetweennessCentralityDataset):
@@ -507,6 +544,164 @@ class BetweennessCentralitySNAPReferenceShellBenchmark(ShellBenchmark):
         return BetweennessCentralitySNAPReferenceGenerator()
 
 
+class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDataset]):
+    @property
+    def name(self) -> str:
+        return "betweenness_centrality_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Betweenness Centrality GAP"
+
+    @property
+    def description(self) -> str:
+        return (
+            "GAP betweenness centrality: 16 trials per graph, with four published"
+            " sources per trial. Scores include source dependencies and are"
+            " normalized by their maximum, as in the GAP reference implementation."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for betweenness centrality."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BetweennessCentralityGAPDataset]:
+        return [
+            BetweennessCentralityGAPDataset(name, trial, suites=["standard-long"])
+            for name in ["GAP-road", "GAP-twitter", "GAP-web", "GAP-kron", "GAP-urand"]
+            for trial in range(16)
+        ]
+
+    def generate(self, dataset: BetweennessCentralityGAPDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = BetweennessCentralityGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: BetweennessCentralityGAPDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.source_name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta={
+                **raw.meta,
+                **dataset.meta,
+                "bc_sources": list(dataset.sources),
+                "trial": dataset.trial,
+            },
+        )
+
+
+class BetweennessCentralityGAPReferenceGenerator(
+    ReferenceGenerator[BetweennessCentralityGAPDataset]
+):
+    @property
+    def name(self) -> str:
+        return "betweenness_centrality_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Betweenness Centrality GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Betweenness Centrality GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BetweennessCentralityGAPDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in BetweennessCentralityGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[BetweennessCentralityGAPDataset]
+    ) -> DataInstance:
+        import igraph as ig
+
+        problem = BetweennessCentralityGAPGenerator().generate_inputs(dataset.dataset)
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
+        sources = meta.get("bc_sources", range(graph.vcount()))
+        scores = np.asarray(graph.betweenness(sources=sources, directed=True))
+        if meta.get("include_source", False):
+            for source in sources:
+                scores[source] += (
+                    graph.neighborhood_size(
+                        int(source), order=graph.vcount(), mode="out"
+                    )
+                    - 1
+                )
+        if meta.get("normalize", False) and scores.max(initial=0) > 0:
+            scores /= scores.max()
+        expected = from_numpy(scores)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "betweenness_centrality",
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class BetweennessCentralityGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return BetweennessCentralityGAPReferenceGenerator()
+
+
 class BetweennessCentralityBenchmark(Benchmark):
     @property
     def name(self):
@@ -528,7 +723,7 @@ class BetweennessCentralityBenchmark(Benchmark):
             "times a node appears in other shortest paths. The number of times this "
             "node is in one of the shortest path divided by total shortest paths "
             "between the two edge nodes gets added to the intermediate nodes bc score. "
-            "SNAP cases use four sources per trial, include source "
+            "GAP and SNAP cases use four sources per trial, include source "
             "dependencies, and normalize by the maximum score. Small test cases "
             "use all sources unless bc_sources is supplied."
         )
@@ -620,6 +815,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return [
             BetweennessCentralityTestGenerator(),
             BetweennessCentralitySNAPGenerator(),
+            BetweennessCentralityGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, G):

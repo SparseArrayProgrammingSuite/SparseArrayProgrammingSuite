@@ -150,6 +150,7 @@ Suites are listed by name in `suites`, and each one becomes a `suite-<name>` tag
 
 - `test`: datasets that run in CI and cover dense/sparse cases, different sizes, and code paths.
 - `standard`: canonical datasets in the suite.
+- `standard-long`: canonical datasets that take hours each to prepare, such as the GAP graphs. They stay out of `standard`, and `--cache-datasets` skips them unless selected with `--tag suite-standard-long`; references of these datasets join this suite too.
 - `trace`: datasets whose operation behavior should be traced into `statistics.json`.
 
 Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags prefixed with `concept-`, such as `concept-applied-computing`, `concept-physical-sciences-and-engineering`, or `concept-aerospace`.

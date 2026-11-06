@@ -267,6 +267,7 @@ _TENSORS: list[FROSTTDataset] = [
             " of terms within a 7-word window; each yearly slice is"
             " symmetric."
         ),
+        suites=["standard-long"],
     ),
     FROSTTDataset(
         "reddit_2015",
@@ -279,6 +280,7 @@ _TENSORS: list[FROSTTDataset] = [
             " subreddits, and words appearing fewer than 5 times are"
             " excluded."
         ),
+        suites=["standard-long"],
     ),
     FROSTTDataset(
         "fb_m",

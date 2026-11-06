@@ -19,6 +19,7 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
 
@@ -387,25 +388,25 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
         # fmt: off
         return [
             MCLDataset("soc-Epinions1", suites=["standard"]),
-            # MCLDataset("soc-LiveJournal1", suites=["standard"]),
-            # MCLDataset("soc-Pokec", suites=["standard"]),
+            MCLDataset("soc-LiveJournal1", suites=["standard-long"]),
+            MCLDataset("soc-Pokec", suites=["standard-long"]),
             MCLDataset("soc-Slashdot0811", suites=["standard"]),
             MCLDataset("soc-Slashdot0902", suites=["standard"]),
             MCLDataset("wiki-Vote", suites=["standard"]),
             MCLDataset("wiki-RfA", suites=["standard"]),
             MCLDataset("soc-sign-bitcoin-otc", suites=["standard"]),
             MCLDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
-            # MCLDataset("com-LiveJournal", suites=["standard"]),
-            # MCLDataset("com-Friendster", suites=["standard"]),
-            # MCLDataset("com-Orkut", suites=["standard"]),
-            # MCLDataset("com-Youtube", suites=["standard"]),
+            MCLDataset("com-LiveJournal", suites=["standard-long"]),
+            MCLDataset("com-Friendster", suites=["standard-long"]),
+            MCLDataset("com-Orkut", suites=["standard-long"]),
+            MCLDataset("com-Youtube", suites=["standard-long"]),
             MCLDataset("com-DBLP", suites=["standard"]),
             MCLDataset("com-Amazon", suites=["standard"]),
             MCLDataset("email-Eu-core", suites=["standard", "trace", "train"]),
-            # MCLDataset("wiki-topcats", suites=["standard"]),
+            MCLDataset("wiki-topcats", suites=["standard-long"]),
             MCLDataset("email-EuAll", suites=["standard"]),
             MCLDataset("email-Enron", suites=["standard"]),
-            # MCLDataset("wiki-Talk", suites=["standard"]),
+            MCLDataset("wiki-Talk", suites=["standard-long"]),
             MCLDataset("cit-HepPh", suites=["standard"]),
             MCLDataset("cit-HepTh", suites=["standard"]),
             MCLDataset("cit-Patents", suites=["standard"]),
@@ -435,7 +436,7 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
             MCLDataset("roadNet-PA", suites=["standard"]),
             MCLDataset("roadNet-TX", suites=["standard"]),
             MCLDataset("as-735", suites=["standard"]),
-            # MCLDataset("as-Skitter", suites=["standard"]),
+            MCLDataset("as-Skitter", suites=["standard-long"]),
             MCLDataset("as-caida", suites=["standard"]),
             MCLDataset("Oregon-1", suites=["standard"]),
             MCLDataset("Oregon-2", suites=["standard"]),
@@ -445,14 +446,14 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
             MCLDataset("soc-sign-Slashdot090221", suites=["standard"]),
             MCLDataset("loc-Gowalla", suites=["standard"]),
             MCLDataset("loc-Brightkite", suites=["standard"]),
-            # MCLDataset("sx-stackoverflow", suites=["standard"]),
+            MCLDataset("sx-stackoverflow", suites=["standard-long"]),
             MCLDataset("sx-mathoverflow", suites=["standard"]),
             MCLDataset("sx-superuser", suites=["standard"]),
             MCLDataset("sx-askubuntu", suites=["standard"]),
-            # MCLDataset("wiki-talk-temporal", suites=["standard"]),
+            MCLDataset("wiki-talk-temporal", suites=["standard-long"]),
             MCLDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             MCLDataset("CollegeMsg", suites=["standard", "trace"]),
-            # MCLDataset("twitter7", suites=["standard"]),
+            MCLDataset("twitter7", suites=["standard-long"]),
             MCLDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -520,6 +521,126 @@ class MCLSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return MCLSNAPReferenceGenerator()
+
+
+class MCLGAPGenerator(Generator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Markov Clustering (MCL) GAP"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Data collected from SuiteSparse Matrix Collection consisting of "
+            "sparse adjacency matrices used to evaluate graph clustering performance."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MCLBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCLBenchmark().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return MCLBenchmark().ai_disclosure
+
+    @property
+    def motivation(self) -> str:
+        return MCLBenchmark().motivation
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[MCLDataset]:
+        # fmt: off
+        return [
+            MCLDataset("GAP-road", suites=["standard-long"]),
+            MCLDataset("GAP-twitter", suites=["standard-long"]),
+            MCLDataset("GAP-web", suites=["standard-long"]),
+            MCLDataset("GAP-kron", suites=["standard-long"]),
+            MCLDataset("GAP-urand", suites=["standard-long"]),
+        ]
+        # fmt: on
+        # fmt: on
+
+    def generate(self, dataset: MCLDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = MCLGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MCLDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        graph = zero_one_adjacency(raw.inputs[0])
+        return DataInstance(inputs=[graph, _inverse_degrees(graph, 1)], meta={})
+
+
+class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
+    @property
+    def name(self) -> str:
+        return "mcl_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Markov Clustering (MCL) GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Markov Clustering (MCL) GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
+        return [ReferenceDataset(dataset) for dataset in MCLGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[MCLDataset]) -> DataInstance:
+        problem = MCLGAPGenerator().generate_inputs(dataset.dataset)
+        meta = problem.meta
+        expected = from_scipy(
+            _mcl_reference(
+                graph_csr(problem.inputs[0]), to_numpy(problem.inputs[1]), meta
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "graphblas",
+            "reference_algorithm": "mcl",
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class MCLGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return MCLGAPReferenceGenerator()
 
 
 class MCLBenchmark(Benchmark):
@@ -613,7 +734,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [MCLTestGenerator(), MCLSNAPGenerator()]
+        return [MCLTestGenerator(), MCLSNAPGenerator(), MCLGAPGenerator()]
 
     def benchmark(self, xp, meta: dict[str, Any], graph, inverse_degrees):
         """

@@ -1108,18 +1108,18 @@ class SimHashANNNetflixPrizeSparseGenerator(
     @property
     def datasets(self) -> list[SimHashANNDataset]:
         return [
-            # SimHashANNDataset(
-            #     "netflix",
-            #     k=5,
-            #     eps=0.3,
-            #     seed=0,
-            #     suites=["standard"],
-            #     pretty_name="Netflix Prize",
-            #     max_tables=64,
-            #     max_projections=32,
-            #     candidate_target=100,
-            #     target_probability=0.9,
-            # )
+            SimHashANNDataset(
+                "netflix",
+                k=5,
+                eps=0.3,
+                seed=0,
+                suites=["standard-long"],
+                pretty_name="Netflix Prize",
+                max_tables=64,
+                max_projections=32,
+                candidate_target=100,
+                target_probability=0.9,
+            )
         ]
 
     def generate(self, dataset: SimHashANNDataset) -> DataInstance:

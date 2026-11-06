@@ -17,6 +17,7 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import (
     fetch_snap_graph,
     with_source_vertex,
@@ -785,6 +786,165 @@ class BellmanFordSNAPReferenceShellBenchmark(ShellBenchmark):
         return BellmanFordSNAPReferenceGenerator()
 
 
+class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
+    @property
+    def name(self) -> str:
+        return "bellman_ford_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Bellman-Ford GAP"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for Bellman-Ford shortest-path benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate weighted GAP graph inputs for Bellman-Ford."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BellmanFordDataset]:
+        # fmt: off
+        return [
+            *[
+                BellmanFordDataset(source_name="GAP-road", src=src, suites=["standard-long"])
+                for src in gap_graph("GAP-road").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-twitter", src=src, suites=["standard-long"])
+                for src in gap_graph("GAP-twitter").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-web", src=src, suites=["standard-long"])
+                for src in gap_graph("GAP-web").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-kron", src=src, suites=["standard-long"])
+                for src in gap_graph("GAP-kron").sources
+            ],
+            *[
+                BellmanFordDataset(source_name="GAP-urand", src=src, suites=["standard-long"])
+                for src in gap_graph("GAP-urand").sources
+            ],
+        ]
+        # fmt: on
+
+    def generate(self, dataset: BellmanFordDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = BellmanFordGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: BellmanFordDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.source_name)
+        if dataset.src not in raw.meta["sources"]:
+            raise ValueError(
+                f"{dataset.src} is not a published source of {dataset.source_name}"
+            )
+        return DataInstance(
+            inputs=[distance_matrix(raw.inputs[0], keep_weights=True)],
+            meta={**raw.meta, "src": dataset.src},
+        )
+
+
+class BellmanFordGAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
+    @property
+    def name(self) -> str:
+        return "bellman_ford_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Bellman-Ford GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return "Reference outputs for Bellman-Ford GAP, cached apart from its inputs."
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BellmanFordDataset]]:
+        return [
+            ReferenceDataset(dataset) for dataset in BellmanFordGAPGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[BellmanFordDataset]) -> DataInstance:
+        import igraph as ig
+
+        problem = BellmanFordGAPGenerator().generate_inputs(dataset.dataset)
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], distances=True).tocoo()
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
+        expected = from_numpy(
+            np.asarray(
+                graph.distances(
+                    source=[meta["src"]], weights=adjacency.data, mode="out"
+                )[0],
+                dtype=float,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "bellman_ford",
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class BellmanFordGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return BellmanFordGAPReferenceGenerator()
+
+
 class BellmanFordBenchmark(Benchmark):
     @property
     def name(self):
@@ -879,6 +1039,7 @@ class BellmanFordBenchmark(Benchmark):
         return [
             BellmanFordTestGenerator(),
             BellmanFordSNAPGenerator(),
+            BellmanFordGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, edges):

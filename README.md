@@ -194,6 +194,14 @@ chunk. Override the defaults with `SAPS_UPLOAD_CHUNK_COUNT`, `SAPS_UPLOAD_CPUS`,
 `SAPS_UPLOAD_MEMORY`, and `SAPS_UPLOAD_MEMORY_LIMIT`. Tracing waits for every
 upload task to succeed.
 
+`--cache-datasets` skips the `standard-long` suite, whose datasets take hours
+each to prepare. Cache them by selecting the suite explicitly, with a longer
+`--process-timeout`:
+
+```bash
+pixi run ./bin/run_benchmark.py --cache-datasets --tag suite-standard-long --process-timeout 28800
+```
+
 Uploads use the `dataset-upload` AWS profile, which must hold long-lived
 access keys with write access to the bucket. Uploads run for days, longer
 than any SSO session lasts, so the launcher refuses an SSO profile and

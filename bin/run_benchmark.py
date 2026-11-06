@@ -833,6 +833,13 @@ def main() -> int:
         ) -> bool:
             if not generator["cacheable"]:
                 return False
+            # standard-long datasets take hours each to prepare, so they are
+            # cached only when selected with --tag suite-standard-long.
+            if (
+                "suite-standard-long" in dataset["tags"]
+                and "suite-standard-long" not in include_tags
+            ):
+                return False
             manifest_key = dataset["asv_param"]
             record = manifest.get(manifest_key)
             if manifest_key in selected_cache_params:
