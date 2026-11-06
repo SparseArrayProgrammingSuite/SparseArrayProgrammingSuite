@@ -5,7 +5,7 @@ import pytest
 
 import numpy as np
 
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse.conversions import from_numpy
 
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import Benchmark, DataInstance, Param
@@ -103,7 +103,10 @@ def test_ode_setup_preserves_non_slicot_timestep(benchmark_cls):
         ("ode_rc", []),
         ("ode_rlc", []),
         ("ode_lotka_volterra", []),
-        ("ode_brusselator", ["C", "brusselator_cb"]),
+        (
+            "ode_brusselator",
+            ["C", "brusselator_cb", "brusselator_a", "brusselator_scatter"],
+        ),
         ("ode_slicot", ["A", "B"]),
     ],
 )
@@ -151,7 +154,7 @@ def test_generated_ode_function_is_inline_and_matches_template(
     assert "_resolve_derivatives" not in source
     assert "_step_input(" not in source
     assert "dydt(" not in source
-    inputs = [to_numpy(item) for item in problem.inputs]
+    inputs = [ode._matrix(item) for item in problem.inputs]
     # Use the independent reference derivatives in the same solver template.
     arguments = ", ".join(("t", "state", "meta", *input_names))
     reference = define_function(
