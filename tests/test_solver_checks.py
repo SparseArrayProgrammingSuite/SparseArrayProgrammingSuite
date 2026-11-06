@@ -15,6 +15,7 @@ from binsparse.conversions import (
     to_scipy,
 )
 
+from saps.benchmarks.amg import AMGBenchmark
 from saps.benchmarks.cg import CGBenchmark
 from saps.benchmarks.gmres import GMRESBenchmark
 from saps.benchmarks.jacobi import JacobiBenchmark
@@ -29,6 +30,7 @@ _SOLVERS = [
     BlockJacobiPCGBenchmark,
     JacobiPCGBenchmark,
     LSQRBenchmark,
+    AMGBenchmark,
 ]
 _CHECKS = [pytest.param(cls, None, id=cls.__name__) for cls in _SOLVERS] + [
     pytest.param(GMRESBenchmark, {"residual_tol": 1e-6}, id="gmres_residual"),
@@ -55,6 +57,10 @@ def _check(
         benchmark._input.append(from_numpy(np.zeros_like(x)))
     if benchmark_cls in (BlockJacobiPCGBenchmark, JacobiPCGBenchmark):
         benchmark._input.append(from_numpy(np.eye(A.shape[0], dtype=A.dtype)))
+    if benchmark_cls is AMGBenchmark:
+        benchmark._input.append(
+            from_scipy(sps.coo_array(np.eye(A.shape[0], dtype=A.dtype)))
+        )
     benchmark._output = [
         from_sparse(pydata_sparse.COO.from_numpy(x)) if x_sparse else from_numpy(x)
     ]
@@ -123,7 +129,13 @@ def test_lsqr_check_accepts_a_gradient_small_relative_to_the_residual():
 
 @pytest.mark.parametrize(
     "benchmark_cls",
-    [CGBenchmark, JacobiBenchmark, BlockJacobiPCGBenchmark, JacobiPCGBenchmark],
+    [
+        CGBenchmark,
+        JacobiBenchmark,
+        BlockJacobiPCGBenchmark,
+        JacobiPCGBenchmark,
+        AMGBenchmark,
+    ],
 )
 def test_solver_checks_respect_absolute_tolerance(benchmark_cls):
     A = np.eye(3)
@@ -187,6 +199,8 @@ def test_solver_generators_cache_input_dependent_checks(
         lambda *args, **kwargs: (from_scipy(A), np.array([1.0, 2.0]), True),
     )
     generator = benchmark.generators[generator_index]
+    if not generator.datasets:
+        pytest.skip(f"{generator.name} ships no datasets in this PR")
     dataset = generator.datasets[0]
     problem = generator.generate(dataset)
     try:
