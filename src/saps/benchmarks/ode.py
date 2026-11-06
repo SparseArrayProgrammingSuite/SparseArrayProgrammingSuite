@@ -125,8 +125,11 @@ def _brusselator_forcing(n):
     return brusselator_cb
 
 
-def _brusselator_derivatives(t, u_vec, meta, C, brusselator_cb):
-    """Brusselator derivatives with diffusion on 2D grid."""
+def _brusselator_derivatives(t, u_vec, meta, C, brusselator_cb, *_helpers):
+    """Brusselator derivatives with diffusion on 2D grid.
+
+    It ignores the benchmark's helper arrays, computing from meta["a"] instead.
+    """
     a = meta["a"]
     u_arr = np.array(u_vec, dtype=float)
 
@@ -272,7 +275,7 @@ def _step_model(meta, data) -> _StepModel:
                 4,
             )
         case "ode_brusselator":
-            dense_c, forcing = data
+            dense_c, forcing = data[:2]
             c = scipy_sparse.csr_array(dense_c)
             abs_c, a = abs(c), meta["a"]
 
@@ -803,20 +806,16 @@ dydt_vector = (dxdt, dydt)
 
 
 class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
-    array_parameters = ("C", "brusselator_cb")
+    array_parameters = ("C", "brusselator_cb", "brusselator_a", "brusselator_scatter")
     derivative_source = """\
-a = meta["a"]
 u_arr = xp.asarray(state, dtype=xp.float64)
-lin = C @ u_arr
-lin[0::2] += a
+lin = C @ u_arr + brusselator_a
 if t >= 1.1:
     lin += brusselator_cb
 u_vals = u_arr[0::2]
 v_vals = u_arr[1::2]
 uv2 = u_vals**2 * v_vals
-non_lin = xp.zeros(len(state), dtype=xp.float64)
-non_lin[0::2] = uv2
-non_lin[1::2] = -uv2
+non_lin = brusselator_scatter @ uv2
 dydt_vector = (lin + non_lin).tolist()
 """
 
@@ -908,10 +907,25 @@ dydt_vector = (lin + non_lin).tolist()
             "a": dataset.a,
             "alpha": dataset.alpha,
         }
+        # Built here so the benchmark never assigns into an array: a at each
+        # u component, and a scatter that adds u^2 v to each u component and
+        # subtracts it from each v component.
+        size = 2 * n * n
+        brusselator_a = np.zeros(size)
+        brusselator_a[0::2] = dataset.a
+        brusselator_scatter = scipy_sparse.coo_array(
+            (
+                np.tile([1.0, -1.0], n * n),
+                (np.arange(size), np.repeat(np.arange(n * n), 2)),
+            ),
+            shape=(size, n * n),
+        )
         return DataInstance(
             inputs=[
                 from_numpy(C),
                 from_numpy(np.asarray(_brusselator_forcing(n))),
+                from_numpy(brusselator_a),
+                from_scipy(brusselator_scatter),
             ],
             meta=meta,
         )
@@ -922,7 +936,7 @@ class ODESLICOTGenerator(_ODEGenerator[ODESLICOTDataset]):
     derivative_source = """\
 input_value = meta["input_value"]
 state_array = xp.asarray(state)
-input_dtype = np.result_type(B.dtype, type(input_value), float)
+input_dtype = xp.result_type(B.dtype, xp.float64)
 input_array = xp.asarray([input_value] * B.shape[1], dtype=input_dtype)
 dydt_vector = (A @ state_array + B @ input_array).tolist()
 """
