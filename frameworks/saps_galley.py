@@ -2,11 +2,12 @@
 
 Install with ``pip install galley-jl-python`` (import name ``galley_jl_python``;
 the unrelated PyPI package ``galley`` is a Docker test tool). The adapter
-converts inputs and outputs, translates NumPy-style dtypes to galley's Julia
-dtypes, and forwards every operation to galley's own namespace. It also spells
-a few standard operations galley has under other names or can compose from its
-own (``vecdot``, ``transpose``, ``linalg.norm``, ``replace``); galley's tensors
-are read-only, so ``xp.at`` updates them with ``where`` (Framework.at).
+converts inputs (storing sparse ones as row-major CSF) and outputs, translates
+NumPy-style dtypes to galley's Julia dtypes, and forwards every operation to
+galley's own namespace. It also spells a few standard operations galley has
+under other names or can compose from its own (``vecdot``, ``transpose``,
+``linalg.norm``, ``replace``); galley's tensors are read-only, so ``xp.at``
+updates them with ``where`` (Framework.at).
 Operations galley cannot do, such as ``concat`` and ``linalg.pinv``, are left
 unsupported.
 """
@@ -79,21 +80,22 @@ def _fill_value(array):
     return array.fill_value if array.fill is True else 0
 
 
-def _element(values, fill_value):
-    """Finch.jl's Element level over values, with a fill of the same Julia type.
+def _julia_fill(dtype, fill_value):
+    """fill_value as a scalar Julia reads as the type of NumPy's dtype.
 
     Finch.jl requires an isbits fill. Julia converts NumPy's numeric scalars to
     the matching Julia number, but not ``np.bool_``, so a Boolean fill is passed
     as a Python bool. (galley's own sparse constructors pass ``np.bool_``, which
     Finch.jl rejects with "Finch currently only supports isbits defaults".)
     """
-    values = np.ascontiguousarray(values)
     fill_value = np.asarray(fill_value).item()
-    if values.dtype == np.bool_:
-        fill_value = bool(fill_value)
-    else:
-        fill_value = values.dtype.type(fill_value)
-    return jl.Element(fill_value, values)
+    return bool(fill_value) if dtype == np.bool_ else dtype.type(fill_value)
+
+
+def _element(values, fill_value):
+    """Finch.jl's Element level over values, with a fill of the same Julia type."""
+    values = np.ascontiguousarray(values)
+    return jl.Element(_julia_fill(values.dtype, fill_value), values)
 
 
 def _indices(indices):
@@ -118,14 +120,13 @@ def _compressed(array, *, row_major):
     return galley.Tensor(jl.swizzle(tensor, *((2, 1) if row_major else (1, 2))))
 
 
-def _coo(array):
-    """Any sparse Binsparse tensor as Finch.jl's SparseCOO level, without
+def _coo(coo):
+    """A PyData/Sparse COO array as Finch.jl's SparseCOO level, without
     densifying it, keeping its fill value.
 
     A row-major tensor is stored with its dimensions reversed, so its first
     axis is outermost; SparseCOO requires coordinates sorted outermost first.
     """
-    coo = to_sparse(array)
     coords, data = coo.coords, coo.data
     order = np.lexsort(coords[::-1])
     coords, data = coords[:, order], data[order]
@@ -142,6 +143,18 @@ def _coo(array):
         tuple(_indices(axis) for axis in coords[::-1]),
     )
     return galley.Tensor(jl.swizzle(jl.Tensor(level), *range(ndim, 0, -1)))
+
+
+def _csf(tensor, dtype, fill_value):
+    """Finch.jl's copy of a sparse galley tensor into row-major CSF: a dense
+    level for its first dimension over a SparseList for each later one, or one
+    SparseList for a vector. dtype and fill_value are the tensor's NumPy element
+    type and fill, which galley's own fill_value would widen to Python's."""
+    levels = galley.Element(_julia_fill(dtype, fill_value))
+    for _ in range(tensor.ndim - 1):
+        levels = galley.SparseList(levels)
+    levels = galley.Dense(levels) if tensor.ndim > 1 else galley.SparseList(levels)
+    return tensor.to_storage(galley.Storage(levels))
 
 
 def _norm(x, ord=None, axis=None, keepdims=False):
@@ -175,13 +188,17 @@ class GalleyFramework(Framework):
                 return galley.asarray(to_numpy(array))
             # galley's sparse constructors go through SciPy, which drops
             # nonzero fill values, and only take 2-D COO, so the adapter builds
-            # Finch.jl's levels itself.
+            # Finch.jl's levels itself. galley reads inputs in the layout they
+            # arrive in, and Finch.jl can only scan COO, so Finch.jl copies
+            # sparse inputs into row-major CSF, which CSR already is.
             case CSCMatrix():  # Before CSRMatrix, which it subclasses.
-                return _compressed(array, row_major=False)
+                tensor = _compressed(array, row_major=False)
+                return _csf(tensor, array.values.dtype, _fill_value(array))
             case CSRMatrix():
                 return _compressed(array, row_major=True)
             case _:
-                return _coo(array)
+                coo = to_sparse(array)
+                return _csf(_coo(coo), coo.data.dtype, coo.fill_value)
 
     def to_binsparse(self, array):
         if not isinstance(array, galley.Tensor):

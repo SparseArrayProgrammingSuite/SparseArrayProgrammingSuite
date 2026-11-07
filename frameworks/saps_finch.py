@@ -18,6 +18,7 @@ from finch.algebra import as_fill
 from finch.autoschedule import COMPILE_JULIA_GALLEY
 from finch.compile_jl.interop import jl_tensor_to_python, tensor_to_jl
 from finch.compile_jl.julia import jl
+from finch.tensor import DenseLevel, ElementLevel, SparseListLevel
 
 from saps_framework import Framework
 
@@ -40,6 +41,26 @@ def _reformat(tensor, *, dense):
         sparse_level = not dense and depth == 0
         level = jl.SparseList(level) if sparse_level else jl.Dense(level)
     return jl_tensor_to_python(jl.Tensor(level, tensor_to_jl(tensor)))
+
+
+def _csf(tensor):
+    """Copy a FiberTensor into row-major CSF with Finch.jl: a dense level for
+    its first dimension over a SparseList for each later one, or one SparseList
+    for a vector."""
+    level = jl.Element(_julia_fill(tensor.fill_value))
+    for _ in range(tensor.ndim - 1):
+        level = jl.SparseList(level)
+    level = jl.Dense(level) if tensor.ndim > 1 else jl.SparseList(level)
+    return jl_tensor_to_python(jl.Tensor(level, tensor_to_jl(tensor)))
+
+
+def _levels(tensor):
+    """The kinds of a FiberTensor's levels, from the outermost in."""
+    kinds, level = [], tensor.lvl
+    while not isinstance(level, ElementLevel):
+        kinds.append(type(level))
+        level = level.lvl
+    return kinds
 
 
 # Binsparse formats SAPS's correctness checkers can read.
@@ -79,11 +100,18 @@ def _norm(x, ord=None, axis=None, keepdims=False):
 class FinchFramework(Framework):
     def from_binsparse(self, array):
         try:
-            return ft.from_binsparse(array)
+            tensor = ft.from_binsparse(array)
         except NotImplementedError:
             # Finch has no transposed (CSC) Binsparse layout; read through
             # SciPy CSR, which finch.asarray imports natively.
             return ft.asarray(to_scipy(array).tocsr())
+        # finch reads Binsparse COO as SparseCOO, which Finch.jl can only scan,
+        # so Finch.jl copies sparse inputs into row-major CSF, which CSR and
+        # sparse vectors already are.
+        csf = [DenseLevel, *[SparseListLevel] * (tensor.ndim - 1)]
+        if _levels(tensor) in (csf, [SparseListLevel], [DenseLevel] * tensor.ndim):
+            return tensor
+        return _csf(tensor)
 
     def to_binsparse(self, array):
         if isinstance(array, ft.LazyTensor):
