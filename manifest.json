@@ -13934,16 +13934,6 @@
     "file": "src/saps/benchmarks/frostt.py",
     "freshness": "1b6da2ea1cb8348b7add15fa090686a11dfcf6d5f23bbd3e6a516f6d3e722ee2"
   },
-  "frostt_tensor.patents": {
-    "digest": "2d9b54ea596ce2c6bda879e8d06d45568922ff569cdd940c97e3d1e371bbe72f",
-    "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "b53e208281f1737e174c3b1c17506ca15e5dc8903f41bbfe6e6463b455391090"
-  },
-  "frostt_tensor.reddit_2015": {
-    "digest": "57343de0792478da9cb5ddfc5ca3b011b760a534a540c5ab531539738cc44448",
-    "file": "src/saps/benchmarks/frostt.py",
-    "freshness": "b53e208281f1737e174c3b1c17506ca15e5dc8903f41bbfe6e6463b455391090"
-  },
   "frostt_tensor.toy": {
     "digest": "a81bdbaa97e92382ba3bb9bcd45e427bd6cf0ee65c5e483616e0eb49432f1242",
     "file": "src/saps/benchmarks/frostt.py",
