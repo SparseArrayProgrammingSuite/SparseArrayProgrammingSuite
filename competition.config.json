@@ -3,6 +3,7 @@
   "// SAPS_DEVICE": "Add \"SAPS_DEVICE\": \"gpu\" to a framework's env_nobuild to run it in the GPU array of scripts/submit-competition.sh (saps_pytorch.py then uses CUDA). Without it, frameworks run in the CPU array.",
   "// SAPS_FRAMEWORK_NAME": "Required and unique per include: the framework's name in combined results. One framework file can appear more than once (PyTorch runs on both CPU and GPU).",
   "environment_type": "virtualenv",
+  "// nvidia-*-cu12": "CuPy's PyPI wheel needs the CUDA libraries installed separately. cupy-cuda12x[ctk] would install them, but ASV drops pip extras, so the cupy include lists those wheels itself, at the CUDA 12.6 versions of PyTorch's cu126 build, which runs on these V100s.",
   "// install_command": "warm_julia_env.py starts Julia once for finch and galley. It does nothing in other environments.",
   "install_command": [
     "in-dir={env_dir} python -mpip install {build_dir}",
@@ -210,7 +211,14 @@
         "scipy": "1.17.1",
         "sparse": "0.17.0",
         "ssgetpy": "1.0rc2",
-        "cupy-cuda12x": "14.2.0"
+        "cupy-cuda12x": "14.2.0",
+        "nvidia-cublas-cu12": "12.6.4.1",
+        "nvidia-cuda-nvrtc-cu12": "12.6.85",
+        "nvidia-cuda-runtime-cu12": "12.6.77",
+        "nvidia-cufft-cu12": "11.3.0.4",
+        "nvidia-curand-cu12": "10.3.7.77",
+        "nvidia-cusolver-cu12": "11.7.1.2",
+        "nvidia-cusparse-cu12": "12.5.4.2"
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_cupy.py",

@@ -11,7 +11,6 @@ from typing import Any
 
 import numpy as np
 
-import pandas as pd
 from binsparse import BinsparseTensor, COORMatrix
 
 from saps.downloaders.cache import download_lock, source_cache_dir
@@ -107,6 +106,8 @@ def _download(source: _OGBSource, root: Path, dataset_dir: Path) -> None:
 
 
 def _read_csv(path: Path) -> np.ndarray:
+    import pandas as pd
+
     return pd.read_csv(path, compression="gzip", header=None).values
 
 
