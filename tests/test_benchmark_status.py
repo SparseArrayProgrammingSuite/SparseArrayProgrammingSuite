@@ -1,7 +1,9 @@
+import importlib.util
 import json
 import os
 import subprocess
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -10,6 +12,12 @@ import pytest
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark_status import STATUS_PREFIX, MeasurementTimeout, parameter_statuses
 from saps.benchmarks.bfs import BFSBenchmark
+
+_spec = importlib.util.spec_from_file_location(
+    "saps_run_benchmark", Path(__file__).parents[1] / "bin/run_benchmark.py"
+)
+run_benchmark_script = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(run_benchmark_script)
 
 
 def marker(phase, **details):
@@ -157,6 +165,14 @@ def test_measurement_limit_allows_exactly_the_budget(monkeypatch):
         ("hang", "measurement_timeout", "process"),
         ("teardown", "teardown_timeout", "process"),
         ("failed", "failed", None),
+        pytest.param(
+            "crash",
+            "failed",
+            None,
+            marks=pytest.mark.skipif(
+                sys.platform == "win32", reason="Windows has no signals"
+            ),
+        ),
     ],
 )
 def test_asv_worker_outcomes(tmp_path, scenario, status, source):
@@ -186,6 +202,8 @@ def test_asv_worker_outcomes(tmp_path, scenario, status, source):
         "        super().setup(param, use_cache=False, xp=NumpyFramework())\n"
         "    def run(self, param):\n"
         f"        time.sleep({60 if scenario == 'hang' else 0})\n"
+        f"        if {scenario == 'crash'}:\n"
+        "            import os; os.abort()\n"
         f"        clock.now += {0.75 if scenario == 'slow' else 0.25}\n"
         "        super().run(param)\n"
         "        print('completed benchmark call', flush=True)\n"
@@ -230,13 +248,19 @@ def test_asv_worker_outcomes(tmp_path, scenario, status, source):
     }
     result = run_benchmark(
         benchmark,
-        SimpleNamespace(run=run),
+        run_benchmark_script.report_exit_statuses(SimpleNamespace(run=run)),
         profile=False,
         extra_params={"number": 1, "repeat": 1, "rounds": 1, "warmup_time": 0.01},
     )
-    (record,) = parameter_statuses(benchmark["params"], result.result, result.stderr)
+    (record,) = run_benchmark_script.statuses_with_exit_codes(
+        benchmark["params"], result.result, result.stderr
+    )
     assert record["status"] == status, result.stderr
     assert record.get("timeout_source") == source
+    # Timeouts report themselves; other failures carry their exit status.
+    expected_exit = {"slow": 1, "failed": 1, "crash": -6}.get(scenario)
+    assert record.get("exit_code") == expected_exit
+    assert record.get("signal") == ("SIGABRT" if scenario == "crash" else None)
     if scenario in ("ok", "slow"):
         assert result.stderr.count("completed benchmark call") == 2
     if scenario == "ok":
@@ -247,3 +271,24 @@ def test_asv_worker_outcomes(tmp_path, scenario, status, source):
         assert record["elapsed_seconds"] == 1.5
         assert record["timeout_seconds"] == 1
         assert '"phase": "finished"' in result.stderr
+
+
+def test_exit_codes_are_attributed_to_their_parameters():
+    output = "\n".join(
+        [
+            "For parameters: a",
+            marker("measurement"),
+            run_benchmark_script.EXIT_STATUS_PREFIX + "-11",
+            "For parameters: b",
+            "ValueError: wrong",
+            run_benchmark_script.EXIT_STATUS_PREFIX + "1",
+            "For parameters: c",
+            marker("finished"),
+        ]
+    )
+    records = run_benchmark_script.statuses_with_exit_codes(
+        [["a", "b", "c"]], [None, None, 1.0], output
+    )
+    assert [r.get("exit_code") for r in records] == [-11, 1, None]
+    assert [r.get("signal") for r in records] == ["SIGSEGV", None, None]
+    assert [r["status"] for r in records] == ["failed", "failed", "ok"]
