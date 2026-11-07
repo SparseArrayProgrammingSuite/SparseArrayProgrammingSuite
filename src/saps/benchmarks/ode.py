@@ -561,7 +561,7 @@ class _ODEGenerator(Generator[TDataset], ABC):
         return define_function(
             source,
             f"<saps-generated {type(solver).__qualname__}.{self.name}.{dataset.name}>",
-            {"np": np},
+            {},
         )
 
 
@@ -570,7 +570,7 @@ class ODERCGenerator(_ODEGenerator[ODERCDataset]):
 R, C = meta["R"], meta["C"]
 tau = R * C
 Vs = 5.0 if t >= 0 else 0.0
-dydt_vector = [(Vs - state[0]) / tau]
+dydt_vector = (Vs - state) / tau
 """
 
     @property
@@ -648,7 +648,7 @@ Vc = state[0]
 dVc = state[1]
 Vs = 5.0 if t >= 0 else 0.0
 d2Vc = (Vs - Vc - R * C * dVc) / (L * C)
-dydt_vector = (dVc, d2Vc)
+dydt_vector = xp.stack([dVc, d2Vc])
 """
 
     @property
@@ -727,10 +727,11 @@ dydt_vector = (dVc, d2Vc)
 class ODELotkaVolterraGenerator(_ODEGenerator[ODELotkaVolterraDataset]):
     derivative_source = """\
 a, b, c, d = meta["a"], meta["b"], meta["c"], meta["d"]
-x, y = state
+x = state[0]
+y = state[1]
 dxdt = a * x - b * x * y
 dydt = d * x * y - c * y
-dydt_vector = (dxdt, dydt)
+dydt_vector = xp.stack([dxdt, dydt])
 """
 
     @property
@@ -808,15 +809,14 @@ dydt_vector = (dxdt, dydt)
 class ODEBrusselatorGenerator(_ODEGenerator[ODEBrusselatorDataset]):
     array_parameters = ("C", "brusselator_cb", "brusselator_a", "brusselator_scatter")
     derivative_source = """\
-u_arr = xp.asarray(state, dtype=xp.float64)
-lin = C @ u_arr + brusselator_a
+lin = C @ state + brusselator_a
 if t >= 1.1:
     lin += brusselator_cb
-u_vals = u_arr[0::2]
-v_vals = u_arr[1::2]
+u_vals = state[0::2]
+v_vals = state[1::2]
 uv2 = u_vals**2 * v_vals
 non_lin = brusselator_scatter @ uv2
-dydt_vector = (lin + non_lin).tolist()
+dydt_vector = lin + non_lin
 """
 
     def __init__(self, train: bool = False):
@@ -935,10 +935,9 @@ class ODESLICOTGenerator(_ODEGenerator[ODESLICOTDataset]):
     array_parameters = ("A", "B")
     derivative_source = """\
 input_value = meta["input_value"]
-state_array = xp.asarray(state)
 input_dtype = xp.result_type(B.dtype, xp.float64)
 input_array = xp.asarray([input_value] * B.shape[1], dtype=input_dtype)
-dydt_vector = (A @ state_array + B @ input_array).tolist()
+dydt_vector = A @ state + B @ input_array
 """
 
     def __init__(
@@ -1251,15 +1250,13 @@ def benchmark({signature}):
         curr += step
 
     outputs = [None for _ in inputs]
-    outputs[0] = y0
+    outputs[0] = xp.asarray(y0, dtype=xp.float64)
     for i in range(1, len(inputs)):
         t = inputs[i - 1]
         state = outputs[i - 1]
 {indent(dydt, "        ").rstrip()}
-        outputs[i] = [
-            outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-        ]
-    return (np.asarray(inputs), np.asarray(outputs))
+        outputs[i] = outputs[i - 1] + dydt_vector * step
+    return (xp.asarray(inputs, dtype=xp.float64), xp.stack(outputs))
 """
 
 
@@ -1305,18 +1302,16 @@ def benchmark({signature}):
         curr += step
 
     outputs = [None for _ in inputs]
-    outputs[0] = y0
+    outputs[0] = xp.asarray(y0, dtype=xp.float64)
     for i in range(1, len(inputs)):
         y_guess = outputs[i - 1]
         for _ in range(10):
             t = inputs[i]
             state = y_guess
 {indent(dydt, "            ").rstrip()}
-            y_guess = [
-                outputs[i - 1][j] + dydt_vector[j] * step for j in range(len(y0))
-            ]
+            y_guess = outputs[i - 1] + dydt_vector * step
         outputs[i] = y_guess
-    return (np.asarray(inputs), np.asarray(outputs))
+    return (xp.asarray(inputs, dtype=xp.float64), xp.stack(outputs))
 """
 
 
@@ -1372,31 +1367,28 @@ def benchmark({signature}):
         curr += step
 
     outputs = [None for _ in inputs]
-    outputs[0] = y0
+    outputs[0] = xp.asarray(y0, dtype=xp.float64)
     for i in range(1, len(inputs)):
         y_prev = outputs[i - 1]
         t = inputs[i - 1]
         state = y_prev
 {indent(dydt, "        ").rstrip()}
         k1 = dydt_vector
-        k2_state = [y_prev[j] + (step / 2) * k1[j] for j in range(len(y0))]
+        k2_state = y_prev + (step / 2) * k1
         t = inputs[i - 1] + step / 2
         state = k2_state
 {indent(dydt, "        ").rstrip()}
         k2 = dydt_vector
-        k3_state = [y_prev[j] + (step / 2) * k2[j] for j in range(len(y0))]
+        k3_state = y_prev + (step / 2) * k2
         t = inputs[i - 1] + step / 2
         state = k3_state
 {indent(dydt, "        ").rstrip()}
         k3 = dydt_vector
-        k4_state = [y_prev[j] + step * k3[j] for j in range(len(y0))]
+        k4_state = y_prev + step * k3
         t = inputs[i - 1] + step
         state = k4_state
 {indent(dydt, "        ").rstrip()}
         k4 = dydt_vector
-        outputs[i] = [
-            y_prev[j] + (step / 6) * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j])
-            for j in range(len(y0))
-        ]
-    return (np.asarray(inputs), np.asarray(outputs))
+        outputs[i] = y_prev + (step / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
+    return (xp.asarray(inputs, dtype=xp.float64), xp.stack(outputs))
 """

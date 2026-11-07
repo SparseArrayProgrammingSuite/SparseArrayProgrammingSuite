@@ -159,7 +159,7 @@ def test_generated_ode_function_is_inline_and_matches_template(
     arguments = ", ".join(("t", "state", "meta", *input_names))
     reference = define_function(
         benchmark.benchmark_source(
-            tuple(input_names), f"dydt_vector = derivative({arguments})"
+            tuple(input_names), f"dydt_vector = np.asarray(derivative({arguments}))"
         ),
         f"<ode-reference {benchmark.name}.{generator_name}>",
         {"np": np, "derivative": ode._resolve_derivatives(generator_name)},
