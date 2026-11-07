@@ -19,14 +19,7 @@ from saps.benchmarks.suitesparse import (
     SuiteSparseDataset,
     fetch_suitesparse_linear_system,
 )
-from saps.downloaders.suitesparse import random_rhs_for_matrix
 from saps.util.error_bounds import operation_error_bound, summation_error_bound
-
-DEFAULT_MAX_CYCLES = 100
-DEFAULT_NUM_SWEEPS = 2
-DEFAULT_JACOBI_WEIGHT = 2.0 / 3.0
-DEFAULT_AGGREGATE_SIZE = 3
-DEFAULT_PROLONGATION_OMEGA = 4.0 / 3.0
 
 
 def _build_aggregates(A: scipy_sparse.csr_matrix, aggregate_size: int) -> np.ndarray:
@@ -77,16 +70,16 @@ class AMGDataset(SuiteSparseDataset):
         source_name: str,
         *,
         pretty_name: str | None = None,
-        A=None,
         suites: list[str] | None = None,
-        ref_meta: dict[str, Any] | None = None,
+        A: np.ndarray | None = None,
+        b: np.ndarray | None = None,
         rhs_index: int | None = None,
-        max_cycles: int = DEFAULT_MAX_CYCLES,
+        max_iter: int = 100,
         rel_tol: float = 1e-6,
-        num_sweeps: int = DEFAULT_NUM_SWEEPS,
-        jacobi_weight: float = DEFAULT_JACOBI_WEIGHT,
-        aggregate_size: int = DEFAULT_AGGREGATE_SIZE,
-        prolongation_omega: float = DEFAULT_PROLONGATION_OMEGA,
+        num_sweeps: int = 2,
+        jacobi_weight: float = 2.0 / 3.0,
+        aggregate_size: int = 3,
+        prolongation_omega: float = 4.0 / 3.0,
     ):
         name = source_name
         if rhs_index is not None:
@@ -100,8 +93,8 @@ class AMGDataset(SuiteSparseDataset):
             rhs_index=rhs_index,
         )
         self.A = A
-        self.ref_meta = ref_meta
-        self.max_cycles = max_cycles
+        self.b = b
+        self.max_iter = max_iter
         self.rel_tol = rel_tol
         self.num_sweeps = num_sweeps
         self.jacobi_weight = jacobi_weight
@@ -110,145 +103,12 @@ class AMGDataset(SuiteSparseDataset):
 
     def benchmark_meta(self) -> dict[str, Any]:
         return {
-            "max_cycles": self.max_cycles,
+            "max_iter": self.max_iter,
             "rel_tol": self.rel_tol,
             "num_sweeps": self.num_sweeps,
             "jacobi_weight": self.jacobi_weight,
             "prolongation_omega": self.prolongation_omega,
         }
-
-
-def _generate_amg_data(source, A=None, rhs_index=None):
-    if A is not None:
-        A = scipy_sparse.coo_matrix(A)
-        b = random_rhs_for_matrix(A)
-        A_bin = from_scipy(A)
-    else:
-        A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(
-            source,
-            rhs_index=rhs_index,
-        )
-    x0 = np.zeros(A_bin.shape[1])
-    return (A_bin, b, x0)
-
-
-class AMGTestGenerator(Generator[AMGDataset]):
-    @property
-    def name(self) -> str:
-        return "amg_test"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Smoothed Aggregation AMG Test"
-
-    @property
-    def description(self) -> str:
-        return (
-            "Small inlined symmetric positive definite systems used to verify the"
-            " smoothed-aggregation algebraic-multigrid solver."
-        )
-
-    @property
-    def suites(self) -> list[str]:
-        return ["test"]
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return AMGBenchmark().authors
-
-    @property
-    def references(self) -> list[Ref]:
-        return AMGBenchmark().references
-
-    @property
-    def ai_disclosure(self) -> str:
-        return AMGBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return AMGBenchmark().motivation
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
-    def datasets(self) -> list[AMGDataset]:
-        return [
-            AMGDataset(
-                "3x3_tridiagonal",
-                pretty_name="3x3 Tridiagonal",
-                suites=["test"],
-                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            AMGDataset(
-                "4x4_tridiagonal",
-                pretty_name="4x4 Tridiagonal",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [8.0, -1.0, 0.0, 0.0],
-                        [-1.0, 8.0, -1.0, 0.0],
-                        [0.0, -1.0, 8.0, -1.0],
-                        [0.0, 0.0, -1.0, 8.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            AMGDataset(
-                "5x5_tridiagonal",
-                pretty_name="5x5 Tridiagonal",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [4.0, -1.0, 0.0, 0.0, 0.0],
-                        [-1.0, 4.0, -1.0, 0.0, 0.0],
-                        [0.0, -1.0, 4.0, -1.0, 0.0],
-                        [0.0, 0.0, -1.0, 4.0, -1.0],
-                        [0.0, 0.0, 0.0, -1.0, 4.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            AMGDataset(
-                "5x5_sparse",
-                pretty_name="5x5 Sparse",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [15.0, -2.0, 0.0, 0.0, -1.0],
-                        [-2.0, 14.0, -3.0, 0.0, 0.0],
-                        [0.0, -3.0, 16.0, -2.0, 0.0],
-                        [0.0, 0.0, -2.0, 15.0, -3.0],
-                        [-1.0, 0.0, 0.0, -3.0, 17.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-        ]
-
-    def generate(self, dataset: AMGDataset) -> DataInstance:
-        A_bin, b, x0 = _generate_amg_data(dataset.source_name, dataset.A)
-        A_csr = to_scipy(A_bin).tocsr()
-        tentative = _build_tentative_prolongator(
-            A_csr, aggregate_size=dataset.aggregate_size
-        )
-        return DataInstance(
-            inputs=[
-                from_scipy(A_csr.tocoo()),
-                from_numpy(b),
-                from_numpy(x0),
-                from_scipy(tentative.tocoo()),
-            ],
-            meta=dataset.benchmark_meta(),
-            ref_outputs=[from_scipy(np.abs(A_csr).tocoo())],
-            ref_meta={**(dataset.ref_meta or {}), "bnorm": float(np.linalg.norm(b))},
-        )
 
 
 class AMGSuiteSparseGenerator(Generator[AMGDataset]):
@@ -309,26 +169,107 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
         ]
 
     def generate(self, dataset: AMGDataset) -> DataInstance:
-        A_bin, b, x0 = _generate_amg_data(
-            dataset.source_name,
-            dataset.A,
-            rhs_index=dataset.rhs_index,
-        )
+        if dataset.A is not None:
+            A_bin = from_scipy(scipy_sparse.coo_array(dataset.A))
+            b = dataset.b
+        else:
+            A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(
+                dataset.source_name,
+                rhs_index=dataset.rhs_index,
+            )
         A_csr = to_scipy(A_bin).tocsr()
         tentative = _build_tentative_prolongator(
             A_csr, aggregate_size=dataset.aggregate_size
         )
         return DataInstance(
             inputs=[
-                from_scipy(A_csr.tocoo()),
+                A_bin,
                 from_numpy(b),
-                from_numpy(x0),
+                from_numpy(np.zeros(A_bin.shape[1])),
                 from_scipy(tentative.tocoo()),
             ],
             meta=dataset.benchmark_meta(),
             ref_outputs=[from_scipy(np.abs(A_csr).tocoo())],
-            ref_meta={**(dataset.ref_meta or {}), "bnorm": float(np.linalg.norm(b))},
+            ref_meta={"bnorm": float(np.linalg.norm(b))},
         )
+
+
+class AMGTestGenerator(AMGSuiteSparseGenerator):
+    @property
+    def name(self) -> str:
+        return "amg_test"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Smoothed Aggregation AMG Test"
+
+    @property
+    def description(self) -> str:
+        return "Small inlined symmetric positive definite systems."
+
+    @property
+    def datasets(self) -> list[AMGDataset]:
+        return [
+            AMGDataset(
+                "3x3_tridiagonal",
+                pretty_name="3x3 Tridiagonal",
+                suites=["test"],
+                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
+                b=np.array([4.0, 8.0, 16.0]),
+            ),
+            AMGDataset(
+                "3x3_dense",
+                pretty_name="3x3 Dense",
+                suites=["test"],
+                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
+                b=np.array([13.0, -3.0, 8.0]),
+            ),
+            AMGDataset(
+                "4x4_tridiagonal",
+                pretty_name="4x4 Tridiagonal",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [8.0, -1.0, 0.0, 0.0],
+                        [-1.0, 8.0, -1.0, 0.0],
+                        [0.0, -1.0, 8.0, -1.0],
+                        [0.0, 0.0, -1.0, 8.0],
+                    ]
+                ),
+                b=np.array([8.0, -2.0, 6.0, 15.0]),
+            ),
+            AMGDataset(
+                "3x3_indefinite_sparse",
+                pretty_name="3x3 Indefinite Sparse",
+                suites=["test"],
+                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
+                b=np.array([40.0, 10.0, -18.0]),
+            ),
+            AMGDataset(
+                "3x3_scaled_tridiagonal",
+                pretty_name="3x3 Scaled Tridiagonal",
+                suites=["test"],
+                A=np.array(
+                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
+                ),
+                b=np.array([118.0, 116.0, 118.0]),
+            ),
+            AMGDataset(
+                "5x5_sparse",
+                pretty_name="5x5 Sparse",
+                suites=["test"],
+                A=np.array(
+                    [
+                        [15.0, -2.0, 0.0, 0.0, -1.0],
+                        [-2.0, 14.0, -3.0, 0.0, 0.0],
+                        [0.0, -3.0, 16.0, -2.0, 0.0],
+                        [0.0, 0.0, -2.0, 15.0, -3.0],
+                        [-1.0, 0.0, 0.0, -3.0, 17.0],
+                    ]
+                ),
+                b=np.array([27.0, -1.0, -18.0, 8.0, 46.0]),
+            ),
+        ]
 
 
 class AMGBenchmark(Benchmark):
@@ -484,10 +425,10 @@ class AMGBenchmark(Benchmark):
     def benchmark(self, xp, meta: dict[str, Any], A, b, x0, tentative):
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
-        max_cycles = meta.get("max_cycles", DEFAULT_MAX_CYCLES)
-        num_sweeps = meta.get("num_sweeps", DEFAULT_NUM_SWEEPS)
-        weight = meta.get("jacobi_weight", DEFAULT_JACOBI_WEIGHT)
-        omega = meta.get("prolongation_omega", DEFAULT_PROLONGATION_OMEGA)
+        max_iter = meta.get("max_iter", 100)
+        num_sweeps = meta.get("num_sweeps", 2)
+        weight = meta.get("jacobi_weight", 2.0 / 3.0)
+        omega = meta.get("prolongation_omega", 4.0 / 3.0)
 
         # Smoothed prolongator P = (I - omega / rho * D^{-1} A) @ tentative.
         diag = xp.diagonal(A)
@@ -515,7 +456,7 @@ class AMGBenchmark(Benchmark):
         rr = xp.vecdot(r, r)[()]
         it = 0
         if rr >= tol_sq:
-            while it < max_cycles:
+            while it < max_iter:
                 # Pre-smoothing: a few weighted-Jacobi relaxations on the fine grid.
                 for _ in range(num_sweeps):
                     x = x + weight * xp.replace((b - A @ x) / diag, xp.nan, 0)

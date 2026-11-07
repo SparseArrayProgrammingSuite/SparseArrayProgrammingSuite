@@ -49,14 +49,12 @@ def _solve(A, b, *, rel_tol=1e-8):
     A_csr = sps.csr_matrix(A)
     tentative = _build_tentative_prolongator(A_csr, aggregate_size=3)
     benchmark = AMGBenchmark()
-    meta = {"rel_tol": rel_tol, "max_cycles": 200, "num_sweeps": 2}
+    meta = {"rel_tol": rel_tol, "max_iter": 200, "num_sweeps": 2}
     A_in = xp.from_binsparse(from_scipy(A_csr.tocoo()))
     b_in = xp.from_binsparse(from_numpy(b))
     x0_in = xp.from_binsparse(from_numpy(np.zeros(A.shape[1])))
     tentative_in = xp.from_binsparse(from_scipy(tentative.tocoo()))
-    return np.asarray(
-        benchmark.benchmark(xp, meta, A_in, b_in, x0_in, tentative_in)
-    )
+    return np.asarray(benchmark.benchmark(xp, meta, A_in, b_in, x0_in, tentative_in))
 
 
 @pytest.mark.parametrize(
