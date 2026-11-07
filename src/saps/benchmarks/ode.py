@@ -86,9 +86,9 @@ def _init_brusselator_2d(n):
 
 
 def _construct_brusselator_matrix(n, alpha, b):
-    """Construct the diffusion/reaction matrix for Brusselator."""
+    """Construct the sparse diffusion/reaction matrix for Brusselator."""
     size = n * n * 2
-    C = np.zeros((size, size))
+    C = scipy_sparse.lil_array((size, size))
 
     for i in range(n):
         for j in range(n):
@@ -103,14 +103,14 @@ def _construct_brusselator_matrix(n, alpha, b):
             )
 
             for ni, nj in [(ip1, j), (im1, j), (i, jp1), (i, jm1)]:
-                C[u_idx][(ni * n + nj) * 2] += alpha
-                C[v_idx][(ni * n + nj) * 2 + 1] += alpha
+                C[u_idx, (ni * n + nj) * 2] += alpha
+                C[v_idx, (ni * n + nj) * 2 + 1] += alpha
 
-            C[u_idx][u_idx] -= 4 * alpha + (b + 1)
-            C[v_idx][v_idx] -= 4 * alpha
-            C[v_idx][u_idx] += b
+            C[u_idx, u_idx] -= 4 * alpha + (b + 1)
+            C[v_idx, v_idx] -= 4 * alpha
+            C[v_idx, u_idx] += b
 
-    return C
+    return C.tocsr()
 
 
 def _brusselator_forcing(n):
@@ -275,8 +275,7 @@ def _step_model(meta, data) -> _StepModel:
                 4,
             )
         case "ode_brusselator":
-            dense_c, forcing = data[:2]
-            c = scipy_sparse.csr_array(dense_c)
+            c, forcing = data[:2]
             abs_c, a = abs(c), meta["a"]
 
             def constant(t):
@@ -303,7 +302,11 @@ def _step_model(meta, data) -> _StepModel:
 
             return _StepModel(
                 f,
-                lambda t, x: abs_c @ np.abs(x) + constant(t) + reaction(x, 0 * x),
+                lambda t, x: (
+                    abs_c @ np.abs(x)
+                    + constant(t)
+                    + np.repeat(x[0::2] ** 2 * np.abs(x[1::2]), 2)
+                ),
                 lambda t, x, e: abs_c @ e + reaction(x, e),
                 _row_counts(c) + 5,
             )
@@ -888,14 +891,14 @@ dydt_vector = lin + non_lin
                 a=3.4,
                 b=1.0,
                 alpha=0.01,
-                t_max=1.0,
+                t_max=1.5,
                 step=0.01,
             ),
         ]
 
     def generate(self, dataset: ODEBrusselatorDataset):
-        # Built here rather than in the dataset: C is dense (2n^2)^2, about
-        # 3.2 GB for n=100, and datasets are listed far more often than generated.
+        # Built here rather than in the dataset: datasets are listed far more
+        # often than generated.
         n = dataset.n
         C = _construct_brusselator_matrix(n, dataset.alpha, dataset.b)
         meta = {
@@ -922,7 +925,7 @@ dydt_vector = lin + non_lin
         )
         return DataInstance(
             inputs=[
-                from_numpy(C),
+                from_scipy(C),
                 from_numpy(np.asarray(_brusselator_forcing(n))),
                 from_numpy(brusselator_a),
                 from_scipy(brusselator_scatter),
