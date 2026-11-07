@@ -219,7 +219,7 @@ test-finch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_data
 platforms = ["linux-64", "linux-64-cuda", "macos-arm64"]
 
 [feature.galley.pypi-dependencies]
-galley-jl-python = "==0.1.1"
+galley-jl-python = "==0.1.2"
 
 [feature.galley.tasks]
 test-galley = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_galley.py" } }

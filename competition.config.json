@@ -191,7 +191,7 @@
         "scipy": "1.17.1",
         "sparse": "0.17.0",
         "ssgetpy": "1.0rc2",
-        "galley-jl-python": "0.1.0"
+        "galley-jl-python": "0.1.2"
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_galley.py",
