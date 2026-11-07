@@ -337,6 +337,12 @@ class SciPyFramework(Framework):
         xp = self._array_namespace(a)
         return xp.diagonal(a, *args, **kwargs)
 
+    def matrix_transpose(self, x, /):
+        if sps.issparse(x):
+            return x.T
+        xp = self._array_namespace(x)
+        return xp.matrix_transpose(x)
+
     def matmul(self, x1, x2, /, **kwargs):
         if sps.issparse(x1) or sps.issparse(x2):
             # scipy.sparse's @ (unlike the array-api namespace below) takes
