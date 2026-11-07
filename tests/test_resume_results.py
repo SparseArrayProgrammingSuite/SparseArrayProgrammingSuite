@@ -170,7 +170,7 @@ def test_resume_merges_results_per_environment_and_skips_completed_runs(
 @pytest.mark.parametrize(
     ("timeout_flags", "expected_process", "expected_measurement"),
     [
-        ([], 180, "60"),
+        ([], 240, "180"),
         (["--process-timeout", "30", "--measurement-timeout", "1"], 30, "1.0"),
     ],
 )
