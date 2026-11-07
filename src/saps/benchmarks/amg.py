@@ -77,7 +77,7 @@ class AMGDataset(SuiteSparseDataset):
         max_iter: int = 100,
         rel_tol: float = 1e-6,
         num_sweeps: int = 2,
-        jacobi_weight: float = 2.0 / 3.0,
+        jacobi_weight: float = 4.0 / 3.0,
         aggregate_size: int = 3,
         prolongation_omega: float = 4.0 / 3.0,
     ):
@@ -284,8 +284,9 @@ class AMGBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Solves sparse symmetric positive definite linear systems with a"
-            " smoothed-aggregation algebraic-multigrid two-level V-cycle. The"
+            "Solves sparse symmetric positive definite linear systems with"
+            " conjugate gradient, preconditioned by a smoothed-aggregation"
+            " algebraic-multigrid two-level V-cycle. The"
             " coarse operator is formed with the Galerkin triple product R @ A @ P,"
             " where the restriction R is short and wide, the prolongation P is tall"
             " and narrow, and A is square."
@@ -356,7 +357,7 @@ class AMGBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the benchmark function itself. "
+            "No generative AI was used to write the initial benchmark function, but AI was used to fix bugs in the implementation. "
             "Generative AI was used to debug code. This statement was written by hand."
         )
 
@@ -427,7 +428,7 @@ class AMGBenchmark(Benchmark):
         abs_tol = meta.get("abs_tol", 1e-20)
         max_iter = meta.get("max_iter", 100)
         num_sweeps = meta.get("num_sweeps", 2)
-        weight = meta.get("jacobi_weight", 2.0 / 3.0)
+        weight = meta.get("jacobi_weight", 4.0 / 3.0)
         omega = meta.get("prolongation_omega", 4.0 / 3.0)
 
         # Smoothed prolongator P = (I - omega / rho * D^{-1} A) @ tentative.
@@ -448,31 +449,52 @@ class AMGBenchmark(Benchmark):
 
         diag_coarse = xp.diagonal(A_coarse)
 
+        # Weighted Jacobi only converges when weight * rho(D^{-1} A) < 2, so each
+        # level scales the weight by its own spectral-radius bound.
+        diag_coarse_inv = xp.replace(1.0 / diag_coarse, xp.inf, 0)
+        Dinv_A_coarse = A_coarse * xp.reshape(diag_coarse_inv, (-1, 1))
+        rho_coarse = xp.max(xp.sum(xp.abs(Dinv_A_coarse), axis=1))
+        rho_coarse = float(rho_coarse) if rho_coarse > 0 else 1.0
+        fine_weight = weight / rho
+        coarse_weight = weight / rho_coarse
+
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         tol_sq = tolerance * tolerance
 
         x = x0
         r = b - A @ x
         rr = xp.vecdot(r, r)[()]
+        p = xp.zeros(A.shape[0], dtype=b.dtype)
+        old_rz = 1.0
         it = 0
         if rr >= tol_sq:
             while it < max_iter:
+                # Precondition with one V-cycle on A z = r, starting from z = 0.
+                z = xp.zeros(A.shape[0], dtype=b.dtype)
                 # Pre-smoothing: a few weighted-Jacobi relaxations on the fine grid.
                 for _ in range(num_sweeps):
-                    x = x + weight * xp.replace((b - A @ x) / diag, xp.nan, 0)
-                residual = b - A @ x
+                    z = z + fine_weight * xp.replace((r - A @ z) / diag, xp.nan, 0)
+                residual = r - A @ z
                 coarse_b = R @ residual
                 coarse_x = xp.zeros(A_coarse.shape[0], dtype=b.dtype)
                 for _ in range(num_sweeps + 6):
-                    coarse_x = coarse_x + weight * xp.replace(
+                    coarse_x = coarse_x + coarse_weight * xp.replace(
                         (coarse_b - A_coarse @ coarse_x) / diag_coarse, xp.nan, 0
                     )
-                x = x + P @ coarse_x
+                z = z + P @ coarse_x
 
                 for _ in range(num_sweeps):
-                    x = x + weight * xp.replace((b - A @ x) / diag, xp.nan, 0)
+                    z = z + fine_weight * xp.replace((r - A @ z) / diag, xp.nan, 0)
 
-                r = b - A @ x
+                # Conjugate gradient step, preconditioned by the V-cycle.
+                rz = xp.vecdot(r, z)[()]
+                p = z + (rz / old_rz) * p
+                Ap = A @ p
+                alpha = rz / xp.vecdot(p, Ap)[()]
+                x = x + alpha * p
+                r = r - alpha * Ap
+                old_rz = rz
+
                 rr = xp.vecdot(r, r)[()]
                 it += 1
                 if rr < tol_sq:
