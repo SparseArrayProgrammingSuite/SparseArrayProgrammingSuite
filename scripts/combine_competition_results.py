@@ -86,13 +86,19 @@ def combine_results(run_directory: Path, metadata: dict) -> tuple[dict, dict]:
                         .relative_to(env_vars["SAPS_REPO_ROOT"])
                         .as_posix()
                     )
+            # Every include entry names its framework, which also tells CPU
+            # and GPU runs of one framework file apart.
+            framework_name = env_vars.get("SAPS_FRAMEWORK_NAME")
+            if not framework_name:
+                raise ValueError(
+                    f"{path} has no SAPS_FRAMEWORK_NAME; set it in the "
+                    "competition config's env_nobuild for every include entry"
+                )
             framework = _reference(
                 combined["frameworks"],
                 "framework",
                 {
-                    "name": Path(framework_file).stem.removeprefix("saps_")
-                    if framework_file
-                    else document["env_name"],
+                    "name": framework_name,
                     "file": framework_file,
                     "python": document.get("python", document["params"].get("python")),
                     "requirements": document.get("requirements", {}),
@@ -102,6 +108,7 @@ def combine_results(run_directory: Path, metadata: dict) -> tuple[dict, dict]:
                         if key
                         not in {
                             "SAPS_FRAMEWORK",
+                            "SAPS_FRAMEWORK_NAME",
                             "SAPS_REPO_ROOT",
                             "SAPS_LOG_PATH",
                             "SAPS_CACHE_DIR",

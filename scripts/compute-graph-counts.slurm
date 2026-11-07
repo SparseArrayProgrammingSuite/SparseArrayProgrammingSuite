@@ -18,7 +18,7 @@ repo_directory=$(git -C "$repo_directory" rev-parse --show-toplevel)
 
 : "${SLURM_ARRAY_TASK_ID:?Submit with sbatch scripts/compute-graph-counts.slurm}"
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 export NUMBA_NUM_THREADS="${SLURM_CPUS_PER_TASK:-24}"
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
@@ -37,11 +37,11 @@ output_directory="${SAPS_GRAPH_COUNTS_OUTPUT_DIR:-$repo_directory/.saps/outputs/
 mkdir -p "$output_directory"
 
 # Require the compiled counter for these large graphs.
-poetry run python -c 'import numba'
+pixi run python -c 'import numba'
 
 # Each task saves its own result after both counts finish. Reusing the output
 # directory skips completed graphs; interrupted graphs restart from the beginning.
 echo "Computing graph counts for $dataset_name"
-exec poetry run python ./scripts/compute_graph_counts.py \
+exec pixi run python ./scripts/compute_graph_counts.py \
   --only "$dataset_name" \
   --output "$output_directory/$dataset_name.json"

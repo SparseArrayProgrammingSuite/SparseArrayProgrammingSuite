@@ -22,7 +22,7 @@ log_directory="${submission_directory//%/%%}"
 script_directory=$(cd -- "$(dirname -- "$0")" && pwd)
 repo_directory=$(cd -- "$script_directory/.." && pwd)
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 
 # Uploads run for days, longer than any SSO session, so the dataset-upload
 # profile must hold long-lived access keys.
@@ -43,8 +43,8 @@ fi
 aws sts get-caller-identity --profile dataset-upload >/dev/null
 cd "$repo_directory"
 
-"$script_directory/ensure-poetry-env.sh"
-poetry run ./bin/generate_metadata.py
+"$script_directory/ensure-pixi-env.sh"
+pixi run ./bin/generate_metadata.py
 
 account="${SAPS_SLURM_ACCOUNT:-gts-wahrens6-pose}"
 upload_chunk_count="${SAPS_UPLOAD_CHUNK_COUNT:-8}"

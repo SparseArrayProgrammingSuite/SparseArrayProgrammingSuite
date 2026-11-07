@@ -19,7 +19,7 @@ repo_directory=$(git -C "$repo_directory" rev-parse --show-toplevel)
 
 : "${SLURM_ARRAY_TASK_ID:?Submit with sbatch scripts/measure-fill-in.slurm}"
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export MKL_NUM_THREADS=1
@@ -29,7 +29,7 @@ cd "$repo_directory"
 
 # One task per GAP and SNAP matrix in the manifest (73 when this was written).
 mapfile -t dataset_names < <(
-  poetry run python ./scripts/measure_fill_in.py --datasets GAP SNAP --list-datasets
+  pixi run python ./scripts/measure_fill_in.py --datasets GAP SNAP --list-datasets
 )
 if (( SLURM_ARRAY_TASK_ID >= ${#dataset_names[@]} )); then
   echo "SLURM_ARRAY_TASK_ID must be below ${#dataset_names[@]}" >&2
@@ -41,7 +41,7 @@ output_directory="${SAPS_FILL_IN_OUTPUT_DIR:-$repo_directory/.saps/outputs/fill-
 
 # Extra CLI arguments (such as --target-density) pass through. Keep the dataset
 # and output fixed per task so array workers cannot overwrite each other.
-poetry run python ./scripts/measure_fill_in.py \
+pixi run python ./scripts/measure_fill_in.py \
   "$@" \
   --datasets "$dataset_name" \
   --output "$output_directory/$dataset_name.json"

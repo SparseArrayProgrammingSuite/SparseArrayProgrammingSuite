@@ -5,10 +5,12 @@ import pytest
 
 import numpy as np
 
-import torch
+torch = pytest.importorskip(
+    "torch", reason="PyTorch runs in pixi's pytorch environment"
+)
 
-from frameworks.saps_numpy import NumpyFramework
-from frameworks.saps_pytorch import PytorchFramework
+from frameworks.saps_numpy import NumpyFramework  # noqa: E402
+from frameworks.saps_pytorch import PytorchFramework  # noqa: E402
 
 
 def arithmetic_op_eager(x, y, z):

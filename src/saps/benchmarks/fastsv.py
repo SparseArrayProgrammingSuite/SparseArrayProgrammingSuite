@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -19,6 +18,7 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import binsparse_equal
@@ -353,6 +353,8 @@ class FastSVSNAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
         return [ReferenceDataset(dataset) for dataset in FastSVSNAPGenerator().datasets]
 
     def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
+        import igraph as ig
+
         problem = FastSVSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(n=adjacency.shape[0], directed=True)
@@ -381,6 +383,143 @@ class FastSVSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return FastSVSNAPReferenceGenerator()
+
+
+class FastSVGAPGenerator(Generator[FastSVDataset]):
+    @property
+    def name(self) -> str:
+        return "fastsv_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FastSV GAP"
+
+    @property
+    def description(self) -> str:
+        return (
+            "GAP graphs symmetrized with self-loops removed for FastSV weak "
+            "connected components, checked against igraph."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for FastSV."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[FastSVDataset]:
+        # fmt: off
+        return [
+            FastSVDataset("GAP-road", suites=["standard-long"]),
+            FastSVDataset("GAP-twitter", suites=["standard-long"]),
+            FastSVDataset("GAP-web", suites=["standard-long"]),
+            FastSVDataset("GAP-kron", suites=["standard-long"]),
+            FastSVDataset("GAP-urand", suites=["standard-long"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: FastSVDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = FastSVGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: FastSVDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0], simple_undirected=True)],
+            meta=dict(raw.meta),
+        )
+
+
+class FastSVGAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
+    @property
+    def name(self) -> str:
+        return "fastsv_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "FastSV GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return "Reference outputs for FastSV GAP, cached apart from its inputs."
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[FastSVDataset]]:
+        return [ReferenceDataset(dataset) for dataset in FastSVGAPGenerator().datasets]
+
+    def generate(self, dataset: ReferenceDataset[FastSVDataset]) -> DataInstance:
+        import igraph as ig
+
+        problem = FastSVGAPGenerator().generate_inputs(dataset.dataset)
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
+        expected = from_numpy(smallest[labels])
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "fastsv",
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class FastSVGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return FastSVGAPReferenceGenerator()
 
 
 class FastSVBenchmark(Benchmark):
@@ -475,7 +614,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator]:
-        return [FastSVTestGenerator(), FastSVSNAPGenerator()]
+        return [FastSVTestGenerator(), FastSVSNAPGenerator(), FastSVGAPGenerator()]
 
     def benchmark(self, xp, meta, A):
         A = A != 0
@@ -494,7 +633,7 @@ class FastSVBenchmark(Benchmark):
             # step 1: stochastic hooking
             mngf = xp.min(xp.where(A, xp.expand_dims(gf, 0), int_max), axis=1)
             B = xp.zeros((n, n), dtype=bool)
-            B[f, xp.arange(n)] = True
+            B = xp.at(B, (f, xp.arange(n))).set(True)
             f = xp.min(xp.where(B, xp.expand_dims(mngf, 0), int_max), axis=1)
 
             # step 2: aggressive hooking

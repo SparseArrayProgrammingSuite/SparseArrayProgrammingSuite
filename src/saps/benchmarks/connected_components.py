@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
@@ -18,6 +17,7 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import binsparse_equal
@@ -169,6 +169,8 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         ]
 
     def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("Connected-components test datasets must define A.")
 
@@ -376,6 +378,8 @@ class ConnectedComponentsSNAPReferenceGenerator(
     def generate(
         self, dataset: ReferenceDataset[ConnectedComponentsDataset]
     ) -> DataInstance:
+        import igraph as ig
+
         problem = ConnectedComponentsSNAPGenerator().generate_inputs(dataset.dataset)
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
         graph = ig.Graph(n=adjacency.shape[0], directed=True)
@@ -404,6 +408,149 @@ class ConnectedComponentsSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return ConnectedComponentsSNAPReferenceGenerator()
+
+
+class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
+    @property
+    def name(self) -> str:
+        return "connected_components_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Connected Components GAP"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for connected components benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for connected components."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[ConnectedComponentsDataset]:
+        # fmt: off
+        return [
+            ConnectedComponentsDataset("GAP-road", suites=["standard-long"]),
+            ConnectedComponentsDataset("GAP-twitter", suites=["standard-long"]),
+            ConnectedComponentsDataset("GAP-web", suites=["standard-long"]),
+            ConnectedComponentsDataset("GAP-kron", suites=["standard-long"]),
+            ConnectedComponentsDataset("GAP-urand", suites=["standard-long"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: ConnectedComponentsDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ConnectedComponentsGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: ConnectedComponentsDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])], meta=dict(raw.meta)
+        )
+
+
+class ConnectedComponentsGAPReferenceGenerator(
+    ReferenceGenerator[ConnectedComponentsDataset]
+):
+    @property
+    def name(self) -> str:
+        return "connected_components_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Connected Components GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Connected Components GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[ConnectedComponentsDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in ConnectedComponentsGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[ConnectedComponentsDataset]
+    ) -> DataInstance:
+        import igraph as ig
+
+        problem = ConnectedComponentsGAPGenerator().generate_inputs(dataset.dataset)
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
+        components = graph.connected_components(mode="weak")
+        labels = np.asarray(components.membership, dtype=np.int64)
+        smallest = np.full(len(components), graph.vcount(), dtype=np.int64)
+        np.minimum.at(smallest, labels, np.arange(graph.vcount()))
+        expected = from_numpy(smallest[labels])
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "connected_components",
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class ConnectedComponentsGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ConnectedComponentsGAPReferenceGenerator()
 
 
 class ConnectedComponentsBenchmark(Benchmark):
@@ -492,6 +639,7 @@ class ConnectedComponentsBenchmark(Benchmark):
         return [
             ConnectedComponentsTestGenerator(),
             ConnectedComponentsSNAPGenerator(),
+            ConnectedComponentsGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, edges):

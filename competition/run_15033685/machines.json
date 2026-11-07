@@ -1,0 +1,66 @@
+{
+  "machine_4bcf4f37cfe53b96": {
+    "machine": "atl1-1-02-011-7-1.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196137372"
+  },
+  "machine_6715eef0d94ed0e0": {
+    "machine": "atl1-1-03-003-11-2.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196137364"
+  },
+  "machine_14b911d6a5aaaee5": {
+    "machine": "atl1-1-02-011-15-1.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196137380"
+  },
+  "machine_d7033c9a0c8d619e": {
+    "machine": "atl1-1-02-011-7-2.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196137364"
+  },
+  "machine_0bd040eba29adb87": {
+    "machine": "atl1-1-03-003-12-1.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196137372"
+  },
+  "machine_b11c7ce0eae8ca4d": {
+    "machine": "atl1-1-02-011-8-1.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196137388"
+  },
+  "machine_5a359e6ef8b3fc40": {
+    "machine": "atl1-1-02-011-8-2.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196137380"
+  },
+  "machine_2e167be5fc955591": {
+    "machine": "atl1-1-03-002-7-2.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "394316132"
+  }
+}

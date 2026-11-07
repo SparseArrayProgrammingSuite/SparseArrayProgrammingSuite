@@ -220,7 +220,7 @@ def _load_metadata(metadata_path: Path) -> list[dict]:
     if not metadata_path.exists():
         raise RuntimeError(
             f"{metadata_path} does not exist; run generate metadata first with "
-            "`poetry run ./bin/generate_metadata.py`."
+            "`pixi run ./bin/generate_metadata.py`."
         )
     document = json.loads(metadata_path.read_text(encoding="utf-8"))
     return document.get("benchmarks", [])
@@ -673,7 +673,7 @@ def main() -> int:
         "html_dir": str(outputs_dir / "html"),
         "matrix": matrix,
     }
-    for key in ("include", "exclude", "pythons"):
+    for key in ("include", "exclude", "pythons", "install_timeout"):
         if key in saps_config_data:
             asv_config_dict[key] = saps_config_data[key]
 
@@ -695,6 +695,12 @@ def main() -> int:
         for key in ("SAPS_FRAMEWORK", "SAPS_REPO_ROOT"):
             if key in env_nobuild:
                 env_nobuild[key] = _resolve_path_values(env_nobuild[key])
+
+    if asv_config_dict["environment_type"] == "existing:same":
+        for key in ("SAPS_FRAMEWORK", "SAPS_REPO_ROOT"):
+            values = conf.matrix.get("env_nobuild", {}).get(key)
+            if isinstance(values, list) and len(values) == 1:
+                os.environ[key] = values[0]
 
     # Read host details without ASV's interactive, shared machine registry.
     machine_params = Machine()
@@ -826,6 +832,13 @@ def main() -> int:
             _benchmark: dict, generator: dict, dataset: dict, _dataset_number: int
         ) -> bool:
             if not generator["cacheable"]:
+                return False
+            # standard-long datasets take hours each to prepare, so they are
+            # cached only when selected with --tag suite-standard-long.
+            if (
+                "suite-standard-long" in dataset["tags"]
+                and "suite-standard-long" not in include_tags
+            ):
                 return False
             manifest_key = dataset["asv_param"]
             record = manifest.get(manifest_key)

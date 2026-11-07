@@ -743,7 +743,7 @@ Dimensionality reduction</concept_desc>
             new_centroids = sums / counts_nonz[:, None]
             new_centroids = xp.where((counts == 0)[:, None], centroids, new_centroids)
             centroids = new_centroids
-            if xp.all(labels == old_labels).item():
+            if xp.all(labels == old_labels):
                 break
 
         return labels

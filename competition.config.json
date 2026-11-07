@@ -1,10 +1,17 @@
 {
   "//": "Competition config using ASV-native include entries. Each include is one competitor environment with its own dependencies.",
   "// SAPS_DEVICE": "Add \"SAPS_DEVICE\": \"gpu\" to a framework's env_nobuild to run it in the GPU array of scripts/submit-competition.sh (saps_pytorch.py then uses CUDA). Without it, frameworks run in the CPU array.",
+  "// SAPS_FRAMEWORK_NAME": "Required and unique per include: the framework's name in combined results. One framework file can appear more than once (PyTorch runs on both CPU and GPU).",
   "environment_type": "virtualenv",
-  "install_command": ["in-dir={env_dir} python -mpip install {build_dir}"],
+  "// install_command": "warm_julia_env.py starts Julia once for finch and galley. It does nothing in other environments.",
+  "install_command": [
+    "in-dir={env_dir} python -mpip install {build_dir}",
+    "in-dir={env_dir} python {build_dir}/scripts/warm_julia_env.py"
+  ],
+  "// install_timeout": "Seconds for each install command. warm_julia_env.py installs and precompiles Julia for finch and galley, which takes longer than ASV's 600 s default.",
+  "install_timeout": 3600,
   "process_timeout": 180,
-  "measurement_timeout": 60,
+  "measurement_timeout": 120,
   "rounds": 1,
   "resume": true,
   "metrics": ["time"],
@@ -25,6 +32,7 @@
       "python": "3.12",
       "req": {
         "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
         "lark": "1.3.1",
         "networkx": "3.6",
         "numpy": "2.3",
@@ -34,6 +42,7 @@
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_numpy.py",
+        "SAPS_FRAMEWORK_NAME": "numpy",
         "SAPS_REPO_ROOT": "."
       }
     },
@@ -41,6 +50,7 @@
       "python": "3.12",
       "req": {
         "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
         "lark": "1.3.1",
         "networkx": "3.6",
         "numpy": "2.3",
@@ -50,6 +60,7 @@
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_scipy.py",
+        "SAPS_FRAMEWORK_NAME": "scipy",
         "SAPS_REPO_ROOT": "."
       }
     },
@@ -57,6 +68,7 @@
       "python": "3.12",
       "req": {
         "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
         "lark": "1.3.1",
         "networkx": "3.6",
         "numpy": "2.3",
@@ -66,6 +78,7 @@
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_sparse.py",
+        "SAPS_FRAMEWORK_NAME": "sparse",
         "SAPS_REPO_ROOT": "."
       }
     },
@@ -73,6 +86,7 @@
       "python": "3.12",
       "req": {
         "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
         "lark": "1.3.1",
         "networkx": "3.6",
         "numpy": "2.3",
@@ -82,6 +96,7 @@
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_smart.py",
+        "SAPS_FRAMEWORK_NAME": "smart",
         "SAPS_REPO_ROOT": "."
       }
     },
@@ -89,6 +104,7 @@
       "python": "3.12",
       "req": {
         "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
         "lark": "1.3.1",
         "networkx": "3.6",
         "numpy": "2.3",
@@ -99,6 +115,106 @@
       },
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_pytorch.py",
+        "SAPS_FRAMEWORK_NAME": "pytorch",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2",
+        "torch": "2.12.1"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_pytorch.py",
+        "SAPS_FRAMEWORK_NAME": "pytorch-gpu",
+        "SAPS_DEVICE": "gpu",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2",
+        "python-graphblas": "2025.2.0",
+        "suitesparse-graphblas": "9.4.5.0"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_graphblas.py",
+        "SAPS_FRAMEWORK_NAME": "graphblas",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2",
+        "juliapkg": "0.1.28",
+        "juliacall": "0.9.37",
+        "pip+git+https://github.com/finch-tensor/finch-tensor.git@9cb8da3ca289c126dbdae1376607eac9dad27f2f": ""
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_finch.py",
+        "SAPS_FRAMEWORK_NAME": "finch",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2",
+        "galley-jl-python": "0.1.2"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_galley.py",
+        "SAPS_FRAMEWORK_NAME": "galley",
+        "SAPS_REPO_ROOT": "."
+      }
+    },
+    {
+      "python": "3.12",
+      "req": {
+        "array-api-compat": "1.15.0",
+        "array-api-extra": "0.11.5",
+        "lark": "1.3.1",
+        "networkx": "3.6",
+        "numpy": "2.3",
+        "scipy": "1.17.1",
+        "sparse": "0.17.0",
+        "ssgetpy": "1.0rc2",
+        "cupy-cuda12x": "14.2.0"
+      },
+      "env_nobuild": {
+        "SAPS_FRAMEWORK": "frameworks/saps_cupy.py",
+        "SAPS_FRAMEWORK_NAME": "cupy",
         "SAPS_DEVICE": "gpu",
         "SAPS_REPO_ROOT": "."
       }

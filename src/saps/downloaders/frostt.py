@@ -12,6 +12,7 @@ from typing import Any
 import numpy as np
 
 from saps.downloaders.cache import download_lock, source_cache_dir
+from saps.util.coordinates import canonical_coordinates
 
 _BASE_URL = "https://s3.us-east-2.amazonaws.com/frostt/frostt_data"
 
@@ -163,6 +164,7 @@ def _parse_tns(
         shape = tuple(int(idx.max()) + 1 for idx in indices)
         if all(dim <= np.iinfo(np.int32).max for dim in shape):
             indices = tuple(idx.astype(np.int32) for idx in indices)
+    indices, values = canonical_coordinates(indices, values)
     return indices, values, shape
 
 

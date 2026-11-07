@@ -5,6 +5,7 @@ import pytest
 
 from saps.benchmark import Generator
 from saps.benchmarks.frostt import fetch_frostt_tensor
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.model_counting import fetch_mccomp_instance
 from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
 from saps.benchmarks.openml import fetch_openml_dataset
@@ -22,6 +23,7 @@ from saps.metadata import _benchmark_instances
     "fetch",
     [
         fetch_snap_graph,
+        fetch_gap_graph,
         fetch_frostt_tensor,
         fetch_mccomp_instance,
         fetch_ogb_nodeprop_dataset,
@@ -91,6 +93,10 @@ def test_suitesparse_shell_lists_all_declared_consumers():
     assert not missing, (
         f"Add these consumers' inputs to the shell list: {sorted(missing)}"
     )
+
+    # GAP graph datasets use their own Dataset classes and share these raw inputs.
+    for name in ("road", "twitter", "web", "kron", "urand"):
+        assert f"GAP/GAP-{name}" in declared
 
     # SNAP graph adapters also use their own Dataset class and share this cache.
     snap_sources = {dataset.source_name for dataset in SNAPGraphGenerator().datasets}

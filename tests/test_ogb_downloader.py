@@ -1,6 +1,7 @@
-import sys
-from types import ModuleType
-from typing import Any
+import gzip
+import urllib.request
+import zipfile
+from pathlib import Path
 
 import pytest
 
@@ -142,51 +143,95 @@ def test_prepare_ogb_nodeprop_dataset_accepts_boolean_inverse_edge_metadata():
     assert graph.metadata["num_normalized_edges"] == 4
 
 
-@pytest.mark.parametrize("fail", [False, True])
-def test_products_download_is_noninteractive_and_restores_callbacks(
-    monkeypatch, tmp_path, fail
-):
+def _release(path, *, edges, edge_feat=None, node_feat=None):
+    """A minimal OGB CSV release of `products` with three nodes."""
+
+    def table(rows):
+        return gzip.compress(
+            "".join(",".join(map(str, row)) + "\n" for row in rows).encode()
+        )
+
+    files = {
+        "raw/edge.csv.gz": table(edges),
+        "raw/num-node-list.csv.gz": table([[3]]),
+        "raw/num-edge-list.csv.gz": table([[len(edges)]]),
+        "raw/node-label.csv.gz": table([[0], [1], [0]]),
+        **{
+            f"split/sales_ranking/{s}.csv.gz": table([[i]])
+            for i, s in enumerate(("train", "valid", "test"))
+        },
+    }
+    if edge_feat is not None:
+        files["raw/edge-feat.csv.gz"] = table(edge_feat)
+    if node_feat is not None:
+        files["raw/node-feat.csv.gz"] = table(node_feat)
+    with zipfile.ZipFile(path, "w") as release:
+        for name, data in files.items():
+            release.writestr(f"products/{name}", data)
+
+
+def test_load_reads_csv_release_and_interleaves_inverse_edges(monkeypatch, tmp_path):
     from saps.downloaders import ogb
 
-    package: Any = ModuleType("ogb")
-    nodeprop: Any = ModuleType("ogb.nodeproppred")
-    dataset_module: Any = ModuleType("ogb.nodeproppred.dataset")
+    urls = []
 
-    def original_decide(url):
-        pytest.fail("download prompted")
-
-    dataset_module.decide_download = original_decide
-    sentinel = object()
-
-    def original_download(url, folder):
-        assert url == "https://example.org/products.zip"
-        assert folder == str(tmp_path)
-        if fail:
-            raise RuntimeError("download failed")
-        return sentinel
-
-    dataset_module.download_url = original_download
-
-    def load_dataset(*, name, root):
-        assert name == "ogbn-products"
-        assert root == str(tmp_path)
-        assert dataset_module.decide_download("https://example.org/products.zip")
-        return dataset_module.download_url("http://example.org/products.zip", root)
-
-    nodeprop.NodePropPredDataset = load_dataset
-    nodeprop.dataset = dataset_module
-    package.nodeproppred = nodeprop
-    monkeypatch.setitem(sys.modules, "ogb", package)
-    monkeypatch.setitem(sys.modules, "ogb.nodeproppred", nodeprop)
-    monkeypatch.setitem(sys.modules, "ogb.nodeproppred.dataset", dataset_module)
-    monkeypatch.setattr(ogb, "_prepare_ogb_nodeprop_dataset", lambda name, data: data)
-    if fail:
-        with pytest.raises(RuntimeError, match="download failed"):
-            ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
-    else:
-        assert (
-            ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
-            is sentinel
+    def download(url, filename):
+        urls.append(url)
+        _release(
+            filename,
+            edges=[[0, 1], [1, 2]],
+            edge_feat=[[1.5], [2.5]],
+            node_feat=[[1, 2], [3, 4], [5, 6]],
         )
-    assert dataset_module.decide_download is original_decide
-    assert dataset_module.download_url is original_download
+
+    monkeypatch.setattr(urllib.request, "urlretrieve", download)
+    loaded = {}
+    monkeypatch.setattr(
+        ogb,
+        "_prepare_ogb_nodeprop_dataset",
+        lambda name, data: loaded.update(data=data),
+    )
+    ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
+    ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
+
+    assert urls == ["https://snap.stanford.edu/ogb/data/nodeproppred/products.zip"]
+    data = loaded["data"]
+    graph, labels = data[0]
+    # products adds each edge's reverse right after it, as ogb does.
+    np.testing.assert_array_equal(graph["edge_index"], [[0, 1, 1, 2], [1, 0, 2, 1]])
+    np.testing.assert_array_equal(graph["edge_feat"], [[1.5], [1.5], [2.5], [2.5]])
+    assert graph["edge_feat"].dtype == np.float32
+    assert graph["node_feat"].dtype == np.int64
+    assert graph["num_nodes"] == 3
+    np.testing.assert_array_equal(labels, [[0], [1], [0]])
+    assert {k: v.tolist() for k, v in data.get_idx_split().items()} == {
+        "train": [0],
+        "valid": [1],
+        "test": [2],
+    }
+    assert data.num_classes == 47
+    assert data.meta_info == {"add_inverse_edge": True}
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
+        "ogbn_products",
+        "ogbn_products.lock",
+    ]
+
+
+def test_failed_download_leaves_no_partial_files(monkeypatch, tmp_path):
+    from saps.downloaders import ogb
+
+    def download(url, filename):
+        Path(filename).write_bytes(b"partial")
+        raise OSError("download failed")
+
+    monkeypatch.setattr(urllib.request, "urlretrieve", download)
+    with pytest.raises(OSError, match="download failed"):
+        ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["ogbn_products.lock"]
+
+
+def test_unknown_dataset_is_rejected(tmp_path):
+    from saps.downloaders import ogb
+
+    with pytest.raises(ValueError, match="ogbn-mag"):
+        ogb.load_ogb_nodeprop_dataset("ogbn-mag", data_dir=tmp_path)

@@ -7,17 +7,17 @@ from scipy.spatial.distance import cdist
 from binsparse.conversions import from_numpy, from_scipy
 
 from frameworks.saps_numpy import NumpyFramework
-from frameworks.saps_pytorch import PytorchFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.simhash_ann import SimHashANNBenchmark
+from tests.optional_pytorch import PytorchFramework, pytorch_param
 
 
 @pytest.fixture(
     params=[
         (NumpyFramework, False),
         (SciPyFramework, False),
-        (PytorchFramework, False),
+        pytorch_param((PytorchFramework, False)),
         (PyDataSparseFramework, False),
         (PyDataSparseFramework, True),
     ],
