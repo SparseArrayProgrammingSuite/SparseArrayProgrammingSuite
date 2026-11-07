@@ -130,6 +130,53 @@ name. It defaults to `scripts/fill-log`, accepts multiple log paths, and removes
 duplicate results. Counts retain the density-bound meaning above; `never` means
 the bound stays below the target, and `-` marks missing or failed measurements.
 
+## Scraping Solver Matrices
+
+`scripts/scrape_matrices.py` finds SuiteSparse matrices for the solver benchmarks
+(`jacobi`, `cg`, `jacobi_cg`, `block_jacobi_cg`, `lsqr`, `gmres`, and `amg`) by
+running each solver on them with the SciPy framework and recording whether it
+converges. Each output line is a JSON record for one matrix and right-hand side,
+with one result per solver: converged, did not converge, errored, or skipped
+because the solver does not accept the matrix. LSQR only takes least-squares
+problems, AMG only takes symmetric positive definite 2D/3D discretizations, and
+the other solvers take square matrices of most kinds. Convergence uses
+`rel_tol=1e-6` and `max_iter=100`, or `max_iter=1000` for Jacobi and LSQR.
+
+Try a few matrices locally with `--solver`, `--matrix group/name`, `--matrix-kind`,
+or `--max-nnz`:
+
+```bash
+pixi run python scripts/scrape_matrices.py --solver amg --max-nnz 1000000 \
+  --output amg.jsonl
+```
+
+Matrices and the ssgetpy index come from `$SAPS_CACHE_DIR/suitesparse`; pass
+`--data-dir ~/.ssgetpy/MM` to use matrices ssgetpy already downloaded. Set
+`SAPS_FRAMEWORK` to run the solvers on another framework. Records already in the
+output file are skipped unless `--force` is set.
+
+Scrape the whole collection on Slurm, divided across the array tasks:
+
+```bash
+sbatch scripts/scrape-matrices.slurm --solver amg
+```
+
+Each task requests 16 CPUs, 128 GB of memory, and a 24-hour wall time. Options
+after the script name pass to every task. Results go to
+`.saps/outputs/scrape-matrices/run_<array-job-id>/results-<task-index>.jsonl`, and
+logs go to `scrape-matrices-<array-job-id>_<task-index>.log` in the submission
+directory. Set `SAPS_SCRAPE_OUTPUT_DIR` to change the output directory, and
+`SAPS_SCRAPE_CHUNK_COUNT` to keep the original chunking when rerunning part of an
+array.
+
+Print dataset constructors for the matrices each solver converged on, to paste
+into the solver's SuiteSparse generator:
+
+```bash
+pixi run python scripts/jsonl_to_saps_datasets.py \
+  .saps/outputs/scrape-matrices/run_<array-job-id>/*.jsonl
+```
+
 ## Competition Runs
 
 Use `competition.config.json` to define the frameworks included in a competition

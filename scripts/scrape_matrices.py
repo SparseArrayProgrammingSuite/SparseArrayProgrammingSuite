@@ -4,6 +4,13 @@
 This script intentionally calls the SAPS benchmark implementations instead of
 estimating spectral radii or condition numbers. Each output line is a JSON
 record for one matrix with per-solver convergence results.
+
+Matrices and the ssgetpy index live in the SAPS cache (by default this
+checkout's `.saps/outputs/cache`, as in `bin/run_benchmark.py`), and solvers run
+on this checkout's SciPy framework unless `SAPS_FRAMEWORK` names another.
+
+    pixi run python scripts/scrape_matrices.py --solver amg --max-nnz 1000000
+    pixi run python scripts/scrape_matrices.py --solver cg --matrix HB/gr_30_30
 """
 
 from __future__ import annotations
@@ -25,7 +32,7 @@ import numpy as np
 import scipy.sparse as sps
 from scipy.io import mminfo
 
-import ssgetpy
+from binsparse.conversions import from_scipy
 
 import saps.benchmarks.amg as saps_amg
 import saps.benchmarks.cg as saps_cg
@@ -34,7 +41,6 @@ import saps.benchmarks.jacobi as saps_jacobi
 import saps.benchmarks.lsqr as saps_lsqr
 import saps.benchmarks.pcg as saps_pcg
 import saps.downloaders.suitesparse as saps_suitesparse_downloader
-from binsparse.conversions import from_scipy
 from saps.benchmarks.amg import AMGBenchmark, AMGDataset, AMGSuiteSparseGenerator
 from saps.benchmarks.cg import CGBenchmark, CGDataset, CGSuiteSparseGenerator
 from saps.benchmarks.gmres import (
@@ -56,12 +62,9 @@ from saps.benchmarks.pcg import (
     PCGDataset,
 )
 from saps.framework import load_framework
+from saps.storage import DEFAULT_CACHE_DIR
 
-# SAPS_FRAMEWORK selects another framework file, such as a SAPS checkout's
-# frameworks/saps_scipy.py; the copy next to this script is the default.
-xp = load_framework(
-    os.environ.get("SAPS_FRAMEWORK", Path(__file__).with_name("saps_scipy.py"))
-)
+REPO_DIR = Path(__file__).resolve().parent.parent
 
 
 SOLVER_NAMES = (
@@ -207,15 +210,17 @@ def _solver_will_run(solver_name: str, matrix: Any) -> bool:
 def _rhs_variants(
     matrix: Any,
     solvers: Iterable[str],
-    suitesparse_data_dir: Path,
+    suitesparse_data_dir: Path | None,
 ) -> list[RHSVariant]:
     rows = int(matrix.rows)
     if not any(_solver_will_run(solver, matrix) for solver in solvers):
         return [RHSVariant("synthetic", None, 0)]
 
-    matrix_dir, downloaded_matrix = saps_suitesparse_downloader.download_suitesparse_matrix(
-        _matrix_source_name(matrix),
-        data_dir=suitesparse_data_dir,
+    matrix_dir, downloaded_matrix = (
+        saps_suitesparse_downloader.download_suitesparse_matrix(
+            _matrix_source_name(matrix),
+            data_dir=suitesparse_data_dir,
+        )
     )
     rhs_path = matrix_dir / f"{downloaded_matrix.name}_b.mtx"
     if not rhs_path.exists():
@@ -280,7 +285,9 @@ class SolverSpec:
         if self.square_required and int(matrix.rows) != int(matrix.cols):
             return f"{self.benchmark.name} requires a square matrix"
         if self.spd_required and not matrix.isspd:
-            return f"{self.benchmark.name} requires a symmetric positive definite matrix"
+            return (
+                f"{self.benchmark.name} requires a symmetric positive definite matrix"
+            )
         if self.discretization_required and not matrix.is2d3d:
             return f"{self.benchmark.name} requires a 2D/3D discretization"
         return None
@@ -299,7 +306,7 @@ def _as_real_sparse_matrix(matrix: Any) -> sps.spmatrix:
 
 @contextlib.contextmanager
 def _saps_suitesparse_context(
-    suitesparse_data_dir: Path,
+    suitesparse_data_dir: Path | None,
     seed: int,
 ) -> Iterator[None]:
     modules = (saps_amg, saps_cg, saps_gmres, saps_jacobi, saps_lsqr, saps_pcg)
@@ -464,9 +471,7 @@ def _run_solver(
     try:
         dataset = spec.make_dataset(_matrix_source_name(matrix), rhs_index)
         problem = spec.generator.generate(dataset)
-        data = []
-        for value in problem.inputs:
-            data.append(xp.from_binsparse(value))
+        data = [xp.from_binsparse(value) for value in problem.inputs]
         meta = dict(problem.meta)
         run_A = _as_real_sparse_matrix(data[0])
         run_b = np.asarray(data[1], dtype=np.float64).reshape(-1)
@@ -526,6 +531,8 @@ def _chunk_items(items: list[Any], chunk_count: int, chunk_index: int) -> list[A
 
 
 def _search_matrices(args: argparse.Namespace) -> list[Any]:
+    # The index lives in the SAPS cache, where the downloader looks for it.
+    ssgetpy = saps_suitesparse_downloader._import_ssgetpy()
     matrices = list(ssgetpy.search(limit=-1))
     found_count = len(matrices)
     if args.matrix_kind:
@@ -605,8 +612,10 @@ def main() -> int:
     parser.add_argument(
         "--data-dir",
         type=Path,
-        default=Path("data/suitesparse"),
-        help="Directory used by ssgetpy for downloaded matrices.",
+        help=(
+            "Root of group/name matrix directories, such as ~/.ssgetpy/MM. "
+            "Defaults to $SAPS_CACHE_DIR/suitesparse."
+        ),
     )
     parser.add_argument(
         "--solver",
@@ -644,17 +653,24 @@ def main() -> int:
     if args.chunk_index < 0 or args.chunk_index >= args.chunk_count:
         parser.error("--chunk-index must be between 0 and --chunk-count - 1")
 
+    # Like bin/run_benchmark.py, default to this checkout's cache, not the cwd's.
+    os.environ.setdefault("SAPS_CACHE_DIR", str(REPO_DIR / DEFAULT_CACHE_DIR))
+    xp = load_framework(
+        os.environ.get("SAPS_FRAMEWORK", REPO_DIR / "frameworks" / "saps_scipy.py")
+    )
     solvers = args.solver if args.solver is not None else list(SOLVER_NAMES)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.data_dir.mkdir(parents=True, exist_ok=True)
 
     completed = set() if args.force else _done_record_keys(args.output)
     matrices = _search_matrices(args)
 
-    with _saps_suitesparse_context(args.data_dir, args.seed), args.output.open(
-        "a",
-        encoding="utf-8",
-    ) as output:
+    with (
+        _saps_suitesparse_context(args.data_dir, args.seed),
+        args.output.open(
+            "a",
+            encoding="utf-8",
+        ) as output,
+    ):
         for matrix in matrices:
             try:
                 variants = _rhs_variants(matrix, solvers, args.data_dir)
@@ -692,9 +708,7 @@ def main() -> int:
                         "rhs_index": variant.index,
                         "rhs_count": variant.count,
                         "rhs_shape": (
-                            list(variant.shape)
-                            if variant.shape is not None
-                            else None
+                            list(variant.shape) if variant.shape is not None else None
                         ),
                         "status": "error",
                         "error_type": type(exc).__name__,
