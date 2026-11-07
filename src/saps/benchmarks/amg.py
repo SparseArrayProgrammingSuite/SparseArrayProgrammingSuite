@@ -62,32 +62,13 @@ def _tentative_prolongator(agg: np.ndarray) -> scipy_sparse.csr_matrix:
     ).tocsr()
 
 
-def _smoothed_prolongator(
-    A: scipy_sparse.csr_matrix,
-    tentative: scipy_sparse.csr_matrix,
-    omega: float,
-) -> scipy_sparse.csr_matrix:
-    diag = A.diagonal()
-    diag_inv = np.divide(1.0, diag, out=np.zeros_like(diag), where=diag != 0)
-    Dinv_A = scipy_sparse.diags(diag_inv) @ A
-    # Cheap spectral-radius bound: ||D^{-1} A||_inf (max absolute row sum).
-    rho = abs(Dinv_A).sum(axis=1).max()
-    rho = float(rho) if rho > 0 else 1.0
-    scale = omega / rho
-    identity = scipy_sparse.identity(A.shape[0], format="csr")
-    P = (identity - scale * Dinv_A) @ tentative
-    return P.tocsr()
-
-
-def _build_prolongator(
+def _build_tentative_prolongator(
     A: scipy_sparse.csr_matrix,
     *,
     aggregate_size: int,
-    omega: float = DEFAULT_PROLONGATION_OMEGA,
 ) -> scipy_sparse.csr_matrix:
     agg = _build_aggregates(A.tocsr(), aggregate_size)
-    tentative = _tentative_prolongator(agg)
-    return _smoothed_prolongator(A.tocsr(), tentative, omega)
+    return _tentative_prolongator(agg)
 
 
 class AMGDataset(SuiteSparseDataset):
@@ -105,6 +86,7 @@ class AMGDataset(SuiteSparseDataset):
         num_sweeps: int = DEFAULT_NUM_SWEEPS,
         jacobi_weight: float = DEFAULT_JACOBI_WEIGHT,
         aggregate_size: int = DEFAULT_AGGREGATE_SIZE,
+        prolongation_omega: float = DEFAULT_PROLONGATION_OMEGA,
     ):
         name = source_name
         if rhs_index is not None:
@@ -124,6 +106,7 @@ class AMGDataset(SuiteSparseDataset):
         self.num_sweeps = num_sweeps
         self.jacobi_weight = jacobi_weight
         self.aggregate_size = aggregate_size
+        self.prolongation_omega = prolongation_omega
 
     def benchmark_meta(self) -> dict[str, Any]:
         return {
@@ -131,6 +114,7 @@ class AMGDataset(SuiteSparseDataset):
             "rel_tol": self.rel_tol,
             "num_sweeps": self.num_sweeps,
             "jacobi_weight": self.jacobi_weight,
+            "prolongation_omega": self.prolongation_omega,
         }
 
 
@@ -251,13 +235,15 @@ class AMGTestGenerator(Generator[AMGDataset]):
     def generate(self, dataset: AMGDataset) -> DataInstance:
         A_bin, b, x0 = _generate_amg_data(dataset.source_name, dataset.A)
         A_csr = to_scipy(A_bin).tocsr()
-        P = _build_prolongator(A_csr, aggregate_size=dataset.aggregate_size)
+        tentative = _build_tentative_prolongator(
+            A_csr, aggregate_size=dataset.aggregate_size
+        )
         return DataInstance(
             inputs=[
                 from_scipy(A_csr.tocoo()),
                 from_numpy(b),
                 from_numpy(x0),
-                from_scipy(P.tocoo()),
+                from_scipy(tentative.tocoo()),
             ],
             meta=dataset.benchmark_meta(),
             ref_outputs=[from_scipy(np.abs(A_csr).tocoo())],
@@ -329,13 +315,15 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
             rhs_index=dataset.rhs_index,
         )
         A_csr = to_scipy(A_bin).tocsr()
-        P = _build_prolongator(A_csr, aggregate_size=dataset.aggregate_size)
+        tentative = _build_tentative_prolongator(
+            A_csr, aggregate_size=dataset.aggregate_size
+        )
         return DataInstance(
             inputs=[
                 from_scipy(A_csr.tocoo()),
                 from_numpy(b),
                 from_numpy(x0),
-                from_scipy(P.tocoo()),
+                from_scipy(tentative.tocoo()),
             ],
             meta=dataset.benchmark_meta(),
             ref_outputs=[from_scipy(np.abs(A_csr).tocoo())],
@@ -455,7 +443,7 @@ class AMGBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
 
-        A_bin, b_bin, _x0_bin, _P_bin = self._input
+        A_bin, b_bin, _x0_bin, _tentative_bin = self._input
         try:
             A_coo = to_scipy(A_bin).tocoo()
         except TypeError:
@@ -493,12 +481,23 @@ class AMGBenchmark(Benchmark):
             f"AMG residual too high for {param.dataset.name}: {residual}"
         )
 
-    def benchmark(self, xp, meta: dict[str, Any], A, b, x0, P):
+    def benchmark(self, xp, meta: dict[str, Any], A, b, x0, tentative):
         rel_tol = meta.get("rel_tol", 1e-6)
         abs_tol = meta.get("abs_tol", 1e-20)
         max_cycles = meta.get("max_cycles", DEFAULT_MAX_CYCLES)
         num_sweeps = meta.get("num_sweeps", DEFAULT_NUM_SWEEPS)
         weight = meta.get("jacobi_weight", DEFAULT_JACOBI_WEIGHT)
+        omega = meta.get("prolongation_omega", DEFAULT_PROLONGATION_OMEGA)
+
+        # Smoothed prolongator P = (I - omega / rho * D^{-1} A) @ tentative.
+        diag = xp.diagonal(A)
+        diag_inv = xp.replace(1.0 / diag, xp.inf, 0)
+        Dinv_A = A * xp.reshape(diag_inv, (-1, 1))
+        # Cheap spectral-radius bound: ||D^{-1} A||_inf (max absolute row sum).
+        rho = xp.max(xp.sum(xp.abs(Dinv_A), axis=1))
+        rho = float(rho) if rho > 0 else 1.0
+        scale = omega / rho
+        P = tentative - scale * (Dinv_A @ tentative)
 
         R = xp.matrix_transpose(P)
         # Coarse operator via the Galerkin triple product A_c = R @ A @ P. R is
@@ -506,8 +505,7 @@ class AMGBenchmark(Benchmark):
         # U * A * V SpGEMM shape.
         A_coarse = R @ A @ P
 
-        diag = xp.linalg.diagonal(A)
-        diag_coarse = xp.linalg.diagonal(A_coarse)
+        diag_coarse = xp.diagonal(A_coarse)
 
         tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
         tol_sq = tolerance * tolerance

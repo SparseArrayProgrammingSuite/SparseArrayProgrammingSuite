@@ -10,7 +10,7 @@ from binsparse.conversions import from_numpy, from_scipy
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.amg import (
     AMGBenchmark,
-    _build_prolongator,
+    _build_tentative_prolongator,
     _tentative_prolongator,
 )
 
@@ -47,14 +47,16 @@ def _solve(A, b, *, rel_tol=1e-8):
     """Run the AMG benchmark function on a dense SPD ``A`` and RHS ``b``."""
     xp = NumpyFramework()
     A_csr = sps.csr_matrix(A)
-    P = _build_prolongator(A_csr, aggregate_size=3)
+    tentative = _build_tentative_prolongator(A_csr, aggregate_size=3)
     benchmark = AMGBenchmark()
     meta = {"rel_tol": rel_tol, "max_cycles": 200, "num_sweeps": 2}
     A_in = xp.from_binsparse(from_scipy(A_csr.tocoo()))
     b_in = xp.from_binsparse(from_numpy(b))
     x0_in = xp.from_binsparse(from_numpy(np.zeros(A.shape[1])))
-    P_in = xp.from_binsparse(from_scipy(P.tocoo()))
-    return np.asarray(benchmark.benchmark(xp, meta, A_in, b_in, x0_in, P_in))
+    tentative_in = xp.from_binsparse(from_scipy(tentative.tocoo()))
+    return np.asarray(
+        benchmark.benchmark(xp, meta, A_in, b_in, x0_in, tentative_in)
+    )
 
 
 @pytest.mark.parametrize(
@@ -79,16 +81,13 @@ def test_amg_matches_direct_solve(A):
 def test_galerkin_triple_product_shapes():
     """R is short/wide, P is tall/narrow, A and the coarse operator square."""
     A = sps.csr_matrix(_SPARSE_5)
-    P = _build_prolongator(A, aggregate_size=3)
+    P = _build_tentative_prolongator(A, aggregate_size=3)
     R = P.T
     n_fine, n_coarse = P.shape
     assert A.shape[0] == A.shape[1], "A must be square"
     assert n_fine == A.shape[0]
     assert n_coarse < n_fine, "P must be tall and narrow (coarsening)"
     assert R.shape == (n_coarse, n_fine), "R must be short and wide"
-    # Smoothed aggregation widens each basis function beyond the single entry
-    # per row of the tentative prolongator.
-    assert P.nnz > n_fine, "smoothed prolongator should be wider than tentative"
     coarse = (R @ A @ P).tocsr()
     assert coarse.shape == (n_coarse, n_coarse), "R @ A @ P must be square"
 
