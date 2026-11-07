@@ -8,42 +8,43 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python: ['3.13']
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Install pixi environment
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          python-version: ${{ matrix.python }}
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Configure Poetry
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            # Export a native Windows path so PowerShell can also find Poetry.
-            cygpath -w "$(dirname "$(command -v poetry)")" >> "$GITHUB_PATH"
-            poetry env use python
-          else
-            poetry env use python${{ matrix.python }}
-          fi
-      - name: Install package
-        run: |
-          poetry sync --with generate,test
+          pixi-version: v0.83.0
+          environments: default
       - name: Set up MSVC
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
       - name: Run tests
         if: runner.os != 'Windows'
         run: |
-          poetry run pytest --junit-xml=test-${{ matrix.os }}-Python-${{ matrix.python }}.xml
+          pixi run pytest --junit-xml=test-${{ matrix.os }}.xml
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          poetry run pytest --junit-xml=test-${{ matrix.os }}-Python-${{ matrix.python }}.xml
+          pixi run pytest --junit-xml=test-${{ matrix.os }}.xml
       - uses: codecov/codecov-action@v5
+
+  # The default environment skips PyTorch's cases (tests/optional_pytorch.py).
+  pytorch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Install pixi environment
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.83.0
+          environments: pytorch
+      - name: Run PyTorch tests
+        run: pixi run test-pytorch
 
 on:
   # Trigger the workflow on push or pull request for the main branch,

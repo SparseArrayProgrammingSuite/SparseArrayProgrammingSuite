@@ -9,17 +9,13 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Install pixi environment
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          python-version: '3.12'
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Configure Poetry
-        run: poetry env use python3.12
-      - name: Install package
-        run: poetry sync --with generate
+          pixi-version: v0.83.0
+          environments: default
       - name: Generate metadata
-        run: poetry run ./bin/generate_metadata.py
+        run: pixi run ./bin/generate_metadata.py
       - name: Upload metadata
         uses: actions/upload-artifact@v4
         with:
@@ -49,18 +45,14 @@ jobs:
         with:
           name: saps-metadata
           path: .
-      - uses: actions/setup-python@v5
+      - name: Install pixi environment
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          python-version: '3.12'
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Configure Poetry
-        run: poetry env use python3.12
-      - name: Install package
-        run: poetry sync --with generate
+          pixi-version: v0.83.0
+          environments: default
       - name: Trace statistics chunk
         run: |
-          poetry run ./bin/run_benchmark.py \
+          pixi run ./bin/run_benchmark.py \
             --trace-statistics \
             --tag suite-trace \
             --chunk-count 4 \
@@ -101,18 +93,14 @@ jobs:
         with:
           name: saps-metadata
           path: .
-      - uses: actions/setup-python@v5
+      - name: Install pixi environment
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          python-version: '3.12'
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Configure Poetry
-        run: poetry env use python3.12
-      - name: Install package
-        run: poetry sync --with generate
+          pixi-version: v0.83.0
+          environments: default
       - name: Cache datasets chunk
         run: |
-          poetry run ./bin/run_benchmark.py \
+          pixi run ./bin/run_benchmark.py \
             --cache-datasets \
             --chunk-count 4 \
             --chunk-index ${{ matrix.chunk }} \
@@ -137,22 +125,18 @@ jobs:
         with:
           pattern: saps-trace-*
           path: artifacts/trace
-      - uses: actions/setup-python@v5
+      - name: Install pixi environment
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          python-version: '3.12'
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-      - name: Configure Poetry
-        run: poetry env use python3.12
-      - name: Install package
-        run: poetry sync --with generate
+          pixi-version: v0.83.0
+          environments: default
       - name: Merge statistics
         run: |
-          poetry run ./bin/merge_statistics.py \
+          pixi run ./bin/merge_statistics.py \
             --output merged/statistics.json \
             artifacts/trace/*/statistics.json
       - name: Generate final metadata
-        run: poetry run ./bin/generate_metadata.py --statistics merged/statistics.json
+        run: pixi run ./bin/generate_metadata.py --statistics merged/statistics.json
       - name: Upload merged statistics
         uses: actions/upload-artifact@v4
         with:

@@ -7,16 +7,20 @@ import numpy as np
 import scipy.sparse as sps
 
 import sparse as sp
-import torch
 from binsparse.conversions import from_numpy, from_sparse
 
 from frameworks.saps_numpy import NumpyFramework
-from frameworks.saps_pytorch import PytorchFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_smart import SmartSparseFramework, SmartSparseKernels
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.jacobi import JacobiBenchmark
 from saps.benchmarks.pcg import JacobiPCGBenchmark
+from tests.optional_pytorch import (
+    PytorchFramework,
+    pytorch_param,
+    requires_torch,
+    torch,
+)
 
 
 @pytest.fixture(
@@ -25,7 +29,7 @@ from saps.benchmarks.pcg import JacobiPCGBenchmark
         SciPyFramework,
         PyDataSparseFramework,
         SmartSparseFramework,
-        PytorchFramework,
+        pytorch_param(PytorchFramework),
         "tagger",
     ]
 )
@@ -39,7 +43,7 @@ def xp(request, monkeypatch):
 def dense(array):
     if hasattr(array, "array"):
         array = array.array
-    if isinstance(array, torch.Tensor):
+    if torch is not None and isinstance(array, torch.Tensor):
         return array.to_dense().detach().cpu().numpy()
     if hasattr(array, "todense"):
         return np.asarray(array.todense())
@@ -103,7 +107,7 @@ def test_replace_nan_fill_and_explicit_nan(framework, format):
     assert np.isnan(array.fill_value)
 
 
-@pytest.mark.parametrize("framework", ["scipy", "torch"])
+@pytest.mark.parametrize("framework", ["scipy", pytorch_param("torch")])
 @pytest.mark.parametrize("format", ["coo", "csr", "csc"])
 def test_replace_zero_fill_backends(framework, format):
     values = np.array([[0.0, 2.0, np.nan], [2.0, 0.0, 4.0]])
@@ -131,6 +135,7 @@ def test_replace_zero_fill_backends(framework, format):
     np.testing.assert_array_equal(dense(array), values)
 
 
+@requires_torch
 def test_replace_combines_duplicate_sparse_coordinates_first():
     scipy_array = sps.coo_array(([2.0, 3.0], ([0, 0], [1, 1])), shape=(2, 3))
     torch_array = torch.sparse_coo_tensor([[0, 0], [1, 1]], [2.0, 3.0], (2, 3))

@@ -77,4 +77,4 @@ def constant_function_source(value: Any, dtype: str, params: Sequence[str]) -> s
 
     The function refers to ``np``, so define it with ``{"np": numpy}``.
     """
-    return _signature(params) + f"    return xp.array({value!r}, dtype=np.{dtype})\n"
+    return _signature(params) + f"    return xp.asarray({value!r}, dtype=np.{dtype})\n"

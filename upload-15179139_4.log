@@ -1,0 +1,104 @@
+---------------------------------------
+Begin Slurm Prolog: Nov-05-2026 19:53:56
+Job ID:    15179258
+User ID:   wahrens6
+Account:   gts-wahrens6-pose
+Job name:  dataset-upload
+Partition: cpu-large
+QOS:       inferno
+---------------------------------------
+ WARN cache for Repodata at /storage/home/hcoda1/7/wahrens6/.cache/rattler/cache/repodata is on a network/parallel filesystem (NFS/SMB/FUSE/BeeGFS/Lustre/GPFS/CephFS), redirected to /tmp/pixi-cache-wahrens6/repodata for this run. Set [cache.repodata] in config.toml or PIXI_CACHE_DIR to override, or [cache.netfs-redirect] = "never" to keep the original path.
+INFO:root:Using SAPS config: {'environment_type': 'existing:same'}
+· Using SAPS config: {'environment_type': 'existing:same'}INFO:root:Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-4
+
+· Using SAPS outputs directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/chunk-4INFO:root:Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cache
+
+· Using SAPS dataset cache: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/outputs/cacheINFO:root:Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-4
+
+· Using SAPS machine files directory: /storage/scratch1/7/wahrens6/SparseArrayProgrammingSuite/.saps/machine_files/chunk-4INFO:root:Discovering benchmarks
+
+· Discovering benchmarksINFO:root:Benchmarking existing-py_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_.pixi_envs_default_bin_python3
+Discovered 1 benchmark entries for caching
+Using process timeout: 3600.0 seconds
+
+· Benchmarking existing-py_storage_scratch1_7_wahrens6_SparseArrayProgrammingSuite_.pixi_envs_default_bin_python3INFO:root:...ensorShellBenchmark.time_frostt_tensor_shell
+
+·· ...ensorShellBenchmark.time_frostt_tensor_shell                 okINFO:root:================================== =====
+             dataset                    
+---------------------------------- -----
+    frostt_tensor.matmul_2_2_2      n/a 
+    frostt_tensor.matmul_3_3_3      n/a 
+    frostt_tensor.matmul_4_3_2      n/a 
+    frostt_tensor.matmul_4_4_3      n/a 
+    frostt_tensor.matmul_4_4_4      n/a 
+    frostt_tensor.matmul_5_5_5      n/a 
+    frostt_tensor.matmul_6_3_3      n/a 
+       frostt_tensor.nell_2         n/a 
+ frostt_tensor.chicago_crime_comm   n/a 
+    frostt_tensor.lbnl_network      n/a 
+        frostt_tensor.toy           n/a 
+        frostt_tensor.nips          n/a 
+    frostt_tensor.uber_pickups      n/a 
+ frostt_tensor.chicago_crime_geo    n/a 
+  frostt_tensor.vast_2015_mc1_3d    n/a 
+       frostt_tensor.nell_1         n/a 
+  frostt_tensor.vast_2015_mc1_5d    n/a 
+       frostt_tensor.enron          n/a 
+     frostt_tensor.flickr_3d        n/a 
+     frostt_tensor.flickr_4d        n/a 
+    frostt_tensor.delicious_3d      n/a 
+    frostt_tensor.delicious_4d      n/a 
+   frostt_tensor.amazon_reviews     n/a 
+      frostt_tensor.patents         n/a 
+    frostt_tensor.reddit_2015       n/a 
+        frostt_tensor.fb_m          n/a 
+       frostt_tensor.darpa          n/a 
+       frostt_tensor.lanl2          n/a 
+================================== =====
+
+·· ================================== =====
+                dataset                    
+   ---------------------------------- -----
+       frostt_tensor.matmul_2_2_2      n/a 
+       frostt_tensor.matmul_3_3_3      n/a 
+       frostt_tensor.matmul_4_3_2      n/a 
+       frostt_tensor.matmul_4_4_3      n/a 
+       frostt_tensor.matmul_4_4_4      n/a 
+       frostt_tensor.matmul_5_5_5      n/a 
+       frostt_tensor.matmul_6_3_3      n/a 
+          frostt_tensor.nell_2         n/a 
+    frostt_tensor.chicago_crime_comm   n/a 
+       frostt_tensor.lbnl_network      n/a 
+           frostt_tensor.toy           n/a 
+           frostt_tensor.nips          n/a 
+       frostt_tensor.uber_pickups      n/a 
+    frostt_tensor.chicago_crime_geo    n/a 
+     frostt_tensor.vast_2015_mc1_3d    n/a 
+          frostt_tensor.nell_1         n/a 
+     frostt_tensor.vast_2015_mc1_5d    n/a 
+          frostt_tensor.enron          n/a 
+        frostt_tensor.flickr_3d        n/a 
+        frostt_tensor.flickr_4d        n/a 
+       frostt_tensor.delicious_3d      n/a 
+       frostt_tensor.delicious_4d      n/a 
+      frostt_tensor.amazon_reviews     n/a 
+         frostt_tensor.patents         n/a 
+       frostt_tensor.reddit_2015       n/a 
+           frostt_tensor.fb_m          n/a 
+          frostt_tensor.darpa          n/a 
+          frostt_tensor.lanl2          n/a 
+   ================================== =====
+cache summary: selected=2 failed_benchmark_entries=0
+---------------------------------------
+Begin Slurm Epilog: Nov-05-2026 20:10:46
+Job ID:        15179258
+Array Job ID:  15179139_4
+User ID:       wahrens6
+Account:       gts-wahrens6-pose
+Job name:      dataset-upload
+Resources:     cpu=24,mem=720G,node=1
+Rsrc Used:     cput=06:46:00,vmem=0,walltime=00:16:55,mem=12808788K,energy_used=0
+Partition:     cpu-large
+QOS:           inferno
+Nodes:         atl1-1-02-004-4-1
+---------------------------------------

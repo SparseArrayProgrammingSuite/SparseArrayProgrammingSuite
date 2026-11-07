@@ -3,13 +3,17 @@ import pytest
 import numpy as np
 
 import sparse as sp
-import torch
 from binsparse.conversions import from_numpy, from_sparse
 
 from frameworks.saps_numpy import NumpyFramework
-from frameworks.saps_pytorch import PytorchFramework
 from frameworks.saps_smart import SmartSparseFramework
 from frameworks.saps_sparse import PyDataSparseFramework
+from tests.optional_pytorch import (
+    PytorchFramework,
+    pytorch_param,
+    requires_torch,
+    torch,
+)
 
 
 @pytest.fixture(
@@ -17,7 +21,7 @@ from frameworks.saps_sparse import PyDataSparseFramework
         NumpyFramework,
         PyDataSparseFramework,
         SmartSparseFramework,
-        PytorchFramework,
+        pytorch_param(PytorchFramework),
     ]
 )
 def xp(request):
@@ -166,6 +170,7 @@ def test_numpy_integer_bitwise_or_reduction():
     np.testing.assert_array_equal(result, np.bitwise_or.reduce(a & b, axis=1))
 
 
+@requires_torch
 def test_torch_native_einsum_preserves_gradients_and_promotes_dtype():
     xp = PytorchFramework()
     a = torch.randn(3, 4, dtype=torch.float32, requires_grad=True)
@@ -179,6 +184,7 @@ def test_torch_native_einsum_preserves_gradients_and_promotes_dtype():
         torch.testing.assert_close(actual, reference)
 
 
+@requires_torch
 def test_torch_sparse_einsum_keeps_interpreter(monkeypatch):
     from saps_framework.einsum import Einsum
 
@@ -201,6 +207,7 @@ def test_torch_sparse_einsum_keeps_interpreter(monkeypatch):
     assert calls == [array]
 
 
+@requires_torch
 def test_torch_native_einsum_is_compiled():
     xp = PytorchFramework()
     graphs = []

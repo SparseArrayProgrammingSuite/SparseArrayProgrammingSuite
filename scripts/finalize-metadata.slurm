@@ -34,10 +34,10 @@ if [[ ${#statistics_paths[@]} -eq 0 ]]; then
   exit 1
 fi
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 cd "$repo_directory"
 
-poetry run ./bin/merge_statistics.py \
+pixi run ./bin/merge_statistics.py \
   --output "$statistics_output" \
   "${statistics_paths[@]}"
-poetry run ./bin/generate_metadata.py --statistics "$statistics_output"
+pixi run ./bin/generate_metadata.py --statistics "$statistics_output"

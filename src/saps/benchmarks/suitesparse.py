@@ -251,11 +251,6 @@ _MATRICES: list[SuiteSparseDataset] = [
         "Muite/Chebyshev3",
         "SNAP/ca-HepPh",
         "HB/bcsstk01",
-        # "GAP/GAP-road",
-        # "GAP/GAP-twitter",
-        # "GAP/GAP-web",
-        # "GAP/GAP-kron",
-        # "GAP/GAP-urand",
         "ANSYS/Delor338K",
         "Andrews/Andrews",
         "Andrianov/ins2",
@@ -599,6 +594,11 @@ _MATRICES: list[SuiteSparseDataset] = [
     ]
 ]
 _MATRICES += [SuiteSparseDataset(f"LPnetlib/{name}") for name in _LPNETLIB_PROBLEMS]
+# The GAP graphs, shared by the GAP graph benchmarks, take hours to prepare.
+_MATRICES += [
+    SuiteSparseDataset(f"GAP/GAP-{name}", suites=["standard-long"])
+    for name in ["road", "twitter", "web", "kron", "urand"]
+]
 
 
 class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):

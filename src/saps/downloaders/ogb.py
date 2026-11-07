@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-import os
+import shutil
+import urllib.request
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -32,6 +34,32 @@ class OGBNodePropData:
     metadata: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class _OGBSource:
+    """A dataset's entry in OGB's ``nodeproppred/master.csv`` (ogb 1.3.6)."""
+
+    download_name: str
+    add_inverse_edge: bool
+    split: str
+    num_tasks: int
+    num_classes: int
+    task_type: str
+
+
+_OGB_SOURCES = {
+    "ogbn-arxiv": _OGBSource(
+        "arxiv", False, "time", 1, 40, "multiclass classification"
+    ),
+    "ogbn-products": _OGBSource(
+        "products", True, "sales_ranking", 1, 47, "multiclass classification"
+    ),
+    "ogbn-proteins": _OGBSource(
+        "proteins", True, "species", 112, 2, "binary classification"
+    ),
+}
+_OGB_URL = "https://snap.stanford.edu/ogb/data/nodeproppred/{}.zip"
+
+
 def load_ogb_nodeprop_dataset(
     name: str,
     *,
@@ -39,50 +67,99 @@ def load_ogb_nodeprop_dataset(
 ) -> OGBNodePropData:
     """Download (if needed) and prepare a homogeneous OGB node dataset.
 
-    The OGB package owns the raw download cache.  This adapter converts its
-    framework-agnostic ``edge_index`` and ``node_feat`` fields into the
-    normalized adjacency expected by a Kipf--Welling GCN.
+    Reads OGB's raw CSV release as the ``ogb`` package does, without it: ``ogb``
+    imports PyTorch to cache its parsed copy. Downloads land where ``ogb`` puts
+    them (``<root>/ogbn_arxiv/raw/...``), so either can reuse the other's. This
+    adapter converts the framework-agnostic ``edge_index`` and ``node_feat``
+    fields into the normalized adjacency expected by a Kipf--Welling GCN.
     """
-    try:
-        from ogb.nodeproppred import NodePropPredDataset
-        from ogb.nodeproppred import dataset as ogb_dataset_module
-    except ImportError as exc:
-        raise RuntimeError(
-            "Loading OGB GCN datasets requires the optional 'ogb' dependency. "
-            "Install the SAPS project dependencies first."
-        ) from exc
-
+    source = _OGB_SOURCES.get(name)
+    if source is None:
+        raise ValueError(
+            f"Unknown OGB node dataset {name!r}; known: {sorted(_OGB_SOURCES)}."
+        )
     root = Path(data_dir) if data_dir is not None else _default_data_dir()
     dataset_dir = root / name.replace("-", "_")
     with download_lock(dataset_dir):
-        processed_path = dataset_dir / "processed" / "data_processed"
-        raw_graph_path = dataset_dir / "raw" / "edge.csv.gz"
-        needs_download = not processed_path.exists() and not raw_graph_path.exists()
-        # PyTorch 2.6 rejects OGB's NumPy-based processed cache by default.
-        torch_cache_variable = "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD"
-        previous_torch_cache_value = os.environ.get(torch_cache_variable)
-        using_processed_cache = processed_path.exists()
-        if using_processed_cache:
-            os.environ[torch_cache_variable] = "1"
-        # OGB prompts before large downloads.
-        original_decide_download = ogb_dataset_module.decide_download
-        original_download_url = ogb_dataset_module.download_url
-        if needs_download:
-            ogb_dataset_module.decide_download = lambda _url: True
-            ogb_dataset_module.download_url = lambda url, folder: original_download_url(
-                url.replace("http://", "https://", 1), folder
-            )
-        try:
-            dataset = NodePropPredDataset(name=name, root=str(root))
-        finally:
-            ogb_dataset_module.decide_download = original_decide_download
-            ogb_dataset_module.download_url = original_download_url
-            if using_processed_cache:
-                if previous_torch_cache_value is None:
-                    os.environ.pop(torch_cache_variable, None)
-                else:
-                    os.environ[torch_cache_variable] = previous_torch_cache_value
-        return _prepare_ogb_nodeprop_dataset(name, dataset)
+        if not (dataset_dir / "raw" / "edge.csv.gz").exists():
+            _download(source, root, dataset_dir)
+    return _prepare_ogb_nodeprop_dataset(name, _OGBDataset(dataset_dir, source))
+
+
+def _download(source: _OGBSource, root: Path, dataset_dir: Path) -> None:
+    """Fetch and unpack a release, which holds one ``download_name`` folder."""
+    root.mkdir(parents=True, exist_ok=True)
+    archive = root / f"{source.download_name}.zip.tmp"
+    staging = root / f"{source.download_name}.extract.tmp"
+    try:
+        urllib.request.urlretrieve(  # noqa: S310
+            _OGB_URL.format(source.download_name), archive
+        )
+        shutil.rmtree(staging, ignore_errors=True)
+        with zipfile.ZipFile(archive) as release:
+            release.extractall(staging)
+        shutil.rmtree(dataset_dir, ignore_errors=True)
+        (staging / source.download_name).replace(dataset_dir)
+    finally:
+        archive.unlink(missing_ok=True)
+        shutil.rmtree(staging, ignore_errors=True)
+
+
+def _read_csv(path: Path) -> np.ndarray:
+    import pandas as pd
+
+    return pd.read_csv(path, compression="gzip", header=None).values
+
+
+def _read_features(path: Path) -> np.ndarray | None:
+    """Integer features as int64, others as float32, as ``ogb`` reads them."""
+    if not path.exists():
+        return None
+    values = _read_csv(path)
+    return values.astype(np.int64 if "int" in str(values.dtype) else np.float32)
+
+
+class _OGBDataset:
+    """The parts of ``ogb.nodeproppred.NodePropPredDataset`` SAPS reads, for
+    homogeneous CSV releases (``ogb.io.read_graph_raw.read_csv_graph_raw``)."""
+
+    def __init__(self, dataset_dir: Path, source: _OGBSource) -> None:
+        self.dataset_dir = dataset_dir
+        self.num_tasks = source.num_tasks
+        self.num_classes = source.num_classes
+        self.task_type = source.task_type
+        self.meta_info = {"add_inverse_edge": source.add_inverse_edge}
+        self.split = source.split
+
+        raw = dataset_dir / "raw"
+        edge = _read_csv(raw / "edge.csv.gz").T.astype(np.int64)
+        (num_nodes,) = _read_csv(raw / "num-node-list.csv.gz").astype(np.int64)[:, 0]
+        edge_feat = _read_features(raw / "edge-feat.csv.gz")
+        if source.add_inverse_edge:
+            # Each edge followed by its reverse.
+            reversed_edge = edge[::-1]
+            edge = np.repeat(edge, 2, axis=1)
+            edge[:, 1::2] = reversed_edge
+            if edge_feat is not None:
+                edge_feat = np.repeat(edge_feat, 2, axis=0)
+        self.graph = {
+            "edge_index": edge,
+            "edge_feat": edge_feat,
+            "node_feat": _read_features(raw / "node-feat.csv.gz"),
+            "num_nodes": int(num_nodes),
+        }
+        self.labels = _read_csv(raw / "node-label.csv.gz")
+
+    def __getitem__(self, index: int) -> tuple[dict[str, Any], np.ndarray]:
+        assert index == 0, "OGB node datasets hold one graph."
+        return self.graph, self.labels
+
+    def get_idx_split(self) -> dict[str, np.ndarray]:
+        path = self.dataset_dir / "split" / self.split
+        return {
+            split: _read_csv(path / f"{split}.csv.gz").T[0]
+            for split in ("train", "valid", "test")
+        }
 
 
 def _prepare_ogb_nodeprop_dataset(name: str, dataset: Any) -> OGBNodePropData:

@@ -59,6 +59,7 @@ def test_zero_singleton_and_integer_roundoff():
     ["bool", "int64", "uint8", "float32", "float64", "complex64", "complex128"],
 )
 def test_error_bounds_accept_pytorch_dtypes(dtype_name):
+    pytest.importorskip("torch", reason="PyTorch runs in pixi's pytorch environment")
     import array_api_compat.torch as xp
 
     expected = operation_error_bound(np, 2, getattr(np, dtype_name))
