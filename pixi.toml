@@ -2,7 +2,7 @@
 #
 #   default  data generation, metadata, tracing, the competition runner and the
 #            test suite: pixi run pytest, pixi run ./bin/run_benchmark.py ...
-#   cupy, finch, galley, pytorch
+#   cupy, finch, galley, pytorch, scorch
 #            one framework each, for the frameworks the default environment
 #            doesn't install. Each test task runs the framework's own tests, if
 #            any, and every suite-test dataset under it
@@ -40,6 +40,7 @@ cupy = ["framework-test", "dataset-test", "cupy"]
 pytorch = ["framework-test", "dataset-test", "pytorch"]
 finch = ["framework-test", "dataset-test", "finch"]
 galley = ["framework-test", "dataset-test", "galley"]
+scorch = ["framework-test", "dataset-test", "pytorch", "scorch"]
 
 # Freshness hashes include installed dependency versions, so generating data or
 # metadata needs exactly these packages. Indirect dependencies are pinned too,
@@ -223,3 +224,28 @@ galley-jl-python = "==0.1.2"
 
 [feature.galley.tasks]
 test-galley = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_galley.py" } }
+
+# Scorch (frameworks/saps_scorch.py) builds a C++ extension against the
+# installed torch, which it gets from the pytorch feature, and JIT-compiles
+# kernels with OpenMP at run time. Its setup.py imports torch, so pixi can't
+# lock it as a PyPI dependency, and it only works as an editable checkout:
+# Scorch finds its C++ sources next to its setup.py, which a regular install
+# leaves behind (scripts/install_editable_git.py explains). install-scorch
+# builds it into the environment once; later runs see it installed and skip.
+# torch 2.12.1 requires setuptools<82, which conda's pip would otherwise exceed.
+[feature.scorch]
+platforms = ["linux-64", "macos-arm64"]
+
+[feature.scorch.dependencies]
+pip = "*"
+setuptools = "<82"
+
+[feature.scorch.pypi-dependencies]
+ninja = "==1.13.2"
+
+[feature.scorch.target.linux-64.dependencies]
+cxx-compiler = "*"
+
+[feature.scorch.tasks]
+install-scorch = { cmd = "python scripts/install_editable_git.py", env = { SAPS_EDITABLE_GIT = "https://github.com/bobbyyyan/scorch.git@b3b5d4b77a3bbdd395b19c289bf181cb3cf7df73" } }
+test-scorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_scorch.py" }, depends-on = ["install-scorch"] }
