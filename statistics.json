@@ -6,12 +6,14 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "statistics": [
                 "feature-dense",
+                "feature-hypersparse",
                 "feature-index-ops",
                 "feature-linalg-ops",
+                "feature-shape-ops",
                 "feature-transcendental-ops"
               ]
             }
@@ -23,71 +25,79 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "Orr-Som",
               "statistics": [
                 "feature-dense",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "beam",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "build",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "eady",
               "statistics": [
                 "feature-dense",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "fom",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "heat-cont",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "iss",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "pde",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             }
           ],
@@ -17978,12 +17988,14 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "statistics": [
                 "feature-dense",
+                "feature-hypersparse",
                 "feature-index-ops",
                 "feature-linalg-ops",
+                "feature-shape-ops",
                 "feature-transcendental-ops"
               ]
             }
@@ -17995,71 +18007,79 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "Orr-Som",
               "statistics": [
                 "feature-dense",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "beam",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "build",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "eady",
               "statistics": [
                 "feature-dense",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "fom",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "heat-cont",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "iss",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "pde",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             }
           ],
@@ -25020,12 +25040,14 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "statistics": [
                 "feature-dense",
+                "feature-hypersparse",
                 "feature-index-ops",
                 "feature-linalg-ops",
+                "feature-shape-ops",
                 "feature-transcendental-ops"
               ]
             }
@@ -25037,87 +25059,97 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "CDplayer",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "Orr-Som",
               "statistics": [
                 "feature-dense",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "beam",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "build",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "eady",
               "statistics": [
                 "feature-dense",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "fom",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "heat-cont",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "iss",
               "statistics": [
                 "feature-hypersparse",
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "pde",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             },
             {
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "random",
               "statistics": [
-                "feature-linalg-ops"
+                "feature-linalg-ops",
+                "feature-shape-ops"
               ]
             }
           ],
