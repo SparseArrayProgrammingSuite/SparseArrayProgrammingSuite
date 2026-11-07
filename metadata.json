@@ -12,7 +12,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with backward Euler, using ten fixed-point iterations per step.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+      "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
       "generators": [
         {
           "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
@@ -27,18 +27,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -47,18 +42,13 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_rc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -76,18 +66,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -96,18 +81,13 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_rlc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC) Circuit",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -125,18 +105,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -145,18 +120,13 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_lotka_volterra",
           "pretty_name": "Ordinary Differential Equation (ODE) Lotka-Volterra",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -174,18 +144,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "2x2",
               "pretty_name": "2x2 Grid",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -196,7 +161,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "pretty_name": "100x100 Grid",
               "suites": [
@@ -204,11 +169,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -218,18 +178,13 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_brusselator",
           "pretty_name": "Ordinary Differential Equation (ODE) Brusselator",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -246,7 +201,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "eady",
               "pretty_name": "eady",
               "source_inputs": 1,
@@ -260,11 +215,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -277,7 +227,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "CDplayer",
               "pretty_name": "CDplayer",
               "source_inputs": 2,
@@ -290,11 +240,6 @@
                 "standard"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping"
               ],
@@ -306,7 +251,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "fom",
               "pretty_name": "fom",
               "source_inputs": 1,
@@ -320,11 +265,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -337,7 +277,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "random",
               "pretty_name": "random",
               "source_inputs": 1,
@@ -350,11 +290,6 @@
                 "standard"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping"
               ],
@@ -366,7 +301,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "pde",
               "pretty_name": "pde",
               "source_inputs": 1,
@@ -380,11 +315,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -397,7 +327,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "heat-cont",
               "pretty_name": "heat-cont",
               "source_inputs": 1,
@@ -412,11 +342,6 @@
                 "train"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace",
@@ -430,7 +355,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "Orr-Som",
               "pretty_name": "Orr-Som",
               "source_inputs": 1,
@@ -444,11 +369,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -461,7 +381,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "iss",
               "pretty_name": "iss",
               "source_inputs": 3,
@@ -475,11 +395,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -492,7 +407,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "build",
               "pretty_name": "build",
               "source_inputs": 1,
@@ -506,11 +421,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -523,7 +433,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "beam",
               "pretty_name": "beam",
               "source_inputs": 1,
@@ -537,11 +447,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -551,7 +456,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "ode_slicot",
           "pretty_name": "Ordinary Differential Equation (ODE) SLICOT",
@@ -560,11 +465,6 @@
           ],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -579,11 +479,6 @@
         "standard-timestepping"
       ],
       "tags": [
-        "feature-dense",
-        "feature-hypersparse",
-        "feature-index-ops",
-        "feature-linalg-ops",
-        "feature-transcendental-ops",
         "suite-standard-timestepping"
       ],
       "topics": []
@@ -161457,7 +161352,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with the forward Euler method.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+      "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
       "generators": [
         {
           "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
@@ -161472,18 +161367,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -161492,18 +161382,13 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_rc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -161521,18 +161406,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -161541,18 +161421,13 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_rlc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC) Circuit",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -161570,18 +161445,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -161590,18 +161460,13 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_lotka_volterra",
           "pretty_name": "Ordinary Differential Equation (ODE) Lotka-Volterra",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -161619,18 +161484,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "2x2",
               "pretty_name": "2x2 Grid",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -161641,7 +161501,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "pretty_name": "100x100 Grid",
               "suites": [
@@ -161649,11 +161509,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161663,18 +161518,13 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_brusselator",
           "pretty_name": "Ordinary Differential Equation (ODE) Brusselator",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -161691,7 +161541,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "eady",
               "pretty_name": "eady",
               "source_inputs": 1,
@@ -161705,11 +161555,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161722,7 +161567,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "CDplayer",
               "pretty_name": "CDplayer",
               "source_inputs": 2,
@@ -161735,11 +161580,6 @@
                 "standard"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping"
               ],
@@ -161751,7 +161591,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "fom",
               "pretty_name": "fom",
               "source_inputs": 1,
@@ -161766,11 +161606,6 @@
                 "train"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace",
@@ -161784,7 +161619,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "random",
               "pretty_name": "random",
               "source_inputs": 1,
@@ -161797,11 +161632,6 @@
                 "standard"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping"
               ],
@@ -161813,7 +161643,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "pde",
               "pretty_name": "pde",
               "source_inputs": 1,
@@ -161827,11 +161657,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161844,7 +161669,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "heat-cont",
               "pretty_name": "heat-cont",
               "source_inputs": 1,
@@ -161858,11 +161683,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161875,7 +161695,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "Orr-Som",
               "pretty_name": "Orr-Som",
               "source_inputs": 1,
@@ -161889,11 +161709,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161906,7 +161721,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "iss",
               "pretty_name": "iss",
               "source_inputs": 3,
@@ -161920,11 +161735,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161937,7 +161747,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "build",
               "pretty_name": "build",
               "source_inputs": 1,
@@ -161951,11 +161761,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161968,7 +161773,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "beam",
               "pretty_name": "beam",
               "source_inputs": 1,
@@ -161982,11 +161787,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -161996,7 +161796,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "ode_slicot",
           "pretty_name": "Ordinary Differential Equation (ODE) SLICOT",
@@ -162005,11 +161805,6 @@
           ],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -162024,11 +161819,6 @@
         "standard-timestepping"
       ],
       "tags": [
-        "feature-dense",
-        "feature-hypersparse",
-        "feature-index-ops",
-        "feature-linalg-ops",
-        "feature-transcendental-ops",
         "suite-standard-timestepping"
       ],
       "topics": []
@@ -181823,7 +181613,7 @@
       "concepts": "\n<ccs2012>\n<concept>\n<concept_id>10002951.10003317.10003347.10003356</concept_id>\n<concept_desc>Information systems~Clustering and classification</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10002951.10003317.10003347.10003350</concept_id>\n<concept_desc>Information systems~Recommender systems</concept_desc>\n<concept_significance>300</concept_significance>\n</concept>\n<concept>\n<concept_desc>Computing methodologies~\nMachine learning algorithms</concept_desc>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10003697</concept_id>\n<concept_desc>Computing methodologies~Cluster analysis</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_id>10010147.10010257.10010258.10010260.10010271</concept_id>\n<concept_desc>Computing methodologies~Dimensionality reduction and manifold learning</concept_desc>\n<concept_significance>500</concept_significance>\n</concept>\n<concept>\n<concept_desc>Mathematics of computing~\nDimensionality reduction</concept_desc>\n</concept>\n</ccs2012>\n",
       "description": "Labels points into k clusters.",
       "file": "src/saps/benchmarks/jl_kmeans.py",
-      "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+      "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
       "generators": [
         {
           "ai_disclosure": "No generative AI was used to implement benchmark functions.",
@@ -181840,7 +181630,7 @@
               "description": "Manual test points for random-projection k-means clustering.",
               "eps": 0.3,
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "k": 3,
               "max_iter": 5,
               "name": "three_clusters",
@@ -181877,7 +181667,7 @@
               "description": "Manual test points for random-projection k-means clustering.",
               "eps": 0.2,
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "k": 2,
               "max_iter": 5,
               "name": "two_clusters",
@@ -181910,7 +181700,7 @@
           ],
           "description": "Test points for this benchmark were created manually.",
           "file": "src/saps/benchmarks/jl_kmeans.py",
-          "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+          "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
           "motivation": "Random Projections reduce dimensionality for k-means clustering. Input points can be high-dimensional and sparse, which are then projected on a random matrix.",
           "name": "jl_kmeans_test",
           "pretty_name": "Johnson-Lindenstrauss (JL) k-Means Test",
@@ -181955,7 +181745,7 @@
               "description": "RP k-means clustering on mnist.",
               "eps": 0.3,
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "k": 10,
               "max_iter": 100,
               "name": "mnist",
@@ -181994,7 +181784,7 @@
               "description": "RP k-means clustering on cifar10.",
               "eps": 0.3,
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "k": 10,
               "max_iter": 100,
               "name": "cifar10",
@@ -182031,7 +181821,7 @@
           ],
           "description": "Loads OpenML image datasets for RP k-means clustering.",
           "file": "src/saps/benchmarks/jl_kmeans.py",
-          "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+          "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
           "motivation": "MNIST and CIFAR-10 provide dense image feature matrices from OpenML. k = 10 aligns with the ten classes in each dataset.",
           "name": "jl_kmeans_openml",
           "pretty_name": "Johnson-Lindenstrauss (JL) k-Means OpenML",
@@ -182077,7 +181867,7 @@
               "description": "RP k-means clustering on netflix.",
               "eps": 0.3,
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "k": 10,
               "max_iter": 100,
               "name": "netflix",
@@ -182110,7 +181900,7 @@
           ],
           "description": "Loads Netflix Prize ratings for RP k-means clustering.",
           "file": "src/saps/benchmarks/jl_kmeans.py",
-          "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+          "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
           "motivation": "The Netflix Prize dataset provides a ~480K users \u00d7 17,770 movies sparse ratings matrix.",
           "name": "jl_kmeans_netflix_prize",
           "pretty_name": "Johnson-Lindenstrauss (JL) k-Means Netflix Prize",
@@ -182190,7 +181980,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "",
       "file": "src/saps/benchmarks/jl_kmeans.py",
-      "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+      "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
       "generators": [
         {
           "ai_disclosure": "",
@@ -182203,7 +181993,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "RP k-means clustering on netflix.",
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "name": "netflix",
               "pretty_name": "Netflix Prize",
               "suites": [],
@@ -182213,7 +182003,7 @@
           ],
           "description": "Reference outputs for Johnson-Lindenstrauss (JL) k-Means Netflix Prize, cached apart from its inputs.",
           "file": "src/saps/benchmarks/jl_kmeans.py",
-          "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+          "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
           "motivation": "",
           "name": "jl_kmeans_netflix_prize_reference",
           "pretty_name": "Johnson-Lindenstrauss (JL) k-Means Netflix Prize Reference",
@@ -182241,7 +182031,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "",
       "file": "src/saps/benchmarks/jl_kmeans.py",
-      "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+      "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
       "generators": [
         {
           "ai_disclosure": "",
@@ -182254,7 +182044,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "RP k-means clustering on mnist.",
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "name": "mnist",
               "pretty_name": "MNIST",
               "suites": [],
@@ -182266,7 +182056,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "RP k-means clustering on cifar10.",
               "file": "src/saps/benchmarks/jl_kmeans.py",
-              "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+              "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
               "name": "cifar10",
               "pretty_name": "CIFAR-10",
               "suites": [],
@@ -182276,7 +182066,7 @@
           ],
           "description": "Reference outputs for Johnson-Lindenstrauss (JL) k-Means OpenML, cached apart from its inputs.",
           "file": "src/saps/benchmarks/jl_kmeans.py",
-          "freshness": "c916098acfbe4ac3ffbc7a2b01d6ee9f1b2e4d66aebbe02e0a28a5c173505f1a",
+          "freshness": "4e6da42556a802c8174e584691e9ddeff643ed68d58fd88e4c9980bbbd1eb93e",
           "motivation": "",
           "name": "jl_kmeans_openml_reference",
           "pretty_name": "Johnson-Lindenstrauss (JL) k-Means OpenML Reference",
@@ -205583,7 +205373,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Integrates ODE initial-value problems with the classical fourth-order Runge-Kutta method.",
       "file": "src/saps/benchmarks/ode.py",
-      "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+      "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
       "generators": [
         {
           "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
@@ -205598,18 +205388,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -205618,18 +205403,13 @@
           ],
           "description": "RC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_rc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Capacitor (RC) Circuit",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -205647,18 +205427,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small RLC circuit",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -205667,18 +205442,13 @@
           ],
           "description": "RLC circuit ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_rlc",
           "pretty_name": "Ordinary Differential Equation (ODE) Resistor-Inductor-Capacitor (RLC) Circuit",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -205696,18 +205466,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small Lotka-Volterra system",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -205716,18 +205481,13 @@
           ],
           "description": "Lotka-Volterra ODE.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_lotka_volterra",
           "pretty_name": "Ordinary Differential Equation (ODE) Lotka-Volterra",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -205745,18 +205505,13 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny 2D Brusselator correctness test",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "2x2",
               "pretty_name": "2x2 Grid",
               "suites": [
                 "test"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard-timestepping",
                 "suite-test"
               ],
@@ -205767,7 +205522,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "2D Brusselator with 100x100 grid",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "pretty_name": "100x100 Grid",
               "suites": [
@@ -205776,11 +205531,6 @@
                 "train"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace",
@@ -205791,18 +205541,13 @@
           ],
           "description": "2D Brusselator ODE with diffusion.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "",
           "name": "ode_brusselator",
           "pretty_name": "Ordinary Differential Equation (ODE) Brusselator",
           "references": [],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -205819,7 +205564,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: model of an atmospheric storm track.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "eady",
               "pretty_name": "eady",
               "source_inputs": 1,
@@ -205833,11 +205578,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -205850,7 +205590,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: classical CD player model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "CDplayer",
               "pretty_name": "CDplayer",
               "source_inputs": 2,
@@ -205864,11 +205604,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -205881,7 +205616,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "fom",
               "pretty_name": "fom",
               "source_inputs": 1,
@@ -205895,11 +205630,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -205912,7 +205642,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "random",
               "pretty_name": "random",
               "source_inputs": 1,
@@ -205926,11 +205656,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -205943,7 +205668,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: partial differential equation.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "pde",
               "pretty_name": "pde",
               "source_inputs": 1,
@@ -205957,11 +205682,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -205974,7 +205694,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: heat equation in a thin rod.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "heat-cont",
               "pretty_name": "heat-cont",
               "source_inputs": 1,
@@ -205988,11 +205708,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -206005,7 +205720,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Orr-Sommerfeld operator for Couette flow.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "Orr-Som",
               "pretty_name": "Orr-Som",
               "source_inputs": 1,
@@ -206019,11 +205734,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -206036,7 +205746,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: component 1r of the International Space Station.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "iss",
               "pretty_name": "iss",
               "source_inputs": 3,
@@ -206050,11 +205760,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -206067,7 +205772,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: motion problem in a building.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "build",
               "pretty_name": "build",
               "source_inputs": 1,
@@ -206081,11 +205786,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -206098,7 +205798,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "SLICOT model-reduction ODE: Clamped beam model.",
               "file": "src/saps/benchmarks/ode.py",
-              "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+              "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "beam",
               "pretty_name": "beam",
               "source_inputs": 1,
@@ -206112,11 +205812,6 @@
                 "trace"
               ],
               "tags": [
-                "feature-dense",
-                "feature-hypersparse",
-                "feature-index-ops",
-                "feature-linalg-ops",
-                "feature-transcendental-ops",
                 "suite-standard",
                 "suite-standard-timestepping",
                 "suite-trace"
@@ -206126,7 +205821,7 @@
           ],
           "description": "Loads SLICOT model-reduction problems without explicit E matrices, preserving stored sparse matrices, treating E as the identity, and defaulting missing B to a normalized single-input vector.",
           "file": "src/saps/benchmarks/ode.py",
-          "freshness": "f76f97fc1454832dd84521037894b44489133b27935200170c0a87ee50d3a098",
+          "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
           "motivation": "SLICOT model-reduction examples provide realistic linear dynamical systems for ODE integration benchmarks.",
           "name": "ode_slicot",
           "pretty_name": "Ordinary Differential Equation (ODE) SLICOT",
@@ -206135,11 +205830,6 @@
           ],
           "suites": [],
           "tags": [
-            "feature-dense",
-            "feature-hypersparse",
-            "feature-index-ops",
-            "feature-linalg-ops",
-            "feature-transcendental-ops",
             "suite-standard-timestepping"
           ],
           "topics": []
@@ -206154,11 +205844,6 @@
         "standard-timestepping"
       ],
       "tags": [
-        "feature-dense",
-        "feature-hypersparse",
-        "feature-index-ops",
-        "feature-linalg-ops",
-        "feature-transcendental-ops",
         "suite-standard-timestepping"
       ],
       "topics": []
