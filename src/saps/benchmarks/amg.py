@@ -217,7 +217,7 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
             AMGDataset("MathWorks/Muu", max_iter=100, rel_tol=1e-06),
             AMGDataset("MaxPlanck/shallow_water1", max_iter=100, rel_tol=1e-06),
             AMGDataset("MaxPlanck/shallow_water2", max_iter=100, rel_tol=1e-06),
-            AMGDataset("McRae/ecology2", max_iter=100, rel_tol=1e-06),
+            AMGDataset("McRae/ecology2", max_iter=100, rel_tol=1e-06, suites=["train"]),
             AMGDataset("Nasa/nasa2146", max_iter=100, rel_tol=1e-06, rhs_index=0),
             AMGDataset("Norris/fv1", max_iter=100, rel_tol=1e-06),
             AMGDataset("Norris/fv2", max_iter=100, rel_tol=1e-06),
