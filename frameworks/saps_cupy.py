@@ -153,44 +153,22 @@ class CuPyFramework(Framework):
             return x2.multiply(x1)
         return compat_cp.multiply(x1, x2)
 
-    def unfold(
-        self,
-        x,
-        kernel_shape,
-        *,
-        axes=None,
-        strides=None,
-        dilations=None,
-        padding=None,
-        fill_value=0,
-    ):
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         # Unfolded results are rank > 2, so densify cupyx sparse inputs on-device.
         array = x.toarray() if cusp.issparse(x) else x
         array = cupy.asarray(array)
         kernel_t = tuple(int(size) for size in kernel_shape)
-        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+        axes_t, strides_t, dilations_t = normalize_unfold_args(
             array.ndim,
             kernel_t,
             axes,
             strides,
             dilations,
-            padding,
         )
         effective_kernel = tuple(
             (kernel - 1) * dilation + 1
             for kernel, dilation in zip(kernel_t, dilations_t, strict=True)
         )
-
-        pad_width = [(0, 0)] * array.ndim
-        for axis, pad_pair in zip(axes_t, padding_t, strict=True):
-            pad_width[axis] = pad_pair
-        if any(pair != (0, 0) for pair in pad_width):
-            array = cupy.pad(
-                array,
-                pad_width,
-                mode="constant",
-                constant_values=fill_value,
-            )
 
         windows = cupy.lib.stride_tricks.sliding_window_view(
             array,

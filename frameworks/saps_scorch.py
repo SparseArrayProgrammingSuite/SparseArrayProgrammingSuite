@@ -158,28 +158,16 @@ class ScorchFramework(Framework):
         ).to(dtype)
         return result != 0 if logical_reduction else result
 
-    def unfold(
-        self,
-        x,
-        kernel_shape,
-        *,
-        axes=None,
-        strides=None,
-        dilations=None,
-        padding=None,
-        fill_value=0,
-    ):
+    def unfold(self, x, kernel_shape, *, axes=None, strides=None, dilations=None):
         x = x.to_dense() if _is_sparse_tensor(x) else x
-        axes_t, strides_t, dilations_t, padding_t = normalize_unfold_args(
+        axes_t, strides_t, dilations_t = normalize_unfold_args(
             x.ndim,
             kernel_shape,
             axes,
             strides,
             dilations,
-            padding,
         )
         kernel_t = tuple(int(size) for size in kernel_shape)
-        x = self._pad_for_unfold(x, axes_t, padding_t, fill_value)
 
         if x.ndim == 4 and axes_t == (2, 3):
             patches = F.unfold(
@@ -214,23 +202,6 @@ class ScorchFramework(Framework):
         for window_axis, dilation in enumerate(dilations_t, start=x.ndim):
             slices[window_axis] = slice(None, None, dilation)
         return windows[tuple(slices)]
-
-    @staticmethod
-    def _pad_for_unfold(x, axes, padding, fill_value):
-        if not any(pair != (0, 0) for pair in padding):
-            return x
-
-        full_padding = [(0, 0)] * x.ndim
-        for axis, pad_pair in zip(axes, padding, strict=True):
-            full_padding[axis] = pad_pair
-
-        pad = []
-        for before, after in reversed(full_padding):
-            pad.extend((before, after))
-
-        if torch.is_tensor(fill_value):
-            fill_value = fill_value.detach().cpu().item()
-        return F.pad(x, tuple(pad), mode="constant", value=float(fill_value))
 
     def replace(self, arr, old, new):
         if _is_sparse_tensor(arr):
