@@ -429,20 +429,20 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
 
     def check(self, param):
         for item in self._output:
-            assert isinstance(
-                item, BinsparseTensor
-            ), "Output must be in binsparse format"
-        assert (
-            self._ref_outputs is not None
-        ), "No scipy.ndimage reference edge map; regenerate the cached dataset"
+            assert isinstance(item, BinsparseTensor), (
+                "Output must be in binsparse format"
+            )
+        assert self._ref_outputs is not None, (
+            "No scipy.ndimage reference edge map; regenerate the cached dataset"
+        )
 
         actual = to_numpy(self._output[0])
         expected = to_numpy(self._ref_outputs[0])
 
         assert self._meta == {}
-        assert (
-            actual.shape == expected.shape
-        ), f"Expected edge map shape {expected.shape}, got {actual.shape}"
+        assert actual.shape == expected.shape, (
+            f"Expected edge map shape {expected.shape}, got {actual.shape}"
+        )
         mismatches = np.count_nonzero(actual != expected)
         assert mismatches == 0, (
             f"{mismatches} of {expected.size} pixels differ from the "

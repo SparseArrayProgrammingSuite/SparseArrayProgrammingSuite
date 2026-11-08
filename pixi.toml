@@ -187,9 +187,9 @@ pytorch = "==2.12.1"
 python-graphblas = "==2025.2.0"
 
 [feature.pytorch.tasks]
-# Every test that covers PyTorch (the default environment skips their PyTorch
-# cases, see tests/optional_pytorch.py), then the suite-test datasets.
-test-pytorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_pytorch_framework.py tests/test_pytorch_sparse.py tests/test_pytorch_device.py tests/test_compile.py tests/test_native_einsum.py tests/test_replace.py tests/test_unfold.py tests/test_approx_nn_lsh.py tests/test_graph_counting_checks.py tests/test_error_bounds.py tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_pytorch.py" } }
+# Every test that covers PyTorch (the default environment skips them), then the
+# suite-test datasets.
+test-pytorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_pytorch.py tests/test_pytorch_framework.py tests/test_pytorch_sparse.py tests/test_pytorch_device.py tests/test_compile.py tests/test_unfold.py tests/test_error_bounds.py tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_pytorch.py" } }
 
 # CuPy 14.2 adds the cupyx sparse array API that frameworks/saps_cupy.py uses.
 # The cluster's GPUs are V100s (sm_70), which CUDA 13 no longer targets.

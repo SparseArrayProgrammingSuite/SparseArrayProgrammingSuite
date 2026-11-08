@@ -32,7 +32,7 @@ jobs:
           pixi run pytest --junit-xml=test-${{ matrix.os }}.xml
       - uses: codecov/codecov-action@v5
 
-  # The default environment skips PyTorch's cases (tests/optional_pytorch.py).
+  # The default environment skips PyTorch's tests (tests/test_pytorch*.py).
   pytorch:
     runs-on: ubuntu-latest
     steps:

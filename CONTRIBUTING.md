@@ -267,7 +267,7 @@ pixi run test-finch
 pixi run test-finch -k bellman_ford
 ```
 
-Tests that cover PyTorch alongside other frameworks import it through `tests/optional_pytorch.py`, so their PyTorch cases skip in the default environment and run under `pixi run test-pytorch`.
+PyTorch tests skip in the default environment and run under `pixi run test-pytorch`. Tests that cover several frameworks get their PyTorch cases in `tests/test_pytorch.py`, which imports them and reruns them against a PyTorch `xp` fixture.
 
 The CuPy environment needs Linux with an NVIDIA GPU and uses CUDA 12, the last CUDA release that targets V100s. Scorch on macOS needs Homebrew's OpenMP headers (`brew install libomp`).
 

@@ -8,32 +8,24 @@ from binsparse.conversions import from_numpy, from_sparse
 from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_smart import SmartSparseFramework
 from frameworks.saps_sparse import PyDataSparseFramework
-from tests.optional_pytorch import (
-    PytorchFramework,
-    pytorch_param,
-    requires_torch,
-    torch,
-)
 
 
-@pytest.fixture(
-    params=[
-        NumpyFramework,
-        PyDataSparseFramework,
-        SmartSparseFramework,
-        pytorch_param(PytorchFramework),
-    ]
-)
+@pytest.fixture(params=[NumpyFramework, PyDataSparseFramework, SmartSparseFramework])
 def xp(request):
     return request.param()
+
+
+@pytest.fixture
+def einsum_backend(xp):
+    return np if isinstance(xp, NumpyFramework) else sp
 
 
 def array(xp, value):
     value = np.asarray(value)
     tensor = (
-        from_numpy(value)
-        if isinstance(xp, (NumpyFramework, PytorchFramework))
-        else from_sparse(sp.COO(value))
+        from_sparse(sp.COO(value))
+        if isinstance(xp, (PyDataSparseFramework, SmartSparseFramework))
+        else from_numpy(value)
     )
     return xp.from_binsparse(tensor)
 
@@ -43,7 +35,7 @@ def dense(xp, value):
 
 
 @pytest.mark.parametrize("n", [3, 4, 5])
-def test_native_mttkrp(xp, n, monkeypatch):
+def test_native_mttkrp(xp, einsum_backend, n, monkeypatch):
     if isinstance(xp, SmartSparseFramework):
         # Exercise the native fallback independently of Smart's blocked path.
         monkeypatch.setattr(xp.kernels, "_blocked_einsum", lambda *args: NotImplemented)
@@ -64,19 +56,14 @@ def test_native_mttkrp(xp, n, monkeypatch):
         tensor,
         *factors,
     )
-    backend = (
-        torch
-        if isinstance(xp, PytorchFramework)
-        else (np if isinstance(xp, NumpyFramework) else sp)
-    )
-    original = backend.einsum
+    original = einsum_backend.einsum
     calls = []
 
     def spy(*args, **kwargs):
         calls.append(args[0])
         return original(*args, **kwargs)
 
-    monkeypatch.setattr(backend, "einsum", spy)
+    monkeypatch.setattr(einsum_backend, "einsum", spy)
     result = xp.einsum(expression, **kwargs)
     np.testing.assert_allclose(dense(xp, result), expected)
     assert len(calls) == 1
@@ -111,19 +98,16 @@ def test_boolean_contraction_semantics(xp, reduction, product, scalar):
         ("C[i] += A[i,j] - B[j]", [-2.0, 4.0]),
     ],
 )
-def test_extended_expression_fallback(xp, expression, expected, monkeypatch):
+def test_extended_expression_fallback(
+    xp, einsum_backend, expression, expected, monkeypatch
+):
     a = array(xp, [[1.0, 0.0], [2.0, 5.0]])
     b = array(xp, [0.0, 3.0])
 
     def fail(*args, **kwargs):
         pytest.fail("unsupported expressions must use the interpreter")
 
-    backend = (
-        torch
-        if isinstance(xp, PytorchFramework)
-        else (np if isinstance(xp, NumpyFramework) else sp)
-    )
-    monkeypatch.setattr(backend, "einsum", fail)
+    monkeypatch.setattr(einsum_backend, "einsum", fail)
     np.testing.assert_allclose(dense(xp, xp.einsum(expression, A=a, B=b)), expected)
 
 
@@ -168,59 +152,3 @@ def test_numpy_integer_bitwise_or_reduction():
     b = np.array([2, 4])
     result = xp.einsum("C[i] |= A[i,j] & B[j]", A=a, B=b)
     np.testing.assert_array_equal(result, np.bitwise_or.reduce(a & b, axis=1))
-
-
-@requires_torch
-def test_torch_native_einsum_preserves_gradients_and_promotes_dtype():
-    xp = PytorchFramework()
-    a = torch.randn(3, 4, dtype=torch.float32, requires_grad=True)
-    b = torch.randn(4, 2, dtype=torch.float64, requires_grad=True)
-    result = xp.einsum("C[row,col] += A[row,k] * B[k,col]", A=a, B=b)
-    expected = a.double() @ b
-    torch.testing.assert_close(result, expected)
-    gradients = torch.autograd.grad(result.sum(), (a, b))
-    expected_gradients = torch.autograd.grad(expected.sum(), (a, b))
-    for actual, reference in zip(gradients, expected_gradients, strict=True):
-        torch.testing.assert_close(actual, reference)
-
-
-@requires_torch
-def test_torch_sparse_einsum_keeps_interpreter(monkeypatch):
-    from saps_framework.einsum import Einsum
-
-    xp = PytorchFramework()
-    array = torch.eye(3).to_sparse()
-    sentinel = object()
-    calls = []
-
-    def fallback(parsed, framework, kwargs):
-        calls.append(kwargs["A"])
-        return sentinel
-
-    def fail(*args, **kwargs):
-        pytest.fail("Sparse operands must not enter the dense Torch fast path")
-
-    monkeypatch.setattr(Einsum, "run", fallback)
-    monkeypatch.setattr(torch, "einsum", fail)
-    monkeypatch.setattr(torch.Tensor, "to_dense", fail)
-    assert xp.einsum("C[i] += A[i,j]", A=array) is sentinel
-    assert calls == [array]
-
-
-@requires_torch
-def test_torch_native_einsum_is_compiled():
-    xp = PytorchFramework()
-    graphs = []
-
-    def backend(graph, inputs):
-        graphs.append(graph)
-        return graph.forward
-
-    a, b = torch.randn(3, 4), torch.randn(4, 2)
-    with torch._dynamo.config.patch(suppress_errors=False):
-        compiled = torch.compile(xp.einsum, backend=backend)
-        result = compiled("C[i,j] += A[i,k] * B[k,j]", A=a, B=b)
-    torch.testing.assert_close(result, a @ b)
-    assert torch.einsum in {
-        node.target for graph in graphs for node in graph.graph.nodes
-    }

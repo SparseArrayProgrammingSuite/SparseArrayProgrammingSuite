@@ -129,7 +129,7 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return ["standard"]
 
     @property
     def concepts(self) -> str:
@@ -429,7 +429,8 @@ class AMGBenchmark(Benchmark):
     @property
     def ai_disclosure(self) -> str:
         return (
-            "No generative AI was used to write the initial benchmark function, but AI was used to fix bugs in the implementation. "
+            "No generative AI was used to write the initial benchmark function,"
+            " but AI was used to fix bugs in the implementation. "
             "Generative AI was used to debug code. This statement was written by hand."
         )
 
