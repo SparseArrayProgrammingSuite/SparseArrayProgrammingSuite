@@ -8,10 +8,11 @@ every other name falls through to PyTorch through Scorch's module
 only conversion it provides back to PyTorch is ``STensor.to_torch()``, which
 yields a dense tensor.
 
-Install from source (PyPI's ``scorch`` is an unrelated package):
-``pip install --no-build-isolation git+https://github.com/bobbyyyan/scorch``;
-it builds a C++ extension against the installed torch and JIT-compiles kernels
-with a C++ compiler and OpenMP at run time.
+Install from an editable source checkout, as ``pixi run -e scorch
+install-scorch`` does (scripts/install_editable_git.py explains why; PyPI's
+``scorch`` is an unrelated package). It builds a C++ extension against the
+installed torch and JIT-compiles kernels with a C++ compiler and OpenMP at run
+time. Scorch has no GPU backend.
 """
 
 import array_api_compat.torch as torch_xp
@@ -57,16 +58,32 @@ def _is_sparse_tensor(array):
 
 # Scorch's code generator is built around float32: it has no float64 pointer
 # type or int64 workspaces, so float64 results can't leave Scorch and int64
-# kernels don't compile. Scorch's sparse kernels therefore run in float32, and
-# results are cast back to the dtype the Array API expects.
+# kernels don't compile. Scorch's generated sparse kernels therefore run in
+# float32, and results are cast back to the dtype the Array API expects.
 _KERNEL_DTYPE = torch.float32
+
+# Value dtypes of Scorch's prebuilt CSR matmul kernels (CSR times a dense
+# vector, a dense matrix or a CSR matrix; scorch/prebuilt_kernels.py), which
+# don't go through the code generator.
+_PREBUILT_CSR_DTYPES = frozenset(
+    {torch.float32, torch.float64, torch.int32, torch.int64}
+)
 
 
 def _to_torch(result):
-    """Scorch kernels may return an STensor; continue with PyTorch tensors."""
-    if isinstance(result, scorch.STensor):
-        return result.to_torch()
-    return result
+    """Scorch kernels may return an STensor; continue with dense PyTorch tensors.
+
+    STensor.to_torch() densifies with a generated kernel, which can't handle
+    float64, so PyTorch densifies the CSR results of the prebuilt kernels.
+    """
+    if not isinstance(result, scorch.STensor):
+        return result
+    if str(result.format) == "d,s" and result.storage.index.mode_order == [0, 1]:
+        crow_indices, col_indices = result.index.mode_indices[1]
+        return torch.sparse_csr_tensor(
+            crow_indices, col_indices, result.values, result.shape
+        ).to_dense()
+    return result.to_torch()
 
 
 class ScorchFramework(Framework):
@@ -243,6 +260,23 @@ class ScorchFramework(Framework):
         if not (_is_sparse_tensor(x1) or _is_sparse_tensor(x2)):
             return _to_torch(scorch.matmul(x1, x2))
         dtype = torch.promote_types(x1.dtype, x2.dtype)
+        if (
+            dtype in _PREBUILT_CSR_DTYPES
+            and x1.layout in {torch.sparse_coo, torch.sparse_csr}
+            and x1.ndim == 2
+            and (
+                (x2.layout == torch.strided and x2.ndim in {1, 2})
+                or (x2.layout in {torch.sparse_coo, torch.sparse_csr} and x2.ndim == 2)
+            )
+        ):
+            # Scorch's prebuilt kernels take CSR, so they run in dtype.
+            x1 = x1.to_sparse_csr().to(dtype)
+            x2 = (
+                x2.to(dtype)
+                if x2.layout == torch.strided
+                else x2.to_sparse_csr().to(dtype)
+            )
+            return _to_torch(scorch.matmul(x1, x2))
         result = scorch.matmul(x1.to(_KERNEL_DTYPE), x2.to(_KERNEL_DTYPE))
         return _to_torch(result).to(dtype)
 
