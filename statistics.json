@@ -9,7 +9,6 @@
               "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "statistics": [
-                "feature-dense",
                 "feature-hypersparse",
                 "feature-index-ops",
                 "feature-linalg-ops",
@@ -17991,7 +17990,6 @@
               "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "statistics": [
-                "feature-dense",
                 "feature-hypersparse",
                 "feature-index-ops",
                 "feature-linalg-ops",
@@ -25043,7 +25041,6 @@
               "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
               "statistics": [
-                "feature-dense",
                 "feature-hypersparse",
                 "feature-index-ops",
                 "feature-linalg-ops",
