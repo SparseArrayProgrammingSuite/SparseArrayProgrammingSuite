@@ -87,10 +87,10 @@ def test_sparse_inputs_are_canonical(module_name, class_name, param_name):
             continue
         coordinates = [np.asarray(axis, dtype=np.int64) for axis in coordinates]
         order = np.lexsort(coordinates[::-1])
-        assert (
-            order == np.arange(len(order))
-        ).all(), f"input {position} ({type(tensor).__name__}) is not sorted"
+        assert (order == np.arange(len(order))).all(), (
+            f"input {position} ({type(tensor).__name__}) is not sorted"
+        )
         repeated = np.all([axis[1:] == axis[:-1] for axis in coordinates], axis=0)
-        assert (
-            not repeated.any()
-        ), f"input {position} ({type(tensor).__name__}) repeats coordinates"
+        assert not repeated.any(), (
+            f"input {position} ({type(tensor).__name__}) repeats coordinates"
+        )
