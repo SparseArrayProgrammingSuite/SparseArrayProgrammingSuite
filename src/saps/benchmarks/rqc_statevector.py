@@ -88,10 +88,6 @@ class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
         return RQCStatevectorBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return RQCStatevectorBenchmark().motivation
-
-    @property
     def datasets(self) -> list[RQCStatevectorDataset]:
         return [
             # RQCStatevectorDataset(
@@ -282,10 +278,6 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
     @property
     def ai_disclosure(self) -> str:
         return RQCStatevectorBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return RQCStatevectorBenchmark().motivation
 
     @property
     def datasets(self) -> list[RQCStatevectorDataset]:
@@ -588,8 +580,8 @@ class RQCStatevectorBenchmark(Benchmark):
         return ""
 
     @property
-    def motivation(self) -> str:
-        return self.description
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

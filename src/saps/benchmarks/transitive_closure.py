@@ -76,7 +76,10 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic transitive closure examples."
+        return (
+            "Small deterministic transitive closure examples. Provide small "
+            "reachability examples for correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -100,10 +103,6 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small reachability examples for correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -231,7 +230,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for transitive closure benchmarks."
+        return "Boolean adjacency matrices."
 
     @property
     def suites(self) -> list[str]:
@@ -255,10 +254,6 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse directed graph inputs for transitive closure."
 
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
@@ -431,7 +426,10 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for transitive closure benchmarks."
+        return (
+            "Input GAP generator for transitive closure benchmarks. Generate GAP "
+            "directed graph inputs for transitive closure."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -466,10 +464,6 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP directed graph inputs for transitive closure."
 
     @property
     def cacheable(self) -> bool:
@@ -584,12 +578,10 @@ class TransitiveClosureBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes bounded-hop reachability by Boolean matrix squaring, starting"
-            " with the adjacency matrix and identity. A maximum-degree bound limits"
-            " the squaring count to keep output density at most 1% by default."
-            " Stops earlier at a fixed point; a density-limited result may be a"
-            " partial transitive closure. Inputs already above the bound receive"
-            " no squarings."
+            r"Computes bounded-hop reachability by squaring the adjacency matrix in "
+            r"the $(\lor,\land)$ semiring. A bound based on the maximum degree limits "
+            r"the number of squarings, keeping the output density at most 1\% by "
+            r"default."
         )
 
     @property
@@ -653,8 +645,8 @@ class TransitiveClosureBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def correctness(self) -> str:
+        return "Reachability is deterministic, so we check it exactly."
 
     @property
     def generators(self) -> list[Generator]:

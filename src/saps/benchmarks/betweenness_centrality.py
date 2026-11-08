@@ -181,7 +181,10 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
 
     @property
     def description(self) -> str:
-        return "Small deterministic betweenness centrality examples."
+        return (
+            "Small deterministic betweenness centrality examples. Provide small graph "
+            "examples for centrality correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -205,10 +208,6 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for centrality correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -353,10 +352,8 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
     @property
     def description(self) -> str:
         return (
-            "GAP-style betweenness centrality on SNAP graphs: 16 trials per graph,"
-            " each using four consecutive entries from the shell's 64 seeded"
-            " sources, preserving repeated vertices. Scores include source"
-            " dependencies and are normalized by their maximum."
+            r"Boolean adjacency matrices, with random sources as chosen by "
+            r"GAP~\cite{beamer_gap_2017}: 16 trials per graph of four sources each."
         )
 
     @property
@@ -373,7 +370,19 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+                key="beamer_gap_2017",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -381,10 +390,6 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse directed graph inputs for betweenness centrality."
 
     @property
     def cacheable(self) -> bool:
@@ -589,9 +594,10 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
     @property
     def description(self) -> str:
         return (
-            "GAP betweenness centrality: 16 trials per graph, with four published"
-            " sources per trial. Scores include source dependencies and are"
-            " normalized by their maximum, as in the GAP reference implementation."
+            "GAP betweenness centrality: 16 trials per graph, with four published "
+            "sources per trial. Scores include source dependencies and are normalized "
+            "by their maximum, as in the GAP reference implementation. Generate GAP "
+            "graph inputs for betweenness centrality."
         )
 
     @property
@@ -627,10 +633,6 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for betweenness centrality."
 
     @property
     def cacheable(self) -> bool:
@@ -751,18 +753,12 @@ class BetweennessCentralityBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "This code is based on the Brandes betweenness centrality algorithm. The "
-            "current code for the benchmark takes a two step approach. The first step "
-            "involves going layer by layer from each selected starting node to find "
-            "the total amount of shortest paths that lead to a node. So for example "
-            "4 -> 6 could have 3 diff shortest paths and 4 -> 2 could have only 1 "
-            "shortest path. The second step is for tracing backwards to see how many "
-            "times a node appears in other shortest paths. The number of times this "
-            "node is in one of the shortest path divided by total shortest paths "
-            "between the two edge nodes gets added to the intermediate nodes bc score. "
-            "GAP and SNAP cases use four sources per trial, include source "
-            "dependencies, and normalize by the maximum score. Small test cases "
-            "use all sources unless bc_sources is supplied."
+            "Computes betweenness centrality with Brandes' two-phase algorithm. The "
+            "first phase counts the shortest paths from each source with a "
+            "breadth-first search, adding up the path counts of each vertex's parents. "
+            "The second phase traces backward to count how often each vertex appears "
+            "on other shortest paths, and accumulates the scores. Scores include "
+            "source dependencies and are normalized by their maximum."
         )
 
     @property
@@ -833,6 +829,17 @@ class BetweennessCentralityBenchmark(Benchmark):
                 city="Philadelphia",
                 year=2011,
             ),
+            Ref(
+                title="The Accuracy of Floating Point Summation",
+                authors=[Author("Nicholas J. Higham")],
+                journal="SIAM Journal on Scientific Computing",
+                volume=14,
+                number=4,
+                pages="783-799",
+                year=1993,
+                doi="10.1137/0914050",
+                key="higham_accuracy_1993",
+            ),
         ]
 
     @property
@@ -844,8 +851,12 @@ class BetweennessCentralityBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def correctness(self) -> str:
+        return (
+            r"Path counts grow quickly, but every floating-point value stays positive, "
+            r"so for graph diameter $D$ and maximum degree $d$ we check scores to a "
+            r"relative error of $3dD^2\epsilon$~\cite{higham_accuracy_1993}."
+        )
 
     @property
     def generators(self) -> list[Generator]:

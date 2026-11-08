@@ -279,7 +279,11 @@ class _SimHashANNRandomGeneratorMixin(SimHashANNGeneratorMixin):
         return (
             "Generates Gaussian random data/query matrices with "
             f"{self.projection_kind} projections for approximate nearest-neighbor. "
-            f"{self.projection_description} {self.tuning_description}"
+            f"{self.projection_description} {self.tuning_description} "
+            "Random hyperplane hashing (SimHash) is a fundamental primitive "
+            "in locality-sensitive hashing and randomized numerical linear "
+            "algebra, used in many applications such as approximate nearest "
+            "neighbor search and near-duplicate detection."
         )
 
     @property
@@ -341,15 +345,6 @@ class _SimHashANNRandomGeneratorMixin(SimHashANNGeneratorMixin):
             "parameter calibration, and tests."
         )
 
-    @property
-    def motivation(self) -> str:
-        return (
-            "Random hyperplane hashing (SimHash) is a fundamental primitive "
-            "in locality-sensitive hashing and randomized numerical linear "
-            "algebra, used in many applications such as approximate nearest "
-            "neighbor search and near-duplicate detection."
-        )
-
     def generate(self, dataset: SimHashANNRandomDataset):
         rng = np.random.default_rng(dataset.seed)
         data = rng.standard_normal((dataset.n_samples, dataset.n_features))
@@ -362,7 +357,8 @@ class _SimHashANNTestGeneratorMixin(_SimHashANNRandomGeneratorMixin):
     def description(self) -> str:
         return (
             "Small SimHash approximate nearest-neighbor example. "
-            f"{self.projection_description} {self.tuning_description}"
+            f"{self.projection_description} {self.tuning_description} "
+            "Provide a small SimHash ANN example for benchmark correctness checks."
         )
 
     @property
@@ -372,10 +368,6 @@ class _SimHashANNTestGeneratorMixin(_SimHashANNRandomGeneratorMixin):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
-
-    @property
-    def motivation(self) -> str:
-        return "Provide a small SimHash ANN example for benchmark correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -563,7 +555,9 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
     def description(self) -> str:
         return (
             "Loads OpenML image datasets for SimHash approximate nearest-neighbor. "
-            f"{self.projection_description} {self.tuning_description}"
+            f"{self.projection_description} {self.tuning_description} "
+            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML "
+            "for approximate nearest-neighbor search."
         )
 
     @property
@@ -613,13 +607,6 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
-        return (
-            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML "
-            "for approximate nearest-neighbor search."
-        )
-
-    @property
     def cacheable(self) -> bool:
         return False
 
@@ -654,7 +641,9 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
     def description(self) -> str:
         return (
             "Loads Netflix Prize ratings for SimHash approximate nearest-neighbor. "
-            f"{self.projection_description} {self.tuning_description}"
+            f"{self.projection_description} {self.tuning_description} "
+            "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
+            f"ratings matrix, tested with {self.projection_kind} projections."
         )
 
     @property
@@ -689,13 +678,6 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
             "Generative AI implemented the SimHash redesign and assisted "
             "with debugging array dimensions, generator refactoring, "
             "parameter calibration, and tests."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
-            f"ratings matrix, tested with {self.projection_kind} projections."
         )
 
     @property
@@ -1306,9 +1288,13 @@ class SimHashANNBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Matches SimHash signatures across LSH tables on a shrinking "
-            "prefix of signs until enough candidates are found, then ranks "
-            "them by cosine distance in the original space."
+            "Matches SimHash signatures across LSH tables on a shrinking prefix of "
+            "signs until enough candidates are found, then ranks them by cosine "
+            "distance in the original space. The purpose of this is to create python "
+            "tests that are for RLA methods. Specifically, I will first show the "
+            "application of random hyperplane hashing (SimHash) for NN. My goal is to "
+            "write benchmarks on applications of RNLA, for graph algorithms, PDEs, and "
+            "Scientific Machine Learning"
         )
 
     @property
@@ -1446,14 +1432,8 @@ Nearest neighbor algorithms</concept_desc>
         )
 
     @property
-    def motivation(self):
-        return (
-            "The purpose of this is to create python tests that are for RLA methods. "
-            "Specifically, I will first show the application of random hyperplane "
-            "hashing (SimHash) for NN. My goal is to write benchmarks on "
-            "applications of RNLA, for graph algorithms, PDEs, and Scientific "
-            "Machine Learning"
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

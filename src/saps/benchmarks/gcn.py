@@ -183,7 +183,10 @@ class GCNTestGenerator(Generator[GCNDataset]):
 
     @property
     def description(self) -> str:
-        return "Small inlined GCN forward-pass examples."
+        return (
+            "Small inlined GCN forward-pass examples. Uses small graph examples to "
+            "verify the GCN forward pass."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -204,10 +207,6 @@ class GCNTestGenerator(Generator[GCNDataset]):
     @property
     def ai_disclosure(self) -> str:
         return GCNBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return "Uses small graph examples to verify the GCN forward pass."
 
     @property
     def cacheable(self) -> bool:
@@ -304,7 +303,18 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
 
     @property
     def description(self) -> str:
-        return "Generates random weights for a 2-layer Graph Convolutional Network."
+        return (
+            "Generates random weights for a 2-layer Graph Convolutional Network. "
+            "Graphs are widely used for abstracting systems of interacting objects, "
+            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel "
+            "et al., 2015), molecular graphs (Wu et al., 2018), and biological "
+            "networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects "
+            "(Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and "
+            "source code (Allamanis et al., 2017). Machine learning (ML), especially "
+            "deep learning, on graphs is an emerging field (Hamilton et al., 2017b; "
+            "Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny "
+            "matrix is used, which is inherently sparse."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -360,20 +370,6 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
             "No generative AI was used to construct the benchmark function itself."
             " Generative AI might have been used to construct tests. This statement was"
             " written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Graphs are widely used for abstracting systems of interacting objects,"
-            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
-            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
-            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
-            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
-            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
-            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
-            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
-            " matrix is used, which is inherently sparse."
         )
 
     @property
@@ -535,7 +531,13 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
 
     @property
     def description(self) -> str:
-        return "Loads full OGB node-property graphs for 2-layer GCN inference."
+        return (
+            "Loads full OGB node-property graphs for 2-layer GCN inference. Uses "
+            "complete real-world node features and graph structure from the Open Graph "
+            "Benchmark instead of synthesized GCN inputs. SAPS caches the exact "
+            "float64 reference output, which is costly to compute on these large "
+            "graphs, apart from the inputs the OGB shell already caches."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -559,15 +561,6 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
             "No generative AI was used to construct the benchmark function itself. "
             "Generative AI was used to help implement and audit the OGB downloader, "
             "input generator, tests, documentation, and debugging."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Uses complete real-world node features and graph structure from the "
-            "Open Graph Benchmark instead of synthesized GCN inputs. SAPS caches the "
-            "exact float64 reference output, which is costly to compute on these "
-            "large graphs, apart from the inputs the OGB shell already caches."
         )
 
     @property
@@ -695,10 +688,18 @@ class GCNBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Computes a 2-layer Graph Convolutional Network forward pass: "
-            "h1 = ReLU(adjacency @ features @ weights1 + bias1) "
-            "output = adjacency @ h1 @ weights2 + bias2 "
-            "Implementation based on Scorch (Yan et al., 2024)."
+            "Computes a 2-layer Graph Convolutional Network forward pass: h1 = "
+            "ReLU(adjacency @ features @ weights1 + bias1) output = adjacency @ h1 @ "
+            "weights2 + bias2 Implementation based on Scorch (Yan et al., 2024). "
+            "Graphs are widely used for abstracting systems of interacting objects, "
+            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel "
+            "et al., 2015), molecular graphs (Wu et al., 2018), and biological "
+            "networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects "
+            "(Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and "
+            "source code (Allamanis et al., 2017). Machine learning (ML), especially "
+            "deep learning, on graphs is an emerging field (Hamilton et al., 2017b; "
+            "Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny "
+            "matrix is used, which is inherently sparse."
         )
 
     @property
@@ -784,18 +785,8 @@ class GCNBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Graphs are widely used for abstracting systems of interacting objects,"
-            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
-            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
-            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
-            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
-            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
-            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
-            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
-            " matrix is used, which is inherently sparse."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

@@ -140,8 +140,8 @@ class ModelCountingTestGenerator(
     @property
     def description(self) -> str:
         return (
-            "Parses standard DIMACS CNF test strings into sparse arrays for model"
-            " counting."
+            "Parses standard DIMACS CNF test strings into sparse arrays for model "
+            "counting. Uses a predefined set of formulas to verify correctness."
         )
 
     @property
@@ -164,10 +164,6 @@ class ModelCountingTestGenerator(
     def ai_disclosure(self) -> str:
         return """No generative AI was used to write the benchmark function itself.
         Generative AI was used to debug code. This statement was written by hand."""
-
-    @property
-    def motivation(self) -> str:
-        return "Uses a predefined set of formulas to verify correctness."
 
     @property
     def cacheable(self) -> bool:
@@ -305,7 +301,9 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
     def description(self) -> str:
         return (
             "Downloads and parses DIMACS CNF instances from the Model Counting "
-            "Competition test-instance repository."
+            "Competition test-instance repository. Model counting competition "
+            "instances provide standard CNF inputs for evaluating exact, projected, "
+            "weighted, and algebraic counting workloads."
         )
 
     @property
@@ -333,14 +331,6 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to implement this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Model counting competition instances provide standard CNF inputs "
-            "for evaluating exact, projected, weighted, and algebraic counting "
-            "workloads."
-        )
 
     @property
     def datasets(self) -> list[MCCompDataset]:
@@ -418,7 +408,11 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
 
     @property
     def description(self) -> str:
-        return "Loads exact model counting CNF instances from MCComp Track1."
+        return (
+            "Loads exact model counting CNF instances from MCComp Track1. Track1 "
+            "instances have exact integer model counts, so they can be run by the "
+            "existing unweighted model-counting einsum benchmark."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -439,13 +433,6 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to implement this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Track1 instances have exact integer model counts, so they can be "
-            "run by the existing unweighted model-counting einsum benchmark."
-        )
 
     @property
     def datasets(self) -> list[MCCompDataset]:
@@ -543,7 +530,11 @@ class ModelCountingBenchmark(Benchmark):
 
     @property
     def description(self):
-        return "Benchmarks Model Counting Algorithm using einsum operations."
+        return (
+            "Benchmarks Model Counting Algorithm using einsum operations. Model "
+            "Counting is used to determine the total number of satisfying assignments "
+            "for a SAT problem."
+        )
 
     @property
     def suites(self):
@@ -585,11 +576,8 @@ class ModelCountingBenchmark(Benchmark):
             Generative AI was used to debug code. This statement was written by hand."""
 
     @property
-    def motivation(self):
-        return (
-            "Model Counting is used to determine the total number of satisfying"
-            " assignments for a SAT problem."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self) -> list[Generator[Any]]:

@@ -164,10 +164,6 @@ class JLKMeansTestGenerator(Generator[JLKMeansTestDataset]):
         return JLKMeansBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return JLKMeansBenchmark().motivation
-
-    @property
     def cacheable(self) -> bool:
         return False
 
@@ -308,7 +304,11 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
 
     @property
     def description(self) -> str:
-        return "Loads OpenML image datasets for RP k-means clustering."
+        return (
+            "Loads OpenML image datasets for RP k-means clustering. MNIST and CIFAR-10 "
+            "provide dense image feature matrices from OpenML. k = 10 aligns with the "
+            "ten classes in each dataset."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -358,13 +358,6 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to implement this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML. "
-            "k = 10 aligns with the ten classes in each dataset."
-        )
 
     @property
     def cacheable(self) -> bool:
@@ -471,7 +464,10 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
 
     @property
     def description(self) -> str:
-        return "Loads Netflix Prize ratings for RP k-means clustering."
+        return (
+            "Loads Netflix Prize ratings for RP k-means clustering. The Netflix Prize "
+            "dataset provides a ~480K users × 17,770 movies sparse ratings matrix."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -499,13 +495,6 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "No generative AI was used to implement benchmark functions."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
-            "ratings matrix."
-        )
 
     @property
     def datasets(self) -> list[JLKMeansDataset]:
@@ -613,15 +602,15 @@ class JLKMeansBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "Labels points into k clusters."
+        return (
+            "Labels points into k clusters. Random Projections reduce dimensionality "
+            "for k-means clustering. Input points can be high-dimensional and sparse, "
+            "which are then projected on a random matrix."
+        )
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Random Projections reduce dimensionality for k-means clustering. Input"
-            " points can be high-dimensional and sparse, which are then projected on a"
-            " random matrix."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def references(self) -> list[Ref]:

@@ -66,7 +66,10 @@ class MatrixVectorMultiplicationDenseGenerator(Generator):
 
     @property
     def description(self) -> str:
-        return "Dense input generator for matrix-vector multiplication."
+        return (
+            "Dense input generator for matrix-vector multiplication. Generate dense "
+            "matrices for matrix-vector multiplication."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -90,10 +93,6 @@ class MatrixVectorMultiplicationDenseGenerator(Generator):
             "No generative AI was used to write the benchmark function itself. "
             "Generative AI was used to debug code. This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate dense matrices for matrix-vector multiplication."
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -222,9 +221,14 @@ class MatrixVectorMultiplicationSuiteSparseGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Sparse input generator for sparse matrix-vector multiplication,"
-            " drawing real matrices from the SuiteSparse Matrix Collection"
-            " across a range of application domains."
+            "Sparse input generator for sparse matrix-vector multiplication, drawing "
+            "real matrices from the SuiteSparse Matrix Collection across a range of "
+            "application domains. Generate real sparse matrices for matrix-vector "
+            "multiplication, using the benchmark suite of Vuduc's SpMV autotuning "
+            "study: 26 of its 28 matrices, spanning fluid dynamics, structural, "
+            "materials, chemical process, economic, circuit and semiconductor "
+            "problems. `bai` and `vavasis3` are omitted because SuiteSparse does not "
+            "carry them under those names."
         )
 
     @property
@@ -293,17 +297,6 @@ class MatrixVectorMultiplicationSuiteSparseGenerator(Generator):
             "Generative AI was not used to write the benchmark function. "
             "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate real sparse matrices for matrix-vector multiplication, "
-            "using the benchmark suite of Vuduc's SpMV autotuning study: 26 of "
-            "its 28 matrices, spanning fluid dynamics, structural, materials, "
-            "chemical process, economic, circuit and semiconductor problems. "
-            "`bai` and `vavasis3` are omitted because SuiteSparse does not "
-            "carry them under those names."
         )
 
     @property
@@ -403,8 +396,10 @@ class MatrixVectorMultiplicationUniformRandomGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Generates a pair of uniform random sparse matrices for sparse "
-            "general matrix-matrix multiplication (SpGEMM) at a range of densities."
+            "Generates a pair of uniform random sparse matrices for sparse general "
+            "matrix-matrix multiplication (SpGEMM) at a range of densities. Generate "
+            "uniform random sparse matrices for matrix-vector multiplication over a "
+            "range of densities. The density values are just a synthetic sweep."
         )
 
     @property
@@ -428,14 +423,6 @@ class MatrixVectorMultiplicationUniformRandomGenerator(Generator):
         return (
             "Generative AI was not used to write the benchmark function. "
             "This statement was written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate uniform random sparse matrices for matrix-vector "
-            "multiplication over a range of densities. The density values are "
-            "just a synthetic sweep."
         )
 
     @property
@@ -493,15 +480,16 @@ class MatrixVectorMultiplicationBenchmark(Benchmark):
         return "Matrix-Vector Multiplication"
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Matrix-vector multiplication is the key operator in linear algebra"
-            "and it is widely used in almost every sparse array application. "
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def description(self) -> str:
-        return "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j"
+        return (
+            "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j. "
+            "Matrix-vector multiplication is the key operator in linear algebraand it "
+            "is widely used in almost every sparse array application."
+        )
 
     @property
     def suites(self) -> list[str]:

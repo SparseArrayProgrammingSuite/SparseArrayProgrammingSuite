@@ -286,10 +286,6 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
         )
 
     @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
     def datasets(self) -> list[CCSDDataset]:
         return [
             CCSDDataset(
@@ -347,8 +343,16 @@ class CCSDBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Computes T1 and T2 amplitudes for CCSD. Ported from the CTF (Cyclops"
-            " Tensor Framework) CCSD reference implementation"
+            "Computes T1 and T2 amplitudes for CCSD. Ported from the CTF (Cyclops "
+            "Tensor Framework) CCSD reference implementation. Coupled cluster theory "
+            "is one of the most accurate and widely used methods in quantum chemistry "
+            "for computing ground-state energies of molecular systems. The "
+            "two-electron integral tensors (Vabef, Vabij, etc.) are antisymmetric, "
+            "which means roughly 3/4 of entries are redundant. Exploiting this "
+            "antisymmetry reduces both storage and compute by up to 8x for 4-index "
+            "tensors. Here antisymmetry means swapping an antisymmetric index pair "
+            "flips the sign, for example T[a,b,i,j] = -T[b,a,i,j] and T[a,b,i,j] = "
+            "-T[a,b,j,i]."
         )
 
     @property
@@ -408,18 +412,8 @@ class CCSDBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Coupled cluster theory is one of the most accurate and widely "
-            "used methods in quantum chemistry for computing ground-state "
-            "energies of molecular systems. The two-electron integral tensors "
-            "(Vabef, Vabij, etc.) are antisymmetric, which means roughly 3/4 "
-            "of entries are redundant. Exploiting this antisymmetry reduces "
-            "both storage and compute by up to 8x for 4-index tensors. "
-            "Here antisymmetry means swapping an antisymmetric index pair flips "
-            "the sign, for example T[a,b,i,j] = -T[b,a,i,j] and "
-            "T[a,b,i,j] = -T[a,b,j,i]."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

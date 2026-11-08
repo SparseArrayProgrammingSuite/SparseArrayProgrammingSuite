@@ -111,8 +111,14 @@ class SDDMMSuiteSparseGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Input generator for SDDMM, sampling a dense product at the nonzero"
-            " pattern of a real graph from the SuiteSparse Matrix Collection."
+            "Input generator for SDDMM, sampling a dense product at the nonzero "
+            "pattern of a real graph from the SuiteSparse Matrix Collection. Generate "
+            "real sparse matrices for SDDMM, sampling the dense product at the nonzero "
+            "pattern of a graph. Bharadwaj et al. name graph neural networks with "
+            "self-attention as one of SDDMM's two applications and run real matrices "
+            "at an embedding width of 128, the value used here; their own matrices "
+            "hold hundreds of millions of nonzeros, so the graphs themselves are "
+            "selected here."
         )
 
     @property
@@ -163,17 +169,6 @@ class SDDMMSuiteSparseGenerator(Generator):
             "Generative AI was used to debug code. Generative AI might be used "
             "for dataset collecting and parsing. This statement was written by "
             "hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate real sparse matrices for SDDMM, sampling the dense "
-            "product at the nonzero pattern of a graph. Bharadwaj et al. name "
-            "graph neural networks with self-attention as one of SDDMM's two "
-            "applications and run real matrices at an embedding width of 128, "
-            "the value used here; their own matrices hold hundreds of millions "
-            "of nonzeros, so the graphs themselves are selected here."
         )
 
     @property
@@ -330,8 +325,10 @@ class SDDMMUniformRandomGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Generates SDDMM inputs with a uniform random sparse sampling matrix "
-            "at a range of densities."
+            "Generates SDDMM inputs with a uniform random sparse sampling matrix at a "
+            "range of densities. Generate Erdos-Renyi sampling matrices for SDDMM, the "
+            "synthetic workload Bharadwaj et al. use, swept over their range of "
+            "nonzeros per row so that row occupancy rather than matrix size varies."
         )
 
     @property
@@ -371,14 +368,6 @@ class SDDMMUniformRandomGenerator(Generator):
             "No generative AI was used to write the benchmark function. "
             "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written manually."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate Erdos-Renyi sampling matrices for SDDMM, the synthetic "
-            "workload Bharadwaj et al. use, swept over their range of nonzeros "
-            "per row so that row occupancy rather than matrix size varies."
         )
 
     @property
@@ -444,16 +433,16 @@ class SDDMMBenchmark(Benchmark):
         return "Sampled Dense-Dense Matrix Multiplication (SDDMM)"
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Sampled matrix multiplication is a performant core primitive"
-            "for machine learning algorithms like ALS, Sparse Factor Analysis,"
-            " and Graph Neural Networks."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def description(self) -> str:
-        return "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk"
+        return (
+            "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk. Sampled "
+            "matrix multiplication is a performant core primitivefor machine learning "
+            "algorithms like ALS, Sparse Factor Analysis, and Graph Neural Networks."
+        )
 
     @property
     def suites(self) -> list[str]:

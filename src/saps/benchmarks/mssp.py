@@ -144,7 +144,10 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic Multi-Source Shortest Paths examples."
+        return (
+            "Small deterministic Multi-Source Shortest Paths examples. Provide small "
+            "graph examples for shortest-path correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -168,10 +171,6 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for shortest-path correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -457,10 +456,6 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
         )
 
     @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
     def datasets(self) -> list[MSSPDataset]:
         # fmt: off
         return [
@@ -570,8 +565,8 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
     @property
     def description(self) -> str:
         return (
-            "SNAP input generator for multi-source shortest paths, with"
-            " the SNAP shell's seeded sources for each graph, deduplicated."
+            r"Random sources and weights as chosen by GAP~\cite{beamer_gap_2017}, "
+            r"searching from all 64 sources per graph at once (deduplicated)."
         )
 
     @property
@@ -588,7 +583,19 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+                key="beamer_gap_2017",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -596,10 +603,6 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate unweighted SNAP graph inputs for multi-source shortest paths."
 
     @property
     def cacheable(self) -> bool:
@@ -765,9 +768,9 @@ class MSSPBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes shortest paths from a list of source vertices to every vertex"
-            " in a weighted directed graph by repeated min-plus relaxation of a"
-            " source-by-vertex distance matrix."
+            r"Computes shortest paths from a list of source vertices to every vertex "
+            r"in a directed graph by repeated $(\min,+)$ relaxation of a "
+            r"source-by-vertex distance matrix."
         )
 
     @property
@@ -832,12 +835,12 @@ class MSSPBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return (
-            "Sparse graphs reduce unnecessary computation, as most entries in the"
-            " adjacency matrix represent non-edges and begin as inifinity. Efficient"
-            " sparse representations allow the backend framework to skip work and"
-            " minimize memory movement during the relaxation steps of the algorithm."
+            "Weights are random integers from 1 to 255 and distances use integer "
+            "arithmetic, so we check distances exactly. This allows ``active set'' "
+            "optimizations, which turn each relaxation into a sparse-sparse matrix "
+            "product."
         )
 
     @property

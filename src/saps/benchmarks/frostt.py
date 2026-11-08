@@ -337,11 +337,14 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
     @property
     def description(self) -> str:
         return (
-            "Downloads and caches raw tensors from FROSTT (the Formidable Repository"
-            " of Open Sparse Tensors and Tools, frostt.io). Benchmark-specific"
-            " generators compose this generator instead of downloading tensors"
-            " themselves, so a tensor used by multiple benchmarks is only"
-            " downloaded, cached, and uploaded once."
+            "Downloads and caches raw tensors from FROSTT (the Formidable Repository "
+            "of Open Sparse Tensors and Tools, frostt.io). Benchmark-specific "
+            "generators compose this generator instead of downloading tensors "
+            "themselves, so a tensor used by multiple benchmarks is only downloaded, "
+            "cached, and uploaded once. Many tensor-decomposition benchmarks reuse the "
+            "same FROSTT tensors. Sharing a single cacheable generator for the raw "
+            "download avoids redundant downloads and redundant cached copies of the "
+            "same tensor."
         )
 
     @property
@@ -382,14 +385,6 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
         return (
             "This generator and its downloader were written by a generative AI"
             " assistant (Claude) at the user's direction."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Many tensor-decomposition benchmarks reuse the same FROSTT tensors."
-            " Sharing a single cacheable generator for the raw download avoids"
-            " redundant downloads and redundant cached copies of the same tensor."
         )
 
     @property

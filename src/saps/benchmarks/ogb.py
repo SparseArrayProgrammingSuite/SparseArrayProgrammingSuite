@@ -80,7 +80,11 @@ class OGBGraphGenerator(Generator[OGBDataset]):
         return (
             "Downloads, prepares, and caches homogeneous Open Graph Benchmark "
             "node-property datasets. Benchmark-specific generators compose this "
-            "generator so each OGB graph is downloaded and cached once."
+            "generator so each OGB graph is downloaded and cached once. Large OGB "
+            "graphs can be reused by several graph-learning benchmarks. Sharing a "
+            "cacheable generator for the prepared source graph avoids redundant "
+            "downloads while allowing child benchmark generators to keep their "
+            "benchmark-specific inputs uncached."
         )
 
     @property
@@ -123,15 +127,6 @@ class OGBGraphGenerator(Generator[OGBDataset]):
             "No generative AI was used to construct the source datasets. Generative "
             "AI was used to help implement and audit the OGB downloader, input "
             "generator, tests, documentation, and debugging."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Large OGB graphs can be reused by several graph-learning benchmarks. "
-            "Sharing a cacheable generator for the prepared source graph avoids "
-            "redundant downloads while allowing child benchmark generators to keep "
-            "their benchmark-specific inputs uncached."
         )
 
     @property

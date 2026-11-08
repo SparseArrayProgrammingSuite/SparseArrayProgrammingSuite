@@ -613,10 +613,6 @@ dydt_vector = (Vs - state) / tau
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
     def datasets(self) -> list[ODERCDataset]:
         return [
             ODERCDataset(
@@ -694,10 +690,6 @@ dydt_vector = xp.stack([dVc, d2Vc])
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
     def datasets(self) -> list[ODERLCDataset]:
         return [
             ODERLCDataset(
@@ -772,10 +764,6 @@ dydt_vector = xp.stack([dxdt, dydt])
     @property
     def ai_disclosure(self) -> str:
         return _AI_DISCLOSURE
-
-    @property
-    def motivation(self) -> str:
-        return ""
 
     @property
     def datasets(self) -> list[ODELotkaVolterraDataset]:
@@ -860,10 +848,6 @@ dydt_vector = lin + non_lin
     @property
     def ai_disclosure(self) -> str:
         return _AI_DISCLOSURE
-
-    @property
-    def motivation(self) -> str:
-        return ""
 
     @property
     def datasets(self) -> list[ODEBrusselatorDataset]:
@@ -964,7 +948,9 @@ dydt_vector = A @ state + B @ input_array
         return (
             "Loads SLICOT model-reduction problems without explicit E matrices, "
             "preserving stored sparse matrices, treating E as the identity, and "
-            "defaulting missing B to a normalized single-input vector."
+            "defaulting missing B to a normalized single-input vector. SLICOT "
+            "model-reduction examples provide realistic linear dynamical systems for "
+            "ODE integration benchmarks."
         )
 
     @property
@@ -995,13 +981,6 @@ dydt_vector = A @ state + B @ input_array
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to implement this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "SLICOT model-reduction examples provide realistic linear dynamical "
-            "systems for ODE integration benchmarks."
-        )
 
     @property
     def datasets(self) -> list[ODESLICOTDataset]:
@@ -1180,7 +1159,7 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return ""
 
     @abstractmethod

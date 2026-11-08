@@ -467,8 +467,9 @@ class GAPGraphGenerator(Generator[GAPDataset]):
     @property
     def description(self) -> str:
         return (
-            "Shared GAP adjacency matrices from the SuiteSparse Matrix Collection,"
-            " with their maximum degrees and published source vertices."
+            "Shared GAP adjacency matrices from the SuiteSparse Matrix Collection, "
+            "with their maximum degrees and published source vertices. Reuse prepared "
+            "SuiteSparse GAP matrices across graph benchmarks."
         )
 
     @property
@@ -501,10 +502,6 @@ class GAPGraphGenerator(Generator[GAPDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "This shell generator was written with assistance from Claude."
-
-    @property
-    def motivation(self) -> str:
-        return "Reuse prepared SuiteSparse GAP matrices across graph benchmarks."
 
     @property
     def datasets(self) -> list[GAPDataset]:

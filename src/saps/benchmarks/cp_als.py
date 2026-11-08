@@ -98,10 +98,6 @@ class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
         )
 
     @property
-    def motivation(self):
-        return ""
-
-    @property
     def references(self):
         return []
 
@@ -358,9 +354,12 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
     @property
     def description(self):
         return (
-            "Real sparse tensors downloaded from FROSTT (frostt.io), factorized"
-            " directly. Sparse residual checks validate the approximation without"
-            " constructing the full dense tensor."
+            "Real sparse tensors downloaded from FROSTT (frostt.io), factorized "
+            "directly. Sparse residual checks validate the approximation without "
+            "constructing the full dense tensor. Real sparse tensors from FROSTT "
+            "exercise CP-ALS's MTTKRP kernel against genuinely irregular sparsity "
+            "patterns, unlike the synthetic low-rank-by-construction tensors generated "
+            "elsewhere in this file."
         )
 
     @property
@@ -403,14 +402,6 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
             " predates this generator. This generator and its FROSTT data-fetching"
             " were written by a generative AI assistant (Claude) at the user's"
             " direction."
-        )
-
-    @property
-    def motivation(self):
-        return (
-            "Real sparse tensors from FROSTT exercise CP-ALS's MTTKRP kernel against"
-            " genuinely irregular sparsity patterns, unlike the synthetic"
-            " low-rank-by-construction tensors generated elsewhere in this file."
         )
 
     @property
@@ -530,11 +521,24 @@ class CPALSBenchmark(Benchmark):
     def description(self):
         return (
             "Computes the CP decomposition using Alternating Least Squares (ALS). "
-            "Factorizes an N-D tensor X into factor matrices such that: "
-            "$X \\approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r "
-            "\\circ ...$ where $\\circ$ denotes the outer product, R is the rank, "
-            "and $\\lambda$ are the weights. Handwritten code based on the standard "
-            "CP-ALS algorithm from Kolda and Bader (2009). "
+            "Factorizes an N-D tensor X into factor matrices such that: $X \\approx "
+            "\\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r \\circ ...$ where "
+            "$\\circ$ denotes the outer product, R is the rank, and $\\lambda$ are the "
+            "weights. Handwritten code based on the standard CP-ALS algorithm from "
+            "Kolda and Bader (2009). The Alternating Least Squares (ALS) algorithm for "
+            "CANDECOMP/PARAFAC (CP) plays a critical role in tensor decomposition, "
+            "which has applications in various fields such as signal processing, "
+            "pscyhometrics, neuroscience, and graph analysis. Within the ALS "
+            "algorithm, the Matricized-Tensor Times Khatri-Rao Product (MTTKRP) "
+            "operation is a computationally intensive step that often dominates the "
+            "overall runtime. Efficiently implementing MTTKRP is crucial for the "
+            "performance of the ALS algorithm. The input tensor is sparse, and the ALS "
+            "algorithm takes advantage of this sparsity through its MTTKRP kernel, "
+            "which process only the non-zero elements of the tensor. For sparse "
+            "tensors with nnz << I * J * K, the complexity reduces from O(I * J * K * "
+            "R) to O(nnz * R), where nnz is the number of non-zero elements in the "
+            "tensor and R is the decomposition rank. This makes it practical to work "
+            "with large-scale applications."
         )
 
     @property
@@ -610,22 +614,8 @@ class CPALSBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return (
-            "The Alternating Least Squares (ALS) algorithm for CANDECOMP/PARAFAC (CP)"
-            " plays a critical role in tensor decomposition, which has applications in"
-            " various fields such as signal processing, pscyhometrics, neuroscience,"
-            " and graph analysis. Within the ALS algorithm, the Matricized-Tensor Times"
-            " Khatri-Rao Product (MTTKRP) operation is a computationally intensive step"
-            " that often dominates the overall runtime. Efficiently implementing MTTKRP"
-            " is crucial for the performance of the ALS algorithm. The input tensor is"
-            " sparse, and the ALS algorithm takes advantage of this sparsity through"
-            " its MTTKRP kernel, which process only the non-zero elements of the"
-            " tensor. For sparse tensors with nnz << I * J * K, the complexity reduces"
-            " from O(I * J * K * R) to O(nnz * R), where nnz is the number of non-zero"
-            " elements in the tensor and R is the decomposition rank. This makes it"
-            " practical to work with large-scale applications."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

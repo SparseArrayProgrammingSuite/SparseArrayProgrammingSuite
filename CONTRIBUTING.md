@@ -38,7 +38,7 @@ A complete benchmark contribution includes:
 - A benchmark function: the sparse array program being measured.
 - One or more generators: deterministic ways to produce inputs for that benchmark.
 - Datasets: named generator configurations representing specific benchmark runs.
-- Metadata: authors, references, motivation, concepts, suites, and AI disclosure.
+- Metadata: a description, a correctness note (benchmarks only), authors, references, concepts, suites, and AI disclosure.
 - Correctness tests: evidence that the benchmark computes the intended result.
 - A rationale: evidence that the problem and selected data are representative or useful.
 
@@ -143,6 +143,8 @@ Prefer tests that exercise edge cases: empty inputs, singletons, disconnected gr
 ## Metadata, Tags, And Concepts
 
 Datasets represent one run of a benchmark. Generators group similar data-generation logic. Benchmarks are the algorithms being run.
+
+Each `description` says what the benchmark, generator, or dataset is and why it matters. A benchmark's `correctness` says how `check` decides an output is right, and which optimizations that leaves open to frameworks. Both are LaTeX, since they go into the SAPS paper's tables: write math as `$...$`, and quote with ``` `` ``` and `''`. To cite a work, give its `Ref` a BibTeX `key` and write `\cite{key}`; the key must belong to one of the record's own `references`, or its generator's for a dataset (`tests/test_cite_keys.py` checks this). Use the same key for a work everywhere it appears.
 
 Tags can be applied to datasets, generators, or benchmarks. If a generator or benchmark is tagged, its datasets inherit that tag.
 

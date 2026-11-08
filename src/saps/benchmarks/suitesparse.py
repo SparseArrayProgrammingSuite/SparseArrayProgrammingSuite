@@ -628,10 +628,13 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
     @property
     def description(self) -> str:
         return (
-            "Downloads and caches raw matrices from the SuiteSparse Matrix Collection."
-            " Benchmark-specific generators compose this generator instead of"
-            " downloading matrices themselves, so a matrix used by multiple benchmarks"
-            " is only downloaded, cached, and uploaded once."
+            "Downloads and caches raw matrices from the SuiteSparse Matrix Collection. "
+            "Benchmark-specific generators compose this generator instead of "
+            "downloading matrices themselves, so a matrix used by multiple benchmarks "
+            "is only downloaded, cached, and uploaded once. Many benchmarks reuse the "
+            "same SuiteSparse matrices. Sharing a single cacheable generator for the "
+            "raw download avoids redundant downloads and redundant cached copies of "
+            "the same matrix."
         )
 
     @property
@@ -672,14 +675,6 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
             "No generative AI was used to write the algorithms for the benchmark"
             " function. Generative AI might have been used to construct the framework,"
             " comments and helper functions."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Many benchmarks reuse the same SuiteSparse matrices. Sharing a single"
-            " cacheable generator for the raw download avoids redundant downloads and"
-            " redundant cached copies of the same matrix."
         )
 
     @property

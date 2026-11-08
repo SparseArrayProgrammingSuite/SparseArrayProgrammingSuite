@@ -104,10 +104,12 @@ class _FiniteDifferenceGeneratorMixin:
     @property
     def description(self) -> str:
         return (
-            "The finite difference generator uses a finite difference grid of"
-            "500 by 500 cells, matching roughly the scale of a"
+            "The finite difference generator uses a finite difference grid of "
+            "500 by 500 cells, matching roughly the scale of a "
             "real finite difference problem, Norris/torso3 from UF Matrix Collection,"
-            f" using the {_FLUX_PRETTY_NAMES[self.flux_name]} flux function."
+            f" using the {_FLUX_PRETTY_NAMES[self.flux_name]} flux function. "
+            "For linear advection, updates are done using a sparse matrix "
+            "representation, to updates the spatial coordinates for time t."
         )
 
     @property
@@ -148,13 +150,6 @@ class _FiniteDifferenceGeneratorMixin:
             "No generative AI was used to construct the benchmark function itself."
             " Generative AI might have been used to construct tests. This statement was"
             " written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "For linear advection, updates are done using a sparse matrix"
-            " representation, to updates the spatial coordinates for time t."
         )
 
 
@@ -370,23 +365,22 @@ class _FiniteDifferenceBenchmarkMixin:
         )
 
     @property
-    def motivation(self) -> str:
+    def description(self) -> str:
         return (
-            "Updates are done using a matrix representation, to updates"
-            " the spatial coordinates for time t."
+            "The purpose of this is to analyze the importance of numerical methods for "
+            "PDEs, and applications sparse array theory into these method, through the "
+            "form of benchmarks. This paticular benchmark analyzes the use of the "
+            "Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with "
+            "numerical stability and accuracy not seen in FTCS. This benchmark will "
+            "run a simulation using both Lax–Friedrichs and analyze core concepts such "
+            "as numerical stability, conservation law consistency, etc. Updates are "
+            "done using a matrix representation, to updates the spatial coordinates "
+            "for time t."
         )
 
     @property
-    def description(self) -> str:
-        return (
-            "The purpose of this is to analyze the importance of numerical methods for"
-            " PDEs, and applications sparse array theory into these method, through the"
-            " form of benchmarks. This paticular benchmark analyzes the use of the"
-            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
-            " numerical stability and accuracy not seen in FTCS. This benchmark will"
-            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
-            " as numerical stability, conservation law consistency, etc."
-        )
+    def correctness(self) -> str:
+        return ""
 
 
 class FiniteDifference1DBenchmark(_FiniteDifferenceBenchmarkMixin, Benchmark):

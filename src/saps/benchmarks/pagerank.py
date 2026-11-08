@@ -109,7 +109,10 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic PageRank examples."
+        return (
+            "Small deterministic PageRank examples. Provide small graph examples for "
+            "PageRank correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -133,10 +136,6 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for PageRank correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -255,7 +254,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for PageRank benchmarks."
+        return "Boolean adjacency matrices."
 
     @property
     def suites(self) -> list[str]:
@@ -279,10 +278,6 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse graph inputs for PageRank."
 
     @property
     def cacheable(self) -> bool:
@@ -441,7 +436,10 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for PageRank benchmarks."
+        return (
+            "Input GAP generator for PageRank benchmarks. Generate GAP graph inputs "
+            "for PageRank."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -476,10 +474,6 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for PageRank."
 
     @property
     def cacheable(self) -> bool:
@@ -575,13 +569,10 @@ class PageRankBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "The out-degree of the adjacency is found by summing columns, giving "
-            "us the number of outbound links per page. If out-degree is not 0, "
-            "we divide by k (the number of outbound links). If out-degree is 0, "
-            "that means the node had no links, so we distribute it evenly among "
-            "all nodes to preserve probability mass. We then run iteration "
-            "multiple times so that the PageRank vector converges to its "
-            "theoretical stationary value."
+            "Ranks vertices by influence, repeatedly setting each vertex's rank to the "
+            "sum of its neighbors' ranks, each divided by that neighbor's out-degree. "
+            "Each iteration is a sparse matrix-vector product, so PageRank behaves "
+            "like an iterative solver applied to a graph."
         )
 
     @property
@@ -647,6 +638,17 @@ class PageRankBenchmark(Benchmark):
                 url="https://doi.org/10.1016/S0169-7552(98)00110-X",
                 doi="10.1016/S0169-7552(98)00110-X",
             ),
+            Ref(
+                title="The Accuracy of Floating Point Summation",
+                authors=[Author("Nicholas J. Higham")],
+                journal="SIAM Journal on Scientific Computing",
+                volume=14,
+                number=4,
+                pages="783-799",
+                year=1993,
+                doi="10.1137/0914050",
+                key="higham_accuracy_1993",
+            ),
         ]
 
     @property
@@ -658,10 +660,11 @@ class PageRankBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return (
-            "Pagerank is included as a common graph algorithm benchmark problem, "
-            "appearing in the GAP benchmark, for example."
+            r"PageRank runs to a given tolerance, so we check only that the solution "
+            r"could feasibly have been computed to that "
+            r"tolerance~\cite{higham_accuracy_1993}."
         )
 
     @property

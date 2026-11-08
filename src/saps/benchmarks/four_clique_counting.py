@@ -71,7 +71,10 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic 4-clique-count examples."
+        return (
+            "Small deterministic 4-clique-count examples. Provide small graph examples "
+            "for 4-clique-count correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -95,10 +98,6 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for 4-clique-count correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -189,7 +188,10 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for 4-clique counting benchmarks."
+        return (
+            "Strictly upper-triangular adjacency matrices, symmetrized, with "
+            "self-loops removed."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -261,10 +263,6 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse graph inputs for 4-clique counting."
 
     @property
     def cacheable(self) -> bool:
@@ -381,36 +379,19 @@ class FourCliqueCountingBenchmark(Benchmark):
         return "4-Clique Counting"
 
     @property
-    def motivation(self) -> str:
+    def correctness(self) -> str:
         return (
-            "Adjacency matrices are often sparse, and are used as input in this"
-            " problem."
-            "'It is generally known that counting the exact number of"
-            "triangles in a graph G can be described using the language of"
-            "linear algebra as 1/6 Γ(A3),"
-            "where A is the adjacency matrix of the graph G, and Γ(X)"
-            "is the trace of the square matrix X [1]. Other linear algebra"
-            "approaches [2], [3] also require a sparse-matrix multiplication"
-            "of A or parts of A as part of their computation. Alternative"
-            "approaches that are not based on linear algebra leverage other"
-            "formats for describing graphs such as the adjacency list to"
-            "design their algorithms [4], [5].'"
-            "'...the shortcut method of computing a power of a [adjacency] matrix,"
-            "is isomorphic to a similar shortcut for ﬁnding all shortest paths.'"
+            "Counts are integers, so we check them exactly. This allows filtering and "
+            "iteration strategies such as worst-case optimal joins."
         )
 
     @property
     def description(self) -> str:
         return (
-            "4-clique Counting: A 4-clique must contain 6 edges that connect all 4"
-            " vertices. The einsum does the following: for a given vertex i, checks for"
-            " existence of 3 edges to 3 other vertices, then checks for existence of 3"
-            " edges between those 3 vertices. This constitutes a 4-clique. Only the strict"
-            " upper triangle of the simple undirected adjacency is stored, so each"
-            " clique is counted once, with i < j < k < l. These methods are implemented using the property"
-            " that multiplying a graph's adjacency matrix by itself n times yields the"
-            " number of walks of length n that begin at the vertex denoted by the row"
-            " label and end at the vertex denoted by the column label."
+            r"Counts 4-cliques as $\sum_{ijkl} A_{ij}A_{ik}A_{il}A_{jk}A_{jl}A_{kl}$ "
+            r"for a strictly upper-triangular adjacency matrix $A$. This is a cyclic "
+            r"query, so there is no easy way to factor or reorder it without "
+            r"substantially increasing intermediate memory."
         )
 
     @property

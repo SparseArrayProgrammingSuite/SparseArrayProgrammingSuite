@@ -111,10 +111,6 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         return "No generative AI was used to construct the benchmark function."
 
     @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
     def datasets(self) -> list[TransitiveReductionDataset]:
         return [
             TransitiveReductionDataset(
@@ -176,7 +172,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for transitive reduction benchmarks."
+        return r"Random weights as chosen by GAP~\cite{beamer_gap_2017}."
 
     @property
     def suites(self) -> list[str]:
@@ -192,7 +188,19 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+                key="beamer_gap_2017",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -200,10 +208,6 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse directed graph inputs for transitive reduction."
 
     @property
     def datasets(self) -> list[TransitiveReductionDataset]:
@@ -409,7 +413,10 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for transitive reduction benchmarks."
+        return (
+            "Input GAP generator for transitive reduction benchmarks. Generate GAP "
+            "directed graph inputs for transitive reduction."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -444,10 +451,6 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP directed graph inputs for transitive reduction."
 
     @property
     def cacheable(self) -> bool:
@@ -624,8 +627,10 @@ class TransitiveReductionBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Iterative transitive reduction on a sparse overlap graph, following "
-            "the diBELLA reduction step."
+            r"Iteratively reduces a distance matrix, following the diBELLA reduction "
+            r"step: an edge is dropped when a path of two other edges is shorter. Each "
+            r"iteration finds the shortest two-hop paths with a sparse matrix product "
+            r"in the $(\min,+)$ semiring."
         )
 
     @property
@@ -697,13 +702,10 @@ class TransitiveReductionBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def correctness(self) -> str:
         return (
-            "This benchmark implements the iterative transitive reduction step from "
-            "the diBELLA 2D paper. The overlap graph R is a sparse matrix where "
-            "R[i, j] represents the suffix length of an overlap between read i and "
-            "read j. The reduction is implemented as sparse (min, +) semiring "
-            "SpGEMM to find shortest 2-hop paths."
+            "Weights are random integers from 1 to 255 and distances use integer "
+            "arithmetic, so we check the reduced matrix exactly."
         )
 
     @property

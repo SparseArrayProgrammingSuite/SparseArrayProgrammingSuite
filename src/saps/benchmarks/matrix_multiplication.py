@@ -71,7 +71,10 @@ class MatrixMultiplicationDenseGenerator(Generator):
 
     @property
     def description(self) -> str:
-        return "Dense input generator for matrix multiplication."
+        return (
+            "Dense input generator for matrix multiplication. Generate dense matrices "
+            "for matrix multiplication."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -95,10 +98,6 @@ class MatrixMultiplicationDenseGenerator(Generator):
             "No generative AI was used to write the benchmark function itself. "
             "Generative AI was used to debug code. This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate dense matrices for matrix multiplication."
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -208,9 +207,14 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Sparse input generator for sparse matrix-matrix multiplication,"
-            " drawing real matrices from the SuiteSparse Matrix Collection"
-            " across the application classes that motivate SpGEMM."
+            "Sparse input generator for sparse matrix-matrix multiplication, drawing "
+            "real matrices from the SuiteSparse Matrix Collection across the "
+            "application classes that motivate SpGEMM. Generate real sparse matrices "
+            "for squaring (A*A), the operation both classes of SpGEMM application "
+            "reduce to: graph algorithms, where A*A gives two-hop neighbourhoods, and "
+            "algebraic multigrid, where SpGEMM forms the coarse-grid operator. Buluc "
+            "and Gilbert motivate those two classes; the matrices themselves are "
+            "selected here rather than taken from that work."
         )
 
     @property
@@ -274,17 +278,6 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
         return (
             "No generative AI was used to write the benchmark function itself. "
             "Generative AI was used to debug code. This statement was written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate real sparse matrices for squaring (A*A), the operation "
-            "both classes of SpGEMM application reduce to: graph algorithms, "
-            "where A*A gives two-hop neighbourhoods, and algebraic multigrid, "
-            "where SpGEMM forms the coarse-grid operator. Buluc and Gilbert "
-            "motivate those two classes; the matrices themselves are selected "
-            "here rather than taken from that work."
         )
 
     @property
@@ -440,8 +433,10 @@ class MatrixMultiplicationUniformRandomGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Generates a pair of uniform random sparse matrices for sparse "
-            "general matrix-matrix multiplication (SpGEMM) at a range of densities."
+            "Generates a pair of uniform random sparse matrices for sparse general "
+            "matrix-matrix multiplication (SpGEMM) at a range of densities. Generate "
+            "pairs of uniform random sparse matrices for SpGEMM over a range of "
+            "densities. The density values are a synthetic sweep."
         )
 
     @property
@@ -466,13 +461,6 @@ class MatrixMultiplicationUniformRandomGenerator(Generator):
             "Generative AI was not used to write the benchmark function itself. "
             "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written manually."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate pairs of uniform random sparse matrices for SpGEMM over a "
-            "range of densities. The density values are a synthetic sweep."
         )
 
     @property
@@ -533,15 +521,16 @@ class MatrixMultiplicationBenchmark(Benchmark):
         return "Matrix Multiplication"
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Matrix multiplication is the key operator in linear algebra"
-            "and it is widely used in almost every sparse array application. "
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def description(self) -> str:
-        return "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk"
+        return (
+            "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk. Matrix "
+            "multiplication is the key operator in linear algebraand it is widely used "
+            "in almost every sparse array application."
+        )
 
     @property
     def suites(self) -> list[str]:

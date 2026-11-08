@@ -173,8 +173,10 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
     @property
     def description(self) -> str:
         return (
-            "These tests covering end-game, mid-game, and early game"
-            "through using various minimax at different depths."
+            "These tests covering end-game, mid-game, and early gamethrough using "
+            "various minimax at different depths. Boards have range of sparsity so "
+            "they go from empty to being very dense this helps us measure how sparsity "
+            "can affect performance at different depths."
         )
 
     @property
@@ -198,14 +200,6 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
         return (
             "No generative AI was used to construct the benchmark function itself."
             " This statement was written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Boards have range of sparsity so they go from empty to being very dense"
-            " this helps us measure how sparsity can affect performance at different"
-            " depths."
         )
 
     @property
@@ -305,12 +299,15 @@ class TicTacToeMinimaxBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: Implement a fully tensorized, non-recursive"
-            " minimax search over a tic-tac-toe game. Game states are represented as"
-            " tensors. Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2)"
-            " where n indexes boards, i,j are board positions and p is the player"
-            " channel. Given any board state within the game, it should return the"
-            " result of the game."
+            "What does this code do: Implement a fully tensorized, non-recursive "
+            "minimax search over a tic-tac-toe game. Game states are represented as "
+            "tensors. Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) "
+            "where n indexes boards, i,j are board positions and p is the player "
+            "channel. Given any board state within the game, it should return the "
+            "result of the game. This benchmark will do sparse array operations on "
+            "tic-tac-toegame trees. Sparsity should increase as you go deeper into the "
+            "game/tree.Invalid boards states caused by bad moves are zeroed out. You "
+            "can test empty board all the way to the higher depth starting states"
         )
 
     @property
@@ -349,13 +346,8 @@ class TicTacToeMinimaxBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
-        return (
-            "This benchmark will do sparse array operations on tic-tac-toe"
-            "game trees. Sparsity should increase as you go deeper into the game/tree."
-            "Invalid boards states caused by bad moves are zeroed out. You can test "
-            "empty board all the way to the higher depth starting states"
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

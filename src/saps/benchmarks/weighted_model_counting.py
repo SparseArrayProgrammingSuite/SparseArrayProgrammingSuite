@@ -324,7 +324,10 @@ class WeightedModelCountingTestGenerator(
 
     @property
     def description(self) -> str:
-        return "Parses DIMACS CNF test strings into sparse arrays."
+        return (
+            "Parses DIMACS CNF test strings into sparse arrays. Uses a predefined set "
+            "of formulas to verify correctness."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -348,10 +351,6 @@ class WeightedModelCountingTestGenerator(
             "No generative AI was used to write the benchmark function itself. "
             "Generative AI was used to debug code. This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Uses a predefined set of formulas to verify correctness."
 
     @property
     def cacheable(self) -> bool:
@@ -522,7 +521,9 @@ class WeightedModelCountingMCCompGenerator(
     @property
     def description(self) -> str:
         return (
-            "Loads projected weighted model counting CNF instances from MCComp Track4."
+            "Loads projected weighted model counting CNF instances from MCComp Track4. "
+            "Track4 instances provide weighted CNF formulas from a standard "
+            "model-counting corpus."
         )
 
     @property
@@ -550,13 +551,6 @@ class WeightedModelCountingMCCompGenerator(
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to implement this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Track4 instances provide weighted CNF formulas from a standard "
-            "model-counting corpus."
-        )
 
     @property
     def datasets(self) -> list[WeightedModelCountingMCCompDataset]:
@@ -630,7 +624,11 @@ class WeightedModelCountingBenchmark(Benchmark):
 
     @property
     def description(self):
-        return "Benchmarks Weighted Model Counting Algorithm using einsum operations."
+        return (
+            "Benchmarks Weighted Model Counting Algorithm using einsum operations. "
+            "Weighted Model Counting extends model counting by assigning specific "
+            "weights to the variables."
+        )
 
     @property
     def suites(self):
@@ -656,9 +654,8 @@ class WeightedModelCountingBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return """Weighted Model Counting extends model counting
-                by assigning specific weights to the variables."""
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self) -> list[Generator[Any]]:

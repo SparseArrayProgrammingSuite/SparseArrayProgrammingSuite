@@ -467,7 +467,10 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def description(self) -> str:
-        return "Shared SNAP adjacency matrices from the SuiteSparse Matrix Collection."
+        return (
+            "Shared SNAP adjacency matrices from the SuiteSparse Matrix Collection. "
+            "Reuse prepared SuiteSparse SNAP matrices across graph benchmarks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -488,10 +491,6 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "This shell generator was written with assistance from OpenAI Codex."
-
-    @property
-    def motivation(self) -> str:
-        return "Reuse prepared SuiteSparse SNAP matrices across graph benchmarks."
 
     @property
     def datasets(self) -> list[SNAPDataset]:

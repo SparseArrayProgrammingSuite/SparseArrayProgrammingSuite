@@ -180,10 +180,6 @@ class SubgraphMatchingTestGenerator(
         return SubgraphMatchingBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return SubgraphMatchingBenchmark().motivation
-
-    @property
     def datasets(self) -> list[SubgraphMatchingTestDataset]:
         return [
             SubgraphMatchingTestDataset(
@@ -270,7 +266,11 @@ class GCAREGraphGenerator(Generator[GCAREDataset]):
 
     @property
     def description(self) -> str:
-        return "Converts a G-CARE graph subset into BinsparseTensor matrices."
+        return (
+            "Converts a G-CARE graph subset into BinsparseTensor matrices. Subgraph "
+            "matching and counting are classic problems and widely used in query "
+            "evaluations in database systems."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -314,13 +314,6 @@ class GCAREGraphGenerator(Generator[GCAREDataset]):
             "No generative AI was used to write the algorithms for the "
             "benchmark function. Generative AI might have been used to "
             "construct the framework, comments and helper functions."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Subgraph matching and counting are classic problems and widely "
-            "used in query evaluations in database systems."
         )
 
     @property
@@ -376,8 +369,9 @@ class SubgraphMatchingGCAREGenerator(
     @property
     def description(self) -> str:
         return (
-            "Transforms the G-CARE dataset to the input of subgraph matching"
-            " algorithms."
+            "Transforms the G-CARE dataset to the input of subgraph matching "
+            "algorithms. Subgraph matching and counting are classic problems and "
+            "widely used in query evaluations in database systems."
         )
 
     @property
@@ -422,13 +416,6 @@ class SubgraphMatchingGCAREGenerator(
             "No generative AI was used to write the algorithms for the "
             "benchmark function. Generative AI might have been used to "
             "construct the framework, comments and helper functions."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Subgraph matching and counting are classic problems and widely "
-            "used in query evaluations in database systems."
         )
 
     def generate(self, dataset: SubgraphMatchingGCAREDataset):
@@ -512,6 +499,10 @@ class SubgraphMatchingGCAREHumanGenerator(SubgraphMatchingGCAREGenerator):
         return "Subgraph Matching G-CARE Human"
 
     @property
+    def description(self) -> str:
+        return "A protein-protein interaction network for Homo sapiens."
+
+    @property
     def datasets(self):
         return [
             SubgraphMatchingGCAREDataset("human", "Star_3/uf_Q_2_1", suites=["trace"]),
@@ -574,6 +565,10 @@ class SubgraphMatchingGCAREAIDSGenerator(SubgraphMatchingGCAREGenerator):
     @property
     def pretty_name(self) -> str:
         return "Subgraph Matching G-CARE AIDS"
+
+    @property
+    def description(self) -> str:
+        return "Molecules from the AIDS Antiviral Screen."
 
     @property
     def datasets(self):
@@ -1373,6 +1368,13 @@ class SubgraphMatchingGCARELUBM80Generator(SubgraphMatchingGCAREGenerator):
         return "Subgraph Matching G-CARE LUBM80"
 
     @property
+    def description(self) -> str:
+        return (
+            "A synthetic university-domain ontology from the Lehigh University "
+            "Benchmark."
+        )
+
+    @property
     def datasets(self):
         return [
             SubgraphMatchingGCAREDataset("lubm80", "lubm80_Q9"),
@@ -1392,6 +1394,10 @@ class SubgraphMatchingGCAREYAGOGenerator(SubgraphMatchingGCAREGenerator):
     @property
     def pretty_name(self) -> str:
         return "Subgraph Matching G-CARE YAGO"
+
+    @property
+    def description(self) -> str:
+        return "A large ontology built from Wikipedia and WordNet."
 
     @property
     def datasets(self):
@@ -2776,7 +2782,12 @@ class SubgraphMatchingBenchmark(Benchmark):
 
     @property
     def description(self):
-        return "Benchmarks subgraph matching algorithms using einsum operations."
+        return (
+            r"Counts the matches of small query graphs, or motifs, within a larger "
+            r"labeled graph. For example, $\sum_{ijk} "
+            r"\mathit{Coworkers}_{ij}\mathit{Friends}_{ik}\mathit{Friends}_{kj}$ "
+            r"counts the coworkers who share a friend."
+        )
 
     @property
     def suites(self):
@@ -2806,10 +2817,10 @@ class SubgraphMatchingBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return (
-            "Subgraph matching and counting are classic problems and widely "
-            "used in query evaluations in database systems."
+            "Counts are integers, so we check them exactly against the true counts "
+            "published with G-CARE."
         )
 
     @property

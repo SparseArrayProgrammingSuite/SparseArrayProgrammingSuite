@@ -105,7 +105,10 @@ class MSBFSTestGenerator(Generator[MSBFSDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic multi-source BFS examples with reference outputs."
+        return (
+            "Small deterministic multi-source BFS examples with reference outputs. "
+            "Provide small multi-source BFS examples for benchmark correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -126,12 +129,6 @@ class MSBFSTestGenerator(Generator[MSBFSDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "These tests were written with assistance from Claude."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Provide small multi-source BFS examples for benchmark correctness checks."
-        )
 
     @property
     def cacheable(self) -> bool:
@@ -321,8 +318,9 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
     @property
     def description(self) -> str:
         return (
-            "SNAP input generator for multi-source breadth-first search, searching"
-            " from the SNAP shell's seeded sources for each graph, deduplicated."
+            r"Boolean adjacency matrices, with random sources as chosen by "
+            r"GAP~\cite{beamer_gap_2017}, searching from all 64 per graph at once "
+            r"(deduplicated)."
         )
 
     @property
@@ -339,15 +337,23 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+                key="beamer_gap_2017",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
         return "This generator was written with assistance from Claude."
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse graph inputs for multi-source breadth-first search."
 
     @property
     def cacheable(self) -> bool:
@@ -510,8 +516,9 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
     @property
     def description(self) -> str:
         return (
-            "GAP input generator for multi-source breadth-first search, searching"
-            " from every published GAP source of each graph at once."
+            "GAP input generator for multi-source breadth-first search, searching from "
+            "every published GAP source of each graph at once. Generate GAP graph "
+            "inputs for multi-source breadth-first search."
         )
 
     @property
@@ -544,10 +551,6 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "This generator was written with assistance from Claude."
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for multi-source breadth-first search."
 
     @property
     def cacheable(self) -> bool:
@@ -646,11 +649,12 @@ class MSBFSBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Runs one breadth-first search from each of several source vertices at"
-            " once. The frontiers of all searches are stacked into a sparse"
-            " source-by-vertex boolean matrix, so each step of every search is"
-            " advanced together by one sparse matrix-matrix product with the"
-            " adjacency matrix."
+            "Runs one breadth-first search from each of several source vertices at "
+            "once. Batching many searches into one traversal is how graph analytics "
+            "such as betweenness centrality, closeness centrality, and all-pairs "
+            "reachability amortize work over sources. The frontier becomes a sparse "
+            "matrix whose rows can have very different densities, and each step is a "
+            "masked sparse matrix-matrix product."
         )
 
     @property
@@ -733,15 +737,10 @@ class MSBFSBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return (
-            "Batching many searches into one traversal is how graph analytics such"
-            " as betweenness centrality, closeness centrality, and all-pairs"
-            " reachability amortize work over sources. The frontier becomes a sparse"
-            " matrix whose rows can have very different densities, and each step is"
-            " a masked sparse matrix-matrix product, so performance depends on"
-            " choosing formats and loop orders that exploit sparsity in both the"
-            " frontier and the graph."
+            "Visit levels are deterministic, so we check them exactly. This allows "
+            "changing the frontier's format as its sparsity changes."
         )
 
     @property

@@ -109,7 +109,10 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic Floyd-Warshall examples."
+        return (
+            "Small deterministic Floyd-Warshall examples. Provide small graph examples "
+            "for shortest-path correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -133,10 +136,6 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for shortest-path correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -367,7 +366,7 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP graphs converted to unit-length shortest-path inputs for Floyd-Warshall."
+        return r"Random weights as chosen by GAP~\cite{beamer_gap_2017}."
 
     @property
     def suites(self) -> list[str]:
@@ -383,17 +382,23 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+                key="beamer_gap_2017",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to construct this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate unit-length shortest-path inputs with the stored edge directions."
-        )
 
     @property
     def datasets(self) -> list[FloydWarshallDataset]:
@@ -689,10 +694,6 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
         )
 
     @property
-    def motivation(self) -> str:
-        return ""
-
-    @property
     def datasets(self) -> list[FloydWarshallDataset]:
         # fmt: off
         return [
@@ -866,11 +867,10 @@ class FloydWarshallBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes bounded-hop all-pairs shortest paths by min-plus matrix"
-            " squaring. A maximum-degree bound limits the squaring count to keep"
-            " finite-entry density at most 1% by default. Stops earlier at a fixed"
-            " point; a density-limited result may omit longer paths. Inputs already"
-            " above the bound receive no squarings."
+            r"Computes bounded-hop all-pairs shortest paths by squaring the distance "
+            r"matrix in the $(\min,+)$ semiring. A bound based on the maximum degree "
+            r"limits the number of squarings, keeping at most 1\% of entries finite by "
+            r"default."
         )
 
     @property
@@ -935,12 +935,10 @@ class FloydWarshallBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return (
-            "Sparse graphs reduce unnecessary computation, as most entries in the"
-            " adjacency matrix represent non-edges and begin as inifinity. Efficient"
-            " sparse representations allow the backend framework to skip work and"
-            " minimize memory movement during the relaxation steps of the algorithm."
+            "Weights are random integers from 1 to 255 and distances use integer "
+            "arithmetic, so we check distances exactly."
         )
 
     @property

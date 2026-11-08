@@ -75,7 +75,10 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
 
     @property
     def description(self) -> str:
-        return "Inlined matrices from the LSQR pytest examples."
+        return (
+            "Inlined matrices from the LSQR pytest examples. Uses small inlined "
+            "least-squares systems to verify convergence."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -96,10 +99,6 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
     @property
     def ai_disclosure(self) -> str:
         return LSQRBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return "Uses small inlined least-squares systems to verify convergence."
 
     @property
     def cacheable(self) -> bool:
@@ -276,10 +275,6 @@ class LSQRSuiteSparseGenerator(Generator[LSQRDataset]):
         return LSQRBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return self.description
-
-    @property
     def cacheable(self) -> bool:
         return False
 
@@ -392,28 +387,25 @@ class LSQRBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Hand written code based on the algorithm defined in Paige and "
-            "Saunders' LSQR paper. Implementation structure was also based "
-            "around the work of Michael Friedlander and Dominique Orban."
+            "Hand written code based on the algorithm defined in Paige and Saunders' "
+            "LSQR paper. Implementation structure was also based around the work of "
+            'Michael Friedlander and Dominique Orban. "[LSQR] is analytically '
+            "equivalent to the standard method of conjugate gradients, but possesses "
+            "more favorable numerical properties... Numerical tests are described "
+            "comparing LSQR with several other conjugate-gradient algorithms, "
+            "indicating that LSQR is the most reliable algorithm when A is "
+            'ill-conditioned." C. C. Paige and M. A. Saunders, "LSQR: An Algorithm '
+            'for Sparse Linear Equations and Sparse Least Squares," ACM Transactions '
+            "on Mathematical Software, vol. 8, no. 1, 1982, p. 43. The main "
+            "computation of the algorithm is 2 SpMVs per iteration Av and ATu. Through "
+            "sparsity the computation is lowered from two operations of O(n^2) to two "
+            "O(nnz). This efficiency allows the algorithm to handle massive, "
+            "ill-conditioned systems with very low storage requirements."
         )
 
     @property
-    def motivation(self) -> str:
-        return (
-            '"[LSQR] is analytically equivalent to the standard method of '
-            "conjugate gradients, but possesses more favorable numerical "
-            "properties...  Numerical tests are described comparing LSQR with "
-            "several other conjugate-gradient algorithms, indicating that LSQR "
-            'is the most reliable algorithm when A is ill-conditioned." '
-            "C. C. Paige and M. A. Saunders, "
-            '"LSQR: An Algorithm for Sparse Linear Equations and Sparse Least '
-            'Squares," ACM Transactions on Mathematical Software, vol. 8, '
-            "no. 1, 1982, p. 43. The main computation of the algorithm is 2 SpMVs per"
-            " iteration Av and ATu. Through sparsity the computation is lowered from"
-            " two operations of O(n^2) to two O(nnz). This efficiency allows the"
-            " algorithm to handle massive, ill-conditioned systems with very low"
-            " storage requirements."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def references(self) -> list[Ref]:

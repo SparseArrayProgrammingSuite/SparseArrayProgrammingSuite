@@ -262,7 +262,10 @@ class DAEBDFTestGenerator(_DescriptorDAEGenerator):
 
     @property
     def description(self) -> str:
-        return "Inlined descriptor systems for DAE solver correctness tests."
+        return (
+            "Inlined descriptor systems for DAE solver correctness tests. Uses a small "
+            "singular-mass descriptor system to verify DAE steps."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -271,10 +274,6 @@ class DAEBDFTestGenerator(_DescriptorDAEGenerator):
     @property
     def references(self) -> list[Ref]:
         return []
-
-    @property
-    def motivation(self) -> str:
-        return "Uses a small singular-mass descriptor system to verify DAE steps."
 
     @property
     def datasets(self) -> list[DAEBDFDataset]:
@@ -309,7 +308,11 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
 
     @property
     def description(self) -> str:
-        return "Loads SLICOT descriptor-system benchmarks for implicit DAE solvers."
+        return (
+            "Loads SLICOT descriptor-system benchmarks for implicit DAE solvers. Uses "
+            "SLICOT models with an explicit E matrix as descriptor systems. Implicit "
+            "DAE steps solve linear systems built from residual Jacobians."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -324,13 +327,6 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 url=slicot.SLICOT_BENCHMARK_PAGE_URL,
             )
         ]
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Uses SLICOT models with an explicit E matrix as descriptor systems. "
-            "Implicit DAE steps solve linear systems built from residual Jacobians."
-        )
 
     @property
     def datasets(self) -> list[DAEBDFDataset]:
@@ -492,8 +488,8 @@ class _DescriptorDAEBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
-        return "Solves descriptor-form DAEs using explicit residual Jacobians."
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self) -> list[Generator[DAEBDFDataset]]:
@@ -611,7 +607,10 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
 
     @property
     def description(self) -> str:
-        return "Fixed-step BDF2 for SLICOT DAEs with LU factors from the generator."
+        return (
+            "Fixed-step BDF2 for SLICOT DAEs with LU factors from the generator. "
+            "Solves descriptor-form DAEs using explicit residual Jacobians."
+        )
 
     def benchmark(
         self,

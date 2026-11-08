@@ -72,7 +72,10 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic triangle-count examples."
+        return (
+            "Small deterministic triangle-count examples. Provide small graph examples "
+            "for triangle-count correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -96,10 +99,6 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for triangle-count correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -190,7 +189,8 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     @property
     def description(self) -> str:
         return (
-            "Simple undirected SNAP input generator for triangle counting benchmarks."
+            "Strictly upper-triangular adjacency matrices, symmetrized, with "
+            "self-loops removed."
         )
 
     @property
@@ -263,10 +263,6 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse graph inputs for triangle counting."
 
     @property
     def cacheable(self) -> bool:
@@ -394,7 +390,10 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for triangle counting benchmarks."
+        return (
+            "Input GAP generator for triangle counting benchmarks. Generate GAP graph "
+            "inputs for triangle counting."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -469,10 +468,6 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
         )
 
     @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for triangle counting."
-
-    @property
     def cacheable(self) -> bool:
         return False
 
@@ -518,30 +513,19 @@ class TriangleCountingBenchmark(Benchmark):
         return "Triangle Counting"
 
     @property
-    def motivation(self) -> str:
+    def correctness(self) -> str:
         return (
-            "Adjacency matrices are often sparse, and are used as input in this"
-            " problem."
-            "'It is generally known that counting the exact number of"
-            "triangles in a graph G can be described using the language of"
-            "linear algebra as 1/6 Γ(A3),"
-            "where A is the adjacency matrix of the graph G, and Γ(X)"
-            "is the trace of the square matrix X [1]. Other linear algebra"
-            "approaches [2], [3] also require a sparse-matrix multiplication"
-            "of A or parts of A as part of their computation. Alternative"
-            "approaches that are not based on linear algebra leverage other"
-            "formats for describing graphs such as the adjacency list to"
-            "design their algorithms [4], [5].'"
-            "'...the shortcut method of computing a power of a [adjacency] matrix,"
-            "is isomorphic to a similar shortcut for ﬁnding all shortest paths.'"
+            "Counts are integers, so we check them exactly. This allows filtering and "
+            "iteration strategies such as worst-case optimal joins."
         )
 
     @property
     def description(self) -> str:
         return (
-            "Triangle Counting: Given the strict upper triangle A of a simple"
-            " undirected adjacency matrix, sum A[i,j] A[j,k] A[i,k]. Each triangle"
-            " has exactly one ordering i < j < k, so it is counted once."
+            r"Counts triangles as $\sum_{ijk} A_{ij}A_{jk}A_{ik}$ for a strictly "
+            r"upper-triangular adjacency matrix $A$. This is a cyclic query, so there "
+            r"is no easy way to factor or reorder it without substantially increasing "
+            r"intermediate memory."
         )
 
     @property

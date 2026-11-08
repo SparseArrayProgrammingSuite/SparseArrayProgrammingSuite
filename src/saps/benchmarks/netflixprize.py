@@ -66,7 +66,10 @@ class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
     def description(self) -> str:
         return (
             "Downloads the Netflix Prize ratings from Kaggle, parses the combined "
-            "ratings text files, and caches the prepared sparse ratings matrix."
+            "ratings text files, and caches the prepared sparse ratings matrix. "
+            "Multiple benchmarks reuse the Netflix Prize ratings matrix. Sharing a "
+            "cacheable generator for the parsed matrix avoids redundant downloads, "
+            "parsing, and cached copies."
         )
 
     @property
@@ -95,14 +98,6 @@ class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to implement this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Multiple benchmarks reuse the Netflix Prize ratings matrix. Sharing a "
-            "cacheable generator for the parsed matrix avoids redundant downloads, "
-            "parsing, and cached copies."
-        )
 
     @property
     def datasets(self) -> list[NetflixPrizeDataset]:

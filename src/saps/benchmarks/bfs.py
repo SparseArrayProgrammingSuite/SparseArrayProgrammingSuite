@@ -89,7 +89,10 @@ class BFSTestGenerator(Generator[BFSDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic BFS examples with reference outputs."
+        return (
+            "Small deterministic BFS examples with reference outputs. Provide small "
+            "BFS examples for benchmark correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -113,10 +116,6 @@ class BFSTestGenerator(Generator[BFSDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small BFS examples for benchmark correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -270,7 +269,10 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for breadth-first search benchmarks."
+        return (
+            r"Boolean adjacency matrices, with random sources as chosen by "
+            r"GAP~\cite{beamer_gap_2017}, 10 per graph."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -286,7 +288,19 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+                key="beamer_gap_2017",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -294,10 +308,6 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse graph inputs for breadth-first search."
 
     @property
     def cacheable(self) -> bool:
@@ -670,7 +680,10 @@ class BFSGAPGenerator(Generator[BFSDataset]):
 
     @property
     def description(self) -> str:
-        return "GAP Input generator for breadth-first search benchmarks."
+        return (
+            "GAP Input generator for breadth-first search benchmarks. Generate GAP "
+            "graph inputs for breadth-first search."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -705,10 +718,6 @@ class BFSGAPGenerator(Generator[BFSDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for breadth-first search."
 
     @property
     def cacheable(self) -> bool:
@@ -828,10 +837,10 @@ class BFSBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "The Breadth-First Search algorithm is an important graph traversal"
-            " technique used to explore vertices by layers. It is a fundamental"
-            " building block for more complex graph algorithms, especially in areas"
-            " like parallel processing and high-performance computing."
+            r"Computes a breadth-first traversal by iteratively expanding a visited "
+            r"vertex set. Each step multiplies a Boolean frontier vector by the "
+            r"adjacency matrix in the $(\lor,\land)$ semiring, masked by the visited "
+            r"set."
         )
 
     @property
@@ -896,14 +905,11 @@ class BFSBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return (
-            "In standard BFS, algorithms on sparse graphs are faster because they"
-            " process fewer edges, and specialized algebraic methods use sparsity to"
-            " avoid unnecessary computations by focusing only on non-zero elements."
-            " Optimizing the use of sparse data structures and algorithms is key to"
-            " achieving high performance, as it reduces memory footprint and leads to"
-            " faster traversals."
+            "Visit levels are deterministic, so we check them exactly. This allows "
+            "push-pull optimizations, which trade filtering the frontier for filtering "
+            "the visited set."
         )
 
     @property

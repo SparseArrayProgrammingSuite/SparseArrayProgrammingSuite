@@ -115,7 +115,9 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
         return (
             "Downloads and caches dense OpenML datasets and their task splits. "
             "Benchmark-specific generators compose this generator so each OpenML "
-            "dataset is downloaded and cached once."
+            "dataset is downloaded and cached once. Several benchmarks use the same "
+            "OpenML image datasets. Sharing a cacheable generator for the prepared "
+            "feature matrix avoids redundant downloads and redundant cached copies."
         )
 
     @property
@@ -154,14 +156,6 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
     @property
     def ai_disclosure(self) -> str:
         return "Generative AI was used to implement this generator."
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Several benchmarks use the same OpenML image datasets. Sharing a "
-            "cacheable generator for the prepared feature matrix avoids redundant "
-            "downloads and redundant cached copies."
-        )
 
     @property
     def datasets(self) -> list[OpenMLDataset]:

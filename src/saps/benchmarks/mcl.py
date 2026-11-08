@@ -252,10 +252,6 @@ class MCLTestGenerator(Generator[MCLDataset]):
         return MCLBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MCLBenchmark().motivation
-
-    @property
     def datasets(self) -> list[MCLDataset]:
         planted_clique = np.zeros((10, 10), dtype=np.float32)
         planted_clique[:4, :4] = 1.0
@@ -350,10 +346,7 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
 
     @property
     def description(self) -> str:
-        return (
-            "Data collected from SuiteSparse Matrix Collection consisting of "
-            "sparse adjacency matrices used to evaluate graph clustering performance."
-        )
+        return "Boolean adjacency matrices."
 
     @property
     def suites(self) -> list[str]:
@@ -374,10 +367,6 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
     @property
     def ai_disclosure(self) -> str:
         return MCLBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return MCLBenchmark().motivation
 
     @property
     def cacheable(self) -> bool:
@@ -560,10 +549,6 @@ class MCLGAPGenerator(Generator[MCLDataset]):
         return MCLBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MCLBenchmark().motivation
-
-    @property
     def cacheable(self) -> bool:
         return False
 
@@ -662,22 +647,18 @@ class MCLBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Computes Markov Clustering on a given sparse adjacency matrix. "
-            "Handwritten code based on the implementation from GuyAllard on github"
+            "Clusters a graph by simulating random walks that distribute probability "
+            "mass across vertices. Repeated squaring spreads probability faster but "
+            "densifies the matrix, so matrices are pruned after each product and "
+            "probabilities are renormalized."
         )
 
     @property
-    def motivation(self) -> str:
+    def correctness(self) -> str:
         return (
-            '"The Markov Clustering (MCL) algorithm relies heavily on repeated '
-            "matrix operations, particularly matrix multiplication during the "
-            "expansion step. Since the efficient execution of matrix-based "
-            "kernels has been extensively studied in linear algebra, MCL "
-            "serves as an effective benchmark for evaluating the performance "
-            'of iterative numerical methods." The input is a sparse adjacency '
-            "matrix. The algorithm uses sparse matrix multiplication and element-wise"
-            " operations repeatedly, so it depends heavily on efficient sparse matrix"
-            " functions."
+            "Inputs are rounded to multiples of $2^{-26}$ and re-rounded after each "
+            "product, so sums of probabilities are exact in any order for graphs of up "
+            "to $2^{26}$ vertices, and we check the clusters exactly."
         )
 
     @property

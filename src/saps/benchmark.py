@@ -71,6 +71,13 @@ class Contributor:
 
 @dataclass
 class Ref:
+    """A work cited by a benchmark, generator, or dataset.
+
+    ``key`` is an optional BibTeX cite key. Descriptions and correctness notes are
+    LaTeX, so they can cite a reference in their own ``references`` with
+    ``\\cite{key}``; the paper's bibliography uses the same key.
+    """
+
     title: str
     authors: list[Author]
     journal: str | None = None
@@ -85,6 +92,7 @@ class Ref:
     year: int | None = None
     url: str | None = None
     doi: str | None = None
+    key: str | None = None
 
     def __str__(self):
         author_str = ", ".join(author.name for author in self.authors)
@@ -100,8 +108,9 @@ class Ref:
         year_str = f", {self.year}" if self.year else ""
         url_str = f", URL: {self.url}" if self.url else ""
         doi_str = f", DOI: {self.doi}" if self.doi else ""
+        key_str = f"[{self.key}] " if self.key else ""
         return (
-            f'{author_str}. "{self.title}"'
+            f'{key_str}{author_str}. "{self.title}"'
             f"{journal_str}{conference_str}{booktitle_str}{publisher_str}{institution_str}"
             f"{volume_str}{number_str}{pages_str}{city_str}{year_str}{url_str}{doi_str}."
         )
@@ -150,7 +159,8 @@ class Tagged(Metadata):
 
     @property
     @abstractmethod
-    def description(self) -> str: ...
+    def description(self) -> str:
+        """What this is and why it matters, as LaTeX text (see ``Ref.key``)."""
 
     @property
     @abstractmethod
@@ -193,12 +203,6 @@ class Attributed(ABC):
     def ai_disclosure(self) -> str: ...
 
 
-class Motivated(ABC):
-    @property
-    @abstractmethod
-    def motivation(self) -> str: ...
-
-
 class Dataset(Tagged):
     @property
     def metadata(self) -> dict[str, Any]:
@@ -225,7 +229,7 @@ class DataInstance:
 TDataset = TypeVar("TDataset", bound=Dataset)
 
 
-class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
+class Generator(Tagged, Attributed, Generic[TDataset]):
     @property
     @abstractmethod
     def datasets(self) -> list[TDataset]: ...
@@ -283,7 +287,6 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
-            "motivation": self.motivation,
             "datasets": [dataset.metadata for dataset in self.datasets],
         }
 
@@ -297,10 +300,16 @@ class Param(Generic[TDataset]):
         return f"{self.generator.name}.{self.dataset.name}"
 
 
-class Benchmark(Tagged, Attributed, Motivated):
+class Benchmark(Tagged, Attributed):
     @property
     @abstractmethod
     def generators(self) -> list[Generator[Any]]: ...
+
+    @property
+    @abstractmethod
+    def correctness(self) -> str:
+        """How ``check`` decides an output is correct, and which optimizations
+        that leaves open to frameworks, as LaTeX text (see ``Ref.key``)."""
 
     @abstractmethod
     def benchmark(
@@ -490,13 +499,13 @@ class Benchmark(Tagged, Attributed, Motivated):
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
+            "correctness": self.correctness,
             "suites": self.suites,
             "concepts": self.concepts,
             "topics": self.topics,
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
-            "motivation": self.motivation,
             "generators": [generator.metadata for generator in self.generators],
         }
 
@@ -519,6 +528,10 @@ class ShellBenchmark(Benchmark, ABC):
         return ""
 
     @property
+    def correctness(self) -> str:
+        return ""
+
+    @property
     def suites(self) -> list[str]:
         return []
 
@@ -536,10 +549,6 @@ class ShellBenchmark(Benchmark, ABC):
 
     @property
     def ai_disclosure(self) -> str:
-        return ""
-
-    @property
-    def motivation(self) -> str:
         return ""
 
     @property
@@ -627,8 +636,4 @@ class ReferenceGenerator(Generator[ReferenceDataset[TDataset]], ABC):
 
     @property
     def ai_disclosure(self) -> str:
-        return ""
-
-    @property
-    def motivation(self) -> str:
         return ""

@@ -72,7 +72,10 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic connected-components examples."
+        return (
+            "Small deterministic connected-components examples. Provide small graph "
+            "examples for correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -96,10 +99,6 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -210,7 +209,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for connected components benchmarks."
+        return "Boolean adjacency matrices."
 
     @property
     def suites(self) -> list[str]:
@@ -249,10 +248,6 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse graph inputs for connected components."
 
     @property
     def cacheable(self) -> bool:
@@ -421,7 +416,10 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for connected components benchmarks."
+        return (
+            "Input GAP generator for connected components benchmarks. Generate GAP "
+            "graph inputs for connected components."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -456,10 +454,6 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for connected components."
 
     @property
     def cacheable(self) -> bool:
@@ -565,8 +559,10 @@ class ConnectedComponentsBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Computes the simply connected components of a directed graph using label"
-            " propagation."
+            r"Computes the weakly connected components of a directed graph by fixpoint "
+            r"label propagation. Each vertex takes the minimum label among itself and "
+            r"its neighbors, a matrix-vector product in the $(\min,\mathrm{second})$ "
+            r"semiring."
         )
 
     @property
@@ -631,8 +627,8 @@ class ConnectedComponentsBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def correctness(self) -> str:
+        return "Component labels are deterministic, so we check them exactly."
 
     @property
     def generators(self) -> list[Generator]:

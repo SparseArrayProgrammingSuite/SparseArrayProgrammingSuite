@@ -153,10 +153,6 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
         return BlockJacobiPCGBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return BlockJacobiPCGBenchmark().motivation
-
-    @property
     def cacheable(self) -> bool:
         return False
 
@@ -794,10 +790,6 @@ class JacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
     @property
     def ai_disclosure(self) -> str:
         return BlockJacobiPCGBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return BlockJacobiPCGBenchmark().motivation
 
     @property
     def cacheable(self) -> bool:
@@ -1713,24 +1705,22 @@ class _PCGBenchmarkBase(Benchmark, ABC):
     def description(self) -> str:
         return (
             "Hand-written code modelling the algorithm structure outlined in "
-            "https://www.netlib.org/templates/templates.pdf Page 13."
+            'https://www.netlib.org/templates/templates.pdf Page 13. "The '
+            "preconditioned conjugate gradient method is well established for solving "
+            "linear systems of equations that arise from the discretization of partial "
+            "differential equations. Point and block Jacobi preconditioning are both "
+            'common preconditioning techniques." Sparsity enhances the functionality '
+            "of both the solver and the preconditioner. Similar to normal conjugate "
+            "gradient, the SpMV done once per iteration reduces complexity from O(n^2) "
+            "to O(nnz). Furthermore, the sparse block Jacobi preconditioner avoids "
+            "filling in all the 0s around the blocks, which prevents memory overhead "
+            "and keeps the per-iteration block solve cost proportional to the block "
+            "size instead of the full matrix dimension."
         )
 
     @property
-    def motivation(self) -> str:
-        return (
-            '"The preconditioned conjugate gradient method is well established '
-            "for solving linear systems of equations that arise from the "
-            "discretization of partial differential equations. Point and block "
-            'Jacobi preconditioning are both common preconditioning techniques." '
-            "Sparsity enhances the functionality of both the solver and the "
-            "preconditioner. Similar to normal conjugate gradient, the SpMV "
-            "done once per iteration reduces complexity from O(n^2) to O(nnz). "
-            "Furthermore, the sparse block Jacobi preconditioner avoids filling "
-            "in all the 0s around the blocks, which prevents memory overhead "
-            "and keeps the per-iteration block solve cost proportional to the "
-            "block size instead of the full matrix dimension."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def references(self) -> list[Ref]:

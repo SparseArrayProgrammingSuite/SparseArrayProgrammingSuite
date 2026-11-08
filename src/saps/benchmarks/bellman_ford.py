@@ -104,7 +104,10 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic Bellman-Ford examples."
+        return (
+            "Small deterministic Bellman-Ford examples. Provide small graph examples "
+            "for Bellman-Ford correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -128,10 +131,6 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for Bellman-Ford correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -400,7 +399,10 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
 
     @property
     def description(self) -> str:
-        return "SNAP input generator for Bellman-Ford shortest-path benchmarks."
+        return (
+            r"Random sources and weights as chosen by GAP~\cite{beamer_gap_2017}, with "
+            r"10 sources per graph."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -416,7 +418,19 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
 
     @property
     def references(self) -> list[Ref]:
-        return []
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+                key="beamer_gap_2017",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -424,10 +438,6 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate weighted graph inputs for Bellman-Ford."
 
     @property
     def cacheable(self) -> bool:
@@ -811,7 +821,10 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
 
     @property
     def description(self) -> str:
-        return "Input GAP generator for Bellman-Ford shortest-path benchmarks."
+        return (
+            "Input GAP generator for Bellman-Ford shortest-path benchmarks. Generate "
+            "weighted GAP graph inputs for Bellman-Ford."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -846,10 +859,6 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate weighted GAP graph inputs for Bellman-Ford."
 
     @property
     def cacheable(self) -> bool:
@@ -971,11 +980,9 @@ class BellmanFordBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "This code implements an Array-API compatible version of Bellman Ford"
-            " Algorithm to find the shortest distance from a src node to all edges"
-            " across a graph. It takes in an adjacency matrix as an input and then"
-            " slowly relaxes each vector by broadcasting it and then determining the"
-            " minimum distances iteratively."
+            r"Computes single-source shortest paths by repeatedly relaxing a dense "
+            r"distance vector. Each relaxation ``multiplies'' the distances by the "
+            r"adjacency matrix of edge lengths in the $(\min,+)$ semiring."
         )
 
     @property
@@ -1039,13 +1046,12 @@ class BellmanFordBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def correctness(self) -> str:
         return (
-            "Linear algebraic graph algorithms use sparsity to avoid unnecessary"
-            " computations by focusing only on non-zero elements. Optimizing the use of"
-            " sparse data structures and algorithms is key to achieving high"
-            " performance, as it reduces memory footprint and leads to faster"
-            " traversals."
+            "Weights are random integers from 1 to 255 and distances use integer "
+            "arithmetic, so we check distances exactly. This allows ``active set'' "
+            "optimizations, which relax only the neighbors of vertices whose distances "
+            "changed."
         )
 
     @property

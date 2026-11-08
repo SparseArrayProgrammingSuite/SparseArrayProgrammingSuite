@@ -272,9 +272,12 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
     def description(self):
         return (
             "Small deterministic particle simulation examples using the CS267-style "
-            "repulsive force parameters: cutoff 0.01, softening 0.0001 from the "
-            "CS267 min_r = cutoff / 100 constant, dt 0.0005, G 1.0, and scalar "
-            "mass tensor 0.01."
+            "repulsive force parameters: cutoff 0.01, softening 0.0001 from the CS267 "
+            "min_r = cutoff / 100 constant, dt 0.0005, G 1.0, and scalar mass tensor "
+            "0.01. Provide small particle examples for benchmark correctness checks "
+            "while exercising the same CS267-derived cutoff, minimum-radius softening, "
+            "time step, and unit gravitational constant used by the synthetic and EWAP "
+            "repulsive-force datasets."
         )
 
     @property
@@ -298,15 +301,6 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
         return (
             "Generative AI was used to construct this generator and its dataset "
             "structures. This statement was written by hand."
-        )
-
-    @property
-    def motivation(self):
-        return (
-            "Provide small particle examples for benchmark correctness checks while "
-            "exercising the same CS267-derived cutoff, minimum-radius softening, "
-            "time step, and unit gravitational constant used by the synthetic and "
-            "EWAP repulsive-force datasets."
         )
 
     @property
@@ -482,9 +476,15 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
         return (
             "Generates synthetic initial conditions for particle simulation "
             "benchmarks. The force parameters follow the Berkeley CS267 homework "
-            "constants where available: cutoff 0.01, softening 0.0001 as the "
-            "benchmark name for CS267 min_r = cutoff / 100, dt 0.0005, and a "
-            "scalar mass tensor 0.01; G 1.0 is used as the benchmark unit scale."
+            "constants where available: cutoff 0.01, softening 0.0001 as the benchmark "
+            "name for CS267 min_r = cutoff / 100, dt 0.0005, and a scalar mass tensor "
+            "0.01; G 1.0 is used as the benchmark unit scale. The CS267 homework "
+            "initializes particles on a shuffled regular grid with random velocities "
+            "so baseline implementations can focus on the short-range force "
+            "calculation. Its cutoff, min_r, density, and time step constants drive "
+            "this generator; min_r is recorded as softening so the benchmark can share "
+            "one radius-regularization parameter across repulsive and gravitational "
+            "datasets."
         )
 
     @property
@@ -523,17 +523,6 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
         return (
             "Generative AI was used to construct this generator and its dataset "
             "structures. This statement was written by hand."
-        )
-
-    @property
-    def motivation(self):
-        return (
-            "The CS267 homework initializes particles on a shuffled regular grid "
-            "with random velocities so baseline implementations can focus on the "
-            "short-range force calculation. Its cutoff, min_r, density, and time "
-            "step constants drive this generator; min_r is recorded as softening "
-            "so the benchmark can share one radius-regularization parameter across "
-            "repulsive and gravitational datasets."
         )
 
     @property
@@ -718,7 +707,13 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             "Loads ETH EWAP pedestrian trajectories as particle initial conditions. "
             "EWAP supplies positions and velocities only, so this generator uses the "
             "same CS267-style repulsive parameters as the synthetic dataset: cutoff "
-            "0.01, softening 0.0001, dt 0.0005, G 1.0, and scalar mass tensor 0.01."
+            "0.01, softening 0.0001, dt 0.0005, G 1.0, and scalar mass tensor 0.01. "
+            "Pedestrian trajectories provide real-world 2D interaction data that can "
+            "exercise the particle simulation benchmark without changing the source "
+            "coordinate scale. Because the source data is not a physical N-body "
+            "snapshot, the interaction parameters intentionally mirror the "
+            "CS267-derived repulsive-force setup rather than being inferred from the "
+            "EWAP files."
         )
 
     @property
@@ -752,17 +747,6 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
         return (
             "Generative AI was used to construct this generator and its dataset "
             "structures. This statement was written by hand."
-        )
-
-    @property
-    def motivation(self):
-        return (
-            "Pedestrian trajectories provide real-world 2D interaction data that can "
-            "exercise the particle simulation benchmark without changing the source "
-            "coordinate scale. Because the source data is not a physical N-body "
-            "snapshot, the interaction parameters intentionally mirror the "
-            "CS267-derived repulsive-force setup rather than being inferred from "
-            "the EWAP files."
         )
 
     @property
@@ -851,7 +835,14 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
             "NEMO datasets use source mass columns, unscaled archive coordinates, "
             "Newtonian gravity with G 1.0 in N-body units, dt 1/32, softening 0.05, "
             "and short interaction bucket widths chosen to exercise sparse workloads "
-            "rather than accurately approximate full gravitational forces."
+            "rather than accurately approximate full gravitational forces. The "
+            "particle simulation is used to model particle interaction present in "
+            "mechanics, biology, astronomy, and other fields on a simplitic level. For "
+            "NEMO snapshots, masses come from the archive tables; G 1.0 follows the "
+            "usual dimensionless N-body unit convention, softening 0.05 follows the "
+            "NEMO eps-style softened-gravity setting. The smaller cutoffs are workload "
+            "parameters chosen for sparse interactions on the preserved source "
+            "coordinates; they do not meet a physical force-error target."
         )
 
     @property
@@ -907,19 +898,6 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
         return (
             "Generative AI was used to construct this generator and its dataset "
             "structures. This statement was written by hand."
-        )
-
-    @property
-    def motivation(self):
-        return (
-            "The particle simulation is used to model particle interaction present in"
-            " mechanics, biology, astronomy, and other fields on a simplitic level. "
-            "For NEMO snapshots, masses come from the archive tables; G 1.0 follows "
-            "the usual dimensionless N-body unit convention, softening 0.05 follows "
-            "the NEMO eps-style softened-gravity setting. The smaller cutoffs "
-            "are workload parameters chosen for sparse interactions on the "
-            "preserved source coordinates; they do not meet a physical "
-            "force-error target."
         )
 
     @property
@@ -1077,14 +1055,15 @@ class ParticleSimulationBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
-            " array operations. The cutoff parameter is the interaction radius and"
-            " the smallest cell width: forces ramp linearly to zero over the last 5%"
-            " of the cutoff radius, and only pairs whose cell indices differ by at"
-            " most one on every axis are evaluated. A periodic box wraps its cells"
-            " and pairs interact through their nearest periodic image. This"
-            " benchmark evaluates performance characteristics and numerical"
-            " properties."
+            "Benchmark implementation for Particule_Simulation_Algorithm using sparse "
+            "array operations. The cutoff parameter is the interaction radius and the "
+            "smallest cell width: forces ramp linearly to zero over the last 5% of the "
+            "cutoff radius, and only pairs whose cell indices differ by at most one on "
+            "every axis are evaluated. A periodic box wraps its cells and pairs "
+            "interact through their nearest periodic image. This benchmark evaluates "
+            "performance characteristics and numerical properties. The particle "
+            "simulation is used to model particle interaction present in mechanics, "
+            "biology, astronomy, and other fields on a simplitic level."
         )
 
     @property
@@ -1137,11 +1116,8 @@ class ParticleSimulationBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return (
-            "The particle simulation is used to model particle interaction present in"
-            " mechanics, biology, astronomy, and other fields on a simplitic level."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

@@ -93,7 +93,10 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
 
     @property
     def description(self) -> str:
-        return "Small deterministic masked MRI examples."
+        return (
+            "Small deterministic masked MRI examples. Provide small masked MRI "
+            "examples for correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -114,10 +117,6 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
     @property
     def ai_disclosure(self) -> str:
         return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small masked MRI examples for correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -228,10 +227,6 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
         return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MRIMaskedEdgeDetectionBenchmark().motivation
-
-    @property
     def datasets(self) -> list[MRIMaskedEdgeDetectionDataset]:
         return [
             MRIMaskedEdgeDetectionDataset(
@@ -299,10 +294,17 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: This code implements a masked edge detection"
-            " algorithm on a 2D MRI image. The benchmark performs boolean threshold"
-            " mask operations using t1=75% and t2=80% thresholds and a"
-            " Region-of-Interest (ROI) mask."
+            "What does this code do: This code implements a masked edge detection "
+            "algorithm on a 2D MRI image. The benchmark performs boolean threshold "
+            "mask operations using t1=75% and t2=80% thresholds and a "
+            "Region-of-Interest (ROI) mask. Motivation: Edge detection is a crucial "
+            "task that is a part of image processing pipelines. It is often the case "
+            "that images and scans in the medical field rquire post-processing to "
+            "extract useful information. In this case, we are using a 2D MRI image to "
+            "produce thresholded edge maps. Since medical images are large and often "
+            "contain redundant information, it is important to process them "
+            "efficiently. The redundancy of MRI makes them a good candidate for sparse "
+            "processing."
         )
 
     @property
@@ -336,16 +338,8 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
         return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Motivation: Edge detection is a crucial task that is a part of image"
-            " processing pipelines. It is often the case that images and scans in the"
-            " medical field rquire post-processing to extract useful information. In"
-            " this case, we are using a 2D MRI image to produce thresholded edge maps."
-            " Since medical images are large and often contain redundant information,"
-            " it is important to process them efficiently. The redundancy of MRI makes"
-            " them a good candidate for sparse processing."
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def references(self) -> list[Ref]:

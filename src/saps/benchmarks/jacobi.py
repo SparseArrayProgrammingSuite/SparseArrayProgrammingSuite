@@ -68,7 +68,10 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
 
     @property
     def description(self) -> str:
-        return "Inlined matrices from the Jacobi pytest examples."
+        return (
+            "Inlined matrices from the Jacobi pytest examples. Uses small inlined "
+            "linear systems to verify solver correctness."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -92,10 +95,6 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
             "No generative AI was used to write the benchmark function itself. "
             "Generative AI was used to debug code. This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Uses small inlined linear systems to verify solver correctness."
 
     @property
     def cacheable(self) -> bool:
@@ -165,8 +164,10 @@ class JacobiSuiteSparseGenerator(Generator[JacobiDataset]):
     @property
     def description(self) -> str:
         return (
-            "Accesses and prepares symmetric "
-            "positive definite matrices from SuiteSparse."
+            "Accesses and prepares symmetric positive definite matrices from "
+            "SuiteSparse. Data collected from SuiteSparse Matrix Collection consisting "
+            "of symmetric positive definite matrices whose Jacobi iteration matrices "
+            "have spectral radius < 1."
         )
 
     @property
@@ -190,14 +191,6 @@ class JacobiSuiteSparseGenerator(Generator[JacobiDataset]):
         return (
             "No generative AI was used to write the benchmark function itself. "
             "Generative AI was used to debug code. This statement was written by hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
-            " positive definite matrices whose Jacobi iteration matrices have spectral"
-            " radius < 1."
         )
 
     @property
@@ -727,7 +720,11 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "Solves linear systems using the Jacobi iterative method."
+        return (
+            "Solves linear systems using the Jacobi iterative method. Sparsity makes "
+            "the Jacobi method efficient because each update only needs to access the "
+            "nonzero entries, reducing complexity from O(mn) to O(nnz)"
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -790,11 +787,8 @@ class JacobiBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Sparsity makes the Jacobi method efficient because each update only needs "
-            "to access the nonzero entries, reducing complexity from O(mn) to O(nnz)"
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def generators(self):

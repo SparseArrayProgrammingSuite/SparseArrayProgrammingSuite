@@ -68,7 +68,10 @@ class ElementwiseMultiplicationDenseGenerator(Generator):
 
     @property
     def description(self) -> str:
-        return "Dense input generator for elementwise multiplication."
+        return (
+            "Dense input generator for elementwise multiplication. Generate dense "
+            "matrices for elementwise multiplication."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -92,10 +95,6 @@ class ElementwiseMultiplicationDenseGenerator(Generator):
             "No generative AI was used to write the benchmark function itself. "
             "Generative AI was used to debug code. This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate dense matrices for elementwise multiplication."
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -220,8 +219,12 @@ class ElementwiseMultiplicationSuiteSparseGenerator(Generator):
     @property
     def description(self) -> str:
         return (
-            "Sparse input generator for elementwise multiplication"
-            " based on the suite sparse matrix collection."
+            "Sparse input generator for elementwise multiplication based on the suite "
+            "sparse matrix collection. Generate real sparse matrices for elementwise "
+            "multiplication, each paired with a matrix sharing a controlled fraction "
+            "of its nonzero positions. PASTA identifies that overlap as what makes the "
+            "output size unpredictable; the matrices themselves are not from PASTA, "
+            "whose datasets are sparse tensors."
         )
 
     @property
@@ -274,16 +277,6 @@ class ElementwiseMultiplicationSuiteSparseGenerator(Generator):
             "Generative AI was used to debug code. Generative AI might be used "
             "for dataset collecting and parsing. This statement was written by "
             "hand."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate real sparse matrices for elementwise multiplication, each "
-            "paired with a matrix sharing a controlled fraction of its nonzero "
-            "positions. PASTA identifies that overlap as what makes the output "
-            "size unpredictable; the matrices themselves are not from PASTA, "
-            "whose datasets are sparse tensors."
         )
 
     @property
@@ -392,7 +385,12 @@ class ElementwiseMultiplicationUniformRandomGenerator(Generator):
     def description(self) -> str:
         return (
             "Generates a pair of uniform random sparse matrices for elementwise "
-            "multiplication at a range of densities."
+            "multiplication at a range of densities. Generate uniform random "
+            "element-wise inputs whose nonzero patterns overlap by a controlled "
+            "fraction, spanning PASTA's two cases: operands sharing a pattern, where "
+            "the output size is known in advance, and operands whose patterns differ, "
+            "where it is not. The overlap parameterisation follows PASTA; the inputs "
+            "are synthetic."
         )
 
     @property
@@ -434,16 +432,6 @@ class ElementwiseMultiplicationUniformRandomGenerator(Generator):
             "Generative AI was not used to write the benchmark function itself. "
             "Generative AI might be used for dataset collecting and parsing. "
             "This statement was written manually."
-        )
-
-    @property
-    def motivation(self) -> str:
-        return (
-            "Generate uniform random element-wise inputs whose nonzero patterns "
-            "overlap by a controlled fraction, spanning PASTA's two cases: "
-            "operands sharing a pattern, where the output size is known in "
-            "advance, and operands whose patterns differ, where it is not. The "
-            "overlap parameterisation follows PASTA; the inputs are synthetic."
         )
 
     @property
@@ -499,16 +487,16 @@ class ElementwiseMultiplicationBenchmark(Benchmark):
         return "Elementwise Multiplication"
 
     @property
-    def motivation(self) -> str:
-        return (
-            "Elementwise multiplication is a fundamental operator in array "
-            "programming and it is widely used in almost every sparse array "
-            "application. "
-        )
+    def correctness(self) -> str:
+        return ""
 
     @property
     def description(self) -> str:
-        return "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij"
+        return (
+            "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij. "
+            "Elementwise multiplication is a fundamental operator in array programming "
+            "and it is widely used in almost every sparse array application."
+        )
 
     @property
     def suites(self) -> list[str]:

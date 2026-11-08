@@ -69,7 +69,10 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
 
     @property
     def description(self) -> str:
-        return "Small deterministic FastSV examples with reference labels."
+        return (
+            "Small deterministic FastSV examples with reference labels. Provide small "
+            "graph examples for FastSV correctness checks."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -93,10 +96,6 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
             "Generative AI might have been used to construct tests. This statement "
             "was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Provide small graph examples for FastSV correctness checks."
 
     @property
     def cacheable(self) -> bool:
@@ -206,10 +205,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
 
     @property
     def description(self) -> str:
-        return (
-            "SNAP graphs symmetrized with self-loops removed for FastSV weak "
-            "connected components, checked against igraph."
-        )
+        return "Boolean adjacency matrices, symmetrized, with self-loops removed."
 
     @property
     def suites(self) -> list[str]:
@@ -233,10 +229,6 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate sparse graph inputs for FastSV."
 
     @property
     def cacheable(self) -> bool:
@@ -397,8 +389,8 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
     @property
     def description(self) -> str:
         return (
-            "GAP graphs symmetrized with self-loops removed for FastSV weak "
-            "connected components, checked against igraph."
+            "GAP graphs symmetrized with self-loops removed for FastSV weak connected "
+            "components, checked against igraph. Generate GAP graph inputs for FastSV."
         )
 
     @property
@@ -434,10 +426,6 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
             "Generative AI was used to construct the generator and dataset structures."
             " This statement was written by hand."
         )
-
-    @property
-    def motivation(self) -> str:
-        return "Generate GAP graph inputs for FastSV."
 
     @property
     def cacheable(self) -> bool:
@@ -534,11 +522,9 @@ class FastSVBenchmark(Benchmark):
     @property
     def description(self):
         return (
-            "The FastSV algorithm is a graph algorithm used to find the connected"
-            " components for a simple graph. This algorithm introduces several"
-            " optimizations that allow for faster convergence to a solution compared to"
-            " the SV algorithm it is based on, specifically through modifications to"
-            " the tree hooking and termination condition."
+            "Computes connected components with FastSV, which improves on the "
+            "Shiloach-Vishkin algorithm by tracking parents and adding heuristics, "
+            "such as fast-forwarding labels to those of grandparents."
         )
 
     @property
@@ -609,8 +595,8 @@ class FastSVBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def correctness(self) -> str:
+        return "Component labels are deterministic, so we check them exactly."
 
     @property
     def generators(self) -> list[Generator]:
