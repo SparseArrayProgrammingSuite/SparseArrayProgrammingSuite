@@ -404,7 +404,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             ("soc-sign-bitcoin-otc", ["standard"]),
             ("soc-sign-bitcoin-alpha", ["standard"]),
             ("com-LiveJournal", ["standard"]),
-            ("com-Friendster", ["standard"]),
+            ("com-Friendster", ["standard-long"]),
             ("com-Orkut", ["standard"]),
             ("com-Youtube", ["standard"]),
             ("com-DBLP", ["standard"]),

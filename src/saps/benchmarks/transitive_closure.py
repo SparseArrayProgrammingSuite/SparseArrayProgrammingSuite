@@ -274,7 +274,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
             TransitiveClosureDataset("soc-sign-bitcoin-otc", suites=["trace"]),
             TransitiveClosureDataset("soc-sign-bitcoin-alpha", suites=["trace"]),
             TransitiveClosureDataset("com-LiveJournal", suites=[]),
-            TransitiveClosureDataset("com-Friendster", suites=[]),
+            TransitiveClosureDataset("com-Friendster", suites=["standard-long"]),
             TransitiveClosureDataset("com-Orkut", suites=[]),
             TransitiveClosureDataset("com-Youtube", suites=["trace"]),
             TransitiveClosureDataset("com-DBLP", suites=["trace"]),

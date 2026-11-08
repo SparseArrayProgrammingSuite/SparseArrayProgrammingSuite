@@ -479,7 +479,7 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 for seed in range(10)
             ],
             *[
-                BellmanFordDataset(source_name="com-Friendster", source_seed=seed, suites=["standard"])
+                BellmanFordDataset(source_name="com-Friendster", source_seed=seed, suites=["standard-long"])
                 for seed in range(10)
             ],
             *[

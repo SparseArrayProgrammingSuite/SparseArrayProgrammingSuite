@@ -273,7 +273,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
             ConnectedComponentsDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
             ConnectedComponentsDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
             ConnectedComponentsDataset("com-LiveJournal", suites=["standard"]),
-            ConnectedComponentsDataset("com-Friendster", suites=["standard"]),
+            ConnectedComponentsDataset("com-Friendster", suites=["standard-long"]),
             ConnectedComponentsDataset("com-Orkut", suites=["standard"]),
             ConnectedComponentsDataset("com-Youtube", suites=["standard", "trace"]),
             ConnectedComponentsDataset("com-DBLP", suites=["standard", "trace"]),

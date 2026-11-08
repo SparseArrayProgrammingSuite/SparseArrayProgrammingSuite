@@ -409,7 +409,7 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
             FloydWarshallDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
             FloydWarshallDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
             FloydWarshallDataset("com-LiveJournal", suites=["standard"]),
-            FloydWarshallDataset("com-Friendster", suites=["standard"]),
+            FloydWarshallDataset("com-Friendster", suites=["standard-long"]),
             FloydWarshallDataset("com-Orkut", suites=["standard"]),
             FloydWarshallDataset("com-Youtube", suites=["standard", "trace"]),
             FloydWarshallDataset("com-DBLP", suites=["standard", "trace"]),

@@ -619,7 +619,7 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
             MSSPDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
             MSSPDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace", "train"]),
             MSSPDataset("com-LiveJournal", suites=["standard"]),
-            MSSPDataset("com-Friendster", suites=["standard"]),
+            MSSPDataset("com-Friendster", suites=["standard-long"]),
             MSSPDataset("com-Orkut", suites=["standard"]),
             MSSPDataset("com-Youtube", suites=["standard"]),
             MSSPDataset("com-DBLP", suites=["standard"]),
@@ -675,7 +675,7 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
             MSSPDataset("wiki-talk-temporal", suites=["standard"]),
             MSSPDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             MSSPDataset("CollegeMsg", suites=["standard", "trace"]),
-            MSSPDataset("twitter7", suites=["standard"]),
+            MSSPDataset("twitter7", suites=["standard-long"]),
             MSSPDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on

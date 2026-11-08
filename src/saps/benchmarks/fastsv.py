@@ -257,7 +257,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             FastSVDataset("soc-sign-bitcoin-otc", suites=["standard", "trace"]),
             FastSVDataset("soc-sign-bitcoin-alpha", suites=["standard", "trace"]),
             FastSVDataset("com-LiveJournal", suites=["standard"]),
-            FastSVDataset("com-Friendster", suites=["standard"]),
+            FastSVDataset("com-Friendster", suites=["standard-long"]),
             FastSVDataset("com-Orkut", suites=["standard"]),
             FastSVDataset("com-Youtube", suites=["standard", "trace"]),
             FastSVDataset("com-DBLP", suites=["standard", "trace"]),
@@ -313,7 +313,7 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
             FastSVDataset("wiki-talk-temporal", suites=["standard", "trace"]),
             FastSVDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             FastSVDataset("CollegeMsg", suites=["standard", "trace"]),
-            FastSVDataset("twitter7", suites=["standard"]),
+            FastSVDataset("twitter7", suites=["standard-long"]),
             FastSVDataset("higgs-twitter", suites=["standard", "trace"]),
         ]
         # fmt: on

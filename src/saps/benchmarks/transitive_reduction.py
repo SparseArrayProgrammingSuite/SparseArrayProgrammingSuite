@@ -220,7 +220,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             TransitiveReductionDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
             TransitiveReductionDataset("com-LiveJournal", suites=["standard"]),
             TransitiveReductionDataset("com-Friendster", suites=["standard-long"]),
-            TransitiveReductionDataset("com-Orkut", suites=["standard"]),
+            TransitiveReductionDataset("com-Orkut", suites=["standard-long"]),
             TransitiveReductionDataset("com-Youtube", suites=["standard"]),
             TransitiveReductionDataset("com-DBLP", suites=["standard"]),
             TransitiveReductionDataset("com-Amazon", suites=["standard"]),

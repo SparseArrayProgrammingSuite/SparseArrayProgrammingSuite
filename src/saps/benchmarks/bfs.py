@@ -349,7 +349,7 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
                 for seed in range(10)
             ],
             *[
-                BFSDataset(source_name="com-Friendster", source_seed=seed, suites=["standard"])
+                BFSDataset(source_name="com-Friendster", source_seed=seed, suites=["standard-long"])
                 for seed in range(10)
             ],
             *[

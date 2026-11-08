@@ -488,11 +488,14 @@ def main() -> int:
     parser.add_argument(
         "--no-tag",
         action="append",
-        default=[],
+        # standard-long datasets take hours each to prepare, so they run only
+        # when selected with --tag suite-standard-long.
+        default=["suite-standard-long"],
         help=(
             "Exclude SAPS benchmarks that have any of these tags "
             "(can be passed more than once, applies to datasets, "
-            "generators, and benchmarks)"
+            "generators, and benchmarks; default: suite-standard-long, "
+            "unless selected with --tag)"
         ),
     )
     parser.add_argument(
@@ -819,7 +822,9 @@ def main() -> int:
     results_dir.mkdir(parents=True, exist_ok=True)
 
     include_tags = {tag.strip() for tag in args.tag if tag and tag.strip()}
-    exclude_tags = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
+    exclude_tags = {
+        tag.strip() for tag in args.no_tag if tag and tag.strip()
+    } - include_tags
     include_patterns = [re.compile(pattern) for pattern in args.re or []]
     exclude_patterns = [re.compile(pattern) for pattern in args.no_re or []]
 
@@ -900,13 +905,6 @@ def main() -> int:
             _benchmark: dict, generator: dict, dataset: dict, _dataset_number: int
         ) -> bool:
             if not generator["cacheable"]:
-                return False
-            # standard-long datasets take hours each to prepare, so they are
-            # cached only when selected with --tag suite-standard-long.
-            if (
-                "suite-standard-long" in dataset["tags"]
-                and "suite-standard-long" not in include_tags
-            ):
                 return False
             manifest_key = dataset["asv_param"]
             record = manifest.get(manifest_key)

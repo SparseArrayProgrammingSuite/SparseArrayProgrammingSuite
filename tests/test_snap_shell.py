@@ -543,7 +543,9 @@ def test_all_snap_sources_have_ten_seeded_cases():
         assert {(d.source_name, d.source_seed) for d in datasets} == {
             (g.name, seed) for g in graphs for seed in range(10)
         }
-        assert all("standard" in d.suites for d in datasets)
+        assert all(
+            "standard" in d.suites or "standard-long" in d.suites for d in datasets
+        )
 
 
 def test_snap_with_suites_does_not_mutate_shared_graphs():
