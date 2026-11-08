@@ -164,16 +164,21 @@ def test_floyd_warshall_gap_keeps_weights_and_direction(
 
 
 @pytest.mark.parametrize("symmetrize", [False, True])
-def test_multi_source_gap_conversion_uses_shell_sources(
-    monkeypatch, weighted_graph, symmetrize
+def test_multi_source_gap_conversion_keeps_weights_and_uses_shell_sources(
+    monkeypatch, symmetrize
 ):
     from saps.benchmarks import mssp
 
+    # Symmetrizing a negative edge would make a negative cycle.
+    weighted_graph = DataInstance(
+        inputs=[from_scipy(coo_array([[0, 7, 0], [0, 0, 3], [0, 0, 0]]))],
+        meta={"sources": [2, 0, 2], "max_degree": 1},
+    )
     load = Mock(return_value=weighted_graph)
     monkeypatch.setattr(mssp, "fetch_gap_graph", load)
     dataset = mssp.MSSPDataset("GAP-road", symmetrize=symmetrize)
     problem = mssp.MSSPGAPGenerator().generate(dataset)
-    expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
+    expected = np.array([[0, 7, np.inf], [np.inf, 0, 3], [np.inf, np.inf, 0]])
     if symmetrize:
         expected = np.minimum(expected, expected.T)
     np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)

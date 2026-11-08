@@ -19,7 +19,7 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import distance_matrix, graph_csr
+from saps.util.adjacency import distance_matrix, graph_csr, zero_one_adjacency
 from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
@@ -80,13 +80,19 @@ def initial_distances(n: int, sources) -> COORMatrix:
 
 
 def multi_source_instance(
-    adjacency: BinsparseTensor, sources, *, symmetrize: bool = False
+    adjacency: BinsparseTensor,
+    sources,
+    *,
+    keep_weights: bool = False,
+    symmetrize: bool = False,
 ) -> DataInstance:
-    """Unweighted distance graph plus initial distances from each source."""
+    """Distance graph plus initial distances from each source."""
     n = adjacency.shape[0]
     return DataInstance(
         inputs=[
-            distance_matrix(adjacency, symmetrize=symmetrize),
+            distance_matrix(
+                adjacency, keep_weights=keep_weights, symmetrize=symmetrize
+            ),
             initial_distances(n, sources),
         ],
         meta={"sources": list(sources)},
@@ -383,11 +389,9 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
     @property
     def description(self) -> str:
         return (
-            "Data is collected from the SuiteSparse Matrix Collection and standard"
-            " benchmark graph datasets, with sparse adjacency matrices converted into"
-            " unweighted all-pairs shortest path inputs. This generator uses real-world"
-            " networks, including the Chesapeake road network and soc-tribes network"
-            " from the Network Repository."
+            "GAP benchmark graphs from the SuiteSparse Matrix Collection, converted"
+            " into weighted multi-source shortest path inputs that keep each graph's"
+            " edge weights, searched from the GAP shell's published sources."
         )
 
     @property
@@ -477,8 +481,12 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
                 f"Multi-Source Shortest Paths requires a square matrix, got {(n, m)}"
             )
 
+        # GAP graphs are weighted, so edges keep their lengths.
         return multi_source_instance(
-            raw.inputs[0], raw.meta["sources"], symmetrize=dataset.symmetrize
+            raw.inputs[0],
+            raw.meta["sources"],
+            keep_weights=True,
+            symmetrize=dataset.symmetrize,
         )
 
 
@@ -672,7 +680,7 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
     def generate_inputs(self, dataset: MSSPDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         sources = np.unique(raw.meta["sources"]).tolist()
-        return multi_source_instance(raw.inputs[0], sources)
+        return multi_source_instance(zero_one_adjacency(raw.inputs[0]), sources)
 
 
 class MSSPSNAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
