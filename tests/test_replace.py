@@ -15,12 +15,6 @@ from frameworks.saps_smart import SmartSparseFramework, SmartSparseKernels
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.jacobi import JacobiBenchmark
 from saps.benchmarks.pcg import JacobiPCGBenchmark
-from tests.optional_pytorch import (
-    PytorchFramework,
-    pytorch_param,
-    requires_torch,
-    torch,
-)
 
 
 @pytest.fixture(
@@ -29,7 +23,6 @@ from tests.optional_pytorch import (
         SciPyFramework,
         PyDataSparseFramework,
         SmartSparseFramework,
-        pytorch_param(PytorchFramework),
         "tagger",
     ]
 )
@@ -43,7 +36,7 @@ def xp(request, monkeypatch):
 def dense(array):
     if hasattr(array, "array"):
         array = array.array
-    if torch is not None and isinstance(array, torch.Tensor):
+    if hasattr(array, "to_dense"):  # PyTorch
         return array.to_dense().detach().cpu().numpy()
     if hasattr(array, "todense"):
         return np.asarray(array.todense())
@@ -107,24 +100,13 @@ def test_replace_nan_fill_and_explicit_nan(framework, format):
     assert np.isnan(array.fill_value)
 
 
-@pytest.mark.parametrize("framework", ["scipy", pytorch_param("torch")])
 @pytest.mark.parametrize("format", ["coo", "csr", "csc"])
-def test_replace_zero_fill_backends(framework, format):
+def test_replace_zero_fill_backends(format):
     values = np.array([[0.0, 2.0, np.nan], [2.0, 0.0, 4.0]])
-    if framework == "scipy":
-        xp = SciPyFramework()
-        array = getattr(sps, f"{format}_array")(values)
-    else:
-        xp = PytorchFramework()
-        array = torch.as_tensor(values.copy()).to_sparse(
-            layout=getattr(torch, f"sparse_{format}")
-        )
+    xp = SciPyFramework()
+    array = getattr(sps, f"{format}_array")(values)
     changed = xp.replace(array, 2, 0)
-    assert (
-        sps.issparse(changed)
-        if framework == "scipy"
-        else changed.layout == array.layout
-    )
+    assert sps.issparse(changed)
     np.testing.assert_array_equal(dense(changed), [[0, 0, np.nan], [0, 0, 4]])
     np.testing.assert_array_equal(
         dense(xp.replace(array, 0, 3)), [[3, 2, np.nan], [2, 3, 4]]
@@ -135,16 +117,11 @@ def test_replace_zero_fill_backends(framework, format):
     np.testing.assert_array_equal(dense(array), values)
 
 
-@requires_torch
 def test_replace_combines_duplicate_sparse_coordinates_first():
-    scipy_array = sps.coo_array(([2.0, 3.0], ([0, 0], [1, 1])), shape=(2, 3))
-    torch_array = torch.sparse_coo_tensor([[0, 0], [1, 1]], [2.0, 3.0], (2, 3))
-    for xp, array in (
-        (SciPyFramework(), scipy_array),
-        (PytorchFramework(), torch_array),
-    ):
-        np.testing.assert_array_equal(dense(xp.replace(array, 5, 0)), np.zeros((2, 3)))
-        assert dense(array)[0, 1] == 5
+    array = sps.coo_array(([2.0, 3.0], ([0, 0], [1, 1])), shape=(2, 3))
+    xp = SciPyFramework()
+    np.testing.assert_array_equal(dense(xp.replace(array, 5, 0)), np.zeros((2, 3)))
+    assert dense(array)[0, 1] == 5
 
 
 def test_tagger_records_replace_and_nonzero_fill(monkeypatch):

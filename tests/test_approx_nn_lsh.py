@@ -10,23 +10,23 @@ from frameworks.saps_numpy import NumpyFramework
 from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.simhash_ann import SimHashANNBenchmark
-from tests.optional_pytorch import PytorchFramework, pytorch_param
 
 
 @pytest.fixture(
     params=[
         (NumpyFramework, False),
         (SciPyFramework, False),
-        pytorch_param((PytorchFramework, False)),
         (PyDataSparseFramework, False),
         (PyDataSparseFramework, True),
     ],
-    ids=["numpy", "scipy", "pytorch", "sparse-dense-input", "sparse"],
+    ids=["numpy", "scipy", "sparse-dense-input", "sparse"],
 )
 def run_lsh(request):
     framework, sparse_inputs = request.param
-    xp = framework()
+    return lsh_runner(framework(), sparse_inputs)
 
+
+def lsh_runner(xp, sparse_inputs):
     def run(data, query, projection, **meta):
         n_projections = np.asarray(projection).shape[1] // meta["n_tables"]
         meta["n_projections"] = n_projections

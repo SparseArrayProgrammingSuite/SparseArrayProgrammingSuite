@@ -11,7 +11,6 @@ from frameworks.saps_smart import SmartSparseFramework
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.four_clique_counting import FourCliqueCountingBenchmark
 from saps.benchmarks.triangle_counting import TriangleCountingBenchmark
-from tests.optional_pytorch import PytorchFramework, pytorch_param
 
 
 @pytest.fixture(params=[TriangleCountingBenchmark, FourCliqueCountingBenchmark])
@@ -48,31 +47,27 @@ def test_count_checks_reject_non_integer_or_non_scalar_outputs(
         benchmark.check(None)
 
 
-@pytest.mark.parametrize(
-    "framework",
-    [
-        NumpyFramework,
-        pytorch_param(PytorchFramework),
-        SciPyFramework,
-        SmartSparseFramework,
-        PyDataSparseFramework,
-    ],
+@pytest.fixture(
+    params=[NumpyFramework, SciPyFramework, SmartSparseFramework, PyDataSparseFramework]
 )
+def xp(request):
+    return request.param()
+
+
 @pytest.mark.parametrize("weighted", [False, True])
-def test_counting_contractions_preserve_int64(benchmark, framework, weighted):
+def test_counting_contractions_preserve_int64(benchmark, xp, weighted):
     size = 3 if isinstance(benchmark, TriangleCountingBenchmark) else 4
     A = np.triu(np.ones((size, size), dtype=np.int64), k=1)
     # A weighted arithmetic probe exposes float conversion without constructing
     # a graph with quadrillions of cliques. Exactly one product uses this edge.
     expected = 2**53 + 1 if weighted else 1
     A[0, 1] = expected
-    xp = framework()
     # PyTorch and SciPy cannot broadcast these sparse operands in 3D/4D.
     # Exercise their supported dense path, and the other backends' sparse path.
     tensor = (
-        from_numpy(A)
-        if isinstance(xp, (PytorchFramework, SciPyFramework))
-        else from_scipy(sparse.coo_array(A))
+        from_scipy(sparse.coo_array(A))
+        if isinstance(xp, (NumpyFramework, SmartSparseFramework, PyDataSparseFramework))
+        else from_numpy(A)
     )
     output = xp.compute(benchmark.benchmark(xp, {}, xp.from_binsparse(tensor)))
     result = to_numpy(xp.to_binsparse(output))
