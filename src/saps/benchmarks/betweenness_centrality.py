@@ -20,6 +20,7 @@ from saps.benchmark import (
 from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import fetch_snap_graph, snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps.util.error_bounds import summation_error_bound
 from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
@@ -145,6 +146,28 @@ def undirected_path_matrix():
         A[i, i + 1] = 1
         A[i + 1, i] = 1
     return A
+
+
+def score_tolerances(graph, sources, scale):
+    """Per-score rtol and atol covering any float64 Brandes evaluation.
+
+    ``scale`` is the maximum the scores were normalized by, or 1.
+    """
+    # Every quantity is a positive product of roundings, so a score's relative
+    # error is gamma_k for k roundings, in any summation order. A path count
+    # sums at most maxdegree counts per level. A dependency multiplies by one
+    # path count, divides by another, adds one, and sums maxdegree terms per
+    # level. Summing the sources and adding their own dependencies adds one each.
+    depth = max(graph.eccentricity(vertices=list(sources), mode="out"), default=0)
+    k = 3 * depth**2 * graph.maxdegree() + len(sources)
+    # Kernels that carry one plus each dependency and subtract the source count
+    # at the end also round relative to that count.
+    offset = len(sources) / scale
+    # Normalizing divides by the computed maximum, which carries the same error.
+    margin = 1 - summation_error_bound(np, k + 1, 1 + offset, np.float64)
+    assert margin > 0, "Too many rounding steps for a finite error bound"
+    rtol = summation_error_bound(np, 2 * k + 2, 1.0, np.float64) / margin
+    return float(rtol), float(rtol * offset)
 
 
 class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]):
@@ -288,7 +311,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
                     "include_source": True,
                     "normalize": True,
                 },
-                expected=np.array([4.0, 6.0, 4.0, 3.0, 0.0]) / 6,
+                expected=np.array([4.0, 6.0, 4.0, 3.0, 0.0]),
             ),
         ]
 
@@ -297,18 +320,24 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
 
         if dataset.A is None:
             raise ValueError("Centrality test datasets must define A.")
+        graph = ig.Graph(
+            n=len(dataset.A),
+            edges=np.column_stack(np.nonzero(dataset.A)),
+            directed=True,
+        )
         expected = dataset.expected
         if expected is None:
-            graph = ig.Graph(
-                n=len(dataset.A),
-                edges=np.column_stack(np.nonzero(dataset.A)),
-                directed=True,
-            )
             expected = np.asarray(graph.betweenness(directed=True))
+        scale = 1.0
+        if dataset.meta.get("normalize", False) and expected.max(initial=0) > 0:
+            scale = expected.max()
+        sources = dataset.meta.get("bc_sources", range(len(dataset.A)))
+        rtol, atol = score_tolerances(graph, sources, scale)
         return DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta=dict(dataset.meta),
-            ref_outputs=[from_numpy(expected)],
+            ref_outputs=[from_numpy(expected / scale)],
+            ref_meta={"rtol": rtol, "atol": atol},
         )
 
 
@@ -521,14 +550,18 @@ class BetweennessCentralitySNAPReferenceGenerator(
                     )
                     - 1
                 )
+        scale = 1.0
         if meta.get("normalize", False) and scores.max(initial=0) > 0:
-            scores /= scores.max()
-        expected = from_numpy(scores)
+            scale = scores.max()
+        rtol, atol = score_tolerances(graph, sources, scale)
+        expected = from_numpy(scores / scale)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
             "reference_backend": "igraph",
             "reference_algorithm": "betweenness_centrality",
+            "rtol": rtol,
+            "atol": atol,
         }
         return DataInstance(
             inputs=[],
@@ -679,14 +712,18 @@ class BetweennessCentralityGAPReferenceGenerator(
                     )
                     - 1
                 )
+        scale = 1.0
         if meta.get("normalize", False) and scores.max(initial=0) > 0:
-            scores /= scores.max()
-        expected = from_numpy(scores)
+            scale = scores.max()
+        rtol, atol = score_tolerances(graph, sources, scale)
+        expected = from_numpy(scores / scale)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
             "reference_backend": "igraph",
             "reference_algorithm": "betweenness_centrality",
+            "rtol": rtol,
+            "atol": atol,
         }
         return DataInstance(
             inputs=[],
@@ -890,6 +927,10 @@ class BetweennessCentralityBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is not None:
+            assert self._ref_meta is not None, "No error bound; regenerate the dataset"
             assert_binsparse_allclose(
-                self._ref_outputs[0], self._output[0], rtol=1e-5, atol=1e-12
+                self._ref_outputs[0],
+                self._output[0],
+                rtol=self._ref_meta["rtol"],
+                atol=self._ref_meta["atol"],
             )
