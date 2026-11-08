@@ -591,6 +591,19 @@ _MATRICES: list[SuiteSparseDataset] = [
         "VDOL/hangGlider_1",
         "VDOL/tumorAntiAngiogenesis_1",
         "VDOL/tumorAntiAngiogenesis_2",
+        "Botonakis/thermomech_TK",
+        "CEMW/tmt_sym",
+        "FIDAP/ex3",
+        "HB/bcsstk16",
+        "HB/bcsstk21",
+        "HB/nos5",
+        "Janna/StocF-1465",
+        "McRae/ecology2",
+        "Norris/fv3",
+        "Pothen/bodyy5",
+        "TKK/plbuckle",
+        "UTEP/Dubcova2",
+        "UTEP/Dubcova3",
     ]
 ]
 _MATRICES += [SuiteSparseDataset(f"LPnetlib/{name}") for name in _LPNETLIB_PROBLEMS]
