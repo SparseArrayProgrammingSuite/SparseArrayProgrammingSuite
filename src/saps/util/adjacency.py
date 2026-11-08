@@ -11,6 +11,8 @@ from binsparse.conversions import from_scipy, to_numpy, to_scipy
 from saps_framework.binsparse_utils import tensor_data
 
 DEFAULT_MAX_DENSITY = 0.01
+# Seed of the GAP-style random lengths that SNAP shortest-path inputs use.
+SNAP_LENGTH_SEED = 0
 
 
 def zero_one_adjacency(
@@ -51,16 +53,53 @@ def _row_major(row, col, n):
     return linear
 
 
+def _splitmix64(x: np.ndarray) -> np.ndarray:
+    """The SplitMix64 finalizer, applied elementwise to uint64 values."""
+    x = x ^ (x >> np.uint64(30))
+    x = x * np.uint64(0xBF58476D1CE4E5B9)
+    x = x ^ (x >> np.uint64(27))
+    x = x * np.uint64(0x94D049BB133111EB)
+    return x ^ (x >> np.uint64(31))
+
+
+def random_edge_lengths(row: np.ndarray, col: np.ndarray, seed: int) -> np.ndarray:
+    """Integer lengths in [1, 255] for edges (row, col), as GAP weights its
+    unweighted graphs.
+
+    Each length is a fixed hash of the seed and the unordered endpoints, so it
+    never depends on edge order, machine, or NumPy version, and an edge and its
+    reverse share a length.
+    """
+    if row.size and max(int(row.max()), int(col.max())) >= 2**32:
+        raise ValueError("Edge lengths are hashed from 32-bit vertex IDs.")
+    key = np.minimum(row, col).astype(np.uint64) << np.uint64(32)
+    key |= np.maximum(row, col).astype(np.uint64)
+    key ^= _splitmix64(np.array([seed], dtype=np.uint64))[0]
+    key = _splitmix64(key)
+    key %= np.uint64(255)
+    key += np.uint64(1)
+    return key.astype(np.float64)
+
+
 def distance_matrix(
-    adjacency: BinsparseTensor, *, keep_weights: bool = False, symmetrize: bool = False
+    adjacency: BinsparseTensor,
+    *,
+    keep_weights: bool = False,
+    length_seed: int | None = None,
+    symmetrize: bool = False,
+    zero_diagonal: bool = True,
 ) -> BinsparseTensor:
     """Shortest-path input: edge lengths, a zero diagonal, and infinite fill.
 
     Explicit zeros and self-loops are not edges, and repeated entries are summed
-    as when reading any sparse matrix. Without ``keep_weights`` every edge has
-    length 1. With ``symmetrize`` each edge also runs backwards, keeping the
-    shorter direction.
+    as when reading any sparse matrix. With ``keep_weights`` edges keep their
+    stored lengths, with ``length_seed`` they get `random_edge_lengths`, and
+    otherwise every edge has length 1. With ``symmetrize`` each edge also runs
+    backwards, keeping the shorter direction. Without ``zero_diagonal`` the
+    diagonal stays infinite, for kernels that only follow edges.
     """
+    if keep_weights and length_seed is not None:
+        raise ValueError("Pass keep_weights or length_seed, not both.")
     try:
         edges = to_scipy(adjacency).tocoo()
     except TypeError:
@@ -75,6 +114,8 @@ def distance_matrix(
     row, col = edges.row[keep], edges.col[keep]
     if keep_weights:
         length = edges.data[keep].astype(np.result_type(edges.data, 1.0), copy=False)
+    elif length_seed is not None:
+        length = random_edge_lengths(row, col, length_seed)
     else:
         length = np.ones(row.size)
     del edges, keep
@@ -86,6 +127,16 @@ def distance_matrix(
         length = np.minimum.reduceat(length[order], first) if first.size else length
         row, col = row[first], col[first]
         del order, first
+    if not zero_diagonal:
+        return COORMatrix(
+            shape,
+            row.size,
+            fill=True,
+            fill_value=np.inf,
+            indices_0=row,
+            indices_1=col,
+            values=length,
+        )
     diagonal = np.arange(n, dtype=row.dtype)
     at = np.searchsorted(_row_major(row, col, n), _row_major(diagonal, diagonal, n))
     return COORMatrix(

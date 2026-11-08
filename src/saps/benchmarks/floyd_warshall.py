@@ -25,6 +25,7 @@ from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import (
     DEFAULT_MAX_DENSITY,
+    SNAP_LENGTH_SEED,
     distance_matrix,
     graph_csr,
     squaring_count,
@@ -481,9 +482,14 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
     def generate_inputs(self, dataset: FloydWarshallDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         return DataInstance(
-            inputs=[distance_matrix(zero_one_adjacency(raw.inputs[0]))],
+            inputs=[
+                distance_matrix(
+                    zero_one_adjacency(raw.inputs[0]), length_seed=SNAP_LENGTH_SEED
+                )
+            ],
             meta={
                 **raw.meta,
+                "length_seed": SNAP_LENGTH_SEED,
                 "max_squarings": squaring_count(
                     raw.inputs[0].shape[0],
                     raw.meta["max_degree"],

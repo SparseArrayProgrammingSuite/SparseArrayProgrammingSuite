@@ -30,6 +30,7 @@ from saps.benchmarks.suitesparse import (
 from saps.downloaders import suitesparse as downloader
 from saps.metadata import _benchmark_instances
 from saps.storage import LocalStorageBackend
+from saps.util.adjacency import random_edge_lengths
 
 # Each SNAP consumer with the reference generator its generate reads, if any.
 _CONSUMERS = [
@@ -236,9 +237,12 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
             select_source_vertices(fetch_snap_graph(slug).inputs[0], seed=0)[0]
         )
     elif module_name in _MULTI_SOURCE:
-        assert problem.meta == {
+        expected_meta = {
             "sources": sorted(set(_seeded_sources(fetch_snap_graph(slug).inputs[0])))
         }
+        if module_name == "mssp":
+            expected_meta["length_seed"] = 0
+        assert problem.meta == expected_meta
     elif module_name == "mcl":
         assert problem.meta == {}
     else:
@@ -248,6 +252,8 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         }
         if module_name in {"transitive_closure", "floyd_warshall"}:
             expected_meta["max_squarings"] = 0
+        if module_name in {"floyd_warshall", "transitive_reduction"}:
+            expected_meta["length_seed"] = 0
         if module_name == "betweenness_centrality":
             expected_meta.update(
                 bc_sources=expected_meta["sources"][:4],
@@ -257,13 +263,15 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
             )
         assert problem.meta == expected_meta
     if module_name in {"bellman_ford", "mssp", "floyd_warshall"}:
-        expected = np.array([[0, 1, np.inf], [np.inf, 0, 1], [np.inf, np.inf, 0]])
+        a, b = random_edge_lengths(np.array([0, 1]), np.array([1, 2]), 0)
+        expected = np.array([[0, a, np.inf], [np.inf, 0, b], [np.inf, np.inf, 0]])
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].fill_value == np.inf
         assert problem.inputs[0].number_of_stored_values == 5
     elif module_name == "transitive_reduction":
+        a, b = random_edge_lengths(np.array([0, 1]), np.array([1, 2]), 0)
         expected = np.array(
-            [[np.inf, 1, np.inf], [np.inf, np.inf, 1], [np.inf, np.inf, np.inf]]
+            [[np.inf, a, np.inf], [np.inf, np.inf, b], [np.inf, np.inf, np.inf]]
         )
         np.testing.assert_array_equal(to_sparse(problem.inputs[0]).todense(), expected)
         assert problem.inputs[0].number_of_stored_values == 2
@@ -297,12 +305,20 @@ def test_snap_consumer_reads_shared_remote_graph_without_source_download(
         )
         for variant in seeded:
             actual = consumer.cached_generate(variant)
-            distances = shortest_path(
-                to_scipy(raw.inputs[0]).toarray(),
-                directed=True,
-                unweighted=True,
-                indices=actual.meta["src"],
-            )
+            if module_name == "bfs":
+                distances = shortest_path(
+                    to_scipy(raw.inputs[0]).toarray(),
+                    directed=True,
+                    unweighted=True,
+                    indices=actual.meta["src"],
+                )
+            else:
+                # Bellman-Ford follows its input's seeded random lengths.
+                lengths = to_sparse(actual.inputs[0]).todense()
+                lengths[~np.isfinite(lengths)] = 0
+                distances = shortest_path(
+                    lengths, directed=True, indices=actual.meta["src"]
+                )
             expected_output = (
                 np.where(np.isfinite(distances), distances + 1, 0)
                 if module_name == "bfs"
@@ -377,9 +393,15 @@ def test_snap_transitive_reduction_removes_redundant_edge(monkeypatch):
     actual = reduction.TransitiveReductionBenchmark().benchmark(
         xp, problem.meta, xp.from_binsparse(problem.inputs[0])
     )
-    np.testing.assert_array_equal(
-        actual, [[np.inf, 1, np.inf], [np.inf, np.inf, 1], [np.inf, np.inf, np.inf]]
-    )
+    a, b, c = random_edge_lengths(np.array([0, 1, 0]), np.array([1, 2, 2]), 0)
+    # 0->2 is redundant when 0->1->2 is no longer than 0's longest edge plus x.
+    redundant = a + b <= max(a, c) + problem.meta.get("x", 1)
+    expected = [
+        [np.inf, a, np.inf if redundant else c],
+        [np.inf, np.inf, b],
+        [np.inf, np.inf, np.inf],
+    ]
+    np.testing.assert_array_equal(actual, expected)
     np.testing.assert_array_equal(
         to_scipy(adjacency).toarray(), [[0, 1, 1], [0, 0, 1], [0, 0, 0]]
     )
@@ -606,7 +628,7 @@ def test_multi_source_snap_problems_use_deduplicated_shell_sources(monkeypatch):
     monkeypatch.setattr(mssp, "fetch_snap_graph", lambda _: raw)
     generator = mssp.MSSPSNAPGenerator()
     problem = generator.generate(generator.datasets[0])
-    assert problem.meta == {"sources": [0, 1, 2]}
+    assert problem.meta == {"sources": [0, 1, 2], "length_seed": 0}
     assert problem.inputs[1].shape == (3, 3)
 
 

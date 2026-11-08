@@ -8,7 +8,7 @@ from binsparse import COORMatrix
 
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmark import DataInstance
-from saps.util.adjacency import zero_one_adjacency
+from saps.util.adjacency import random_edge_lengths, zero_one_adjacency
 
 # These generators' references compute in-process here.
 pytestmark = pytest.mark.usefixtures("uncached_references")
@@ -59,12 +59,6 @@ _SNAP_CONSUMERS = [
         "TriangleCountingSNAPGenerator",
         _UPPER_PATTERN,
         np.int64,
-    ),
-    (
-        "transitive_reduction",
-        "TransitiveReductionSNAPGenerator",
-        [[inf, 1, inf], [inf, inf, 1], [inf, inf, inf]],
-        np.float64,
     ),
 ]
 
@@ -150,12 +144,52 @@ def test_snap_connectivity_inputs_are_zero_one(
     )
 
 
-def test_floyd_warshall_snap_uses_directed_unit_edges(monkeypatch):
+@pytest.mark.parametrize(
+    ("module_name", "generator_name"),
+    [
+        ("bellman_ford", "BellmanFordSNAPGenerator"),
+        ("floyd_warshall", "FloydWarshallSNAPGenerator"),
+        ("mssp", "MSSPSNAPGenerator"),
+    ],
+)
+def test_snap_distance_inputs_use_seeded_random_lengths(
+    monkeypatch, module_name, generator_name
+):
+    # 0->1 and 1->2 are directed edges whatever their stored values; the
+    # self-loop and the explicit zero are not edges.
+    a, b = random_edge_lengths(np.array([0, 1]), np.array([1, 2]), 0)
     _check_first_input(
         monkeypatch,
-        "floyd_warshall",
-        "FloydWarshallSNAPGenerator",
+        module_name,
+        generator_name,
         "fetch_snap_graph",
-        [[0, 1, inf], [inf, 0, 1], [inf, inf, 0]],
+        [[0, a, inf], [inf, 0, b], [inf, inf, 0]],
         np.float64,
+    )
+
+
+def test_transitive_reduction_snap_uses_seeded_lengths_without_diagonal(monkeypatch):
+    # Pruning follows edges only, so no vertex is given a zero-length self-loop.
+    a, b = random_edge_lengths(np.array([0, 1]), np.array([1, 2]), 0)
+    _check_first_input(
+        monkeypatch,
+        "transitive_reduction",
+        "TransitiveReductionSNAPGenerator",
+        "fetch_snap_graph",
+        [[inf, a, inf], [inf, inf, b], [inf, inf, inf]],
+        np.float64,
+    )
+
+
+def test_random_edge_lengths_are_fixed_symmetric_and_seeded():
+    rng = np.random.default_rng(0)
+    row, col = rng.integers(0, 2**31, (2, 10_000))
+    lengths = random_edge_lengths(row, col, 0)
+    np.testing.assert_array_equal(lengths, random_edge_lengths(col, row, 0))
+    assert lengths.min() == 1 and lengths.max() == 255
+    assert np.all(lengths == np.round(lengths))
+    assert np.mean(lengths != random_edge_lengths(row, col, 1)) > 0.99
+    # Pinned: cached references depend on these exact lengths.
+    np.testing.assert_array_equal(
+        random_edge_lengths(np.arange(5), np.arange(1, 6), 0), [35, 41, 125, 131, 107]
     )

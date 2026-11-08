@@ -22,7 +22,12 @@ from saps.benchmarks.snap import (
     fetch_snap_graph,
     with_source_vertex,
 )
-from saps.util.adjacency import distance_matrix, graph_csr, zero_one_adjacency
+from saps.util.adjacency import (
+    SNAP_LENGTH_SEED,
+    distance_matrix,
+    graph_csr,
+    zero_one_adjacency,
+)
 from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
@@ -725,8 +730,17 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
                 f"Source seed is outside the graph's available sources: {seed}"
             )
         return DataInstance(
-            inputs=[distance_matrix(zero_one_adjacency(raw.inputs[0]))],
-            meta={**raw.meta, "src": raw.meta["sources"][seed], "seed": seed},
+            inputs=[
+                distance_matrix(
+                    zero_one_adjacency(raw.inputs[0]), length_seed=SNAP_LENGTH_SEED
+                )
+            ],
+            meta={
+                **raw.meta,
+                "src": raw.meta["sources"][seed],
+                "seed": seed,
+                "length_seed": SNAP_LENGTH_SEED,
+            },
         )
 
 

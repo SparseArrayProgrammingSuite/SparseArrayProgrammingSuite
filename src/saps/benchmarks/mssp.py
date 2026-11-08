@@ -19,7 +19,12 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import distance_matrix, graph_csr, zero_one_adjacency
+from saps.util.adjacency import (
+    SNAP_LENGTH_SEED,
+    distance_matrix,
+    graph_csr,
+    zero_one_adjacency,
+)
 from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
@@ -84,18 +89,25 @@ def multi_source_instance(
     sources,
     *,
     keep_weights: bool = False,
+    length_seed: int | None = None,
     symmetrize: bool = False,
 ) -> DataInstance:
     """Distance graph plus initial distances from each source."""
     n = adjacency.shape[0]
+    meta = {"sources": list(sources)}
+    if length_seed is not None:
+        meta["length_seed"] = length_seed
     return DataInstance(
         inputs=[
             distance_matrix(
-                adjacency, keep_weights=keep_weights, symmetrize=symmetrize
+                adjacency,
+                keep_weights=keep_weights,
+                length_seed=length_seed,
+                symmetrize=symmetrize,
             ),
             initial_distances(n, sources),
         ],
-        meta={"sources": list(sources)},
+        meta=meta,
     )
 
 
@@ -680,7 +692,9 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
     def generate_inputs(self, dataset: MSSPDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
         sources = np.unique(raw.meta["sources"]).tolist()
-        return multi_source_instance(zero_one_adjacency(raw.inputs[0]), sources)
+        return multi_source_instance(
+            zero_one_adjacency(raw.inputs[0]), sources, length_seed=SNAP_LENGTH_SEED
+        )
 
 
 class MSSPSNAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):

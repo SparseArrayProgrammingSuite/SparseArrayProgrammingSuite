@@ -3,11 +3,10 @@ import numpy as np
 import scipy.sparse as scipy_sparse
 
 import sparse
-from binsparse import BinsparseTensor, COORMatrix
+from binsparse import BinsparseTensor
 from binsparse.conversions import (
     from_numpy,
     from_sparse,
-    to_scipy,
 )
 
 from saps.benchmark import (
@@ -24,7 +23,12 @@ from saps.benchmark import (
 )
 from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps.util.adjacency import (
+    SNAP_LENGTH_SEED,
+    distance_matrix,
+    graph_csr,
+    zero_one_adjacency,
+)
 from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
@@ -157,25 +161,6 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         )
 
 
-def _unweighted_distances(adjacency: BinsparseTensor) -> COORMatrix:
-    """Distance 1 along each edge of the 0-1 adjacency, infinite elsewhere.
-
-    Self-loops are dropped, since a vertex is never its own transitive edge.
-    """
-    edges = to_scipy(zero_one_adjacency(adjacency)).tocoo()
-    keep = edges.row != edges.col
-    values = np.ones(np.count_nonzero(keep), dtype=float)
-    return COORMatrix(
-        edges.shape,
-        values.size,
-        fill=True,
-        fill_value=np.inf,
-        indices_0=edges.row[keep],
-        indices_1=edges.col[keep],
-        values=values,
-    )
-
-
 class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
     @property
     def cacheable(self) -> bool:
@@ -306,8 +291,15 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     def generate_inputs(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
+        # Pruning compares two-hop path lengths, so SNAP edges get seeded random
+        # lengths; the diagonal stays infinite so no edge is its own witness.
+        lengths = distance_matrix(
+            zero_one_adjacency(raw.inputs[0]),
+            length_seed=SNAP_LENGTH_SEED,
+            zero_diagonal=False,
+        )
         return DataInstance(
-            inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
+            inputs=[lengths], meta={**raw.meta, "length_seed": SNAP_LENGTH_SEED}
         )
 
 
@@ -520,9 +512,9 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
 
     def generate_inputs(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_gap_graph(dataset.name)
-        return DataInstance(
-            inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
-        )
+        # GAP graphs are weighted, so edges keep their lengths.
+        lengths = distance_matrix(raw.inputs[0], keep_weights=True, zero_diagonal=False)
+        return DataInstance(inputs=[lengths], meta=dict(raw.meta))
 
 
 class TransitiveReductionGAPReferenceGenerator(
