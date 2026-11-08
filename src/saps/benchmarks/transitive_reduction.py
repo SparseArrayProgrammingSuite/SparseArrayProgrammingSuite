@@ -704,8 +704,8 @@ class TransitiveReductionBenchmark(Benchmark):
     @property
     def correctness(self) -> str:
         return (
-            "Weights are random integers from 1 to 255 and distances use integer "
-            "arithmetic, so we check the reduced matrix exactly."
+            "Weights are random integers from 1 to 255, so float64 path lengths are "
+            "exact in any summation order and we check the reduced matrix exactly."
         )
 
     @property
