@@ -6,7 +6,15 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
-from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
 
 
 class MRIMaskedEdgeDetectionDataset(Dataset):
@@ -201,10 +209,9 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
     @property
     def description(self) -> str:
         return (
-            "Data Generation: I used MRI image data from this Kaggle set:"
-            " https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection"
-            " . I used a constant edge threshold of 150.0 with all of the images that I"
-            " used."
+            "Data Generation: I used MRI image data from the Kaggle Brain MRI Images"
+            " for Brain Tumor Detection set. I used a constant edge threshold of 150.0"
+            " with all of the images that I used."
         )
 
     @property
@@ -221,7 +228,16 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
 
     @property
     def references(self) -> list[Ref]:
-        return MRIMaskedEdgeDetectionBenchmark().references
+        return [
+            *MRIMaskedEdgeDetectionBenchmark().references,
+            Ref(
+                title="Brain MRI Images for Brain Tumor Detection",
+                authors=[Author("Navoneel Chakrabarty")],
+                publisher="Kaggle",
+                year=2019,
+                url="https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:

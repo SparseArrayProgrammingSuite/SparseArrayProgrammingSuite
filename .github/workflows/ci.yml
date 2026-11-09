@@ -3,6 +3,13 @@ defaults:
         shell: bash -el {0}
 
 name: CI
+
+# A new push to a pull request cancels that pull request's older runs, so they
+# don't hold runners. Pushes to main each finish, keeping main's history tested.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     strategy:
@@ -32,26 +39,8 @@ jobs:
           pixi run pytest --junit-xml=test-${{ matrix.os }}.xml
       - uses: codecov/codecov-action@v5
 
-  # Frameworks the default environment doesn't install, one job each. CuPy is
-  # left out because its environment needs an NVIDIA GPU, and Scorch because
-  # its native kernels crash the test process at random. (run locally instead)
-  framework:
-    name: ${{ matrix.environment }}
-    strategy:
-      matrix:
-        environment: [pytorch, finch, galley]
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-      - name: Install pixi environment
-        uses: prefix-dev/setup-pixi@v0.11.2
-        with:
-          pixi-version: v0.83.0
-          environments: ${{ matrix.environment }}
-      - name: Run framework tests
-        run: pixi run --environment ${{ matrix.environment }} test-${{ matrix.environment }}
+  # Frameworks outside the default environment (cupy, finch, galley, pytorch,
+  # scorch) are tested locally with their pixi tasks, e.g. pixi run test-finch.
 
 on:
   # Trigger the workflow on push or pull request for the main branch,

@@ -12690,48 +12690,6 @@
         {
           "datasets": [
             {
-              "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "bbd6181cfb69f5c1f4a5aecc0bfc6dc33c3c1db66e5c864d91cee9c0b9bf751f",
-              "name": "large",
-              "statistics": [
-                "feature-dense",
-                "feature-elementary-ops",
-                "feature-tensor"
-              ]
-            },
-            {
-              "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "bbd6181cfb69f5c1f4a5aecc0bfc6dc33c3c1db66e5c864d91cee9c0b9bf751f",
-              "name": "medium",
-              "statistics": [
-                "feature-dense",
-                "feature-elementary-ops",
-                "feature-tensor"
-              ]
-            },
-            {
-              "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "bbd6181cfb69f5c1f4a5aecc0bfc6dc33c3c1db66e5c864d91cee9c0b9bf751f",
-              "name": "small",
-              "statistics": [
-                "feature-dense",
-                "feature-elementary-ops",
-                "feature-tensor"
-              ]
-            }
-          ],
-          "name": "ccsd_synthetic",
-          "statistics": []
-        }
-      ],
-      "name": "ccsd",
-      "statistics": []
-    },
-    {
-      "generators": [
-        {
-          "datasets": [
-            {
               "file": "src/saps/benchmarks/cg.py",
               "freshness": "a1d06756a5560996b2f04b462266ec92a893a21c6e7f4aef55786c3f7a96926b",
               "name": "Andrews/Andrews",
@@ -22222,7 +22180,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "matmul_2_2_2",
               "statistics": [
                 "feature-fancy-ops",
@@ -22235,7 +22193,7 @@
             },
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "matmul_3_3_3",
               "statistics": [
                 "feature-fancy-ops",
@@ -22248,7 +22206,7 @@
             },
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "matmul_4_3_2",
               "statistics": [
                 "feature-fancy-ops",
@@ -22261,7 +22219,7 @@
             },
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "matmul_4_4_3",
               "statistics": [
                 "feature-fancy-ops",
@@ -22274,7 +22232,7 @@
             },
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "matmul_4_4_4",
               "statistics": [
                 "feature-fancy-ops",
@@ -22287,7 +22245,7 @@
             },
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "matmul_5_5_5",
               "statistics": [
                 "feature-fancy-ops",
@@ -22301,7 +22259,7 @@
             },
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "matmul_6_3_3",
               "statistics": [
                 "feature-fancy-ops",
@@ -22326,7 +22284,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/hosvd.py",
-              "freshness": "fbd1c64e712f13b4385c306638bd0d5c86787edb12d11899eb1182070b9610dc",
+              "freshness": "f973fc4ccc0320e0768c19a79a311436bdee68e22e2d32a0b65e931c34f8419b",
               "name": "toy",
               "statistics": [
                 "feature-fancy-ops",
@@ -24192,7 +24150,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/mri_masked_edge_detection.py",
-              "freshness": "c19c4110efb933dd638466c3b3595115f7ed0fb9282ffe3971d44903ffbed55b",
+              "freshness": "6db92b5b1efba970a708dfed63c0dc0677e82513ab21449b9dd2db129349090f",
               "name": "yes/Y157",
               "statistics": [
                 "feature-dense",
@@ -24201,7 +24159,7 @@
             },
             {
               "file": "src/saps/benchmarks/mri_masked_edge_detection.py",
-              "freshness": "c19c4110efb933dd638466c3b3595115f7ed0fb9282ffe3971d44903ffbed55b",
+              "freshness": "6db92b5b1efba970a708dfed63c0dc0677e82513ab21449b9dd2db129349090f",
               "name": "yes/Y180",
               "statistics": [
                 "feature-dense",
@@ -24210,7 +24168,7 @@
             },
             {
               "file": "src/saps/benchmarks/mri_masked_edge_detection.py",
-              "freshness": "c19c4110efb933dd638466c3b3595115f7ed0fb9282ffe3971d44903ffbed55b",
+              "freshness": "6db92b5b1efba970a708dfed63c0dc0677e82513ab21449b9dd2db129349090f",
               "name": "yes/Y194",
               "statistics": [
                 "feature-dense",
@@ -24219,7 +24177,7 @@
             },
             {
               "file": "src/saps/benchmarks/mri_masked_edge_detection.py",
-              "freshness": "c19c4110efb933dd638466c3b3595115f7ed0fb9282ffe3971d44903ffbed55b",
+              "freshness": "6db92b5b1efba970a708dfed63c0dc0677e82513ab21449b9dd2db129349090f",
               "name": "yes/Y6",
               "statistics": [
                 "feature-dense",
@@ -24240,7 +24198,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/mri_sobel_edge_detection.py",
-              "freshness": "40dd7c563055194ef1f82bb7ee6175c0363ad0e037ac1189cbede384e725a152",
+              "freshness": "3210950375e6e22b669409dcd1e0fbf9cdb646ecb0145e5cea1d662e5ece1bab",
               "name": "yes/Y157",
               "statistics": [
                 "feature-fancy-ops",
@@ -24250,7 +24208,7 @@
             },
             {
               "file": "src/saps/benchmarks/mri_sobel_edge_detection.py",
-              "freshness": "40dd7c563055194ef1f82bb7ee6175c0363ad0e037ac1189cbede384e725a152",
+              "freshness": "3210950375e6e22b669409dcd1e0fbf9cdb646ecb0145e5cea1d662e5ece1bab",
               "name": "yes/Y180",
               "statistics": [
                 "feature-fancy-ops",
@@ -24260,7 +24218,7 @@
             },
             {
               "file": "src/saps/benchmarks/mri_sobel_edge_detection.py",
-              "freshness": "40dd7c563055194ef1f82bb7ee6175c0363ad0e037ac1189cbede384e725a152",
+              "freshness": "3210950375e6e22b669409dcd1e0fbf9cdb646ecb0145e5cea1d662e5ece1bab",
               "name": "yes/Y194",
               "statistics": [
                 "feature-fancy-ops",
@@ -24270,7 +24228,7 @@
             },
             {
               "file": "src/saps/benchmarks/mri_sobel_edge_detection.py",
-              "freshness": "40dd7c563055194ef1f82bb7ee6175c0363ad0e037ac1189cbede384e725a152",
+              "freshness": "3210950375e6e22b669409dcd1e0fbf9cdb646ecb0145e5cea1d662e5ece1bab",
               "name": "yes/Y6",
               "statistics": [
                 "feature-fancy-ops",
