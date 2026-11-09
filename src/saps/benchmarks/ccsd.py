@@ -2,7 +2,9 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from binsparse.conversions import from_numpy, to_numpy
+import sparse
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
 from saps.benchmark import (
     Author,
@@ -23,8 +25,7 @@ def _ctf_col_major_idx(shape):
 def _ctf_rand(shape, tensor_id, multiplier=16):
     """NS fill: all elements independent, matching CTF fill_rand."""
     idx = _ctf_col_major_idx(shape)
-    values = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
-    return from_numpy(values)
+    return ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
 
 
 def _make_as2d(shape, tensor_id, multiplier=16):
@@ -39,8 +40,7 @@ def _make_as2d(shape, tensor_id, multiplier=16):
     vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
     canon = np.arange(d0)[:, None] < np.arange(d1)[None, :]
     result = np.where(canon, vals, 0.0)
-    result = result - result.T
-    return from_numpy(result)
+    return result - result.T
 
 
 def _make_asns_asns(shape, tensor_id, multiplier=16):
@@ -58,8 +58,7 @@ def _make_asns_asns(shape, tensor_id, multiplier=16):
     ) & (np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :])
     result = np.where(canon, vals, 0.0)
     result = result - result.transpose(1, 0, 2, 3)
-    result = result - result.transpose(0, 1, 3, 2)
-    return from_numpy(result)
+    return result - result.transpose(0, 1, 3, 2)
 
 
 def _make_asns_nsns(shape, tensor_id, multiplier=16):
@@ -73,8 +72,7 @@ def _make_asns_nsns(shape, tensor_id, multiplier=16):
     vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
     canon = np.arange(d0)[:, None, None, None] < np.arange(d1)[None, :, None, None]
     result = np.where(canon, vals, 0.0)
-    result = result - result.transpose(1, 0, 2, 3)
-    return from_numpy(result)
+    return result - result.transpose(1, 0, 2, 3)
 
 
 def _make_nsns_asns(shape, tensor_id, multiplier=16):
@@ -88,12 +86,41 @@ def _make_nsns_asns(shape, tensor_id, multiplier=16):
     vals = ((idx * multiplier + tensor_id) % 13077) / 13077.0 - 0.5
     canon = np.arange(d2)[None, None, :, None] < np.arange(d3)[None, None, None, :]
     result = np.where(canon, vals, 0.0)
-    result = result - result.transpose(0, 1, 3, 2)
-    return from_numpy(result)
+    return result - result.transpose(0, 1, 3, 2)
 
 
-def make_ccsd_inputs(no, nv):
-    """Generate deterministic antisymmetric CCSD inputs matching ccsd.cxx fill_rand."""
+# D2h, the largest point group whose irreducible representations (irreps) are
+# all one-dimensional. Symmetry blocks coupled-cluster tensors as in direct
+# product decomposition (Stanton, Gauss, Watts, and Bartlett 1991). Labelling
+# the 8 irreps with 3-bit integers makes the product of two irreps their XOR,
+# as Psi4's libdpd builds its direct product table (libdpd/init.cc). Orbitals
+# are assigned irreps cyclically, a synthetic choice that splits them evenly.
+D2H_IRREPS = 8
+
+
+def _symmetry_mask(spaces, occupied, virtual):
+    """Where a tensor's indices' irreps multiply to the totally symmetric irrep.
+
+    `spaces` names each index's orbital space, "o" for occupied or "v" for
+    virtual. Integrals and ground-state amplitudes are totally symmetric, so
+    every other entry vanishes, leaving one nonzero block per irrep combination.
+    """
+    labels = {"o": occupied, "v": virtual}
+    product = np.zeros((1,) * len(spaces), dtype=np.int64)
+    for axis, space in enumerate(spaces):
+        shape = [1] * len(spaces)
+        shape[axis] = -1
+        product = product ^ labels[space].reshape(shape)
+    return product == 0
+
+
+def make_ccsd_inputs(no, nv, irreps=1):
+    """Generate deterministic antisymmetric CCSD inputs matching ccsd.cxx fill_rand.
+
+    With `irreps` > 1, orbitals cycle through that many irreps of an abelian
+    point group, and each integral and amplitude keeps only its symmetry-allowed
+    blocks. Every input is returned as a NumPy array.
+    """
     Vae_b = _make_as2d((nv, nv), 2)
     Vai_b = _ctf_rand((nv, no), 3)
     Vme_b = _ctf_rand((no, nv), 4)
@@ -126,28 +153,42 @@ def make_ccsd_inputs(no, nv):
         - aa.reshape(1, nv, 1, 1)
     )
 
-    return (
-        Vme_b,
-        Vae_b,
-        Vmi_b,
-        Vai_b,
-        Vmnef_b,
-        Vabef_b,
-        Vabij_b,
-        Vabei_b,
-        Vmnij_b,
-        Vmnei_b,
-        Vamei_b,
-        Vamij_b,
-        Vanef_b,
-        Vmnfi_b,
-        Vamef_b,
-        Vaeim_b,
-        T1_b,
-        T2_b,
-        from_numpy(D1),
-        from_numpy(D2),
-    )
+    # Each tensor with the orbital space of each index, in benchmark order.
+    tensors = [
+        (Vme_b, "ov"),
+        (Vae_b, "vv"),
+        (Vmi_b, "oo"),
+        (Vai_b, "vo"),
+        (Vmnef_b, "oovv"),
+        (Vabef_b, "vvvv"),
+        (Vabij_b, "vvoo"),
+        (Vabei_b, "vvvo"),
+        (Vmnij_b, "oooo"),
+        (Vmnei_b, "oovo"),
+        (Vamei_b, "vovo"),
+        (Vamij_b, "vooo"),
+        (Vanef_b, "vovv"),
+        (Vmnfi_b, "oovo"),
+        (Vamef_b, "vovv"),
+        (Vaeim_b, "vvoo"),
+        (T1_b, "vo"),
+        (T2_b, "vvoo"),
+    ]
+    if irreps > 1:
+        occupied, virtual = np.arange(no) % irreps, np.arange(nv) % irreps
+        tensors = [
+            (tensor * _symmetry_mask(spaces, occupied, virtual), spaces)
+            for tensor, spaces in tensors
+        ]
+    # The orbital energy denominators stay dense.
+    return (*(tensor for tensor, _ in tensors), D1, D2)
+
+
+def _dense(tensor: BinsparseTensor) -> np.ndarray:
+    try:
+        return to_numpy(tensor)
+    except TypeError:
+        return np.asarray(to_sparse(tensor).todense())
 
 
 class CCSDDataset(Dataset):
@@ -159,6 +200,7 @@ class CCSDDataset(Dataset):
         suites,
         no,
         nv,
+        irreps=1,
     ):
         self._name = name
         self._pretty_name = pretty_name
@@ -166,6 +208,7 @@ class CCSDDataset(Dataset):
         self._suites = suites
         self.no = no
         self.nv = nv
+        self.irreps = irreps
 
     @property
     def name(self) -> str:
@@ -208,7 +251,11 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
             " the C++ CTF reference (ccsd.cxx): canonical antisymmetric elements are"
             " set to ((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5,"
             " then reflected via antisymmetry. This exactly reproduces the C++"
-            " reference output |T| = 380638."
+            " reference output |T| = 380638. The D2h datasets add point-group"
+            " symmetry: orbitals cycle through the 8 irreducible representations of"
+            " D2h, and the integrals and amplitudes keep only the blocks whose"
+            " irreducible representations multiply to the totally symmetric one,"
+            " stored as sparse tensors."
         )
 
     @property
@@ -276,6 +323,35 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 number=12,
                 pages="3176-3190",
             ),
+            Ref(
+                title=(
+                    "A direct product decomposition approach for symmetry"
+                    " exploitation in many-body methods. I. Energy calculations"
+                ),
+                authors=[
+                    Author("J. F. Stanton"),
+                    Author("J. Gauss"),
+                    Author("J. D. Watts"),
+                    Author("R. J. Bartlett"),
+                ],
+                year=1991,
+                url="https://doi.org/10.1063/1.460620",
+                doi="10.1063/1.460620",
+                journal="J. Chem. Phys.",
+                volume=94,
+                number=6,
+                pages="4334-4345",
+            ),
+            Ref(
+                title="Psi4 libdpd: direct product table (init.cc, lines 185-197)",
+                authors=[Author("Psi4 Contributors")],
+                url=(
+                    "https://github.com/psi4/psi4/blob/"
+                    "64fc54046ff5a91733b1f386417286a05621f44e/"
+                    "psi4/src/psi4/libdpd/init.cc#L185-L197"
+                ),
+                year=2026,
+            ),
         ]
 
     @property
@@ -316,15 +392,53 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 no=16,
                 nv=24,
             ),
+            CCSDDataset(
+                name="small_d2h",
+                pretty_name="Small (D2h Symmetry)",
+                description="no=4, nv=6, blocked by D2h point-group symmetry.",
+                suites=["standard", "test", "trace"],
+                no=4,
+                nv=6,
+                irreps=D2H_IRREPS,
+            ),
+            CCSDDataset(
+                name="medium_d2h",
+                pretty_name="Medium (D2h Symmetry)",
+                description="no=8, nv=12, blocked by D2h point-group symmetry.",
+                suites=["standard", "trace"],
+                no=8,
+                nv=12,
+                irreps=D2H_IRREPS,
+            ),
+            CCSDDataset(
+                name="large_d2h",
+                pretty_name="Large (D2h Symmetry)",
+                description="no=16, nv=24, blocked by D2h point-group symmetry.",
+                suites=["standard", "trace"],
+                no=16,
+                nv=24,
+                irreps=D2H_IRREPS,
+            ),
         ]
 
     def generate(self, dataset: CCSDDataset):
-        inputs = make_ccsd_inputs(dataset.no, dataset.nv)
+        arrays = make_ccsd_inputs(dataset.no, dataset.nv, dataset.irreps)
+        integrals_and_amplitudes, denominators = arrays[:-2], arrays[-2:]
+        if dataset.irreps > 1:
+            # Symmetry-blocked tensors are stored sparse.
+            inputs = [
+                from_sparse(sparse.COO.from_numpy(array))
+                for array in integrals_and_amplitudes
+            ]
+        else:
+            inputs = [from_numpy(array) for array in integrals_and_amplitudes]
+        inputs += [from_numpy(array) for array in denominators]
         # The kernel's own arithmetic on Balls bounds every float64 evaluation.
+        # Bound the stored inputs, whose memory layout sets the rounding.
         bounds = CCSDBenchmark().benchmark(
             SimpleNamespace(einsum=einsum_bound),
             {},
-            *[Ball(to_numpy(tensor)) for tensor in inputs],
+            *[Ball(_dense(tensor)) for tensor in inputs],
         )
         return DataInstance(
             inputs=inputs,
@@ -404,7 +518,7 @@ class CCSDBenchmark(Benchmark):
     def ai_disclosure(self) -> str:
         return (
             "Generative AI was used to assist in debugging the benchmark. This"
-            " statement was written by hand."
+            " statement was written by hand. Generative AI was used to assist in adding point-group symmetry."
         )
 
     @property
@@ -626,7 +740,8 @@ class CCSDBenchmark(Benchmark):
         for i, (actual, (value, error)) in enumerate(
             zip(self._output, bounds, strict=True)
         ):
-            actual, value, error = to_numpy(actual), to_numpy(value), to_numpy(error)
+            # A sparse framework may return sparse amplitudes.
+            actual, value, error = _dense(actual), to_numpy(value), to_numpy(error)
             assert actual.shape == value.shape, (
                 f"CCSD output {i} has shape {actual.shape}, expected {value.shape}"
             )

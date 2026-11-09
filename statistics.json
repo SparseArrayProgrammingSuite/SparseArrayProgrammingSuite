@@ -12691,7 +12691,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "bbd6181cfb69f5c1f4a5aecc0bfc6dc33c3c1db66e5c864d91cee9c0b9bf751f",
+              "freshness": "e7d2af2b96b69fbd1b81b677f8309ab3ef76e55e9f48108d23e1dcde6189ac57",
               "name": "large",
               "statistics": [
                 "feature-dense",
@@ -12701,7 +12701,17 @@
             },
             {
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "bbd6181cfb69f5c1f4a5aecc0bfc6dc33c3c1db66e5c864d91cee9c0b9bf751f",
+              "freshness": "e7d2af2b96b69fbd1b81b677f8309ab3ef76e55e9f48108d23e1dcde6189ac57",
+              "name": "large_d2h",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/ccsd.py",
+              "freshness": "e7d2af2b96b69fbd1b81b677f8309ab3ef76e55e9f48108d23e1dcde6189ac57",
               "name": "medium",
               "statistics": [
                 "feature-dense",
@@ -12711,11 +12721,33 @@
             },
             {
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "bbd6181cfb69f5c1f4a5aecc0bfc6dc33c3c1db66e5c864d91cee9c0b9bf751f",
+              "freshness": "e7d2af2b96b69fbd1b81b677f8309ab3ef76e55e9f48108d23e1dcde6189ac57",
+              "name": "medium_d2h",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-hypersparse",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/ccsd.py",
+              "freshness": "e7d2af2b96b69fbd1b81b677f8309ab3ef76e55e9f48108d23e1dcde6189ac57",
               "name": "small",
               "statistics": [
                 "feature-dense",
                 "feature-elementary-ops",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/ccsd.py",
+              "freshness": "e7d2af2b96b69fbd1b81b677f8309ab3ef76e55e9f48108d23e1dcde6189ac57",
+              "name": "small_d2h",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-hypersparse",
                 "feature-tensor"
               ]
             }
