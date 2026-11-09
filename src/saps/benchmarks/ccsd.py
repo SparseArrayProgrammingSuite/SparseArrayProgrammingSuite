@@ -234,7 +234,7 @@ class CCSDDataset(Dataset):
 class CCSDSyntheticGenerator(Generator[CCSDDataset]):
     @property
     def cacheable(self) -> bool:
-        return False
+        return True
 
     @property
     def name(self) -> str:
@@ -372,7 +372,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 name="small",
                 pretty_name="Small",
                 description="no=4, nv=6 — matches the C++ CTF reference.",
-                suites=["standard", "test", "trace"],
+                suites=["test"],
                 no=4,
                 nv=6,
             ),
@@ -380,7 +380,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 name="medium",
                 pretty_name="Medium",
                 description="no=8, nv=12.",
-                suites=["standard", "trace"],
+                suites=["test"],
                 no=8,
                 nv=12,
             ),
@@ -388,35 +388,40 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 name="large",
                 pretty_name="Large",
                 description="no=16, nv=24.",
-                suites=["standard", "trace", "train"],
+                suites=["test"],
                 no=16,
                 nv=24,
             ),
+            # Every irrep holds at least two orbitals of each space; with fewer,
+            # an antisymmetric tensor such as Vmi keeps no allowed entries.
             CCSDDataset(
                 name="small_d2h",
                 pretty_name="Small (D2h Symmetry)",
-                description="no=4, nv=6, blocked by D2h point-group symmetry.",
-                suites=["standard", "test", "trace"],
-                no=4,
-                nv=6,
+                description="no=16, nv=32, blocked by D2h point-group symmetry.",
+                suites=["test"],
+                no=16,
+                nv=32,
                 irreps=D2H_IRREPS,
             ),
             CCSDDataset(
                 name="medium_d2h",
                 pretty_name="Medium (D2h Symmetry)",
-                description="no=8, nv=12, blocked by D2h point-group symmetry.",
-                suites=["standard", "trace"],
-                no=8,
-                nv=12,
+                description="no=16, nv=48, blocked by D2h point-group symmetry.",
+                suites=["test"],
+                no=16,
+                nv=48,
                 irreps=D2H_IRREPS,
             ),
             CCSDDataset(
                 name="large_d2h",
                 pretty_name="Large (D2h Symmetry)",
-                description="no=16, nv=24, blocked by D2h point-group symmetry.",
-                suites=["standard", "trace"],
-                no=16,
-                nv=24,
+                description=(
+                    "no=24, nv=96, blocked by D2h point-group symmetry; about the"
+                    " size of benzene in the cc-pVDZ basis (no=21, nv=93)."
+                ),
+                suites=["standard", "trace", "train"],
+                no=24,
+                nv=96,
                 irreps=D2H_IRREPS,
             ),
         ]
@@ -518,7 +523,8 @@ class CCSDBenchmark(Benchmark):
     def ai_disclosure(self) -> str:
         return (
             "Generative AI was used to assist in debugging the benchmark. This"
-            " statement was written by hand. Generative AI was used to assist in adding point-group symmetry."
+            " statement was written by hand. Generative AI was used to assist in"
+            " adding point-group symmetry."
         )
 
     @property

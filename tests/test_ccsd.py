@@ -22,8 +22,9 @@ CTF_NORM = 380638.269079
 
 
 @pytest.mark.parametrize("framework", [NumpyFramework, SmartSparseFramework])
+# large_d2h, the standard dataset, is too large to generate in a unit test.
 @pytest.mark.parametrize(
-    "name", ["small", "medium", "large", "small_d2h", "medium_d2h", "large_d2h"]
+    "name", ["small", "medium", "large", "small_d2h", "medium_d2h"]
 )
 def test_framework_outputs_pass_the_bound_check(framework, name):
     benchmark = CCSDBenchmark()
@@ -66,7 +67,7 @@ def test_check_rejects_a_sign_flip_that_keeps_the_norm():
         benchmark.check(param)
 
 
-@pytest.mark.parametrize("name", ["small_d2h", "medium_d2h", "large_d2h"])
+@pytest.mark.parametrize("name", ["small_d2h", "medium_d2h"])
 def test_point_group_symmetry_blocks_inputs_and_outputs(name):
     generator = CCSDSyntheticGenerator()
     dataset = next(d for d in generator.datasets if d.name == name)
@@ -80,6 +81,8 @@ def test_point_group_symmetry_blocks_inputs_and_outputs(name):
             to_numpy(tensor)
     T1, T2 = (_dense(t) for t in problem.inputs[16:18])
     assert np.count_nonzero(T2) < T2.size / 4
+    # Every irrep holds two orbitals of each space, so no input is all zero.
+    assert all(_dense(tensor).any() for tensor in problem.inputs[:-2])
     # The contractions keep every output inside its symmetry-allowed blocks.
     T1_new, T2_new = (to_numpy(t) for t in problem.ref_outputs[:2])
     assert not T1_new[~_symmetry_mask("vo", occupied, virtual)].any()
