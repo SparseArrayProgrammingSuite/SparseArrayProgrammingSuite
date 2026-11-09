@@ -16439,15 +16439,55 @@
     "file": "src/saps/benchmarks/qasmbench.py",
     "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252"
   },
-  "rqc_statevector_synthetic.single_layer_small": {
-    "digest": "599279948f43f2a0cd9a198f6051616a2e9149bfb76152274948723707e16dab",
+  "qasmbench_circuit.qec9xz_n17": {
+    "digest": "177bab4cff5a90a1a816eec605430515e5e082871ae792d4e1447f1e73908ecc",
+    "file": "src/saps/benchmarks/qasmbench.py",
+    "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252"
+  },
+  "qasmbench_circuit.qram_n20": {
+    "digest": "beafcf83be983e221d607a5befc4ab366d6c904707f4db4cff3a066aaffdc4a3",
+    "file": "src/saps/benchmarks/qasmbench.py",
+    "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252"
+  },
+  "rqc_statevector_qasmbench.cat_state_n22": {
+    "digest": "7f2adfbe65dc8b2c10e69530d34db87da82fb426a3ca290e60b8e729768895e5",
     "file": "src/saps/benchmarks/rqc_statevector.py",
-    "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416"
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
+  },
+  "rqc_statevector_qasmbench.ghz_state_n23": {
+    "digest": "578de15d14db67c689fdf803528d11780a68281164c4678eb8bf15b587bd5e36",
+    "file": "src/saps/benchmarks/rqc_statevector.py",
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
+  },
+  "rqc_statevector_qasmbench.multiplier_n15": {
+    "digest": "d769b1ae856084e6e94566f506251e20b3c490f6262dd4d362c090cf0acfe8d1",
+    "file": "src/saps/benchmarks/rqc_statevector.py",
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
+  },
+  "rqc_statevector_qasmbench.multiply_n13": {
+    "digest": "ac1e1eddf3f15b8a9fadb8c2265642b0f906ba6a1cd766bf7b4516d23ab1f710",
+    "file": "src/saps/benchmarks/rqc_statevector.py",
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
+  },
+  "rqc_statevector_qasmbench.qec9xz_n17": {
+    "digest": "8c45a2b1daf0b214d72b24b8be87d475a4a343bc0e424fcaf13384d00ba7a787",
+    "file": "src/saps/benchmarks/rqc_statevector.py",
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
+  },
+  "rqc_statevector_qasmbench.qram_n20": {
+    "digest": "9785ab1755b81de30289dc4dddda29941f8d07d28444d51703576bda23ade598",
+    "file": "src/saps/benchmarks/rqc_statevector.py",
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
+  },
+  "rqc_statevector_synthetic.single_layer_small": {
+    "digest": "2817f53c2258d83af5a342ea7cefa0d97caa9eae3721b67a26afecf7407e5d2e",
+    "file": "src/saps/benchmarks/rqc_statevector.py",
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
   },
   "rqc_statevector_synthetic.single_layer_tiny": {
-    "digest": "cbc66d992fc15719720b9dc1d1938db84b94befae7da01bc2e4bfa9aaa4fe589",
+    "digest": "8c6dbec5f13d8ef8ad7fffabc26d1b984bc180cd66e1ab9900a3c66dabd433db",
     "file": "src/saps/benchmarks/rqc_statevector.py",
-    "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416"
+    "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65"
   },
   "sddmm_suitesparse_reference.Arenas/email": {
     "digest": "6b15d500bf274e6d94f5b990440dab37d7af8cff0fc128d1d67a362fc1cf5385",

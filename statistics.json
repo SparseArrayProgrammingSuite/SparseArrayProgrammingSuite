@@ -25148,10 +25148,90 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "cat_state_n22",
+              "statistics": [
+                "feature-high-dimensional",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "ghz_state_n23",
+              "statistics": [
+                "feature-high-dimensional",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "multiplier_n15",
+              "statistics": [
+                "feature-high-dimensional",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "multiply_n13",
+              "statistics": [
+                "feature-high-dimensional",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "qec9xz_n17",
+              "statistics": [
+                "feature-high-dimensional",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            },
+            {
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "qram_n20",
+              "statistics": [
+                "feature-high-dimensional",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-shape-ops",
+                "feature-tensor"
+              ]
+            }
+          ],
+          "name": "rqc_statevector_qasmbench",
+          "statistics": []
+        },
+        {
+          "datasets": [
+            {
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "name": "single_layer_small",
               "statistics": [
                 "feature-dense",
+                "feature-high-dimensional",
+                "feature-index-ops",
                 "feature-shape-ops",
                 "feature-tensor"
               ]
