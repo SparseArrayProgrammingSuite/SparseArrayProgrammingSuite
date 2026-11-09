@@ -493,7 +493,7 @@ pixi run ./bin/run_benchmark.py --cache-datasets --re '^openml_dataset$'
 All source downloaders honor `SAPS_CACHE_DIR` (default `.saps/outputs/cache`)
 and lock the cache check, download, and extraction so concurrent jobs reuse
 completed files. Source subdirectories are `suitesparse`, `frostt`,
-`gcare`, `nemo`, `ewap`, `slicot`, `mccomp`, `ogb`, and `kaggle`; LTH model files
+`gcare`, `nemo`, `ewap`, `slicot`, `mccomp`, `qasmbench`, `ogb`, and `kaggle`; LTH model files
 use `artifacts/lth`. An explicit downloader `data_dir` takes precedence.
 These source caches persist independently of job-local environments and `$TMPDIR`.
 G-CARE records completed extraction so later loads reuse the extracted files.

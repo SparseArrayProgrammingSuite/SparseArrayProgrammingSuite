@@ -208310,6 +208310,126 @@
       "topics": []
     },
     {
+      "ai_disclosure": "",
+      "asv_ids": {
+        "peakmem": "qasmbench.QASMBenchCircuitShellBenchmark.peakmem_qasmbench_circuit_shell",
+        "time": "qasmbench.QASMBenchCircuitShellBenchmark.time_qasmbench_circuit_shell"
+      },
+      "authors": [],
+      "concepts": "<ccs2012></ccs2012>",
+      "description": "",
+      "file": "src/saps/benchmarks/qasmbench.py",
+      "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+      "generators": [
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "qasmbench_circuit.cat_state_n22",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench medium-scale circuit.",
+              "file": "src/saps/benchmarks/qasmbench.py",
+              "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+              "name": "cat_state_n22",
+              "pretty_name": "cat_state_n22",
+              "source_url": "https://github.com/pnnl/QASMBench/blob/357b942396d5c2b7cbc1c229c585a6ef5ccaebac/medium/cat_state_n22/cat_state_n22_transpiled.qasm",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            },
+            {
+              "asv_param": "qasmbench_circuit.ghz_state_n23",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench medium-scale circuit.",
+              "file": "src/saps/benchmarks/qasmbench.py",
+              "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+              "name": "ghz_state_n23",
+              "pretty_name": "ghz_state_n23",
+              "source_url": "https://github.com/pnnl/QASMBench/blob/357b942396d5c2b7cbc1c229c585a6ef5ccaebac/medium/ghz_state_n23/ghz_state_n23_transpiled.qasm",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            },
+            {
+              "asv_param": "qasmbench_circuit.multiplier_n15",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench medium-scale circuit.",
+              "file": "src/saps/benchmarks/qasmbench.py",
+              "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+              "name": "multiplier_n15",
+              "pretty_name": "multiplier_n15",
+              "source_url": "https://github.com/pnnl/QASMBench/blob/357b942396d5c2b7cbc1c229c585a6ef5ccaebac/medium/multiplier_n15/multiplier_n15_transpiled.qasm",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            },
+            {
+              "asv_param": "qasmbench_circuit.multiply_n13",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench medium-scale circuit.",
+              "file": "src/saps/benchmarks/qasmbench.py",
+              "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+              "name": "multiply_n13",
+              "pretty_name": "multiply_n13",
+              "source_url": "https://github.com/pnnl/QASMBench/blob/357b942396d5c2b7cbc1c229c585a6ef5ccaebac/medium/multiply_n13/multiply_n13_transpiled.qasm",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            },
+            {
+              "asv_param": "qasmbench_circuit.qec9xz_n17",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench medium-scale circuit.",
+              "file": "src/saps/benchmarks/qasmbench.py",
+              "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+              "name": "qec9xz_n17",
+              "pretty_name": "qec9xz_n17",
+              "source_url": "https://github.com/pnnl/QASMBench/blob/357b942396d5c2b7cbc1c229c585a6ef5ccaebac/medium/qec9xz_n17/qec9xz_n17_transpiled.qasm",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            },
+            {
+              "asv_param": "qasmbench_circuit.qram_n20",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench medium-scale circuit.",
+              "file": "src/saps/benchmarks/qasmbench.py",
+              "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+              "name": "qram_n20",
+              "pretty_name": "qram_n20",
+              "source_url": "https://github.com/pnnl/QASMBench/blob/357b942396d5c2b7cbc1c229c585a6ef5ccaebac/medium/qram_n20/qram_n20_transpiled.qasm",
+              "suites": [],
+              "tags": [],
+              "topics": []
+            }
+          ],
+          "description": "Downloads transpiled OpenQASM circuits from QASMBench at a pinned commit and parses them into gate lists over IBM's native basis (rz, sx, x, cx).",
+          "file": "src/saps/benchmarks/qasmbench.py",
+          "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252",
+          "motivation": "QASMBench collects quantum algorithm circuits, such as state preparation, arithmetic, and error correction, as standard inputs for evaluating quantum simulators.",
+          "name": "qasmbench_circuit",
+          "pretty_name": "QASMBench Circuits",
+          "references": [
+            "Ang Li, Samuel Stein, Sriram Krishnamoorthy, James Ang. \"QASMBench: A Low-Level Quantum Benchmark Suite for NISQ Evaluation and Simulation\", ACM Transactions on Quantum Computing, Vol. 4, No. 2, 2023, URL: https://doi.org/10.1145/3550488, DOI: 10.1145/3550488.",
+            "QASMBench Contributors. \"QASMBench\", 2025, URL: https://github.com/pnnl/QASMBench/tree/357b942396d5c2b7cbc1c229c585a6ef5ccaebac."
+          ],
+          "suites": [],
+          "tags": [],
+          "topics": []
+        }
+      ],
+      "motivation": "",
+      "name": "qasmbench_circuit_shell",
+      "pretty_name": "QASMBench Circuits",
+      "references": [],
+      "suites": [],
+      "tags": [],
+      "topics": []
+    },
+    {
       "ai_disclosure": "The original benchmark algorithms were written without generative AI. Generative AI was used for debugging, generator-time inlining, and tests.",
       "asv_ids": {
         "peakmem": "ode.RK4Benchmark.peakmem_rk4",
@@ -208932,7 +209052,7 @@
       "concepts": "\n        <ccs2012>\n        <concept>\n        <concept_id>10010583.10010786.10010813.10011726</concept_id>\n        <concept_desc>Hardware~Quantum computation</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        <concept>\n        <concept_id>10010520.10010521.10010542.10010550</concept_id>\n        <concept_desc>Computer systems organization~Quantum computing</concept_desc>\n        <concept_significance>500</concept_significance>\n        </concept>\n        </ccs2012>\n        ",
       "description": "Simulates a specified quantum circuit on an n-qubit state vector, using the standard reshape + einsum gate application pattern.",
       "file": "src/saps/benchmarks/rqc_statevector.py",
-      "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+      "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
       "generators": [
         {
           "ai_disclosure": "",
@@ -208945,7 +209065,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "RQC statevector sanity check.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -208999,9 +209119,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209012,7 +209129,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "H on qubit 0.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -209030,9 +209147,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209043,7 +209157,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "H on qubit 1.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -209061,9 +209175,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209074,7 +209185,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "H on qubit 2.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -209092,9 +209203,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209105,7 +209213,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "H on qubit 3.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -209123,9 +209231,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209136,7 +209241,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "X on qubit 0.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "X",
@@ -209154,9 +209259,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209167,7 +209269,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "X on qubit 1.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "X",
@@ -209185,9 +209287,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209198,7 +209297,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "X on qubit 2.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "X",
@@ -209216,9 +209315,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209229,7 +209325,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "X on qubit 3.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "X",
@@ -209247,9 +209343,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209260,7 +209353,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Y on qubit 0.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Y",
@@ -209278,9 +209371,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209291,7 +209381,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Y on qubit 1.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Y",
@@ -209309,9 +209399,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209322,7 +209409,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Y on qubit 2.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Y",
@@ -209340,9 +209427,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209353,7 +209437,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Y on qubit 3.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Y",
@@ -209371,9 +209455,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209384,7 +209465,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Z on qubit 0.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Z",
@@ -209402,9 +209483,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209415,7 +209493,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Z on qubit 1.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Z",
@@ -209433,9 +209511,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209446,7 +209521,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Z on qubit 2.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Z",
@@ -209464,9 +209539,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209477,7 +209549,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Z on qubit 3.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "Z",
@@ -209495,9 +209567,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209508,7 +209577,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "S on qubit 0.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "S",
@@ -209526,9 +209595,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209539,7 +209605,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "S on qubit 1.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "S",
@@ -209557,9 +209623,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209570,7 +209633,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "S on qubit 2.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "S",
@@ -209588,9 +209651,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209601,7 +209661,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "S on qubit 3.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "S",
@@ -209619,9 +209679,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209632,7 +209689,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "T on qubit 0.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "T",
@@ -209650,9 +209707,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209663,7 +209717,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "T on qubit 1.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "T",
@@ -209681,9 +209735,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209694,7 +209745,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "T on qubit 2.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "T",
@@ -209712,9 +209763,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209725,7 +209773,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "T on qubit 3.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "T",
@@ -209743,9 +209791,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209756,7 +209801,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Applying H twice returns to the original state.",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -209778,9 +209823,124 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
+                "suite-standard-quantum",
+                "suite-test"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_test.bell",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "H then CX prepares a Bell pair on qubits 0 and 1.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "gate_sequence": [
+                [
+                  "H",
+                  0
+                ],
+                [
+                  "CX",
+                  0,
+                  1
+                ]
+              ],
+              "name": "bell",
+              "nqubits": 3,
+              "pretty_name": "Bell Pair",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard-quantum",
+                "suite-test"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_test.cx_control_after_target",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "CX whose control qubit follows its target.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "gate_sequence": [
+                [
+                  "SX",
+                  3
+                ],
+                [
+                  "CX",
+                  3,
+                  1
+                ],
+                [
+                  "CX",
+                  1,
+                  0
+                ]
+              ],
+              "name": "cx_control_after_target",
+              "nqubits": 4,
+              "pretty_name": "CX (Control After Target)",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard-quantum",
+                "suite-test"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_test.rz_phases",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "RZ rotations, the parameterized gates of transpiled circuits.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "gate_sequence": [
+                [
+                  "H",
+                  0
+                ],
+                [
+                  "RZ",
+                  0,
+                  0.7
+                ],
+                [
+                  "SX",
+                  1
+                ],
+                [
+                  "RZ",
+                  1,
+                  -2.5
+                ],
+                [
+                  "CX",
+                  0,
+                  2
+                ]
+              ],
+              "name": "rz_phases",
+              "nqubits": 3,
+              "pretty_name": "RZ Phases",
+              "suites": [
+                "test"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209789,7 +209949,7 @@
           ],
           "description": "Small statevector and single-qubit circuit checks.",
           "file": "src/saps/benchmarks/rqc_statevector.py",
-          "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+          "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
           "motivation": "Simulates a specified quantum circuit on an n-qubit state vector, using the standard reshape + einsum gate application pattern.",
           "name": "rqc_statevector_test",
           "pretty_name": "Random Quantum Circuit (RQC) Statevector Test",
@@ -209802,9 +209962,6 @@
             "concept-hardware",
             "concept-quantum-computation",
             "concept-quantum-computing",
-            "feature-dense",
-            "feature-shape-ops",
-            "feature-tensor",
             "suite-standard-quantum",
             "suite-test"
           ],
@@ -209821,7 +209978,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Small instance of 10 qubits, 1 layer",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -209877,9 +210034,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard",
                 "suite-standard-quantum",
                 "suite-trace",
@@ -209892,7 +210046,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "Tiny instance of 5 qubits, 1 layer",
               "file": "src/saps/benchmarks/rqc_statevector.py",
-              "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
               "gate_sequence": [
                 [
                   "H",
@@ -209926,9 +210080,6 @@
                 "concept-hardware",
                 "concept-quantum-computation",
                 "concept-quantum-computing",
-                "feature-dense",
-                "feature-shape-ops",
-                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -209937,7 +210088,7 @@
           ],
           "description": "Generates zero-initialized n-qubit state vectors.",
           "file": "src/saps/benchmarks/rqc_statevector.py",
-          "freshness": "e3ae3f49a086441c18eada52c014e7c44148a5136ba900d4f8419bd6b608e416",
+          "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
           "motivation": "Simulates a specified quantum circuit on an n-qubit state vector, using the standard reshape + einsum gate application pattern.",
           "name": "rqc_statevector_synthetic",
           "pretty_name": "Random Quantum Circuit (RQC) Statevector Synthetic",
@@ -209948,9 +210099,171 @@
             "concept-hardware",
             "concept-quantum-computation",
             "concept-quantum-computing",
-            "feature-dense",
-            "feature-shape-ops",
-            "feature-tensor",
+            "suite-standard-quantum"
+          ],
+          "topics": []
+        },
+        {
+          "ai_disclosure": "Generative AI was used to implement this generator.",
+          "authors": [],
+          "cacheable": true,
+          "concepts": "<ccs2012></ccs2012>",
+          "datasets": [
+            {
+              "asv_param": "rqc_statevector_qasmbench.cat_state_n22",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench circuit cat_state_n22, simulated from |0...0>.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "cat_state_n22",
+              "pretty_name": "cat_state_n22",
+              "suites": [
+                "standard",
+                "trace"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard",
+                "suite-standard-quantum",
+                "suite-trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_qasmbench.ghz_state_n23",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench circuit ghz_state_n23, simulated from |0...0>.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "ghz_state_n23",
+              "pretty_name": "ghz_state_n23",
+              "suites": [
+                "standard",
+                "trace"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard",
+                "suite-standard-quantum",
+                "suite-trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_qasmbench.multiplier_n15",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench circuit multiplier_n15, simulated from |0...0>.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "multiplier_n15",
+              "pretty_name": "multiplier_n15",
+              "suites": [
+                "standard",
+                "trace"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard",
+                "suite-standard-quantum",
+                "suite-trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_qasmbench.multiply_n13",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench circuit multiply_n13, simulated from |0...0>.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "multiply_n13",
+              "pretty_name": "multiply_n13",
+              "suites": [
+                "standard",
+                "trace"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard",
+                "suite-standard-quantum",
+                "suite-trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_qasmbench.qec9xz_n17",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench circuit qec9xz_n17, simulated from |0...0>.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "qec9xz_n17",
+              "pretty_name": "qec9xz_n17",
+              "suites": [
+                "standard",
+                "trace"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard",
+                "suite-standard-quantum",
+                "suite-trace"
+              ],
+              "topics": []
+            },
+            {
+              "asv_param": "rqc_statevector_qasmbench.qram_n20",
+              "concepts": "<ccs2012></ccs2012>",
+              "description": "QASMBench circuit qram_n20, simulated from |0...0>.",
+              "file": "src/saps/benchmarks/rqc_statevector.py",
+              "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+              "name": "qram_n20",
+              "pretty_name": "qram_n20",
+              "suites": [
+                "standard",
+                "trace"
+              ],
+              "tags": [
+                "concept-computer-systems-organization",
+                "concept-hardware",
+                "concept-quantum-computation",
+                "concept-quantum-computing",
+                "suite-standard",
+                "suite-standard-quantum",
+                "suite-trace"
+              ],
+              "topics": []
+            }
+          ],
+          "description": "Transpiled QASMBench circuits whose statevectors stay sparse from |0...0> to the end, at most 1.6% nonzero at any gate in float64. Initial and final states are stored as sparse tensors.",
+          "file": "src/saps/benchmarks/rqc_statevector.py",
+          "freshness": "a0ee019ffb016f955c7b8f3a3c1edab340c7da6f7b7b11a3062994530cdf3a65",
+          "motivation": "Many quantum algorithms, such as state preparation, reversible arithmetic, and error correction, keep their statevectors sparse, which sparse array frameworks can exploit.",
+          "name": "rqc_statevector_qasmbench",
+          "pretty_name": "Random Quantum Circuit (RQC) Statevector QASMBench",
+          "references": [
+            "Ang Li, Samuel Stein, Sriram Krishnamoorthy, James Ang. \"QASMBench: A Low-Level Quantum Benchmark Suite for NISQ Evaluation and Simulation\", ACM Transactions on Quantum Computing, Vol. 4, No. 2, 2023, URL: https://doi.org/10.1145/3550488, DOI: 10.1145/3550488.",
+            "QASMBench Contributors. \"QASMBench\", 2025, URL: https://github.com/pnnl/QASMBench/tree/357b942396d5c2b7cbc1c229c585a6ef5ccaebac."
+          ],
+          "suites": [],
+          "tags": [
+            "concept-computer-systems-organization",
+            "concept-hardware",
+            "concept-quantum-computation",
+            "concept-quantum-computing",
             "suite-standard-quantum"
           ],
           "topics": []
@@ -209968,9 +210281,6 @@
         "concept-hardware",
         "concept-quantum-computation",
         "concept-quantum-computing",
-        "feature-dense",
-        "feature-shape-ops",
-        "feature-tensor",
         "suite-standard-quantum"
       ],
       "topics": [

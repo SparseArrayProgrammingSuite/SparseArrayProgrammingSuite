@@ -12059,6 +12059,31 @@
     "file": "src/saps/benchmarks/bfs.py",
     "freshness": "c3ef0635cc7f482a78f12b3dadf6c480d176f75aae6e0381c7bd3445e574da6d"
   },
+  "ccsd_synthetic.large": {
+    "digest": "70bb9e21d6c0cd09db9120301a1f4c668407194b69947a3f62ff93eaf6d5edb0",
+    "file": "src/saps/benchmarks/ccsd.py",
+    "freshness": "29fb3c34e41d18f10efdbb25b0f95dae53415f749486089b8ac6475cae617700"
+  },
+  "ccsd_synthetic.medium": {
+    "digest": "7815aaad1b44b0c97c35a4594da29289aaa05b9d7c76270dedc35b763859a23a",
+    "file": "src/saps/benchmarks/ccsd.py",
+    "freshness": "29fb3c34e41d18f10efdbb25b0f95dae53415f749486089b8ac6475cae617700"
+  },
+  "ccsd_synthetic.medium_d2h": {
+    "digest": "1ddfd6d1c7b65951db6239f14a87c02d7d60cf867e2ca677057169475159146a",
+    "file": "src/saps/benchmarks/ccsd.py",
+    "freshness": "29fb3c34e41d18f10efdbb25b0f95dae53415f749486089b8ac6475cae617700"
+  },
+  "ccsd_synthetic.small": {
+    "digest": "ed3756ef400374919622dd39ff3e1bded3a02cf4f16a25f3052fdf3884613616",
+    "file": "src/saps/benchmarks/ccsd.py",
+    "freshness": "29fb3c34e41d18f10efdbb25b0f95dae53415f749486089b8ac6475cae617700"
+  },
+  "ccsd_synthetic.small_d2h": {
+    "digest": "8db05544501fc836f70c5ba40cf3b3f6332d31aab103fc8f7d3ff17a877c1080",
+    "file": "src/saps/benchmarks/ccsd.py",
+    "freshness": "29fb3c34e41d18f10efdbb25b0f95dae53415f749486089b8ac6475cae617700"
+  },
   "cg_block_jacobi_suitesparse_reference.Andrews/Andrews": {
     "digest": "d91e7dde986f2bb74634ae4fe32ad52eef6278b333880f1a76570f287645c470",
     "file": "src/saps/benchmarks/cg_block_jacobi.py",
@@ -16393,6 +16418,26 @@
     "digest": "7b6a835f70d136142766b48b4f97045d675ad91a5f6c16fca78499c1f6c22222",
     "file": "src/saps/benchmarks/particle_simulation.py",
     "freshness": "dfbb8a9bbd5d53bb1bc15dfad55c93c9d440e5495bed2e65e972a35e839c9390"
+  },
+  "qasmbench_circuit.cat_state_n22": {
+    "digest": "bda3ff5288119d219ccbb7fcb3d905f46dfe29db8393c20f05910394871c0889",
+    "file": "src/saps/benchmarks/qasmbench.py",
+    "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252"
+  },
+  "qasmbench_circuit.ghz_state_n23": {
+    "digest": "4ed89c0d5d101c4c1d174e460c39a61667e32b15af29326cd39c8b03016bbd3d",
+    "file": "src/saps/benchmarks/qasmbench.py",
+    "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252"
+  },
+  "qasmbench_circuit.multiplier_n15": {
+    "digest": "4701cfd0525348f7564ffab2fafd897c614d0e5396cd83320429bd99631a8f93",
+    "file": "src/saps/benchmarks/qasmbench.py",
+    "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252"
+  },
+  "qasmbench_circuit.multiply_n13": {
+    "digest": "e2355ff5767b59efae6587f72878d76fcf3d17530a20d1723a193d776fe1f2ad",
+    "file": "src/saps/benchmarks/qasmbench.py",
+    "freshness": "16415ca4c43ce02992d8198c119e3f0307fab3d8df528403ceae1ef02b8e6252"
   },
   "rqc_statevector_synthetic.single_layer_small": {
     "digest": "599279948f43f2a0cd9a198f6051616a2e9149bfb76152274948723707e16dab",
