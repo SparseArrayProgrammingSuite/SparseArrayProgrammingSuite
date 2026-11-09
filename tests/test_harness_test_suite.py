@@ -51,7 +51,9 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
                 "environment_type": "existing:same",
                 "matrix": {
                     "env_nobuild": {
-                        "SAPS_FRAMEWORK": ["frameworks/saps_numpy.py"],
+                        # The run's working directory is tmp_path, so give
+                        # the framework file by absolute path.
+                        "SAPS_FRAMEWORK": [str(REPO_ROOT / "frameworks/saps_numpy.py")],
                         "SAPS_REPO_ROOT": [str(REPO_ROOT)],
                     }
                 },
