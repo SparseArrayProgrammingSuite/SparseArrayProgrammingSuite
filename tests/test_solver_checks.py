@@ -15,13 +15,13 @@ from binsparse.conversions import (
     to_scipy,
 )
 
-from saps.benchmarks.cg_amg import CGAMGBenchmark
 from saps.benchmarks.cg import CGBenchmark
+from saps.benchmarks.cg_amg import CGAMGBenchmark
+from saps.benchmarks.cg_block_jacobi import CGBlockJacobiBenchmark
+from saps.benchmarks.cg_jacobi import CGJacobiBenchmark
 from saps.benchmarks.gmres import GMRESBenchmark
 from saps.benchmarks.jacobi import JacobiBenchmark
 from saps.benchmarks.lsqr import LSQRBenchmark
-from saps.benchmarks.cg_block_jacobi import CGBlockJacobiBenchmark
-from saps.benchmarks.cg_jacobi import CGJacobiBenchmark
 from saps.storage import LocalStorageBackend
 
 _SOLVERS = [
@@ -38,9 +38,7 @@ _CHECKS = [pytest.param(cls, None, id=cls.__name__) for cls in _SOLVERS] + [
     pytest.param(
         CGBlockJacobiBenchmark, {"check_residual": True}, id="cg_block_jacobi_residual"
     ),
-    pytest.param(
-        CGJacobiBenchmark, {"check_residual": True}, id="cg_jacobi_residual"
-    ),
+    pytest.param(CGJacobiBenchmark, {"check_residual": True}, id="cg_jacobi_residual"),
     pytest.param(LSQRBenchmark, {"convergence": "residual"}, id="lsqr_residual"),
     pytest.param(LSQRBenchmark, {"convergence": "gradient"}, id="lsqr_gradient"),
 ]

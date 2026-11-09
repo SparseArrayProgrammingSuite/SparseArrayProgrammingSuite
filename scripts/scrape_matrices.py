@@ -34,14 +34,15 @@ from scipy.io import mminfo
 
 from binsparse.conversions import from_scipy
 
-import saps.benchmarks.cg_amg as saps_amg
 import saps.benchmarks.cg as saps_cg
+import saps.benchmarks.cg_amg as saps_amg
+import saps.benchmarks.cg_block_jacobi as saps_cg_block_jacobi
+import saps.benchmarks.cg_jacobi as saps_cg_jacobi
 import saps.benchmarks.gmres as saps_gmres
 import saps.benchmarks.jacobi as saps_jacobi
 import saps.benchmarks.lsqr as saps_lsqr
-import saps.benchmarks.cg_block_jacobi as saps_cg_block_jacobi
-import saps.benchmarks.cg_jacobi as saps_cg_jacobi
 import saps.downloaders.suitesparse as saps_suitesparse_downloader
+from saps.benchmarks.cg import CGBenchmark, CGDataset, CGSuiteSparseGenerator
 from saps.benchmarks.cg_amg import (
     CGAMGBenchmark,
     CGAMGDataset,
@@ -52,7 +53,11 @@ from saps.benchmarks.cg_block_jacobi import (
     CGBlockJacobiDataset,
     CGBlockJacobiTestGenerator,
 )
-from saps.benchmarks.cg import CGBenchmark, CGDataset, CGSuiteSparseGenerator
+from saps.benchmarks.cg_jacobi import (
+    CGJacobiBenchmark,
+    CGJacobiDataset,
+    CGJacobiSuiteSparseGenerator,
+)
 from saps.benchmarks.gmres import (
     GMRESBenchmark,
     GMRESDataset,
@@ -64,11 +69,6 @@ from saps.benchmarks.jacobi import (
     JacobiSuiteSparseGenerator,
 )
 from saps.benchmarks.lsqr import LSQRBenchmark, LSQRDataset, LSQRSuiteSparseGenerator
-from saps.benchmarks.cg_jacobi import (
-    CGJacobiBenchmark,
-    CGJacobiDataset,
-    CGJacobiSuiteSparseGenerator,
-)
 from saps.framework import load_framework
 from saps.storage import DEFAULT_CACHE_DIR
 
