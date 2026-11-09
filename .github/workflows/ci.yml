@@ -33,12 +33,13 @@ jobs:
       - uses: codecov/codecov-action@v5
 
   # Frameworks the default environment doesn't install, one job each. CuPy is
-  # left out because its environment needs an NVIDIA GPU.
+  # left out because its environment needs an NVIDIA GPU, and Scorch because
+  # its native kernels crash the test process at random. (run locally instead)
   framework:
     name: ${{ matrix.environment }}
     strategy:
       matrix:
-        environment: [pytorch, scorch, finch, galley]
+        environment: [pytorch, finch, galley]
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
