@@ -398,7 +398,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 name="small_d2h",
                 pretty_name="Small (D2h Symmetry)",
                 description="no=16, nv=32, blocked by D2h point-group symmetry.",
-                suites=["test"],
+                suites=["test", "standard"],
                 no=16,
                 nv=32,
                 irreps=D2H_IRREPS,
@@ -407,7 +407,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 name="medium_d2h",
                 pretty_name="Medium (D2h Symmetry)",
                 description="no=16, nv=48, blocked by D2h point-group symmetry.",
-                suites=["test"],
+                suites=["test", "standard", "trace"],
                 no=16,
                 nv=48,
                 irreps=D2H_IRREPS,
@@ -419,7 +419,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                     "no=24, nv=96, blocked by D2h point-group symmetry; about the"
                     " size of benzene in the cc-pVDZ basis (no=21, nv=93)."
                 ),
-                suites=["standard", "trace", "train"],
+                suites=["standard", "train"],
                 no=24,
                 nv=96,
                 irreps=D2H_IRREPS,
