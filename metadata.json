@@ -139773,13 +139773,6 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
-<<<<<<< HEAD
-                "feature-dense",
-                "feature-elementary-ops",
-                "feature-tensor",
-                "suite-standard",
-=======
->>>>>>> 2b3ea85c934ca25a491484d6e1bf0c7969b7c8ce
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -139802,13 +139795,6 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
-<<<<<<< HEAD
-                "feature-dense",
-                "feature-elementary-ops",
-                "feature-tensor",
-                "suite-standard",
-=======
->>>>>>> 2b3ea85c934ca25a491484d6e1bf0c7969b7c8ce
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -139899,9 +139885,6 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
-                "feature-dense",
-                "feature-elementary-ops",
-                "feature-tensor",
                 "suite-standard",
                 "suite-standard-quantum",
                 "suite-trace",
@@ -139929,9 +139912,6 @@
             "concept-computing-methodologies",
             "concept-physics",
             "concept-quantum-mechanic-simulation",
-            "feature-dense",
-            "feature-elementary-ops",
-            "feature-tensor",
             "suite-standard-quantum"
           ],
           "topics": [
@@ -139954,9 +139934,6 @@
         "standard-quantum"
       ],
       "tags": [
-        "feature-dense",
-        "feature-elementary-ops",
-        "feature-tensor",
         "suite-standard-quantum"
       ],
       "topics": []
