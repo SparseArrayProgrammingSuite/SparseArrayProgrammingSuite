@@ -1,7 +1,7 @@
 [project]
 name = "saps"
 description = ""
-version = "0.2.0"
+version = "0.3.0"
 readme = "README.md"
 authors = [{name = "Willow Ahrens", email = "willow.marie.ahrens@gmail.com"}]
 requires-python = '>=3.11,<3.15'
@@ -35,6 +35,10 @@ line-length = 88
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "B", "UP", "YTT", "BLE", "C4", "T10", "ISC", "ICN", "PIE", "PYI", "RSE", "RET", "SIM", "PGH", "FLY", "NPY", "PERF", "TID252", "RUF022"]
 ignore = ["PYI024"]
+
+[tool.ruff.lint.per-file-ignores]
+# The vendored ONNX compiler's long lines are templates of the code it emits.
+"src/saps/util/onnxpy/compiler/ops.py" = ["E501"]
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"

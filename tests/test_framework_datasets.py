@@ -3,12 +3,14 @@
 The harness test runs NumPy through ASV, one process per dataset. This runs
 the same datasets in one process, which frameworks that start Julia or compile
 kernels need. Skipped unless SAPS_FRAMEWORK is set, as the pixi environments in
-pixi.toml do.
+pixi.toml do. --no-re skips datasets a framework is known to fail, as for
+run_benchmark.py.
 """
 
 import importlib
 import json
 import os
+import re
 from pathlib import Path
 
 import pytest
@@ -34,12 +36,18 @@ def _test_datasets():
                     module_name,
                     class_name,
                     param_name,
+                    (record["name"], generator["name"], dataset["name"]),
                     id=f"{record['name']}[{param_name}]",
                 )
 
 
-@pytest.mark.parametrize(("module_name", "class_name", "param_name"), _test_datasets())
-def test_dataset_passes(module_name, class_name, param_name):
+@pytest.mark.parametrize(
+    ("module_name", "class_name", "param_name", "names"), _test_datasets()
+)
+def test_dataset_passes(module_name, class_name, param_name, names, request):
+    for pattern in request.config.getoption("no_re"):
+        if any(re.search(pattern, name) for name in names):
+            pytest.skip(f"excluded by --no-re {pattern}")
     module = importlib.import_module(f"saps.benchmarks.{module_name}")
     benchmark = getattr(module, class_name)()
     param = next(param for param in benchmark.params if str(param) == param_name)

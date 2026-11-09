@@ -1,4 +1,6 @@
 # ruff: noqa: E501
+from typing import Any
+
 import numpy as np
 
 import sparse as sp
@@ -94,7 +96,7 @@ def multi_source_instance(
 ) -> DataInstance:
     """Distance graph plus initial distances from each source."""
     n = adjacency.shape[0]
-    meta = {"sources": list(sources)}
+    meta: dict[str, Any] = {"sources": list(sources)}
     if length_seed is not None:
         meta["length_seed"] = length_seed
     return DataInstance(

@@ -111,7 +111,11 @@ def test_distance_generator_attaches_plan(monkeypatch):
     monkeypatch.setattr(fw, "fetch_snap_graph", lambda _: raw)
     generator = fw.FloydWarshallSNAPGenerator()
     problem = generator.generate(fw.FloydWarshallDataset("graph", max_density=0.02))
-    assert problem.meta == {**raw.meta, "max_squarings": 2}
+    assert problem.meta == {
+        **raw.meta,
+        "length_seed": fw.SNAP_LENGTH_SEED,
+        "max_squarings": 2,
+    }
 
 
 def test_floyd_warshall_snap_matches_closure_inventory():

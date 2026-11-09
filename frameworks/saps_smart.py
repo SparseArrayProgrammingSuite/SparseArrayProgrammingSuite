@@ -929,7 +929,8 @@ class SmartSparseKernels(Framework):
 
     def diagonal(self, a, *args, **kwargs):
         if isinstance(a, sp.SparseArray):
-            return sp.diagonal(a, *args, **kwargs)
+            # sparse.diagonal reads COO coordinates, which GCXS lacks.
+            return sp.diagonal(sp.COO(a), *args, **kwargs)
         xp = self._array_namespace(a)
         return xp.diagonal(a, *args, **kwargs)
 

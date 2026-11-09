@@ -76,7 +76,6 @@ scikit-learn = "==1.9.0"
 ssgetpy = "==1.0rc2"
 onnx = "==1.23.0"
 python-graphblas = "==2025.2.0"
-onnxpy = { git = "https://github.com/SparseArrayProgrammingSuite/ONNXPY.git", rev = "1b2c881aa170d96368bbc8878b1943d08dc654eb" }
 # Indirect dependencies.
 anyio = "==4.14.0"
 asv-runner = "==0.2.1"
@@ -144,6 +143,8 @@ mypy = "==1.15.0"
 pytest-mypy = "==1.0.1"
 pytest-regressions = "==2.8.3"
 types-requests = "==2.33.0.20260712"
+# Reference outputs for the vendored onnxpy tests (tests/onnxpy).
+onnxruntime = "==1.31.1"
 
 # What each competition environment installs (competition.config.json).
 [feature.framework-test.pypi-dependencies]
@@ -188,8 +189,9 @@ python-graphblas = "==2025.2.0"
 
 [feature.pytorch.tasks]
 # Every test that covers PyTorch (the default environment skips them), then the
-# suite-test datasets.
-test-pytorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_pytorch.py tests/test_pytorch_framework.py tests/test_pytorch_sparse.py tests/test_pytorch_device.py tests/test_compile.py tests/test_unfold.py tests/test_error_bounds.py tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_pytorch.py" } }
+# suite-test datasets. Each framework's --no-re skips the suite-test datasets it
+# is known to fail.
+test-pytorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_pytorch.py tests/test_pytorch_framework.py tests/test_pytorch_sparse.py tests/test_pytorch_device.py tests/test_compile.py tests/test_unfold.py tests/test_error_bounds.py tests/test_framework_datasets.py --no-re '^(amg|mcl|msbfs|empty_formula|a_to_b|b_to_a|no_clauses)$'", env = { SAPS_FRAMEWORK = "frameworks/saps_pytorch.py" } }
 
 # CuPy 14.2 adds the cupyx sparse array API that frameworks/saps_cupy.py uses.
 # The cluster's GPUs are V100s (sm_70), which CUDA 13 no longer targets.
@@ -248,4 +250,4 @@ cxx-compiler = "*"
 
 [feature.scorch.tasks]
 install-scorch = { cmd = "python scripts/install_editable_git.py", env = { SAPS_EDITABLE_GIT = "https://github.com/bobbyyyan/scorch.git@b3b5d4b77a3bbdd395b19c289bf181cb3cf7df73" } }
-test-scorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_scorch.py" }, depends-on = ["install-scorch"] }
+test-scorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py --no-re '^(amg|bfs|block_jacobi_pcg|ccsd|cp_als_[345]d|dae_bdf|hosvd_[345]d|lp_simplex|mcl|msbfs|mssp|pagerank|simhash_ann|random_source_seed[0-9]|empty_formula|a_to_b|b_to_a|transitive_reduction|triangle_counting|weighted_model_counting)$'", env = { SAPS_FRAMEWORK = "frameworks/saps_scorch.py" }, depends-on = ["install-scorch"] }

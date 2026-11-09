@@ -5,6 +5,33 @@
         {
           "datasets": [
             {
+              "file": "src/saps/benchmarks/amg.py",
+              "freshness": "f9941fcf4eaa4c5ca61fd2931bbe18b4e33f8f1002a7b55a6945a88bd3f80efe",
+              "name": "McRae/ecology2",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-fancy-ops",
+                "feature-hypersparse",
+                "feature-index-ops",
+                "feature-linalg-ops",
+                "feature-nonzero-fill",
+                "feature-shape-ops",
+                "feature-transcendental-ops"
+              ]
+            }
+          ],
+          "name": "amg_suitesparse",
+          "statistics": []
+        }
+      ],
+      "name": "amg",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
               "file": "src/saps/benchmarks/ode.py",
               "freshness": "90677d2dd42a8e155927728d1d9a366a5c47660fb301aca44c384461739bd72c",
               "name": "100x100",
@@ -24000,7 +24027,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/lth_conv2.py",
-              "freshness": "34d34088a4015b437fe35274d9db9033390e4c8b6d64577f1d9082a28f0d6394",
+              "freshness": "6d926023d8631ca1360db7d623a520ef84ff88420e175f00c916403b08ec14d3",
               "name": "pruned",
               "statistics": [
                 "feature-dense",
@@ -24728,7 +24755,7 @@
           "datasets": [
             {
               "file": "src/saps/benchmarks/mssp.py",
-              "freshness": "790b72bae975de411c00b0d1f0578a7622f350db765f056f33a851989a79ee1a",
+              "freshness": "bdb504c7fbee9812e046ef73357af0c76746be09aae3749674878891e94c75ee",
               "name": "CollegeMsg",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -24739,7 +24766,7 @@
             },
             {
               "file": "src/saps/benchmarks/mssp.py",
-              "freshness": "790b72bae975de411c00b0d1f0578a7622f350db765f056f33a851989a79ee1a",
+              "freshness": "bdb504c7fbee9812e046ef73357af0c76746be09aae3749674878891e94c75ee",
               "name": "email-Eu-core",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -24750,7 +24777,7 @@
             },
             {
               "file": "src/saps/benchmarks/mssp.py",
-              "freshness": "790b72bae975de411c00b0d1f0578a7622f350db765f056f33a851989a79ee1a",
+              "freshness": "bdb504c7fbee9812e046ef73357af0c76746be09aae3749674878891e94c75ee",
               "name": "email-Eu-core-temporal",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -24761,7 +24788,7 @@
             },
             {
               "file": "src/saps/benchmarks/mssp.py",
-              "freshness": "790b72bae975de411c00b0d1f0578a7622f350db765f056f33a851989a79ee1a",
+              "freshness": "bdb504c7fbee9812e046ef73357af0c76746be09aae3749674878891e94c75ee",
               "name": "soc-sign-bitcoin-alpha",
               "statistics": [
                 "feature-dynamic-sparsity",
@@ -24772,7 +24799,7 @@
             },
             {
               "file": "src/saps/benchmarks/mssp.py",
-              "freshness": "790b72bae975de411c00b0d1f0578a7622f350db765f056f33a851989a79ee1a",
+              "freshness": "bdb504c7fbee9812e046ef73357af0c76746be09aae3749674878891e94c75ee",
               "name": "soc-sign-bitcoin-otc",
               "statistics": [
                 "feature-dynamic-sparsity",

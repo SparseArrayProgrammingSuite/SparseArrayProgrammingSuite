@@ -419,7 +419,8 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
 
     def generate(self, dataset: LTHConv2Dataset) -> DataInstance:
         import onnx
-        from onnxpy import compile_to_source
+
+        from saps.util.onnxpy import compile_to_source
 
         model = onnx.load(str(_model_path()), load_external_data=True)
 

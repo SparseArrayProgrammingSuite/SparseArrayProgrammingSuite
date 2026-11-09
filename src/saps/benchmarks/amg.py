@@ -217,7 +217,9 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
             AMGDataset("MathWorks/Muu", max_iter=100, rel_tol=1e-06),
             AMGDataset("MaxPlanck/shallow_water1", max_iter=100, rel_tol=1e-06),
             AMGDataset("MaxPlanck/shallow_water2", max_iter=100, rel_tol=1e-06),
-            AMGDataset("McRae/ecology2", max_iter=100, rel_tol=1e-06, suites=["train"]),
+            AMGDataset(
+                "McRae/ecology2", max_iter=100, rel_tol=1e-06, suites=["train", "trace"]
+            ),
             AMGDataset("Nasa/nasa2146", max_iter=100, rel_tol=1e-06, rhs_index=0),
             AMGDataset("Norris/fv1", max_iter=100, rel_tol=1e-06),
             AMGDataset("Norris/fv2", max_iter=100, rel_tol=1e-06),
@@ -243,6 +245,7 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
     def generate(self, dataset: AMGDataset) -> DataInstance:
         if dataset.A is not None:
             A_bin = from_scipy(scipy_sparse.coo_array(dataset.A))
+            assert dataset.b is not None, "Test datasets give A and b together"
             b = dataset.b
         else:
             A_bin, b, _has_real_rhs = fetch_suitesparse_linear_system(
@@ -472,7 +475,10 @@ class AMGBenchmark(Benchmark):
         assert self._ref_meta is not None, "No cached reference norms"
         abs_A = to_sparse(self._ref_outputs[0])
         b = to_numpy(b_bin)
-        x_sol = to_numpy(self._output[0])
+        try:
+            x_sol = to_numpy(self._output[0])
+        except TypeError:
+            x_sol = to_sparse(self._output[0]).todense()
         r = np.asarray(b - A @ x_sol).ravel()
         roundoff = summation_error_bound(
             np,

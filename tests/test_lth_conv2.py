@@ -7,7 +7,6 @@ import pytest
 import numpy as np
 
 import onnx
-import onnxpy
 from binsparse.conversions import from_numpy, to_numpy
 from onnx import TensorProto, helper, numpy_helper
 from onnx.reference import ReferenceEvaluator
@@ -15,6 +14,7 @@ from onnx.reference import ReferenceEvaluator
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks import lth_conv2
 from saps.benchmarks.lth_conv2 import LTHConv2Benchmark
+from saps.util import onnxpy
 
 
 @pytest.fixture
