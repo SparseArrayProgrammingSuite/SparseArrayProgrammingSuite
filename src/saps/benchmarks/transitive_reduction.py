@@ -3,11 +3,10 @@ import numpy as np
 import scipy.sparse as scipy_sparse
 
 import sparse
-from binsparse import BinsparseTensor, COORMatrix
+from binsparse import BinsparseTensor
 from binsparse.conversions import (
     from_numpy,
     from_sparse,
-    to_scipy,
 )
 
 from saps.benchmark import (
@@ -22,8 +21,14 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
-from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps.util.adjacency import (
+    SNAP_LENGTH_SEED,
+    distance_matrix,
+    graph_csr,
+    zero_one_adjacency,
+)
 from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
@@ -156,25 +161,6 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         )
 
 
-def _unweighted_distances(adjacency: BinsparseTensor) -> COORMatrix:
-    """Distance 1 along each edge of the 0-1 adjacency, infinite elsewhere.
-
-    Self-loops are dropped, since a vertex is never its own transitive edge.
-    """
-    edges = to_scipy(zero_one_adjacency(adjacency)).tocoo()
-    keep = edges.row != edges.col
-    values = np.ones(np.count_nonzero(keep), dtype=float)
-    return COORMatrix(
-        edges.shape,
-        values.size,
-        fill=True,
-        fill_value=np.inf,
-        indices_0=edges.row[keep],
-        indices_1=edges.col[keep],
-        values=values,
-    )
-
-
 class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
     @property
     def cacheable(self) -> bool:
@@ -194,7 +180,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -233,8 +219,8 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             TransitiveReductionDataset("soc-sign-bitcoin-otc", suites=["standard"]),
             TransitiveReductionDataset("soc-sign-bitcoin-alpha", suites=["standard"]),
             TransitiveReductionDataset("com-LiveJournal", suites=["standard"]),
-            # TransitiveReductionDataset("com-Friendster", suites=["standard"]),
-            TransitiveReductionDataset("com-Orkut", suites=["standard"]),
+            TransitiveReductionDataset("com-Friendster", suites=["standard-long"]),
+            TransitiveReductionDataset("com-Orkut", suites=["standard-long"]),
             TransitiveReductionDataset("com-Youtube", suites=["standard"]),
             TransitiveReductionDataset("com-DBLP", suites=["standard"]),
             TransitiveReductionDataset("com-Amazon", suites=["standard"]),
@@ -289,7 +275,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
             TransitiveReductionDataset("wiki-talk-temporal", suites=["standard"]),
             TransitiveReductionDataset("email-Eu-core-temporal", suites=["standard", "trace"]),
             TransitiveReductionDataset("CollegeMsg", suites=["standard", "trace", "train"]),
-            # TransitiveReductionDataset("twitter7", suites=["standard"]),
+            TransitiveReductionDataset("twitter7", suites=["standard-long"]),
             TransitiveReductionDataset("higgs-twitter", suites=["standard"]),
         ]
         # fmt: on
@@ -305,8 +291,15 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
 
     def generate_inputs(self, dataset: TransitiveReductionDataset) -> DataInstance:
         raw = fetch_snap_graph(dataset.name)
+        # Pruning compares two-hop path lengths, so SNAP edges get seeded random
+        # lengths; the diagonal stays infinite so no edge is its own witness.
+        lengths = distance_matrix(
+            zero_one_adjacency(raw.inputs[0]),
+            length_seed=SNAP_LENGTH_SEED,
+            zero_diagonal=False,
+        )
         return DataInstance(
-            inputs=[_unweighted_distances(raw.inputs[0])], meta=dict(raw.meta)
+            inputs=[lengths], meta={**raw.meta, "length_seed": SNAP_LENGTH_SEED}
         )
 
 
@@ -403,6 +396,220 @@ class TransitiveReductionSNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return TransitiveReductionSNAPReferenceGenerator()
+
+
+class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
+    @property
+    def name(self) -> str:
+        return "transitive_reduction_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Reduction GAP"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for transitive reduction benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP directed graph inputs for transitive reduction."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[TransitiveReductionDataset]:
+        return [
+            TransitiveReductionDataset(
+                name="GAP-road",
+                description=(
+                    "Directed roads with weights in the US, with 23.9M nodes and"
+                    " 58.3M edges."
+                ),
+                suites=["standard-long"],
+            ),
+            TransitiveReductionDataset(
+                name="GAP-twitter",
+                description=(
+                    "Directed weighted social network topology of Twitter, with 61.6M"
+                    " nodes and 1,468.4M edges."
+                ),
+                suites=["standard-long"],
+            ),
+            TransitiveReductionDataset(
+                name="GAP-web",
+                description=(
+                    "A web-crawl of the .sk domain, directed and weighted, with 50.6M"
+                    " nodes and 1,949.4M edges."
+                ),
+                suites=["standard-long"],
+            ),
+            TransitiveReductionDataset(
+                name="GAP-kron",
+                description=(
+                    "Symmetric random undirected weighted graph generated by"
+                    " Kronecker synthetic graph generator with parameters"
+                    " (A=0.57, B=C=0.19, D=0.05). Has 134.2M nodes and 2,111.6M"
+                    " edges."
+                ),
+                suites=["standard-long"],
+            ),
+            TransitiveReductionDataset(
+                name="GAP-urand",
+                description=(
+                    "Symmetric random undirected weighted graph generated by"
+                    " Erdos–Reyni model (Uniform Random) with 134.2M nodes and"
+                    " 2,147.4M edges."
+                ),
+                suites=["standard-long"],
+            ),
+        ]
+
+    def generate(self, dataset: TransitiveReductionDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = TransitiveReductionGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: TransitiveReductionDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        # GAP graphs are weighted, so edges keep their lengths.
+        lengths = distance_matrix(raw.inputs[0], keep_weights=True, zero_diagonal=False)
+        return DataInstance(inputs=[lengths], meta=dict(raw.meta))
+
+
+class TransitiveReductionGAPReferenceGenerator(
+    ReferenceGenerator[TransitiveReductionDataset]
+):
+    @property
+    def name(self) -> str:
+        return "transitive_reduction_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Reduction GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Transitive Reduction GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[TransitiveReductionDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in TransitiveReductionGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[TransitiveReductionDataset]
+    ) -> DataInstance:
+        problem = TransitiveReductionGAPGenerator().generate_inputs(dataset.dataset)
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], distances=True)
+        # Existing-edge two-hop witnesses implement the suite's weighted pruning rule.
+        current = graph.copy()
+        for _ in range(meta.get("max_iters", 10)):
+            incoming = current.tocsc()
+            remove = np.zeros(current.nnz, dtype=bool)
+            for row in range(current.shape[0]):
+                start, end = current.indptr[row : row + 2]
+                neighbors = current.indices[start:end]
+                weights = current.data[start:end]
+                if start == end:
+                    continue
+                maximum = weights.max()
+                if len(weights) < current.shape[1]:
+                    maximum = max(maximum, -1.0)
+                threshold = maximum + meta.get("x", 1)
+                for edge in range(start, end):
+                    col = current.indices[edge]
+                    left, right = incoming.indptr[col : col + 2]
+                    _, outgoing_idx, incoming_idx = np.intersect1d(
+                        neighbors,
+                        incoming.indices[left:right],
+                        assume_unique=True,
+                        return_indices=True,
+                    )
+                    lengths = (
+                        weights[outgoing_idx] + incoming.data[left:right][incoming_idx]
+                    )
+                    remove[edge] = np.any(lengths <= threshold)
+            if not remove.any():
+                break
+            coo = current.tocoo()
+            current = scipy_sparse.coo_array(
+                (coo.data[~remove], (coo.row[~remove], coo.col[~remove])),
+                shape=current.shape,
+            ).tocsr()
+        coo = current.tocoo()
+        expected = from_sparse(
+            sparse.COO(
+                np.stack([coo.row, coo.col]),
+                coo.data,
+                shape=coo.shape,
+                fill_value=np.inf,
+            )
+        )
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "transitive_reduction",
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class TransitiveReductionGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return TransitiveReductionGAPReferenceGenerator()
 
 
 class TransitiveReductionBenchmark(Benchmark):
@@ -504,6 +711,7 @@ class TransitiveReductionBenchmark(Benchmark):
         return [
             TransitiveReductionTestGenerator(),
             TransitiveReductionSNAPGenerator(),
+            TransitiveReductionGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, R):

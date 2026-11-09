@@ -17,7 +17,7 @@ if [[ -z "$repo_directory" ]]; then
 fi
 repo_directory=$(git -C "$repo_directory" rev-parse --show-toplevel)
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 export AWS_PROFILE=dataset-upload
 export REMOTE_STORAGE_BACKEND=s3
 export REMOTE_STORAGE_BUCKET=sparse-array-programming-suite
@@ -35,7 +35,7 @@ if [[ -n "${SAPS_MEMORY_LIMIT:-}" ]]; then
   memory_limit_args=(--memory-limit "$SAPS_MEMORY_LIMIT")
 fi
 
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --cache-datasets \
   --process-timeout 3600 \
   --chunk-count "${SLURM_ARRAY_TASK_COUNT:-1}" \

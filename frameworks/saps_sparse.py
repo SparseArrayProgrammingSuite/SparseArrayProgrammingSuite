@@ -233,10 +233,16 @@ def _sparse_unfold_with_diagonals(
     return sp.COO(output_coords, output_data, shape=output_shape)
 
 
-class _MutableCOO(sp.COO):
-    """COO arithmetic with indexed assignment through a temporary DOK builder."""
+class _COOAt:
+    """xp.at(x, idx) for a sparse x: set returns a new COO, leaving x unchanged."""
 
-    def __setitem__(self, key, value):
+    def __init__(self, x, idx):
+        self.x = x
+        self.idx = idx
+
+    def set(self, value, /):
+        array = self.x.asformat("coo")
+        key = self.idx
         if isinstance(key, tuple):
             key = tuple(
                 PyDataSparseFramework._dense(index)
@@ -255,38 +261,31 @@ class _MutableCOO(sp.COO):
         # sparse.numba_backend._dok.DOK._fancy_setitem), which dominates
         # runtime at realistic sizes regardless of how few entries are
         # actually being set. COO sums duplicate coordinates instead of
-        # this class's (and DOK's) last-write-wins, so this only applies
-        # once verified duplicate-free -- itself a cheap vectorized check,
+        # set's (and DOK's) last-write-wins, so this only applies once
+        # verified duplicate-free -- itself a cheap vectorized check,
         # unlike the Python loop it's replacing.
         if (
-            self.nnz == 0
+            array.nnz == 0
             and isinstance(key, tuple)
-            and len(key) == self.ndim
+            and len(key) == array.ndim
             and all(isinstance(index, np.ndarray) and index.ndim == 1 for index in key)
         ):
-            flat = np.ravel_multi_index(key, self.shape)
+            flat = np.ravel_multi_index(key, array.shape)
             if len(np.unique(flat)) == len(flat):
                 coords = np.stack(key)
                 data = np.broadcast_to(
-                    np.asarray(value, dtype=self.dtype), (coords.shape[1],)
+                    np.asarray(value, dtype=array.dtype), (coords.shape[1],)
                 )
-                updated = sp.COO(
+                return sp.COO(
                     coords,
                     data,
-                    shape=self.shape,
-                    fill_value=self.fill_value,
+                    shape=array.shape,
+                    fill_value=array.fill_value,
                     has_duplicates=False,
                 )
-                self.coords = updated.coords
-                self.data = updated.data
-                self._cache = None
-                return
-        builder = sp.DOK.from_coo(self)
+        builder = sp.DOK.from_coo(array)
         builder[key] = value
-        updated = builder.to_coo()
-        self.coords = updated.coords
-        self.data = updated.data
-        self._cache = None
+        return builder.to_coo()
 
 
 class PyDataSparseFramework(Framework):
@@ -512,11 +511,16 @@ class PyDataSparseFramework(Framework):
         xp = self._array_namespace(x1, x2)
         return xp.matmul(x1, x2, **kwargs)
 
+    def at(self, x, idx, /):
+        if isinstance(x, sp.SparseArray):
+            return _COOAt(x, idx)
+        return super().at(x, idx)
+
     def zeros(self, shape, *args, **kwargs):
         # Vectors also serve as dense index and scalar buffers in the suite.
         if not isinstance(shape, tuple | list) or len(shape) < 2:
             return compat_np.zeros(shape, *args, **kwargs)
-        return _MutableCOO(sp.zeros(shape, *args, **kwargs))
+        return sp.zeros(shape, *args, **kwargs)
 
     def arange(self, *args, **kwargs):
         return compat_np.arange(*args, **kwargs)

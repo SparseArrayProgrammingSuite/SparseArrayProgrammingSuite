@@ -21,6 +21,7 @@ from binsparse import (
 )
 
 from saps.downloaders.cache import download_lock, source_cache_dir
+from saps.util.coordinates import canonical_coordinates
 
 
 def list_gcare_queries(
@@ -61,9 +62,8 @@ def load_gcare_graph(
     bin_mats: list[BinsparseTensor] = []
     for name, raw in raw_sp_mats.items():
         matrix_names.append(name)
-        indices = tuple(raw["I_tuple"])
-        values = raw["V"]
         shape = tuple(raw["shape"])
+        indices, values = canonical_coordinates(tuple(raw["I_tuple"]), raw["V"])
         if len(shape) == 2:
             tensor = COORMatrix(
                 shape,

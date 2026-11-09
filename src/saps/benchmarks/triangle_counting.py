@@ -14,6 +14,7 @@ from saps.benchmark import (
     Generator,
     Ref,
 )
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import zero_one_adjacency
 
@@ -382,6 +383,131 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
         )
 
 
+class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
+    @property
+    def name(self) -> str:
+        return "triangle_counting_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Triangle Counting GAP"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for triangle counting benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="GraphMiner: Triangle Counting reference counts",
+                authors=[Author("Xuhao Chen")],
+                url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md",
+            ),
+            Ref(
+                title="LAGraph: Known triangle counts for GAP graphs",
+                authors=[Author("Timothy A. Davis")],
+                url="https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27",
+            ),
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+            Ref(
+                title="Pangolin: An Efficient and Flexible Graph Mining System on CPU and GPU",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Keshav Pingali"),
+                ],
+                journal="Proc. VLDB Endow.",
+                volume=13,
+                number=8,
+                year=2020,
+                publisher="VLDB Endowment",
+                url="https://www.vldb.org/pvldb/vol13/p1190-chen.pdf",
+            ),
+            Ref(
+                title="Sandslash",
+                authors=[
+                    Author("Xuhao Chen"),
+                    Author("Roshan Dathathri"),
+                    Author("Gurbinder Gill"),
+                    Author("Loc Hoang"),
+                    Author("Keshav Pingali"),
+                ],
+                booktitle="Proceedings of the 35th ACM International Conference on Supercomputing",
+                year=2021,
+                url="https://doi.org/10.1145/3447818.3460359",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for triangle counting."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[TriangleCountingDataset]:
+        # LAGraph counts except GAP-twitter, sourced from GraphMiner below:
+        # https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27
+        # fmt: off
+        return [
+            TriangleCountingDataset("GAP-road", expected=438_804, suites=["standard-long"]),
+            # GraphMiner: twitter40, equivalent after normalization:
+            # https://sparse.tamu.edu/GAP/GAP-twitter
+            TriangleCountingDataset("GAP-twitter", expected=34_824_916_864, suites=["standard-long"]),
+            TriangleCountingDataset("GAP-web", expected=84_907_041_475, suites=["standard-long"]),
+            TriangleCountingDataset("GAP-kron", expected=106_873_365_648, suites=["standard-long"]),
+            TriangleCountingDataset("GAP-urand", expected=5_378, suites=["standard-long"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: TriangleCountingDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[
+                zero_one_adjacency(
+                    raw.inputs[0],
+                    np.int64,
+                    simple_undirected=dataset.simple_undirected,
+                    upper_triangle=True,
+                )
+            ],
+            meta=dict(raw.meta),
+            ref_outputs=[from_numpy(np.asarray(dataset.expected, dtype=np.int64))],
+        )
+
+
 class TriangleCountingBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -497,6 +623,7 @@ class TriangleCountingBenchmark(Benchmark):
         return [
             TriangleCountingTestGenerator(),
             TriangleCountingSNAPGenerator(),
+            TriangleCountingGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict, A):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Measure Plummer cutoff error against direct, untruncated benchmark gravity.
 
-Run with ``poetry run python scripts/analyze_particle_cutoff.py --output PATH``.
+Run with ``pixi run python scripts/analyze_particle_cutoff.py --output PATH``.
 Downloads the two small NEMO Plummer snapshots through the normal source cache.
 This measures spherical force truncation error, not time integration or softening
 error. It does not model the benchmark's neighboring-bucket interaction region.

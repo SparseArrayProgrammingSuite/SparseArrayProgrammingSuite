@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import itertools
 import json
@@ -9,9 +10,11 @@ import logging
 import math
 import os
 import re
+import signal
 import tempfile
 from pathlib import Path
 
+import asv.runner
 from asv.benchmarks import Benchmarks
 from asv.commands.setup import Setup
 from asv.config import Config
@@ -21,6 +24,7 @@ from asv.machine import Machine
 from asv.repo import get_repo
 from asv.results import Results, get_filename
 from asv.runner import run_benchmarks
+from asv.util import TIMEOUT_RETCODE
 
 from saps.benchmark_status import parameter_statuses
 from saps.generate_environment import check_generate_environment
@@ -32,6 +36,70 @@ from saps.storage import (
 )
 
 logging.basicConfig(level=logging.INFO)
+
+# ASV keeps one exit code per benchmark, the last nonzero one among its
+# parameters, so each parameter's goes into its own output, which ASV labels.
+# (This lives here rather than in saps.benchmark_status, which every dataset's
+# freshness covers.)
+EXIT_STATUS_PREFIX = "saps: exit status "
+
+
+def report_exit_statuses(spawner):
+    """Make an ASV spawner append each failing process's exit status to its output.
+
+    ASV reports a process killed by a signal as minus the signal number. Process
+    timeouts already report themselves in the output.
+    """
+    run = spawner.run
+
+    def run_reporting_exit_status(*args, **kwargs):
+        out, errcode = run(*args, **kwargs)
+        if errcode not in (0, TIMEOUT_RETCODE):
+            out += f"\n{EXIT_STATUS_PREFIX}{errcode}\n"
+        return out, errcode
+
+    spawner.run = run_reporting_exit_status
+    return spawner
+
+
+def _patch_get_spawner(get_spawner):
+    if getattr(get_spawner, "saps_reports_exit_statuses", False):
+        return get_spawner  # This script was loaded again (as tests do).
+
+    def get_spawner_reporting_exit_statuses(*args, **kwargs):
+        return report_exit_statuses(get_spawner(*args, **kwargs))
+
+    get_spawner_reporting_exit_statuses.saps_reports_exit_statuses = True  # type: ignore[attr-defined]
+    return get_spawner_reporting_exit_statuses
+
+
+asv.runner.get_spawner = _patch_get_spawner(asv.runner.get_spawner)
+
+
+def statuses_with_exit_codes(params, values, output, selected=None) -> list[dict]:
+    """parameter_statuses, plus the exit status of each parameter's failed process."""
+    records = parameter_statuses(params, values, output, selected)
+    labeled = set()
+    exit_codes = {}
+    label = ""
+    for line in (output or "").splitlines():
+        if line.startswith("For parameters: "):
+            label = line.removeprefix("For parameters: ")
+            labeled.add(label)
+        elif line.startswith(EXIT_STATUS_PREFIX):
+            with contextlib.suppress(ValueError):
+                exit_codes[label] = int(line.removeprefix(EXIT_STATUS_PREFIX))
+    for record in records:
+        # Unlabeled output belongs to every parameter, as in parameter_statuses.
+        label = ", ".join(record["parameters"])
+        exit_code = exit_codes.get(label if label in labeled else "")
+        if exit_code is not None:
+            record["exit_code"] = exit_code
+            if exit_code < 0:
+                with contextlib.suppress(ValueError):
+                    record["signal"] = signal.Signals(-exit_code).name
+    return records
+
 
 _MEMORY_UNITS = {"": 1, "K": 1024, "M": 1024**2, "G": 1024**3, "T": 1024**4}
 
@@ -74,7 +142,7 @@ def format_results(results: Results, benchmarks: Benchmarks) -> dict:
             "started_at": results.started_at.get(name),
             "errcode": results.errcode.get(name),
             "stderr": results.stderr.get(name),
-            "parameter_statuses": parameter_statuses(
+            "parameter_statuses": statuses_with_exit_codes(
                 params,
                 results.get_result_value(name, params),
                 results.stderr.get(name),
@@ -196,7 +264,7 @@ def _save_results(results, results_dir, benchmarks, machine_params, *, resume=Fa
                 "stderr": results.stderr.get(name),
                 "started_at": results.started_at.get(name),
                 "duration_seconds": results.duration.get(name),
-                "parameter_statuses": parameter_statuses(
+                "parameter_statuses": statuses_with_exit_codes(
                     benchmark["params"],
                     results.get_result_value(name, benchmark["params"]),
                     results.stderr.get(name),
@@ -220,7 +288,7 @@ def _load_metadata(metadata_path: Path) -> list[dict]:
     if not metadata_path.exists():
         raise RuntimeError(
             f"{metadata_path} does not exist; run generate metadata first with "
-            "`poetry run ./bin/generate_metadata.py`."
+            "`pixi run ./bin/generate_metadata.py`."
         )
     document = json.loads(metadata_path.read_text(encoding="utf-8"))
     return document.get("benchmarks", [])
@@ -420,11 +488,14 @@ def main() -> int:
     parser.add_argument(
         "--no-tag",
         action="append",
-        default=[],
+        # standard-long datasets take hours each to prepare, so they run only
+        # when selected with --tag suite-standard-long.
+        default=["suite-standard-long"],
         help=(
             "Exclude SAPS benchmarks that have any of these tags "
             "(can be passed more than once, applies to datasets, "
-            "generators, and benchmarks)"
+            "generators, and benchmarks; default: suite-standard-long, "
+            "unless selected with --tag)"
         ),
     )
     parser.add_argument(
@@ -673,7 +744,7 @@ def main() -> int:
         "html_dir": str(outputs_dir / "html"),
         "matrix": matrix,
     }
-    for key in ("include", "exclude", "pythons"):
+    for key in ("include", "exclude", "pythons", "install_timeout"):
         if key in saps_config_data:
             asv_config_dict[key] = saps_config_data[key]
 
@@ -695,6 +766,12 @@ def main() -> int:
         for key in ("SAPS_FRAMEWORK", "SAPS_REPO_ROOT"):
             if key in env_nobuild:
                 env_nobuild[key] = _resolve_path_values(env_nobuild[key])
+
+    if asv_config_dict["environment_type"] == "existing:same":
+        for key in ("SAPS_FRAMEWORK", "SAPS_REPO_ROOT"):
+            values = conf.matrix.get("env_nobuild", {}).get(key)
+            if isinstance(values, list) and len(values) == 1:
+                os.environ[key] = values[0]
 
     # Read host details without ASV's interactive, shared machine registry.
     machine_params = Machine()
@@ -745,7 +822,9 @@ def main() -> int:
     results_dir.mkdir(parents=True, exist_ok=True)
 
     include_tags = {tag.strip() for tag in args.tag if tag and tag.strip()}
-    exclude_tags = {tag.strip() for tag in args.no_tag if tag and tag.strip()}
+    exclude_tags = {
+        tag.strip() for tag in args.no_tag if tag and tag.strip()
+    } - include_tags
     include_patterns = [re.compile(pattern) for pattern in args.re or []]
     exclude_patterns = [re.compile(pattern) for pattern in args.no_re or []]
 

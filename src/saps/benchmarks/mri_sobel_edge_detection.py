@@ -2,12 +2,30 @@ import os
 from typing import Any
 
 import numpy as np
+import scipy.sparse as sps
 from scipy import ndimage
 
-from binsparse import BinsparseTensor, COORMatrix
-from binsparse.conversions import from_numpy, to_numpy
+from binsparse import BinsparseTensor
+from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
-from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps.benchmark import (
+    Author,
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    Ref,
+)
+
+
+def _stencil(n, rows, cols, values):
+    """An n-by-n stencil matrix as Binsparse COOR, which requires row-major
+    sorted, duplicate-free coordinates. The wrap-around stencils list their
+    entries diagonal by diagonal, and repeat coordinates when n <= 2, so SciPy
+    sorts them and sums the repeats."""
+    matrix = sps.coo_array((values.astype(np.float32), (rows, cols)), shape=(n, n))
+    return from_scipy(matrix)
 
 
 def generate_1d_sobel_matrices(Nx, Ny):
@@ -17,13 +35,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     D_x_R = np.concatenate([rows, rows])
     D_x_C = np.concatenate([cols1, cols2])
     D_x_V = np.concatenate([np.ones(Nx), -np.ones(Nx)])
-    dx_bin = COORMatrix(
-        (Nx, Nx),
-        len(D_x_V),
-        indices_0=D_x_R,
-        indices_1=D_x_C,
-        values=D_x_V.astype(np.float32),
-    )
+    dx_bin = _stencil(Nx, D_x_R, D_x_C, D_x_V)
 
     rows = np.arange(Ny)
     cols1 = (rows - 1) % Ny
@@ -32,13 +44,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_y_R = np.concatenate([rows, rows, rows])
     S_y_C = np.concatenate([cols1, cols2, cols3])
     S_y_V = np.concatenate([np.ones(Ny), 2.0 * np.ones(Ny), np.ones(Ny)])
-    sy_bin = COORMatrix(
-        (Ny, Ny),
-        len(S_y_V),
-        indices_0=S_y_R,
-        indices_1=S_y_C,
-        values=S_y_V.astype(np.float32),
-    )
+    sy_bin = _stencil(Ny, S_y_R, S_y_C, S_y_V)
 
     rows = np.arange(Nx)
     cols1 = (rows - 1) % Nx
@@ -47,13 +53,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_x_R = np.concatenate([rows, rows, rows])
     S_x_C = np.concatenate([cols1, cols2, cols3])
     S_x_V = np.concatenate([np.ones(Nx), 2.0 * np.ones(Nx), np.ones(Nx)])
-    sx_bin = COORMatrix(
-        (Nx, Nx),
-        len(S_x_V),
-        indices_0=S_x_R,
-        indices_1=S_x_C,
-        values=S_x_V.astype(np.float32),
-    )
+    sx_bin = _stencil(Nx, S_x_R, S_x_C, S_x_V)
 
     rows = np.arange(Ny)
     cols1 = (rows + 1) % Ny
@@ -61,13 +61,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     D_y_R = np.concatenate([rows, rows])
     D_y_C = np.concatenate([cols1, cols2])
     D_y_V = np.concatenate([np.ones(Ny), -np.ones(Ny)])
-    dy_bin = COORMatrix(
-        (Ny, Ny),
-        len(D_y_V),
-        indices_0=D_y_R,
-        indices_1=D_y_C,
-        values=D_y_V.astype(np.float32),
-    )
+    dy_bin = _stencil(Ny, D_y_R, D_y_C, D_y_V)
 
     return dx_bin, sy_bin, sx_bin, dy_bin
 
@@ -256,10 +250,9 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
     @property
     def description(self) -> str:
         return (
-            "Data Generation: I used MRI image data from this Kaggle set:"
-            " https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection"
-            " . I used a constant edge threshold of 150.0 with all of the images that I"
-            " used."
+            "Data Generation: I used MRI image data from the Kaggle Brain MRI Images"
+            " for Brain Tumor Detection set. I used a constant edge threshold of 150.0"
+            " with all of the images that I used."
         )
 
     @property
@@ -294,7 +287,16 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
 
     @property
     def references(self) -> list[Ref]:
-        return MRISobelEdgeDetectionBenchmark().references
+        return [
+            *MRISobelEdgeDetectionBenchmark().references,
+            Ref(
+                title="Brain MRI Images for Brain Tumor Detection",
+                authors=[Author("Navoneel Chakrabarty")],
+                publisher="Kaggle",
+                year=2019,
+                url="https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection",
+            ),
+        ]
 
     @property
     def ai_disclosure(self) -> str:
@@ -434,7 +436,6 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
         ]
 
     def benchmark(self, xp, meta: dict[str, Any], image, D_x, S_y, S_x, D_y, threshold):
-
         gx = D_x @ image @ S_y
         gy = S_x @ image @ D_y
 

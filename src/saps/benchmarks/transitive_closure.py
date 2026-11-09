@@ -18,6 +18,7 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph
 from saps.benchmarks.snap import fetch_snap_graph
 from saps.util.adjacency import (
     DEFAULT_MAX_DENSITY,
@@ -273,7 +274,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
             TransitiveClosureDataset("soc-sign-bitcoin-otc", suites=["trace"]),
             TransitiveClosureDataset("soc-sign-bitcoin-alpha", suites=["trace"]),
             TransitiveClosureDataset("com-LiveJournal", suites=[]),
-            TransitiveClosureDataset("com-Friendster", suites=[]),
+            TransitiveClosureDataset("com-Friendster", suites=["standard-long"]),
             TransitiveClosureDataset("com-Orkut", suites=[]),
             TransitiveClosureDataset("com-Youtube", suites=["trace"]),
             TransitiveClosureDataset("com-DBLP", suites=["trace"]),
@@ -419,6 +420,158 @@ class TransitiveClosureSNAPReferenceShellBenchmark(ShellBenchmark):
         return TransitiveClosureSNAPReferenceGenerator()
 
 
+class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
+    @property
+    def name(self) -> str:
+        return "transitive_closure_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Closure GAP"
+
+    @property
+    def description(self) -> str:
+        return "Input GAP generator for transitive closure benchmarks."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP directed graph inputs for transitive closure."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[TransitiveClosureDataset]:
+        # fmt: off
+        return [
+            TransitiveClosureDataset("GAP-road", suites=["standard-long"]),
+            TransitiveClosureDataset("GAP-twitter", suites=["standard-long"]),
+            TransitiveClosureDataset("GAP-web", suites=["standard-long"]),
+            TransitiveClosureDataset("GAP-kron", suites=["standard-long"]),
+            TransitiveClosureDataset("GAP-urand", suites=["standard-long"]),
+        ]
+        # fmt: on
+
+    def generate(self, dataset: TransitiveClosureDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = TransitiveClosureGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: TransitiveClosureDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta={
+                **raw.meta,
+                "max_squarings": squaring_count(
+                    raw.inputs[0].shape[0],
+                    raw.meta["max_degree"],
+                    dataset.max_density,
+                ),
+            },
+        )
+
+
+class TransitiveClosureGAPReferenceGenerator(
+    ReferenceGenerator[TransitiveClosureDataset]
+):
+    @property
+    def name(self) -> str:
+        return "transitive_closure_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Transitive Closure GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Transitive Closure GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[TransitiveClosureDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in TransitiveClosureGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[TransitiveClosureDataset]
+    ) -> DataInstance:
+        problem = TransitiveClosureGAPGenerator().generate_inputs(dataset.dataset)
+        meta = problem.meta
+        graph = graph_csr(problem.inputs[0], boolean=True)
+        # Boolean sparse multiplication preserves reachability without path counts.
+        closure = graph.maximum(
+            scipy_sparse.eye(graph.shape[0], dtype=bool, format="csr")
+        )
+        for _ in range(meta["max_squarings"]):
+            updated = closure @ closure
+            if (updated != closure).nnz == 0:
+                break
+            closure = updated
+        expected = from_scipy(closure.tocoo())
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "scipy",
+            "reference_algorithm": "transitive_closure",
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class TransitiveClosureGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return TransitiveClosureGAPReferenceGenerator()
+
+
 class TransitiveClosureBenchmark(Benchmark):
     @property
     def name(self):
@@ -508,6 +661,7 @@ class TransitiveClosureBenchmark(Benchmark):
         return [
             TransitiveClosureSNAPGenerator(),
             TransitiveClosureTestGenerator(),
+            TransitiveClosureGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, edges):

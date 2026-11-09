@@ -55,13 +55,16 @@ def test_snap_trials_partition_source_seeds():
         assert [seed for d in trials for seed in d.source_seeds] == list(range(64))
         for dataset in trials:
             assert dataset.name == f"{graph.name}_trial{dataset.trial}"
-            assert "standard" in dataset.suites
+            assert {"standard", "standard-long"} & set(dataset.suites)
             assert dataset.metadata["source_seeds"] == dataset.source_seeds
             assert dataset.metadata["trial"] == dataset.trial
     assert {d.source_name for d in datasets if "trace" in d.suites} == {
         "email-Eu-core",
         "email-Eu-core-temporal",
     }
+    assert [d.name for d in datasets if "train" in d.suites] == [
+        "email-Eu-core-temporal_trial0"
+    ]
 
 
 def test_snap_generator_preserves_source_order_and_repeats(monkeypatch):

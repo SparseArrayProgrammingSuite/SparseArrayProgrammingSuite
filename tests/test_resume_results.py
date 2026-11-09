@@ -170,7 +170,7 @@ def test_resume_merges_results_per_environment_and_skips_completed_runs(
 @pytest.mark.parametrize(
     ("timeout_flags", "expected_process", "expected_measurement"),
     [
-        ([], 180, "60"),
+        ([], 240, "180"),
         (["--process-timeout", "30", "--measurement-timeout", "1"], 30, "1.0"),
     ],
 )
@@ -343,8 +343,21 @@ def test_timeout_statuses_are_saved_combined_and_preserved_on_resume(
 
     from saps.benchmark_status import STATUS_PREFIX
 
-    benchmark, benchmarks, new_results, record = setup_resume
+    benchmark, benchmarks, _, record = setup_resume
     name = benchmark["name"]
+
+    def new_results():
+        # Combining results names each framework by its SAPS_FRAMEWORK_NAME.
+        return runner.Results(
+            {"machine": "node"},
+            {},
+            "123456789abcdef",
+            0,
+            "3.12",
+            "test-env",
+            {"SAPS_FRAMEWORK_NAME": "numpy"},
+        )
+
     results = new_results()
     record(results, benchmark, [None, None, None])
     results.errcode[name] = -256

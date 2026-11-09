@@ -7,6 +7,19 @@ from numpy.random import default_rng
 from saps.benchmark import ReferenceGenerator
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--no-re",
+        action="append",
+        default=[],
+        help=(
+            "Skip framework datasets whose benchmark, generator, or dataset name "
+            "matches this regex, as for run_benchmark.py (can be passed more "
+            "than once)."
+        ),
+    )
+
+
 @pytest.fixture
 def uncached_references(monkeypatch):
     """Compute reference generators' outputs instead of reading the dataset cache."""

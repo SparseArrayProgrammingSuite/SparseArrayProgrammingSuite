@@ -13,14 +13,17 @@ from saps.benchmark import Param
 from saps.benchmarks.rqc_statevector import (
     QGates,
     RQCStatevectorBenchmark,
-    product_state_reference,
+    circuit_instance,
+    named_gates,
+    simulate_reference,
     statevector_error_bound,
 )
+from saps.downloaders.qasmbench import parse_transpiled_qasm
 
-GATES = ["H", "X", "Y", "Z", "S", "T"]
+ONE_QUBIT_GATES = ["H", "X", "Y", "Z", "S", "T", "SX"]
 
 
-def _exact_state(nqubits, gate_sequence):
+def _exact_state(nqubits, gates):
     """The circuit's state in exact rational arithmetic on the float64 gates."""
 
     def exact(z):
@@ -29,24 +32,30 @@ def _exact_state(nqubits, gate_sequence):
     def multiply(a, b):
         return a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]
 
-    zero, one = (Fraction(0), Fraction(0)), (Fraction(1), Fraction(0))
-    qubits = [[one, zero] for _ in range(nqubits)]
-    for name, qubit in gate_sequence:
-        gate, (a, b) = getattr(QGates, name), qubits[qubit]
-        qubits[qubit] = [
-            tuple(
-                x + y
-                for x, y in zip(
-                    multiply(exact(gate[row, 0]), a),
-                    multiply(exact(gate[row, 1]), b),
-                    strict=True,
-                )
-            )
-            for row in range(2)
-        ]
-    state = [one]
-    for vector in qubits:
-        state = [multiply(a, b) for a in state for b in vector]
+    def add(a, b):
+        return a[0] + b[0], a[1] + b[1]
+
+    zero = (Fraction(0), Fraction(0))
+    state = [zero] * (1 << nqubits)
+    state[0] = (Fraction(1), Fraction(0))
+    for name, qubits, angle in gates:
+        matrix = QGates.RZ(angle) if name == "RZ" else getattr(QGates, name)
+        # Qubit 0 is the most significant bit of an amplitude's index.
+        bits = [nqubits - 1 - qubit for qubit in qubits]
+        matrix = matrix.reshape(1 << len(qubits), 1 << len(qubits))
+        new = [zero] * len(state)
+        for index, amplitude in enumerate(state):
+            old = 0
+            for bit in bits:
+                old = 2 * old + ((index >> bit) & 1)
+            for row in range(1 << len(qubits)):
+                target = index
+                for position, bit in enumerate(bits):
+                    value = (row >> (len(bits) - 1 - position)) & 1
+                    target = (target & ~(1 << bit)) | (value << bit)
+                product = multiply(exact(matrix[row, old]), amplitude)
+                new[target] = add(new[target], product)
+        state = new
     return state
 
 
@@ -60,38 +69,88 @@ def _within(state, exact, bound):
 
 def test_gates_are_unitary_up_to_rounding():
     eps = np.finfo(np.float64).eps
-    for name in GATES:
-        gate = getattr(QGates, name)
+    gates = {name: getattr(QGates, name) for name in ONE_QUBIT_GATES}
+    gates.update({f"RZ({angle})": QGates.RZ(angle) for angle in (0.3, -2.5, np.pi)})
+    for name, gate in gates.items():
         assert np.linalg.norm(gate, 2) <= 1 + 2 * eps, name
         assert np.linalg.norm(gate) <= np.sqrt(2) * (1 + 2 * eps), name
+    cx = QGates.CX.reshape(4, 4)
+    assert np.array_equal(cx @ cx.conj().T, np.eye(4))
 
 
 @pytest.mark.parametrize("seed", range(5))
 def test_bounds_cover_exact_arithmetic_on_deep_circuits(seed):
     rng = np.random.default_rng(seed)
     nqubits = 4
-    gate_sequence = [
-        (str(rng.choice(GATES)), int(rng.integers(nqubits))) for _ in range(60)
-    ]
-    exact = _exact_state(nqubits, gate_sequence)
-    xp = NumpyFramework()
-    inputs = [
-        product_state_reference(nqubits, []),
-        *(getattr(QGates, name) for name in GATES),
-    ]
+    sequence = []
+    for _ in range(40):
+        kind = rng.integers(3)
+        if kind == 0:
+            control, target = (int(q) for q in rng.choice(nqubits, 2, replace=False))
+            sequence.append(("CX", control, target))
+        elif kind == 1:
+            sequence.append(("RZ", int(rng.integers(nqubits)), float(rng.normal())))
+        else:
+            name = str(rng.choice(ONE_QUBIT_GATES))
+            sequence.append((name, int(rng.integers(nqubits))))
+    gates = named_gates(sequence)
+    exact = _exact_state(nqubits, gates)
+    problem = circuit_instance(nqubits, gates)
+    state, gates1, gates2 = (to_numpy(tensor) for tensor in problem.inputs)
     output = RQCStatevectorBenchmark().benchmark(
-        xp, {"nqubits": nqubits, "gate_sequence": gate_sequence}, *inputs
+        NumpyFramework(), problem.meta, state, gates1, gates2
     )
-    steps = len(gate_sequence)
-    assert _within(np.asarray(output), exact, statevector_error_bound(steps))
-    reference = product_state_reference(nqubits, gate_sequence)
-    assert _within(reference, exact, statevector_error_bound(steps + nqubits - 1))
+    two_qubit = sum(len(qubits) == 2 for _, qubits, _ in gates)
+    bound = statevector_error_bound(len(gates) - two_qubit, two_qubit)
+    assert _within(np.asarray(output), exact, bound)
+    reference = simulate_reference(
+        nqubits, state, gates1, gates2, problem.meta["gate_sequence"]
+    )
+    assert _within(reference, exact, bound)
+
+
+def test_sparse_storage_round_trips_through_the_check():
+    nqubits, gates = parse_transpiled_qasm(
+        """\
+        OPENQASM 2.0;
+        include "qelib1.inc";
+        qreg a[2];
+        qreg b[3];
+        creg c[5];
+        rz(pi/2) a[0];
+        sx a[0];
+        rz(pi/2) a[0];
+        cx a[0],b[2];
+        x b[0];
+        cx b[2],a[1];
+        measure a[0] -> c[0];
+        """
+    )
+    assert nqubits == 5
+    assert gates[3] == ("cx", (0, 4), None)
+    assert gates[5] == ("cx", (4, 1), None)
+    problem = circuit_instance(nqubits, gates, sparse_storage=True)
+    with pytest.raises(TypeError):
+        to_numpy(problem.inputs[0])
+    for framework in (NumpyFramework, SmartSparseFramework):
+        benchmark = RQCStatevectorBenchmark()
+        benchmark._input = problem.inputs
+        benchmark._meta = problem.meta
+        benchmark._ref_outputs = problem.ref_outputs
+        benchmark._ref_meta = problem.ref_meta
+        xp = framework()
+        output = benchmark.benchmark(
+            xp, problem.meta, *(xp.from_binsparse(t) for t in problem.inputs)
+        )
+        benchmark._output = [xp.to_binsparse(output)]
+        benchmark.check(SimpleNamespace(dataset=SimpleNamespace(name="inline")))
 
 
 @pytest.mark.parametrize("framework", [NumpyFramework, SmartSparseFramework])
 def test_every_dataset_passes_its_bound_check(framework):
     benchmark = RQCStatevectorBenchmark()
-    for generator in benchmark.generators:
+    # The QASMBench circuits need a download and up to 23 qubits.
+    for generator in benchmark.generators[:2]:
         for dataset in generator.datasets:
             param = Param(generator, dataset)
             benchmark.setup(param, use_cache=False, xp=framework())

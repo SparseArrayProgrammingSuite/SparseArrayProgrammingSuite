@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import igraph as ig
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
@@ -18,8 +17,10 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.gap import fetch_gap_graph, gap_graph
 from saps.benchmarks.snap import fetch_snap_graph, snap_graph
 from saps.util.adjacency import graph_csr, zero_one_adjacency
+from saps.util.error_bounds import summation_error_bound
 from saps_framework.binsparse_utils import assert_binsparse_allclose
 
 
@@ -61,6 +62,42 @@ class BetweennessCentralityDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+
+class BetweennessCentralityGAPDataset(BetweennessCentralityDataset):
+    def __init__(
+        self, source_name: str, trial: int, *, suites: list[str] | None = None
+    ):
+        if not 0 <= trial < 16:
+            raise ValueError("GAP betweenness trial must be between 0 and 15.")
+        graph = gap_graph(source_name)
+        self.source_name = graph.name
+        self.trial = trial
+        self.sources = graph.sources[4 * trial : 4 * (trial + 1)]
+        super().__init__(
+            name=f"{graph.name}_trial{trial}",
+            pretty_name=f"{graph.name} (Trial {trial})",
+            description=(
+                f"GAP betweenness trial {trial} on {graph.name}, using the four"
+                " published sources in order, including source dependencies and"
+                " normalizing by the maximum score."
+            ),
+            suites=suites,
+            meta={
+                "bc_sources": list(self.sources),
+                "include_source": True,
+                "normalize": True,
+            },
+        )
+
+    @property
+    def metadata(self):
+        return {
+            **super().metadata,
+            "source_name": self.source_name,
+            "trial": self.trial,
+            "sources": list(self.sources),
+        }
 
 
 class BetweennessCentralitySNAPDataset(BetweennessCentralityDataset):
@@ -109,6 +146,28 @@ def undirected_path_matrix():
         A[i, i + 1] = 1
         A[i + 1, i] = 1
     return A
+
+
+def score_tolerances(graph, sources, scale):
+    """Per-score rtol and atol covering any float64 Brandes evaluation.
+
+    ``scale`` is the maximum the scores were normalized by, or 1.
+    """
+    # Every quantity is a positive product of roundings, so a score's relative
+    # error is gamma_k for k roundings, in any summation order. A path count
+    # sums at most maxdegree counts per level. A dependency multiplies by one
+    # path count, divides by another, adds one, and sums maxdegree terms per
+    # level. Summing the sources and adding their own dependencies adds one each.
+    depth = max(graph.eccentricity(vertices=list(sources), mode="out"), default=0)
+    k = 3 * depth**2 * graph.maxdegree() + len(sources)
+    # Kernels that carry one plus each dependency and subtract the source count
+    # at the end also round relative to that count.
+    offset = len(sources) / scale
+    # Normalizing divides by the computed maximum, which carries the same error.
+    margin = 1 - summation_error_bound(np, k + 1, 1 + offset, np.float64)
+    assert margin > 0, "Too many rounding steps for a finite error bound"
+    rtol = summation_error_bound(np, 2 * k + 2, 1.0, np.float64) / margin
+    return float(rtol), float(rtol * offset)
 
 
 class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]):
@@ -252,25 +311,33 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
                     "include_source": True,
                     "normalize": True,
                 },
-                expected=np.array([4.0, 6.0, 4.0, 3.0, 0.0]) / 6,
+                expected=np.array([4.0, 6.0, 4.0, 3.0, 0.0]),
             ),
         ]
 
     def generate(self, dataset: BetweennessCentralityDataset) -> DataInstance:
+        import igraph as ig
+
         if dataset.A is None:
             raise ValueError("Centrality test datasets must define A.")
+        graph = ig.Graph(
+            n=len(dataset.A),
+            edges=np.column_stack(np.nonzero(dataset.A)),
+            directed=True,
+        )
         expected = dataset.expected
         if expected is None:
-            graph = ig.Graph(
-                n=len(dataset.A),
-                edges=np.column_stack(np.nonzero(dataset.A)),
-                directed=True,
-            )
             expected = np.asarray(graph.betweenness(directed=True))
+        scale = 1.0
+        if dataset.meta.get("normalize", False) and expected.max(initial=0) > 0:
+            scale = expected.max()
+        sources = dataset.meta.get("bc_sources", range(len(dataset.A)))
+        rtol, atol = score_tolerances(graph, sources, scale)
         return DataInstance(
             inputs=[from_numpy(dataset.A)],
             meta=dict(dataset.meta),
-            ref_outputs=[from_numpy(expected)],
+            ref_outputs=[from_numpy(expected / scale)],
+            ref_meta={"rtol": rtol, "atol": atol},
         )
 
 
@@ -337,7 +404,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             ("soc-sign-bitcoin-otc", ["standard"]),
             ("soc-sign-bitcoin-alpha", ["standard"]),
             ("com-LiveJournal", ["standard"]),
-            ("com-Friendster", ["standard"]),
+            ("com-Friendster", ["standard-long"]),
             ("com-Orkut", ["standard"]),
             ("com-Youtube", ["standard"]),
             ("com-DBLP", ["standard"]),
@@ -397,8 +464,14 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
             ("higgs-twitter", ["standard"]),
         ]
         # fmt: on
+        # The train suite holds one dataset per benchmark, so only the first
+        # trial of the train graph carries that suite.
         return [
-            BetweennessCentralitySNAPDataset(name, trial, suites=suites)
+            BetweennessCentralitySNAPDataset(
+                name,
+                trial,
+                suites=suites if trial == 0 else [s for s in suites if s != "train"],
+            )
             for name, suites in graphs
             for trial in range(16)
         ]
@@ -459,6 +532,8 @@ class BetweennessCentralitySNAPReferenceGenerator(
     def generate(
         self, dataset: ReferenceDataset[BetweennessCentralitySNAPDataset]
     ) -> DataInstance:
+        import igraph as ig
+
         problem = BetweennessCentralitySNAPGenerator().generate_inputs(dataset.dataset)
         meta = problem.meta
         adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
@@ -475,14 +550,18 @@ class BetweennessCentralitySNAPReferenceGenerator(
                     )
                     - 1
                 )
+        scale = 1.0
         if meta.get("normalize", False) and scores.max(initial=0) > 0:
-            scores /= scores.max()
-        expected = from_numpy(scores)
+            scale = scores.max()
+        rtol, atol = score_tolerances(graph, sources, scale)
+        expected = from_numpy(scores / scale)
         problem.ref_outputs = [expected]
         problem.ref_meta = {
             **(problem.ref_meta or {}),
             "reference_backend": "igraph",
             "reference_algorithm": "betweenness_centrality",
+            "rtol": rtol,
+            "atol": atol,
         }
         return DataInstance(
             inputs=[],
@@ -496,6 +575,168 @@ class BetweennessCentralitySNAPReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
         return BetweennessCentralitySNAPReferenceGenerator()
+
+
+class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDataset]):
+    @property
+    def name(self) -> str:
+        return "betweenness_centrality_gap"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Betweenness Centrality GAP"
+
+    @property
+    def description(self) -> str:
+        return (
+            "GAP betweenness centrality: 16 trials per graph, with four published"
+            " sources per trial. Scores include source dependencies and are"
+            " normalized by their maximum, as in the GAP reference implementation."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The GAP Benchmark Suite",
+                authors=[
+                    Author("Scott Beamer"),
+                    Author("Krste Asanović"),
+                    Author("David Patterson"),
+                ],
+                url="https://arxiv.org/abs/1508.03619",
+                year=2015,
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "Generative AI was used to construct the generator and dataset structures."
+            " This statement was written by hand."
+        )
+
+    @property
+    def motivation(self) -> str:
+        return "Generate GAP graph inputs for betweenness centrality."
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def datasets(self) -> list[BetweennessCentralityGAPDataset]:
+        return [
+            BetweennessCentralityGAPDataset(name, trial, suites=["standard-long"])
+            for name in ["GAP-road", "GAP-twitter", "GAP-web", "GAP-kron", "GAP-urand"]
+            for trial in range(16)
+        ]
+
+    def generate(self, dataset: BetweennessCentralityGAPDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = BetweennessCentralityGAPReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: BetweennessCentralityGAPDataset) -> DataInstance:
+        raw = fetch_gap_graph(dataset.source_name)
+        return DataInstance(
+            inputs=[zero_one_adjacency(raw.inputs[0])],
+            meta={
+                **raw.meta,
+                **dataset.meta,
+                "bc_sources": list(dataset.sources),
+                "trial": dataset.trial,
+            },
+        )
+
+
+class BetweennessCentralityGAPReferenceGenerator(
+    ReferenceGenerator[BetweennessCentralityGAPDataset]
+):
+    @property
+    def name(self) -> str:
+        return "betweenness_centrality_gap_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Betweenness Centrality GAP Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Betweenness Centrality GAP, cached apart from its"
+            " inputs."
+        )
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[BetweennessCentralityGAPDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in BetweennessCentralityGAPGenerator().datasets
+        ]
+
+    def generate(
+        self, dataset: ReferenceDataset[BetweennessCentralityGAPDataset]
+    ) -> DataInstance:
+        import igraph as ig
+
+        problem = BetweennessCentralityGAPGenerator().generate_inputs(dataset.dataset)
+        meta = problem.meta
+        adjacency = graph_csr(problem.inputs[0], boolean=True).tocoo()
+        graph = ig.Graph(n=adjacency.shape[0], directed=True)
+        # add_edges reads NumPy edges in a third of the memory of Graph(edges=...).
+        graph.add_edges(np.column_stack((adjacency.row, adjacency.col)))
+        sources = meta.get("bc_sources", range(graph.vcount()))
+        scores = np.asarray(graph.betweenness(sources=sources, directed=True))
+        if meta.get("include_source", False):
+            for source in sources:
+                scores[source] += (
+                    graph.neighborhood_size(
+                        int(source), order=graph.vcount(), mode="out"
+                    )
+                    - 1
+                )
+        scale = 1.0
+        if meta.get("normalize", False) and scores.max(initial=0) > 0:
+            scale = scores.max()
+        rtol, atol = score_tolerances(graph, sources, scale)
+        expected = from_numpy(scores / scale)
+        problem.ref_outputs = [expected]
+        problem.ref_meta = {
+            **(problem.ref_meta or {}),
+            "reference_backend": "igraph",
+            "reference_algorithm": "betweenness_centrality",
+            "rtol": rtol,
+            "atol": atol,
+        }
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=problem.ref_outputs,
+            ref_meta=problem.ref_meta,
+        )
+
+
+class BetweennessCentralityGAPReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return BetweennessCentralityGAPReferenceGenerator()
 
 
 class BetweennessCentralityBenchmark(Benchmark):
@@ -519,7 +760,7 @@ class BetweennessCentralityBenchmark(Benchmark):
             "times a node appears in other shortest paths. The number of times this "
             "node is in one of the shortest path divided by total shortest paths "
             "between the two edge nodes gets added to the intermediate nodes bc score. "
-            "SNAP cases use four sources per trial, include source "
+            "GAP and SNAP cases use four sources per trial, include source "
             "dependencies, and normalize by the maximum score. Small test cases "
             "use all sources unless bc_sources is supplied."
         )
@@ -611,6 +852,7 @@ class BetweennessCentralityBenchmark(Benchmark):
         return [
             BetweennessCentralityTestGenerator(),
             BetweennessCentralitySNAPGenerator(),
+            BetweennessCentralityGAPGenerator(),
         ]
 
     def benchmark(self, xp, meta, G):
@@ -685,6 +927,10 @@ class BetweennessCentralityBenchmark(Benchmark):
                 "Output must be in binsparse format"
             )
         if self._ref_outputs is not None:
+            assert self._ref_meta is not None, "No error bound; regenerate the dataset"
             assert_binsparse_allclose(
-                self._ref_outputs[0], self._output[0], rtol=1e-5, atol=1e-12
+                self._ref_outputs[0],
+                self._output[0],
+                rtol=self._ref_meta["rtol"],
+                atol=self._ref_meta["atol"],
             )

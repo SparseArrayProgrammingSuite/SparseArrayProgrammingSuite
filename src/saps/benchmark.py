@@ -557,7 +557,9 @@ class ReferenceDataset(Dataset, Generic[TDataset]):
     """A dataset whose reference outputs are cached apart from its inputs.
 
     It keeps the dataset's name and freshness, so its cache key and staleness
-    match the dataset's, but joins no suites: it exists only to prepare caches.
+    match the dataset's. It exists only to prepare caches, so it joins no suites
+    except `standard-long`, which lets cache refreshes skip or select the
+    references of long datasets along with their inputs.
     """
 
     def __init__(self, dataset: TDataset):
@@ -577,7 +579,7 @@ class ReferenceDataset(Dataset, Generic[TDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return [suite for suite in self.dataset.suites if suite == "standard-long"]
 
     @property
     def concepts(self) -> str:

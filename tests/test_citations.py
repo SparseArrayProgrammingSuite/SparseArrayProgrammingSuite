@@ -7,6 +7,8 @@ from collections import defaultdict
 from typing import cast
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 import saps
 import saps.benchmarks
@@ -285,6 +287,20 @@ def test_citations_match_crossref_or_arxiv():
 
     crossref_client = Crossref(mailto="ahrens@gatech.edu", timeout=10)
     arxiv_session = requests.Session()
+    # arXiv's OAI endpoint sometimes stalls or answers 503 with Retry-After
+    # under load, so retry timeouts and busy responses before failing.
+    arxiv_session.mount(
+        "https://",
+        HTTPAdapter(
+            max_retries=Retry(
+                total=4,
+                backoff_factor=2,
+                status_forcelist=(429, 500, 502, 503, 504),
+                allowed_methods=("GET",),
+                respect_retry_after_header=True,
+            )
+        ),
+    )
     failures = []
 
     for ref, owners in _references_by_owner().values():

@@ -1625,19 +1625,21 @@ class GMRESBenchmark(Benchmark):
         while itcount < max_iter:
             Q = xp.zeros((A.shape[0], restart + 1), dtype=float)
             H = xp.zeros((restart + 1, restart), dtype=float)
-            Q[:, 0] = rcurr
+            Q = xp.at(Q, (slice(None), 0)).set(rcurr)
 
             x_cycle_start = x0
             for i in range(restart):
                 rcurr = A @ Q[:, i]
 
-                H[: i + 1, i] = xp.vecdot(Q[:, : i + 1].T, rcurr)
+                H = xp.at(H, (slice(None, i + 1), i)).set(
+                    xp.vecdot(Q[:, : i + 1].T, rcurr)
+                )
                 rcurr = rcurr - Q[:, : i + 1] @ H[: i + 1, i]
-                H[i + 1, i] = xp.linalg.norm(rcurr)[()]
-                Q[:, i + 1] = rcurr / H[i + 1, i]
+                H = xp.at(H, (i + 1, i)).set(xp.linalg.norm(rcurr)[()])
+                Q = xp.at(Q, (slice(None), i + 1)).set(rcurr / H[i + 1, i])
 
                 e1 = xp.zeros((i + 2,), dtype=float)
-                e1[0] = beta
+                e1 = xp.at(e1, 0).set(beta)
 
                 H_reduced = H[: i + 2, : i + 1]
                 coeffs, _, _, _ = xp.linalg.lstsq(H_reduced, e1, rcond=None)

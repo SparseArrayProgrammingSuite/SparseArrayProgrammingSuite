@@ -1,0 +1,253 @@
+# The project's environments.
+#
+#   default  data generation, metadata, tracing, the competition runner and the
+#            test suite: pixi run pytest, pixi run ./bin/run_benchmark.py ...
+#   cupy, finch, galley, pytorch, scorch
+#            one framework each, for the frameworks the default environment
+#            doesn't install. Each test task runs the framework's own tests, if
+#            any, and every suite-test dataset under it
+#            (tests/test_framework_datasets.py), e.g.
+#              pixi run test-finch
+#              pixi run test-finch -k bellman_ford
+#
+# pixi.lock is not tracked: the generate feature pins every package exactly,
+# so re-locking is reproducible (src/saps/generate_environment.py checks them).
+
+[workspace]
+name = "saps"
+channels = ["conda-forge"]
+platforms = [
+    { name = "linux-64", platform = "linux-64" },
+    { name = "linux-64-cuda", platform = "linux-64", cuda = "12" },
+    { name = "macos-arm64", platform = "osx-arm64", macos = "15.0" },
+    { name = "win-64", platform = "win-64" },
+]
+requires-pixi = ">=0.72.0"
+
+[dependencies]
+python = "3.12.*"
+
+[pypi-dependencies]
+saps = { path = ".", editable = true }
+
+[environments]
+default = { features = ["generate", "test"], solve-group = "default" }
+# The default environment without the test tools, solved together with it.
+# Nothing needs to install it: tests/test_generate_environment.py reads its
+# lock entries to check that the generate feature pins every package.
+generate = { features = ["generate"], solve-group = "default" }
+cupy = ["framework-test", "dataset-test", "cupy"]
+pytorch = ["framework-test", "dataset-test", "pytorch"]
+finch = ["framework-test", "dataset-test", "finch"]
+galley = ["framework-test", "dataset-test", "galley"]
+scorch = ["framework-test", "dataset-test", "pytorch", "scorch"]
+
+# Freshness hashes include installed dependency versions, so generating data or
+# metadata needs exactly these packages. Indirect dependencies are pinned too,
+# so generated data and freshness hashes do not drift with whatever versions a
+# resolver picks.
+[feature.generate]
+platforms = ["linux-64", "macos-arm64", "win-64"]
+
+[feature.generate.pypi-dependencies]
+numpy = "==2.3.5"
+binsparse = "==0.1.4"
+pyparsing = "==3.3.2"
+sparse = "==0.17.0"
+numba = "==0.65.1"
+lark = "==1.3.1"
+asv = "==0.6.5"
+boto3 = "==1.43.34"
+botocore = { version = "==1.43.34", extras = ["crt"] }
+pandas = "==2.3.3"
+array-api-compat = "==1.15.0"
+array-api-extra = "==0.11.5"
+arxiv = "==4.0.0"
+donfig = "==0.8.1.post1"
+gdown = "==6.1.0"
+habanero = "==2.9.2"
+kagglehub = "==0.4.3"
+filelock = "==3.12.2"
+networkx = "==3.6"
+igraph = "==1.0.0"
+pillow = "==12.2.0"
+scipy = "==1.17.1"
+scikit-learn = "==1.9.0"
+ssgetpy = "==1.0rc2"
+onnx = "==1.23.0"
+python-graphblas = "==2025.2.0"
+# Indirect dependencies.
+anyio = "==4.14.0"
+asv-runner = "==0.2.1"
+awscrt = "==0.32.2"
+beautifulsoup4 = "==4.15.0"
+build = "==1.5.0"
+certifi = "==2026.6.17"
+cffi = "==2.1.1"
+charset-normalizer = "==3.4.7"
+cloudpickle = "==3.1.2"
+distlib = "==0.4.3"
+h11 = "==0.16.0"
+h5py = "==3.16.0"
+httpcore2 = "==2.4.0"
+httpx2 = "==2.4.0"
+idna = "==3.18"
+importlib-metadata = "==9.0.0"
+jmespath = "==1.1.0"
+joblib = "==1.6.0"
+json5 = "==0.15.0"
+kagglesdk = "==0.1.33"
+llvmlite = "==0.47.0"
+lxml = "==6.1.1"
+ml-dtypes = "==0.6.0"
+narwhals = "==2.25.0"
+packaging = "==26.2"
+platformdirs = "==4.10.0"
+protobuf = "==7.35.1"
+pycparser = "==3.12"
+pympler = "==1.1"
+pyproject-hooks = "==1.2.0"
+pysocks = "==1.7.1"
+python-dateutil = "==2.9.0.post0"
+pytz = "==2026.3.post1"
+pyyaml = "==6.0.3"
+requests = "==2.33.1"
+s3transfer = "==0.19.0"
+semver = "==3.0.4"
+six = "==1.17.0"
+soupsieve = "==2.8.4"
+suitesparse-graphblas = "==9.4.5.0"
+tabulate = "==0.10.0"
+texttable = "==1.7.2"
+threadpoolctl = "==3.6.0"
+tqdm = "==4.68.3"
+truststore = "==0.10.4"
+typing-extensions = "==4.15.0"
+tzdata = "==2026.3"
+urllib3 = "==2.7.0"
+virtualenv = "==20.35.4"
+zipp = "==4.1.0"
+
+[feature.generate.target.win.pypi-dependencies]
+colorama = "==0.4.6"
+pywin32 = "==312"
+
+[feature.test]
+platforms = ["linux-64", "macos-arm64", "win-64"]
+
+[feature.test.pypi-dependencies]
+pre-commit = "==4.6.0"
+pytest = "==7.4.4"
+pytest-cov = "==4.1.0"
+mypy = "==1.15.0"
+pytest-mypy = "==1.0.1"
+pytest-regressions = "==2.8.3"
+types-requests = "==2.33.0.20260712"
+# Reference outputs for the vendored onnxpy tests (tests/onnxpy).
+onnxruntime = "==1.31.1"
+
+# What each competition environment installs (competition.config.json).
+[feature.framework-test.pypi-dependencies]
+array-api-compat = "==1.15.0"
+array-api-extra = "==0.11.5"
+networkx = "==3.6"
+numpy = "==2.3.5"
+scipy = "==1.17.1"
+ssgetpy = "==1.0rc2"
+pytest = "==7.4.4"
+# The dataset test runs in one process, so a hung dataset must not stall the
+# rest: --timeout fails it after 10 minutes, as ASV's process_timeout would.
+pytest-timeout = "==2.4.0"
+
+# The dataset test also generates each suite-test dataset, which needs these
+# beyond the competition's packages, at the generate feature's versions. (The
+# whole generate feature doesn't fit: finch's juliapkg needs a newer filelock.)
+[feature.dataset-test.pypi-dependencies]
+igraph = "==1.0.0"
+pandas = "==2.3.3"
+python-graphblas = "==2025.2.0"
+
+# PyTorch, CPU and CUDA alike (frameworks/saps_pytorch.py). Data generation
+# doesn't need it.
+#
+# The test datasets use GraphBLAS for reference solutions. On macOS the PyPI
+# wheels of torch and GraphBLAS each bundle LLVM's OpenMP runtime, and the
+# second copy aborts the process, so there both come from conda-forge and share
+# its llvm-openmp. Linux wheels use GNU OpenMP, which tolerates several copies.
+[feature.pytorch]
+platforms = ["linux-64", "macos-arm64"]
+
+[feature.pytorch.target.linux-64.pypi-dependencies]
+torch = "==2.12.1"
+
+[feature.pytorch.target.osx-arm64.dependencies]
+filelock = "3.*"
+networkx = "==3.6"
+numpy = "2.3.5.*"
+pytorch = "==2.12.1"
+python-graphblas = "==2025.2.0"
+
+[feature.pytorch.tasks]
+# Every test that covers PyTorch (the default environment skips them), then the
+# suite-test datasets. Each framework's --no-re skips the suite-test datasets it
+# is known to fail.
+test-pytorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_pytorch.py tests/test_pytorch_framework.py tests/test_pytorch_sparse.py tests/test_pytorch_device.py tests/test_compile.py tests/test_unfold.py tests/test_error_bounds.py tests/test_framework_datasets.py --no-re '^(cg_amg|mcl|msbfs|empty_formula|a_to_b|b_to_a|no_clauses)$'", env = { SAPS_FRAMEWORK = "frameworks/saps_pytorch.py" } }
+
+# CuPy 14.2 adds the cupyx sparse array API that frameworks/saps_cupy.py uses.
+# The cluster's GPUs are V100s (sm_70), which CUDA 13 no longer targets.
+[feature.cupy]
+platforms = ["linux-64-cuda"]
+
+# conda's cupy depends on numpy, so pin it to the PyPI numpy above.
+[feature.cupy.dependencies]
+cupy = ">=14.2"
+cuda-version = "12.*"
+numpy = "2.3.5.*"
+
+[feature.cupy.tasks]
+test-cupy = { cmd = "pytest -o addopts= --timeout=600 tests/test_cupy_framework.py tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_cupy.py" } }
+
+# COMPILE_JULIA_GALLEY is not in a finch-tensor release yet. juliapkg installs
+# the Julia packages, and Julia itself if none is on PATH, on first import.
+[feature.finch]
+platforms = ["linux-64", "linux-64-cuda", "macos-arm64"]
+
+[feature.finch.pypi-dependencies]
+finch-tensor = { git = "https://github.com/finch-tensor/finch-tensor.git", branch = "main", extras = ["julia"] }
+
+[feature.finch.tasks]
+test-finch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_finch.py" } }
+
+[feature.galley]
+platforms = ["linux-64", "linux-64-cuda", "macos-arm64"]
+
+[feature.galley.pypi-dependencies]
+galley-jl-python = "==0.1.2"
+
+[feature.galley.tasks]
+test-galley = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py", env = { SAPS_FRAMEWORK = "frameworks/saps_galley.py" } }
+
+# Scorch (frameworks/saps_scorch.py) builds a C++ extension against the
+# installed torch, which it gets from the pytorch feature, and JIT-compiles
+# kernels with OpenMP at run time. Its setup.py imports torch, so pixi can't
+# lock it as a PyPI dependency, and it only works as an editable checkout:
+# Scorch finds its C++ sources next to its setup.py, which a regular install
+# leaves behind (scripts/install_editable_git.py explains). install-scorch
+# builds it into the environment once; later runs see it installed and skip.
+# torch 2.12.1 requires setuptools<82, which conda's pip would otherwise exceed.
+[feature.scorch]
+platforms = ["linux-64", "macos-arm64"]
+
+[feature.scorch.dependencies]
+pip = "*"
+setuptools = "<82"
+
+[feature.scorch.pypi-dependencies]
+ninja = "==1.13.2"
+
+[feature.scorch.target.linux-64.dependencies]
+cxx-compiler = "*"
+
+[feature.scorch.tasks]
+install-scorch = { cmd = "python scripts/install_editable_git.py", env = { SAPS_EDITABLE_GIT = "https://github.com/bobbyyyan/scorch.git@b3b5d4b77a3bbdd395b19c289bf181cb3cf7df73" } }
+test-scorch = { cmd = "pytest -o addopts= --timeout=600 tests/test_framework_datasets.py --no-re '^(bfs|cg_amg|cg_block_jacobi|ccsd|cp_als_[345]d|dae_bdf|hosvd_[345]d|lp_simplex|mcl|msbfs|mssp|pagerank|simhash_ann|random_source_seed[0-9]|empty_formula|a_to_b|b_to_a|transitive_closure|transitive_reduction|triangle_counting|weighted_model_counting)$'", env = { SAPS_FRAMEWORK = "frameworks/saps_scorch.py" }, depends-on = ["install-scorch"] }

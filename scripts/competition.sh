@@ -14,7 +14,7 @@
 # Every other argument goes to bin/run_benchmark.py, for example
 # --tag suite-train to run the training set instead of the config's datasets.
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.pixi/bin:$PATH"
 export AWS_PROFILE="${AWS_PROFILE:-dataset-upload}"
 export REMOTE_STORAGE_BACKEND="${REMOTE_STORAGE_BACKEND:-s3}"
 export REMOTE_STORAGE_BUCKET="${REMOTE_STORAGE_BUCKET:-sparse-array-programming-suite}"
@@ -24,8 +24,13 @@ competition_config="${SAPS_COMPETITION_CONFIG:-$repo_directory/competition.confi
 job_id="${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-local}}"
 task_index="${SLURM_ARRAY_TASK_ID:-0}"
 # A partial rerun (e.g. --array=19-23) must keep the original chunk count, so
-# SAPS_CHUNK_COUNT overrides the size of the submitted array.
-task_count="${SAPS_CHUNK_COUNT:-${SLURM_ARRAY_TASK_COUNT:-1}}"
+# SAPS_CHUNK_COUNT (SAPS_GPU_CHUNK_COUNT for the GPU array, which has fewer
+# tasks) overrides the size of the submitted array.
+if [[ "$competition_device" == gpu ]]; then
+  task_count="${SAPS_GPU_CHUNK_COUNT:-${SLURM_ARRAY_TASK_COUNT:-1}}"
+else
+  task_count="${SAPS_CHUNK_COUNT:-${SLURM_ARRAY_TASK_COUNT:-1}}"
+fi
 competition_run_root="$repo_directory/competition/run_$job_id"
 forwarded_args=()
 while (( $# > 0 )); do
@@ -49,6 +54,11 @@ task_scratch="${TMPDIR:?Slurm must provide TMPDIR for task-local storage}/saps-c
 mkdir -p "$task_scratch"
 export PIP_CACHE_DIR="$task_scratch/pip-cache"
 export VIRTUALENV_OVERRIDE_APP_DATA="$task_scratch/virtualenv-cache"
+# Scorch compiles kernels with torch's cpp_extension, which guards each build
+# with a lock file. A benchmark killed mid-build leaves its lock behind, and in
+# the shared default (~/.cache/torch_extensions) that would stall the kernel on
+# every node, so each task builds its own.
+export TORCH_EXTENSIONS_DIR="$task_scratch/torch-extensions"
 
 benchmark_args=(
   --resume
@@ -72,14 +82,20 @@ fi
 
 cd "$repo_directory"
 
+# Install the runner's pixi environment before importing
+# saps, so a newly pinned dependency does not fail every task at import time.
+# Array tasks share one environment; ensure-pixi-env.sh serializes installs.
+# SAPS_ENSURE_PIXI_ENV points at a replacement script (tests stub it).
+"${SAPS_ENSURE_PIXI_ENV:-$repo_directory/scripts/ensure-pixi-env.sh}"
+
 set +e
-poetry run ./bin/run_benchmark.py \
+pixi run ./bin/run_benchmark.py \
   --config "$competition_config" \
   "${benchmark_args[@]}"
 benchmark_status=$?
 set -e
 
-poetry run ./scripts/combine_competition_results.py \
+pixi run ./scripts/combine_competition_results.py \
   --run-directory "$competition_run_root"
 
 exit "$benchmark_status"

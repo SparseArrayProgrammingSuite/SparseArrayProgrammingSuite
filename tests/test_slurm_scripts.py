@@ -19,6 +19,14 @@ pytestmark = pytest.mark.skipif(
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def stub_ensure_pixi_env(tmp_path):
+    """A no-op stand-in for scripts/ensure-pixi-env.sh (see competition.sh)."""
+    stub = tmp_path / "ensure-pixi-env.sh"
+    stub.write_text("#!/usr/bin/env bash\nexit 0\n")
+    stub.chmod(0o755)
+    return stub
+
+
 @pytest.mark.parametrize("upload_chunks", [None, "3"])
 def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     scripts = tmp_path / "repo" / "scripts"
@@ -26,7 +34,7 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     submission = tmp_path / "submitted from 50%"
     submission.mkdir()
     shutil.copy(ROOT / "scripts/submit-refresh-jobs.sh", scripts)
-    setup = scripts / "ensure-poetry-env.sh"
+    setup = scripts / "ensure-pixi-env.sh"
     setup.write_text("#!/usr/bin/env bash\nexit 0\n")
     setup.chmod(0o755)
     record = tmp_path / "submissions.jsonl"
@@ -38,7 +46,7 @@ def test_refresh_logs_use_invocation_directory(tmp_path, upload_chunks):
     shell_env = tmp_path / "shell-env"
     shell_env.write_text(
         'aws() { [[ "$1 $2" != "configure get" || "$3" == aws_access_key_id ]]; }\n'
-        "poetry() { return 0; }\n"
+        "pixi() { return 0; }\n"
         "sbatch() { "
         + shlex.quote(sys.executable)
         + " -c "
@@ -134,7 +142,7 @@ def test_competition_resume_uses_original_task_directory(
     )
     shell_env = tmp_path / "shell-env"
     shell_env.write_text(
-        "poetry() { "
+        "pixi() { "
         + shlex.quote(sys.executable)
         + " -c "
         + shlex.quote(capture)
@@ -145,12 +153,16 @@ def test_competition_resume_uses_original_task_directory(
         "BASH_ENV": str(shell_env),
         "SAPS_TEST_COMMANDS": str(record),
         "SAPS_REPO_DIRECTORY": str(ROOT),
+        "SAPS_ENSURE_PIXI_ENV": str(stub_ensure_pixi_env(tmp_path)),
         "SLURM_ARRAY_JOB_ID": "99999",
         "SLURM_ARRAY_TASK_ID": "2",
         "SLURM_ARRAY_TASK_COUNT": "5",
+        # The CPU array's chunk count; GPU tasks chunk by their own array.
+        "SAPS_CHUNK_COUNT": "64",
         "TMPDIR": str(tmp_path / "local scratch"),
     }
     env.pop("SAPS_COMPETITION_ARGS", None)
+    env.pop("SAPS_GPU_CHUNK_COUNT", None)
     subprocess.run(
         [
             "bash",
@@ -182,6 +194,7 @@ def test_competition_resume_uses_original_task_directory(
     assert run[run.index("--results-dir") + 1] == task_directory + "/results"
     assert run[run.index("--machine") + 1] == f"run_12345-task-{task_label}"
     assert run[run.index("--device") + 1] == device
+    assert run[run.index("--chunk-count") + 1] == ("64" if device == "cpu" else "5")
     # Wrapper arguments other than --resume reach the runner unchanged.
     assert run[len(run) - len(forwarded) :] == forwarded
     assert combine[:2] == ["run", "./scripts/combine_competition_results.py"]
@@ -213,7 +226,7 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
     record = tmp_path / "commands"
     shell_env = tmp_path / "shell-env"
     shell_env.write_text(
-        "poetry() {\n"
+        "pixi() {\n"
         '  [[ "$PWD" == "$SAPS_TEST_ROOT" ]] || return 90\n'
         '  [[ "$1" == run && -f "$2" ]] || return 91\n'
         '  if [[ "$SAPS_TEST_SCRIPT" == upload-dataset.slurm ]]; then\n'
@@ -235,6 +248,7 @@ def test_slurm_submission_from_scripts_directory(tmp_path, script_name, commands
         "SAPS_TEST_COMMANDS": str(record),
         "SAPS_TEST_SCRIPT": script_name,
         "SLURM_SUBMIT_DIR": str(ROOT / "scripts"),
+        "SAPS_ENSURE_PIXI_ENV": str(stub_ensure_pixi_env(tmp_path)),
         "SLURM_ARRAY_JOB_ID": "12345",
         "SLURM_ARRAY_TASK_ID": "0",
         "SLURM_ARRAY_TASK_COUNT": "5",
@@ -273,9 +287,18 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
     scripts = tmp_path / "repo" / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
-    include = [{"env_nobuild": {"SAPS_FRAMEWORK": "frameworks/saps_numpy.py"}}]
+    include = [
+        {
+            "env_nobuild": {
+                "SAPS_FRAMEWORK": "frameworks/saps_numpy.py",
+                "SAPS_FRAMEWORK_NAME": "numpy",
+            }
+        }
+    ]
     if gpu_frameworks:
-        include.append({"env_nobuild": {"SAPS_DEVICE": "gpu"}})
+        include.append(
+            {"env_nobuild": {"SAPS_FRAMEWORK_NAME": "torch-gpu", "SAPS_DEVICE": "gpu"}}
+        )
     config = tmp_path / "competition.config.json"
     config.write_text(json.dumps({"include": include}))
     record = tmp_path / "submissions.jsonl"
@@ -301,6 +324,7 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
         "SAPS_TEST_SUBMISSIONS": str(record),
         "SAPS_COMPETITION_CONFIG": str(config),
         "SAPS_CHUNK_COUNT": "8",
+        "SAPS_GPU_CHUNK_COUNT": "4",
     }
     subprocess.run(
         [
@@ -324,7 +348,7 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
     assert len(arrays) == len(devices)
     for device, args in zip(devices, arrays, strict=True):
         wrapper = args.index(str(scripts / f"competition-{device}.slurm"))
-        assert "--array=0-7" in args
+        assert ("--array=0-7" if device == "cpu" else "--array=0-3") in args
         assert "--dependency=afterok:42" in args
         assert args[-2:] == ["--tag", "suite-train"]
         # The GPU array joins the run directory named after the CPU array.
@@ -337,13 +361,67 @@ def test_submit_competition_shares_run_between_cpu_and_gpu_arrays(
     assert str(run_directory) in combine[combine.index("--wrap") + 1]
 
 
+@pytest.mark.parametrize(
+    "include,message",
+    [
+        ([{"env_nobuild": {"SAPS_DEVICE": "gpu"}}], "lack SAPS_FRAMEWORK_NAME"),
+        (
+            [
+                {"env_nobuild": {"SAPS_FRAMEWORK_NAME": "torch"}},
+                {"env_nobuild": {"SAPS_FRAMEWORK_NAME": "torch"}},
+            ],
+            "duplicate SAPS_FRAMEWORK_NAME",
+        ),
+    ],
+)
+def test_submit_competition_rejects_unnamed_or_duplicate_frameworks(
+    tmp_path, include, message
+):
+    scripts = tmp_path / "repo" / "scripts"
+    scripts.mkdir(parents=True)
+    shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
+    config = tmp_path / "competition.config.json"
+    config.write_text(json.dumps({"include": include}))
+    submitted = tmp_path / "submitted"
+    shell_env = tmp_path / "shell-env"
+    shell_env.write_text('sbatch() { touch "$SAPS_TEST_SUBMITTED"; echo 100; }\n')
+    env = {
+        **os.environ,
+        "BASH_ENV": str(shell_env),
+        "SAPS_TEST_SUBMITTED": str(submitted),
+        "SAPS_COMPETITION_CONFIG": str(config),
+    }
+    result = subprocess.run(
+        ["bash", str(scripts / "submit-competition.sh")],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert message in result.stderr
+    # Nothing was queued.
+    assert not submitted.exists()
+
+
 def test_submit_competition_cancels_earlier_arrays_when_a_submission_fails(tmp_path):
     scripts = tmp_path / "repo" / "scripts"
     scripts.mkdir(parents=True)
     shutil.copy(ROOT / "scripts/submit-competition.sh", scripts)
     config = tmp_path / "competition.config.json"
     config.write_text(
-        json.dumps({"include": [{"env_nobuild": {"SAPS_DEVICE": "gpu"}}]})
+        json.dumps(
+            {
+                "include": [
+                    {
+                        "env_nobuild": {
+                            "SAPS_FRAMEWORK_NAME": "torch-gpu",
+                            "SAPS_DEVICE": "gpu",
+                        }
+                    }
+                ]
+            }
+        )
     )
     cancelled = tmp_path / "cancelled"
     # The CPU array submits as job 100; the GPU array is rejected.

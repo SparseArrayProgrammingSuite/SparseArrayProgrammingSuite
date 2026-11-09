@@ -62,7 +62,7 @@ def reference_problem(monkeypatch, name, graph, meta):
     sources = meta.get("sources", meta.get("bc_sources", [0] * 64))
     raw = DataInstance([graph], {"max_degree": 2, "sources": sources, **meta})
     monkeypatch.setattr(module, "fetch_snap_graph", lambda _: raw)
-    for converter in ("zero_one_adjacency", "distance_matrix", "_unweighted_distances"):
+    for converter in ("zero_one_adjacency", "distance_matrix"):
         if hasattr(module, converter):
             monkeypatch.setattr(module, converter, lambda *args, **kwargs: graph)
     if "max_squarings" in meta:

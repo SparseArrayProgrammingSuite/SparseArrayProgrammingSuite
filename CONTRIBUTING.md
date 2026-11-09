@@ -66,6 +66,7 @@ Every benchmark function has a fixed parameter list. If the inputs differ betwee
 Benchmark functions should:
 
 - Use Array API style operations through `xp`.
+- Write indexed assignment `x[idx] = y` as `x = xp.at(x, idx).set(y)`. Some frameworks' arrays are immutable, so `set` may return a new array rather than updating `x`; always use its result.
 - Use basic Python syntax, including `for`, `while`, and `if` when needed.
 - Avoid framework-specific shortcuts that only one implementation can support.
 - Avoid file I/O, threads, networking, global mutable state, recursion, and non-determinism.
@@ -107,7 +108,7 @@ Use an acronym in a name only when the field uses it on its own as the method's 
 
 ### Names
 
-- Benchmark: the method in snake_case, such as `bellman_ford`, `jacobi_pcg`, or `cp_als_3d`.
+- Benchmark: the method in snake_case, such as `bellman_ford`, `cg_jacobi`, or `cp_als_3d`.
 - Generator: `<benchmark>_<source>`, such as `bfs_test`, `bfs_snap`, or `cg_suitesparse`. A generator shared by several benchmarks uses their family prefix (`ode_rc`, `cp_als_frostt`, `hosvd_dense`).
 - Shell generator: `<collection>_<kind>`, such as `snap_graph` or `suitesparse_matrix`; its benchmark is `<generator>_shell`. Don't use the bare collection name: prepared datasets are cached under `<cache>/<generator>/`, and downloaders keep raw files under `<cache>/<collection>/`.
 - Reference generator: `<generator>_reference`, such as `bfs_snap_reference`, for the cached expensive parts of an uncached generator's instances; its benchmark is `<generator>_reference_shell`.
@@ -117,7 +118,7 @@ Use an acronym in a name only when the field uses it on its own as the method's 
 
 ### Pretty Names
 
-Pretty names spell out each acronym in the name and follow it with the acronym in parentheses: `bfs` is "Breadth-First Search (BFS)" and `jacobi_pcg` is "Jacobi Preconditioned Conjugate Gradient (PCG)". Collection names stay as written.
+Pretty names spell out each acronym in the name and follow it with the acronym in parentheses: `bfs` is "Breadth-First Search (BFS)" and `cg` is "Conjugate Gradient (CG)". Collection names stay as written.
 
 - Benchmark: the method, with no "Algorithm" or "Benchmark" suffix.
 - Generator: the benchmark's pretty name followed by the source ("Breadth-First Search (BFS) SNAP", "Conjugate Gradient (CG) Test"), with no "Generator" or "Inputs" suffix.
@@ -149,6 +150,7 @@ Suites are listed by name in `suites`, and each one becomes a `suite-<name>` tag
 
 - `test`: datasets that run in CI and cover dense/sparse cases, different sizes, and code paths.
 - `standard`: canonical datasets in the suite.
+- `standard-long`: canonical datasets that take hours each to prepare, such as the GAP graphs. They stay out of `standard`, and `--cache-datasets` skips them unless selected with `--tag suite-standard-long`; references of these datasets join this suite too.
 - `trace`: datasets whose operation behavior should be traced into `statistics.json`.
 
 Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags prefixed with `concept-`, such as `concept-applied-computing`, `concept-physical-sciences-and-engineering`, or `concept-aerospace`.
@@ -206,10 +208,10 @@ Freshness is checked for:
 After changing benchmark code, generator code, metadata, dependency imports, or storage behavior, regenerate the affected artifacts:
 
 ```bash
-poetry run ./bin/generate_metadata.py
-poetry run ./bin/run_benchmark.py --trace-statistics --tag suite-trace --process-timeout 30 --show-stderr
-poetry run ./bin/generate_metadata.py --statistics statistics.json
-poetry run ./bin/run_benchmark.py --cache-datasets
+pixi run ./bin/generate_metadata.py
+pixi run ./bin/run_benchmark.py --trace-statistics --tag suite-trace --process-timeout 30 --show-stderr
+pixi run ./bin/generate_metadata.py --statistics statistics.json
+pixi run ./bin/run_benchmark.py --cache-datasets
 ```
 
 Do not edit freshness hashes by hand.
@@ -239,8 +241,8 @@ The data jobs use the configured S3 backend and bucket from `.github/workflows/r
 After the workflow finishes, download the final artifacts, replace the corresponding files in the PR, and run the freshness tests locally:
 
 ```bash
-poetry sync --with generate,test
-poetry run pytest -m freshness tests/test_freshness.py
+pixi install
+pixi run pytest -m freshness tests/test_freshness.py
 ```
 
 Do not commit `.saps/outputs/cache`, `.saps/outputs/results`, or trace scratch output. Only commit the source changes and the refreshed JSON files.
@@ -248,13 +250,26 @@ Do not commit `.saps/outputs/cache`, `.saps/outputs/results`, or trace scratch o
 If you run the uploader locally, use the same generate-pinned environment that CI uses:
 
 ```bash
-poetry sync --with generate
+pixi install
 REMOTE_STORAGE_BACKEND=s3 \
 REMOTE_STORAGE_BUCKET=sparse-array-programming-suite \
-poetry run ./bin/run_benchmark.py --cache-datasets
+pixi run ./bin/run_benchmark.py --cache-datasets
 ```
 
 Dataset digests should be content hashes of serialized data. Freshness records belong in manifest metadata; they should not force a new remote object when the data bytes have not changed.
+
+## Testing Other Frameworks
+
+The default pixi environment installs the NumPy, SciPy, pydata/sparse, smart, tagger and GraphBLAS frameworks, which data generation uses for reference solutions. `pixi.toml` defines an environment for each of the others (CuPy, Finch, Galley, PyTorch, Scorch). Each environment's task runs that framework's tests and every `suite-test` dataset under it, in one process:
+
+```bash
+pixi run test-finch
+pixi run test-finch -k bellman_ford
+```
+
+PyTorch tests skip in the default environment and run under `pixi run test-pytorch`. Tests that cover several frameworks get their PyTorch cases in `tests/test_pytorch.py`, which imports them and reruns them against a PyTorch `xp` fixture.
+
+The CuPy environment needs Linux with an NVIDIA GPU and uses CUDA 12, the last CUDA release that targets V100s. Scorch on macOS needs Homebrew's OpenMP headers (`brew install libomp`).
 
 ## Tracing
 
@@ -309,7 +324,7 @@ Pull requests must pass some formatting, linting, and typing checks before we ca
 
 To run pre-commit hooks manually:
 ```bash
-poetry run pre-commit run -a
+pixi run pre-commit run -a
 ```
 
 ## Testing
@@ -317,8 +332,8 @@ poetry run pre-commit run -a
 SparseAutoschedulingBenchmark uses [pytest](https://docs.pytest.org/en/latest/) for testing. To run the tests:
 
 ```bash
-poetry sync --with generate,test
-poetry run pytest
+pixi install
+pixi run pytest
 ```
 
 - Tests are located in the `tests/` directory at the project root.
@@ -329,7 +344,7 @@ poetry run pytest
 Pytest runs mypy to check for type errors, so you shouldn't need to run it manually. In case you do need to run mypy manually, you can do so with:
 
 ```bash
-poetry run mypy ./src/
+pixi run mypy ./src/
 ```
 
 ### Regression Tests
