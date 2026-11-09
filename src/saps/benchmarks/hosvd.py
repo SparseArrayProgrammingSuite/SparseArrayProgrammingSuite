@@ -673,6 +673,12 @@ class HOSVDBenchmark(Benchmark):
                 url="https://doi.org/10.36227/techrxiv.174417403.38431928/v1",
                 doi="10.36227/techrxiv.174417403.38431928/v1",
             ),
+            Ref(
+                title="Tensorly",
+                authors=[Author("Tensorly Contributors")],
+                url="https://github.com/tensorly/tensorly/blob/main/tensorly/decomposition/_tucker.py",
+                year=2025,
+            ),
         ]
 
     @property
