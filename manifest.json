@@ -12059,6 +12059,476 @@
     "file": "src/saps/benchmarks/bfs.py",
     "freshness": "c3ef0635cc7f482a78f12b3dadf6c480d176f75aae6e0381c7bd3445e574da6d"
   },
+  "cg_block_jacobi_suitesparse_reference.Andrews/Andrews": {
+    "digest": "d91e7dde986f2bb74634ae4fe32ad52eef6278b333880f1a76570f287645c470",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Andrianov/net100": {
+    "digest": "83bfe5973fb68458698445863bcb9c3e5d4c9445b9b64457b94549072f14b6cf",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Andrianov/net125": {
+    "digest": "25b06c4ac7fdb64b0540b35852ca7e7368119764c9feba712a0c60b52d8b0e54",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Andrianov/net150": {
+    "digest": "9323ce12432f8ffc47d4b2ec109d21439edd97520ea14c6bdba0ad0f98655464",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Andrianov/net25": {
+    "digest": "05bd0090ab66e612374d621e743f7ac7db22ec7bf1965ee5990e2d0a87ff333c",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Andrianov/net50": {
+    "digest": "446a2607e61eb191f19cf60437b4c550e1f6490bc9df80720eb2d2f125ea4873",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Andrianov/net75": {
+    "digest": "e18eed4185907a60c6212bceaf10f82b42f1847bffa0ee19d3fdde5d2483231f",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Bai/dw256B": {
+    "digest": "88059f775fb4055f4a8c133ffa4c03f7ba6bb8f26183b1c69ea3e9608eca60c4",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Bai/dwb512": {
+    "digest": "88059f775fb4055f4a8c133ffa4c03f7ba6bb8f26183b1c69ea3e9608eca60c4",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Bai/mhd3200b": {
+    "digest": "d039347d6268cc652b84618b81a0ba4de8deb966103a8c8072e7ee173798ab87",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Bai/mhd4800b": {
+    "digest": "2099120403e1c6fbeb64334ad948606a1ee67abfce420d6164f1045b823fe146",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Bai/mhdb416": {
+    "digest": "ac2903ef8aaf2d6880a95258b4ce1e871381585056762800e61672b36512aa23",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Bindel/ted_B": {
+    "digest": "aecd40dd3672b790349455fd889aa1cc169bd0951bbef14b32e49e98202e0a77",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Bindel/ted_B_unscaled": {
+    "digest": "74efc09e121d6505366bd1f62d217c8c8858be1165793657eb0ccc83942606ec",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Boeing/bcsstk34": {
+    "digest": "69b3d2cdaf84920d33c0b3721eafc5e8de91109e98ee4ca218da2f2df6d82a0b",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Boeing/bcsstm39": {
+    "digest": "528b4ba8e205635e3fecaea043fe2bf5fc5e0551a7c741845d6941f81fbf9ead",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Boeing/crystm01": {
+    "digest": "96d7a7f4f3c41b2a0523324de475a3734c969e52b3e203f2c6290a48cec9d5f7",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Boeing/crystm02": {
+    "digest": "4c5c7972b5fe52fdee6bdebde84b9197f21a0a14b27e4b7e65ade8d6dcff4d65",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Boeing/crystm03": {
+    "digest": "a57716bfe5f8de10b89bc67062f1c3d4a77c147a563bb7543b720aafb30646d1",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Botonakis/FEM_3D_thermal1": {
+    "digest": "75772e2f82e1e66fffa53faebca1adc5bf2c392ba21a889b0419d3f7f7fbebbc",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Botonakis/FEM_3D_thermal2": {
+    "digest": "d58c1ae8686307f2b57689403cb417d10aceba8c50acf49be3f479b86ffbdcee",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Botonakis/thermomech_TC": {
+    "digest": "08fc45d529b70a001f5cd17d5c0ef840d72466803474c24e256e592db49ca4ac",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Botonakis/thermomech_dM": {
+    "digest": "6bc2e09511ec9860801b3cff6a5e0343d8382c201f4627d6cb117bd660c3b853",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Brunetiere/thermal": {
+    "digest": "7d3921bfb2bb6ce8c273fd88c97fd8e34e5090190dc49b7cd4afca7971c625a4",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Cunningham/qa8fm": {
+    "digest": "c298bb7e108b4d81a5dab7bb99fa6d5297f9c484155bb10625706b925cddb94f",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.FEMLAB/poisson2D_rhs0": {
+    "digest": "b02bee1d8f198bea91f97a1dcacea1bafa8de5a6c70dde642992d5b31fadf385",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.FEMLAB/problem1": {
+    "digest": "d72da0b0944838aeeb273f429ac3f68546bd81702fe7fd6dc9d288fb495c9e58",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.FIDAP/ex29": {
+    "digest": "5856f7a2c27103b418e5725a1178316b2344f1b43efd8c0c3c48a40ab5ee7438",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.FIDAP/ex37": {
+    "digest": "321176c1b237929a38527cefd3aa948a34f3e96b41857f791c37751aa2bb6d1d",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.FIDAP/ex5": {
+    "digest": "37784989170dab605c13c230b7afd3f4ad7668d5afbdfbd1b195e91c4ba48639",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.FIDAP/ex7": {
+    "digest": "6ebf841012e8ed841d2b7581bbbc8220200d2513b0e8142c9eff070e47421d28",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Freescale/circuit5M_dc": {
+    "digest": "003a6d6be6fb7db0945e8cafabfb9b6bcaba5021b6edf95da574ed5a9f1c01e1",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.GHS_psdef/jnlbrng1": {
+    "digest": "ee7dc2e69097a6a9fc2d4423967eb8078c0701ceca0a14c186e7dc8575b9ae84",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.GHS_psdef/minsurfo": {
+    "digest": "f26b13cf27a95642a78961e4252880c581a5dac715bd6a71838186af3540778b",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.GHS_psdef/obstclae": {
+    "digest": "8b1a175ff511feb83a6f18880b529aad7dd2a523ce312dc1e6fffee5591cf821",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.GHS_psdef/wathen100": {
+    "digest": "99f02d7b57ffc73b52fdd7b587f37d9744cbfd0a6716ec770342840e0989688b",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.GHS_psdef/wathen120": {
+    "digest": "5cd61039796621fe4edb472eddd724119cc3d71969b579256861c4210aea28dd",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Grund/poli_rhs0": {
+    "digest": "60a9e2b89fe4471b536632bc00fdf48481fe50368439471c2e70aa3844cd9475",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Guettel/TEM27623": {
+    "digest": "628f5c07474fb21af32aecbfcc43a7dcb4c7893004acd0e190320bfd9ae89c26",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstk01": {
+    "digest": "923ad9c889578dc7765a6206945358c2e4cbb7a712764df0233fadc09b2508e9",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstk02": {
+    "digest": "e38fd45e3bab09dc88948bfa35a5fd234747d612f6e49466010a2d33eae5fe1b",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstk03": {
+    "digest": "31cbed6b4326a26c4c908c6198aee78cd1b2f021c7a1622b849a77882ea3f4d3",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstk04": {
+    "digest": "f2640e85aedac754cfc3ff664f4f58ceca5f88d9b68ec8de96e6552788b83736",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstk05": {
+    "digest": "7a87e5cf1df071f542af4966a41854c7ab3eaf226ffb3e5311e585256cb296bd",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstk08": {
+    "digest": "51e0a8e456815b7127d220fb3cfe96083084705a8b0997470e9d13601f374684",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstk22": {
+    "digest": "54b9209539b1ff8c14c998f271615461c02f72c0c732da23da574d7abaee462d",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm02": {
+    "digest": "65a8dd13ffde83bc6d58b5f9762dfa450bebb16a7127a58ef24d58a4a569d7c6",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm05": {
+    "digest": "b701b911b7100c8856549f086877ec029fc634363408fc8cf985ca1bd47daa0a",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm06": {
+    "digest": "0c631f82041b286e8a8450c5cd5b135831bfd1a13f048695f7420762259ebd64",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm07": {
+    "digest": "830fd67befdf0027402f68b1ccd2b0fcf5c33896e0b1b5d1172d130a2955577f",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm08": {
+    "digest": "90f5b7585f1e2daebd38dd2bba538c4324bca996ee500b442e88f4cd5b251d98",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm09": {
+    "digest": "ce95d78761d10104981beef3d71a1eab1677955ea5ff6c4068ee883f58c830cf",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm11": {
+    "digest": "d7e1055ae7308b1e85bace2753c17e0885111fef5f16f752c473dad0991be8d8",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm12": {
+    "digest": "b7c5eb57ccf7f107a5fac6c2f7fbcda03e37179e9f580532852522b210d10ecd",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm19": {
+    "digest": "e344edc08132d6c1a62a4ddd3507f2f8bb33cecf6ae1f9791de5c424b21cd5c6",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm20": {
+    "digest": "e5525484d48a12c644a79c6275ebceeb62a03c0bf550ea3cdf09d6b024d089d2",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm21": {
+    "digest": "060380f8d0b3ec2746262ad5c44a8f9fe5b44883ec48d6fdcf12074f7c3bdf09",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm22": {
+    "digest": "d7b8e378414f13ff8f180491be10dbd89dc95e7c45fa8b41520e3a028d6dd640",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm23": {
+    "digest": "9451b3140551d9216a436f35dbb0604ecf02535924ca97cf5062d3a47f237246",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm24": {
+    "digest": "772e18f89424c9e301d62434a09879338c1884428d109f083ca919eeba4a2c57",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm25": {
+    "digest": "2fce31939fde47f68c8993f16b383ad41d6a142810e1d984a540abae15ee8114",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/bcsstm26": {
+    "digest": "8553713a75d41e4c08e473a63fc696d34d42287e8e2d13534b38140b6b6a4d59",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/fs_541_1": {
+    "digest": "12c9324ec670de8a77f330cb8cf3db76c33bf1c201d45cc57b4b75a728080661",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/gr_30_30": {
+    "digest": "dc2553de05d0469961a7a54b59925a1cc87e83c86bceb5d049f1bfc42a74a5fc",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/lund_a": {
+    "digest": "10263eaa961257a3111d6f1b2fd232137edb9fd62ecb6785a3571b918e826b85",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/lund_b": {
+    "digest": "db1adfb2e5991812c95296a41ee01791f3dbfb6d7876112eeb6408836a16a9ac",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/nos1": {
+    "digest": "7fe0a8f358d5d85afeffe69dd5b92f432746a7543dad4e2b48d90f9ae0b3f67c",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/nos4": {
+    "digest": "5e1141195fd2bd7d1f2db9d2f5c56165864189d1c596fddaf691fef27edcaa58",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/nos6": {
+    "digest": "2e6316b4438c1c54cd2ef9ae53cc8582b15cfd6f47e509808048c24ae899831a",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.HB/nos7": {
+    "digest": "09b70f15079e62145b88b0723a011202d453680b92c10cab580d10fbb90a6bc1",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Hamm/add32_rhs0": {
+    "digest": "dd63e3047ec643272132aed88f9c43919f8127c828ba7f9ab80e39faced1ac29",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Lourakis/bundle1": {
+    "digest": "a6abdc03dcdf790ac770310b750b1ebc4ffbaeff16b79ef5827c66b8016e602f",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.MathWorks/Muu": {
+    "digest": "77c4f91e49b2692b3de80a382427531ea155151159207f6468c27462d5a8975a",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.MathWorks/tomography": {
+    "digest": "3609024805d4eeb35f2d627a7592d1ee5cd34aa95d9cfffee9a06a865d1dd89e",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.MaxPlanck/shallow_water1": {
+    "digest": "710c124d842ddcaa7e498c39571698a4ec378f29b592201e327114a3efeb895c",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.MaxPlanck/shallow_water2": {
+    "digest": "68ceeff3861ed2647b542c9eef8803c2149ab34f980b4ea157a0c0cc604e3cca",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Mulvey/finan512": {
+    "digest": "d5c60d1cb20ba54e5e80c2309255c1d63de4c91441e5f09dd3ab977e2da8a074",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Nasa/nasa2146_rhs0": {
+    "digest": "0e136e9af7d59e5c1471276a9628ded8e7aad851977d67d5db98722789f1d1f7",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Norris/fv1": {
+    "digest": "6c6fc8879106fdca65e0cb26b45cc3a0cc57be8e5bee9c4855402a3225623a6a",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Norris/fv2": {
+    "digest": "af10f4bd2b210491b8595bd0b81f5d07024e821fa44352147b7c3c180901579d",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Oberwolfach/LF10": {
+    "digest": "f932cf538418f8559a09b1fde396a916bd9797ff578a64c327e81aa784d92b17",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Oberwolfach/LFAT5": {
+    "digest": "ddd27fc98b1008da40c32d690643bc713b6d335af4f829b18c6b9b3bffa1180c",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.PARSEC/Si2": {
+    "digest": "c85070509e6daa1e9db11b18478c53f0a4c696c1ea68c2c656668c47f39dd325",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/bodyy4": {
+    "digest": "d0fe49776bf8fbfbb7e66fcf548dc40412084a8376ea80db1b9a06f5ddf67b79",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/mesh1e1": {
+    "digest": "401079baf9209604ccda6c30c21c25b5095752db3ebe65f4bdef9935df4b1651",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/mesh1em1": {
+    "digest": "4fabb72c2526d640e0100f9162d9c50b7b2a996ccbe31585e6ca070700a0ce62",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/mesh1em6": {
+    "digest": "c4a8e382ae66a862e1bfc9153577ee688f1aa7a55fc1d0e66673cce4c66f0fc5",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/mesh2e1": {
+    "digest": "a97b3cd69ef5d2d739324a7cab44edcb623cc4d613207475c4bd9de56dfaf2bf",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/mesh2em5": {
+    "digest": "71072f53e68ed080f70fb897d083abd3b21190a5ec3a41562f95c01ad8f10865",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/mesh3e1": {
+    "digest": "9cae58237df1b196e2f3f45cea3a25dd3bdf5472e4347537e9d37d330cf48aef",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Pothen/mesh3em5": {
+    "digest": "815675a61f73d108c2699a5c36b7fc58542adabf29892c2af56f6bc956dc34f2",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Sandia/ASIC_100ks": {
+    "digest": "42ab1adfbcfd48b2ca64123a660123e562be4492072b0d4aee922ddb2238cfdf",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Sandia/ASIC_320ks": {
+    "digest": "5ab2c54e23370a84f370611cfe41970026f36fa37e46d7e44154e53438b67fa2",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
+  "cg_block_jacobi_suitesparse_reference.Um/2cubes_sphere_rhs0": {
+    "digest": "d834d249382c4ae86d8ac342a41f7a940cbcff72abd49e9d4d2e2d4f434483b4",
+    "file": "src/saps/benchmarks/cg_block_jacobi.py",
+    "freshness": "03938fb26d92a742c71e10ba464382c0e021b2bc925b203b759a86e0098ecab0"
+  },
   "connected_components_snap_reference.CollegeMsg": {
     "digest": "6edf84f708b1e6b8ace99b614ae4fbd2cc88fc388f5afde9fd0c80b26fd1b7d0",
     "file": "src/saps/benchmarks/connected_components.py",
