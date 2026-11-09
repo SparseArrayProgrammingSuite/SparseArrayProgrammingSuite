@@ -3,6 +3,13 @@ defaults:
         shell: bash -el {0}
 
 name: CI
+
+# A new push to a pull request cancels that pull request's older runs, so they
+# don't hold runners. Pushes to main each finish, keeping main's history tested.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     strategy:
