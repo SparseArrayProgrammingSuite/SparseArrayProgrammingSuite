@@ -15,12 +15,12 @@ from binsparse.conversions import (
     to_scipy,
 )
 
-from saps.benchmarks.amg import AMGBenchmark
+from saps.benchmarks.cg_amg import AMGBenchmark
 from saps.benchmarks.cg import CGBenchmark
 from saps.benchmarks.gmres import GMRESBenchmark
 from saps.benchmarks.jacobi import JacobiBenchmark
 from saps.benchmarks.lsqr import LSQRBenchmark
-from saps.benchmarks.pcg import BlockJacobiPCGBenchmark, JacobiPCGBenchmark
+from saps.benchmarks.cg_jacobi import BlockJacobiPCGBenchmark, JacobiPCGBenchmark
 from saps.storage import LocalStorageBackend
 
 _SOLVERS = [

@@ -14,7 +14,7 @@ from frameworks.saps_scipy import SciPyFramework
 from frameworks.saps_smart import SmartSparseFramework, SmartSparseKernels
 from frameworks.saps_sparse import PyDataSparseFramework
 from saps.benchmarks.jacobi import JacobiBenchmark
-from saps.benchmarks.pcg import JacobiPCGBenchmark
+from saps.benchmarks.cg_jacobi import JacobiPCGBenchmark
 
 
 @pytest.fixture(

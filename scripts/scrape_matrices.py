@@ -34,14 +34,14 @@ from scipy.io import mminfo
 
 from binsparse.conversions import from_scipy
 
-import saps.benchmarks.amg as saps_amg
+import saps.benchmarks.cg_amg as saps_amg
 import saps.benchmarks.cg as saps_cg
 import saps.benchmarks.gmres as saps_gmres
 import saps.benchmarks.jacobi as saps_jacobi
 import saps.benchmarks.lsqr as saps_lsqr
-import saps.benchmarks.pcg as saps_pcg
+import saps.benchmarks.cg_jacobi as saps_pcg
 import saps.downloaders.suitesparse as saps_suitesparse_downloader
-from saps.benchmarks.amg import AMGBenchmark, AMGDataset, AMGSuiteSparseGenerator
+from saps.benchmarks.cg_amg import AMGBenchmark, AMGDataset, AMGSuiteSparseGenerator
 from saps.benchmarks.cg import CGBenchmark, CGDataset, CGSuiteSparseGenerator
 from saps.benchmarks.gmres import (
     GMRESBenchmark,
@@ -54,7 +54,7 @@ from saps.benchmarks.jacobi import (
     JacobiSuiteSparseGenerator,
 )
 from saps.benchmarks.lsqr import LSQRBenchmark, LSQRDataset, LSQRSuiteSparseGenerator
-from saps.benchmarks.pcg import (
+from saps.benchmarks.cg_jacobi import (
     BlockJacobiPCGBenchmark,
     BlockJacobiPCGTestGenerator,
     JacobiPCGBenchmark,

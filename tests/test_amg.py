@@ -8,7 +8,7 @@ import scipy.sparse as sps
 from binsparse.conversions import from_numpy, from_scipy
 
 from frameworks.saps_numpy import NumpyFramework
-from saps.benchmarks.amg import (
+from saps.benchmarks.cg_amg import (
     AMGBenchmark,
     _build_tentative_prolongator,
     _tentative_prolongator,
