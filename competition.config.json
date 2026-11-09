@@ -29,6 +29,28 @@
       }
     }
   ],
+  "// include": "A few frameworks are left out of this competition. To restore it, move this entry back into include.",
+  "// finch": {
+    "python": "3.12",
+    "req": {
+      "array-api-compat": "1.15.0",
+      "array-api-extra": "0.11.5",
+      "lark": "1.3.1",
+      "networkx": "3.6",
+      "numpy": "2.3",
+      "scipy": "1.17.1",
+      "sparse": "0.17.0",
+      "ssgetpy": "1.0rc2",
+      "juliapkg": "0.1.28",
+      "juliacall": "0.9.37",
+      "pip+git+https://github.com/finch-tensor/finch-tensor.git@9cb8da3ca289c126dbdae1376607eac9dad27f2f": ""
+    },
+    "env_nobuild": {
+      "SAPS_FRAMEWORK": "frameworks/saps_finch.py",
+      "SAPS_FRAMEWORK_NAME": "finch",
+      "SAPS_REPO_ROOT": "."
+    }
+  },
   "include": [
     {
       "python": "3.12",
@@ -158,27 +180,6 @@
       "env_nobuild": {
         "SAPS_FRAMEWORK": "frameworks/saps_graphblas.py",
         "SAPS_FRAMEWORK_NAME": "graphblas",
-        "SAPS_REPO_ROOT": "."
-      }
-    },
-    {
-      "python": "3.12",
-      "req": {
-        "array-api-compat": "1.15.0",
-        "array-api-extra": "0.11.5",
-        "lark": "1.3.1",
-        "networkx": "3.6",
-        "numpy": "2.3",
-        "scipy": "1.17.1",
-        "sparse": "0.17.0",
-        "ssgetpy": "1.0rc2",
-        "juliapkg": "0.1.28",
-        "juliacall": "0.9.37",
-        "pip+git+https://github.com/finch-tensor/finch-tensor.git@9cb8da3ca289c126dbdae1376607eac9dad27f2f": ""
-      },
-      "env_nobuild": {
-        "SAPS_FRAMEWORK": "frameworks/saps_finch.py",
-        "SAPS_FRAMEWORK_NAME": "finch",
         "SAPS_REPO_ROOT": "."
       }
     },
