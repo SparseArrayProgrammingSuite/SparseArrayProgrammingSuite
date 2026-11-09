@@ -32,8 +32,14 @@ jobs:
           pixi run pytest --junit-xml=test-${{ matrix.os }}.xml
       - uses: codecov/codecov-action@v5
 
-  # The default environment skips PyTorch's tests (tests/test_pytorch*.py).
-  pytorch:
+  # Frameworks the default environment doesn't install, one job each. CuPy is
+  # left out because its environment needs an NVIDIA GPU.
+  framework:
+    name: ${{ matrix.environment }}
+    strategy:
+      matrix:
+        environment: [pytorch, scorch, finch, galley]
+      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -42,9 +48,9 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.11.2
         with:
           pixi-version: v0.83.0
-          environments: pytorch
-      - name: Run PyTorch tests
-        run: pixi run test-pytorch
+          environments: ${{ matrix.environment }}
+      - name: Run framework tests
+        run: pixi run --environment ${{ matrix.environment }} test-${{ matrix.environment }}
 
 on:
   # Trigger the workflow on push or pull request for the main branch,
