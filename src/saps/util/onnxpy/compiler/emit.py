@@ -17,10 +17,11 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
+
 import onnx
 from onnx import AttributeProto, GraphProto, ModelProto, NodeProto, numpy_helper
 
-from .ops import EMITTERS
+from saps.util.onnxpy.compiler.ops import EMITTERS
 
 _RESERVED_NAMES = frozenset(
     {
@@ -83,7 +84,8 @@ class _EmitContextImpl:
 
     def emit(self, source: str) -> None:
         self.body.extend(
-            f"    {line}" if line else "" for line in textwrap.dedent(source).strip().splitlines()
+            f"    {line}" if line else ""
+            for line in textwrap.dedent(source).strip().splitlines()
         )
 
     def name(self, ssa_name: str) -> str:
@@ -202,7 +204,8 @@ def compile_to_source(
     ranks = {
         value.name: len(value.type.tensor_type.shape.dim)
         for value in (*shape_graph.input, *shape_graph.value_info, *shape_graph.output)
-        if value.type.HasField("tensor_type") and value.type.tensor_type.HasField("shape")
+        if value.type.HasField("tensor_type")
+        and value.type.tensor_type.HasField("shape")
     }
     ctx = _EmitContextImpl(names=names, tensor_inputs=tensor_inputs, ranks=ranks)
     body = ctx.body

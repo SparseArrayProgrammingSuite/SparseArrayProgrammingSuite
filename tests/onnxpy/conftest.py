@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import math
+from typing import Any
+
+import pytest
 
 import numpy as np
-import onnxruntime as ort
-import pytest
-from onnx import ModelProto
 
-from onnxpy import compile_to_source
+import onnxruntime as ort
+from onnx import ModelProto, helper
+
+from saps.util.onnxpy import compile_to_source
 
 
 class _NumpyWithConv:
@@ -48,7 +51,11 @@ class _NumpyWithConv:
         spatial = list(range(4, 4 + rank))
         kernel = list(range(4 + rank, 4 + 2 * rank))
         y = np.einsum(
-            windows, [0, 1, 2, *spatial, *kernel], w, [1, 3, 2, *kernel], [0, 1, 3, *spatial]
+            windows,
+            [0, 1, 2, *spatial, *kernel],
+            w,
+            [1, 3, 2, *kernel],
+            [0, 1, 3, *spatial],
         )
         return y.reshape(n, m, *y.shape[3:])
 
@@ -63,7 +70,9 @@ class _NumpyWithConv:
         padding=None,
         fill_value=0,
     ):
-        windows = self._windows(x, kernel_shape, strides, dilations, padding, fill_value)
+        windows = self._windows(
+            x, kernel_shape, strides, dilations, padding, fill_value
+        )
         reduce_op = {"max": np.max, "+": np.sum, "mean": np.mean}[reduce]
         return reduce_op(windows, axis=tuple(range(x.ndim, windows.ndim)))
 
@@ -75,14 +84,20 @@ def array_namespace():
 
 def _compile_and_run(model: ModelProto, feed: dict[str, np.ndarray], xp):
     source, tensor_inputs = compile_to_source(model)
-    scope = {"math": math}
+    scope: dict[str, Any] = {"math": math}
     exec(source, scope)
     args = [feed[vi.name] for vi in model.graph.input if vi.name not in tensor_inputs]
     return scope["model"](xp, *args, *tensor_inputs.values())
 
 
 def _run_ort(model: ModelProto, feed: dict[str, np.ndarray]):
-    sess = ort.InferenceSession(model.SerializeToString(), providers=["CPUExecutionProvider"])
+    # onnx writes a newer IR version than onnxruntime reads, so give onnxruntime
+    # the oldest IR version the model's opsets allow.
+    model = ModelProto.FromString(model.SerializeToString())
+    model.ir_version = helper.find_min_ir_version_for(model.opset_import)
+    sess = ort.InferenceSession(
+        model.SerializeToString(), providers=["CPUExecutionProvider"]
+    )
     out_names = [o.name for o in sess.get_outputs()]
     res = sess.run(out_names, {k: np.asarray(v) for k, v in feed.items()})
     return res[0] if len(res) == 1 else tuple(res)
@@ -105,6 +120,8 @@ def assert_matches_ort(array_namespace):
             for a, e in zip(actual, expected, strict=True):
                 np.testing.assert_allclose(np.asarray(a), e, atol=atol, rtol=rtol)
         else:
-            np.testing.assert_allclose(np.asarray(actual), expected, atol=atol, rtol=rtol)
+            np.testing.assert_allclose(
+                np.asarray(actual), expected, atol=atol, rtol=rtol
+            )
 
     return _do

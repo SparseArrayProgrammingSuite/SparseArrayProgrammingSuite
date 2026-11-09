@@ -1,4 +1,4 @@
-"""End-to-end round-trip test against ``tmp/models/mnist-8.onnx``.
+"""End-to-end round-trip test against ``models/mnist-8.onnx``.
 
 This is the project's definition of done: compile the real ONNX model,
 execute the generated function, and require the output to match
@@ -10,14 +10,16 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-import numpy as np
-import onnx
-import onnxruntime as ort
 import pytest
 
-from onnxpy import compile_to_source
+import numpy as np
 
-_MNIST_PATH = Path(__file__).resolve().parents[1] / "tmp" / "models" / "mnist-8.onnx"
+import onnx
+import onnxruntime as ort
+
+from saps.util.onnxpy import compile_to_source
+
+_MNIST_PATH = Path(__file__).resolve().parent / "models" / "mnist-8.onnx"
 
 
 @pytest.fixture(scope="module")

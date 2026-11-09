@@ -4,19 +4,25 @@ from __future__ import annotations
 
 import ast
 
-import numpy as np
-import onnx
 import pytest
+
+import numpy as np
+
+import onnx
 from onnx import TensorProto, helper, numpy_helper
 
-from onnxpy import compile_to_source
+from saps.util.onnxpy import compile_to_source
 
 
 def _vi(name: str, shape, dtype=TensorProto.FLOAT):
-    return helper.make_tensor_value_info(name, dtype, None if shape is None else list(shape))
+    return helper.make_tensor_value_info(
+        name, dtype, None if shape is None else list(shape)
+    )
 
 
-def _model(nodes, inputs, outputs, initializers=(), opset_version: int = 18) -> onnx.ModelProto:
+def _model(
+    nodes, inputs, outputs, initializers=(), opset_version: int = 18
+) -> onnx.ModelProto:
     if isinstance(nodes, onnx.NodeProto):
         nodes = [nodes]
     graph = helper.make_graph(
@@ -26,8 +32,9 @@ def _model(nodes, inputs, outputs, initializers=(), opset_version: int = 18) -> 
         outputs=list(outputs),
         initializer=list(initializers),
     )
-    model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", opset_version)])
-    return model
+    return helper.make_model(
+        graph, opset_imports=[helper.make_opsetid("", opset_version)]
+    )
 
 
 @pytest.mark.parametrize(
@@ -246,7 +253,7 @@ def test_average_pool(count_include_pad, assert_matches_ort):
 @pytest.mark.parametrize("auto_pad", ["NOTSET", "VALID", "SAME_UPPER", "SAME_LOWER"])
 def test_max_pool(auto_pad, assert_matches_ort):
     x = np.random.RandomState(2).randn(1, 2, 6, 6).astype(np.float32)
-    attrs = dict(kernel_shape=[3, 3], strides=[2, 2])
+    attrs = {"kernel_shape": [3, 3], "strides": [2, 2]}
     if auto_pad == "NOTSET":
         attrs["pads"] = [1, 1, 1, 1]
     else:
@@ -369,7 +376,9 @@ def test_inline_spatial_pipeline(rank, auto_pad, assert_matches_ort):
     w = rng.randn(6, 2, *((3,) * rank)).astype(np.float32)
     # Exercise SSA names matching builtins, old helper locals and temporary names.
     weight_name = "_onnxpy_0_conv_rank"
-    padding = {"pads": [1] * (2 * rank)} if auto_pad == "NOTSET" else {"auto_pad": auto_pad}
+    padding = (
+        {"pads": [1] * (2 * rank)} if auto_pad == "NOTSET" else {"auto_pad": auto_pad}
+    )
     model = _model(
         [
             helper.make_node(
@@ -400,7 +409,9 @@ def test_inline_spatial_pipeline(rank, auto_pad, assert_matches_ort):
     )
     source, _ = compile_to_source(model)
     definitions = [
-        node for node in ast.walk(ast.parse(source)) if isinstance(node, ast.FunctionDef)
+        node
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.FunctionDef)
     ]
     assert [node.name for node in definitions] == ["model"]
     assert "unfold" not in source
@@ -444,7 +455,9 @@ def test_max_pool_integer_padding(dtype, onnx_dtype, assert_matches_ort):
     if dtype == np.int8:
         x = -x
     model = _model(
-        helper.make_node("MaxPool", ["x"], ["y"], kernel_shape=[2, 2], pads=[1, 1, 1, 1]),
+        helper.make_node(
+            "MaxPool", ["x"], ["y"], kernel_shape=[2, 2], pads=[1, 1, 1, 1]
+        ),
         [_vi("x", x.shape, onnx_dtype)],
         [_vi("y", None, onnx_dtype)],
     )
@@ -470,7 +483,9 @@ def test_tensors_are_emitted_as_model_inputs():
     const_value = np.array([[3.0, 4.0]], dtype=np.float32)
     model = _model(
         [
-            helper.make_node("Constant", [], ["c"], value=numpy_helper.from_array(const_value)),
+            helper.make_node(
+                "Constant", [], ["c"], value=numpy_helper.from_array(const_value)
+            ),
             helper.make_node("Add", ["x", "bias"], ["xb"]),
             helper.make_node("Reshape", ["xb", "shape"], ["reshaped"]),
             helper.make_node("Add", ["reshaped", "c"], ["y"]),

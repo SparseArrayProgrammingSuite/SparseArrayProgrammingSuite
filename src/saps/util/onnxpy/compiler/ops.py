@@ -16,6 +16,7 @@ from collections.abc import Callable
 from typing import Any, Protocol
 
 import numpy as np
+
 from onnx import NodeProto
 
 
@@ -211,7 +212,9 @@ def _emit_spatial_setup(ctx: EmitContext, node: NodeProto, x: str, kernel: str) 
 
     p = ctx.temp(node.op_type.lower())
     strides = ctx.literal(tuple(int(s) for s in ctx.attr(node, "strides", (1,) * rank)))
-    dilations = ctx.literal(tuple(int(d) for d in ctx.attr(node, "dilations", (1,) * rank)))
+    dilations = ctx.literal(
+        tuple(int(d) for d in ctx.attr(node, "dilations", (1,) * rank))
+    )
     pads = ctx.attr(node, "pads", None)
     auto_pad = str(ctx.attr(node, "auto_pad", "NOTSET") or "NOTSET").upper()
     ctx.emit(f"""
@@ -385,8 +388,12 @@ def _emit_constant(ctx: EmitContext, node: NodeProto) -> str:
         return f"xp.asarray({float(float_val)!r}, dtype=xp.float32)"
     floats = ctx.attr(node, "value_floats", None)
     if floats is not None:
-        return f"xp.asarray({ctx.literal([float(f) for f in floats])}, dtype=xp.float32)"
-    raise NotImplementedError("Constant op variant not supported in MVP (need 'value' or value_*)")
+        return (
+            f"xp.asarray({ctx.literal([float(f) for f in floats])}, dtype=xp.float32)"
+        )
+    raise NotImplementedError(
+        "Constant op variant not supported in MVP (need 'value' or value_*)"
+    )
 
 
 def _list_attr_expr(ctx: EmitContext, node: NodeProto, name: str) -> str:

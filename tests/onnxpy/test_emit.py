@@ -4,11 +4,13 @@ import ast
 import inspect
 import math
 
-import numpy as np
 import pytest
+
+import numpy as np
+
 from onnx import TensorProto, helper, numpy_helper
 
-from onnxpy import compile_to_source
+from saps.util.onnxpy import compile_to_source
 
 
 def _model():
@@ -18,7 +20,9 @@ def _model():
         [
             helper.make_node("MatMul", ["context", "weight"], ["state"]),
             helper.make_node("Flatten", ["state"], ["flat"], axis=1),
-            helper.make_node("Constant", [], ["bias"], value=numpy_helper.from_array(bias)),
+            helper.make_node(
+                "Constant", [], ["bias"], value=numpy_helper.from_array(bias)
+            ),
             helper.make_node("Add", ["flat", "bias"], ["output"]),
         ],
         "parameter_collisions",
@@ -34,7 +38,9 @@ def test_emits_only_one_inline_function():
     tree = ast.parse(source)
     assert len(tree.body) == 1
     assert isinstance(tree.body[0], ast.FunctionDef)
-    assert not any(isinstance(node, ast.Import | ast.ImportFrom) for node in ast.walk(tree))
+    assert not any(
+        isinstance(node, ast.Import | ast.ImportFrom) for node in ast.walk(tree)
+    )
     assert sum(isinstance(node, ast.FunctionDef) for node in ast.walk(tree)) == 1
     scope = {"math": math}
     exec(source, scope)
@@ -42,7 +48,8 @@ def test_emits_only_one_inline_function():
     parameters = inspect.signature(function).parameters
     assert list(parameters) == ["xp", "context", "weight", "bias"]
     assert all(
-        p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD and p.default is inspect.Parameter.empty
+        p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
+        and p.default is inspect.Parameter.empty
         for p in parameters.values()
     )
     assert tuple(tensors) == ("weight", "bias")

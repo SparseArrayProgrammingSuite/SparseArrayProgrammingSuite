@@ -76,7 +76,6 @@ scikit-learn = "==1.9.0"
 ssgetpy = "==1.0rc2"
 onnx = "==1.23.0"
 python-graphblas = "==2025.2.0"
-onnxpy = { git = "https://github.com/SparseArrayProgrammingSuite/ONNXPY.git", rev = "1b2c881aa170d96368bbc8878b1943d08dc654eb" }
 # Indirect dependencies.
 anyio = "==4.14.0"
 asv-runner = "==0.2.1"
@@ -144,6 +143,8 @@ mypy = "==1.15.0"
 pytest-mypy = "==1.0.1"
 pytest-regressions = "==2.8.3"
 types-requests = "==2.33.0.20260712"
+# Reference outputs for the vendored onnxpy tests (tests/onnxpy).
+onnxruntime = "==1.31.1"
 
 # What each competition environment installs (competition.config.json).
 [feature.framework-test.pypi-dependencies]

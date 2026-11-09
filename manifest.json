@@ -14587,7 +14587,7 @@
   "lth_conv2_onnx.pruned": {
     "digest": "46b3d838cee29fca1e5bc133a921d478ae92acc93693b5fe31b14d6faf324506",
     "file": "src/saps/benchmarks/lth_conv2.py",
-    "freshness": "34d34088a4015b437fe35274d9db9033390e4c8b6d64577f1d9082a28f0d6394"
+    "freshness": "6d926023d8631ca1360db7d623a520ef84ff88420e175f00c916403b08ec14d3"
   },
   "matrix_multiplication_dense.large": {
     "digest": "79926870ecf56b24a7e59ffbc80dfa81c226abd744d663511a5ec55d9747f0cd",

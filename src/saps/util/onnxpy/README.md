@@ -5,13 +5,9 @@ namespace. Each ONNX node becomes statements in one function. The compiler
 returns only that function's source and an ordered dictionary of tensor inputs;
 it emits no imports, module globals, helper functions, or application wrappers.
 
-## Install
-
-Requires Python 3.11+ and Poetry.
-
-```bash
-poetry install
-```
+Vendored from <https://github.com/SparseArrayProgrammingSuite/ONNXPY> at
+`1b2c881aa170d96368bbc8878b1943d08dc654eb`, with imports made absolute for
+SAPS freshness hashing.
 
 ## Usage
 
@@ -20,7 +16,7 @@ import math
 
 import numpy as np
 import onnx
-from onnxpy import compile_to_source
+from saps.util.onnxpy import compile_to_source
 
 model = onnx.load("model.onnx")
 source, tensors = compile_to_source(model)
@@ -88,14 +84,12 @@ Use `onnxpy.supported_ops()` to inspect this set. Unsupported op types raise
 ## Tests
 
 ```bash
-poetry run pytest
-poetry run ruff check .
-poetry run mypy src
+pixi run pytest tests/onnxpy
 ```
 
-`tests/test_ops.py` compares emitted functions against `onnxruntime` on tiny
-graphs. `tests/test_emit.py` checks the function-only output and calling
-convention. `tests/test_mnist.py` checks `tmp/models/mnist-8.onnx` against
+`tests/onnxpy/test_ops.py` compares emitted functions against `onnxruntime` on tiny
+graphs. `tests/onnxpy/test_emit.py` checks the function-only output and calling
+convention. `tests/onnxpy/test_mnist.py` checks `tests/onnxpy/models/mnist-8.onnx` against
 `onnxruntime` on five seeds within `atol=rtol=1e-4`.
 
 ## Limitations
