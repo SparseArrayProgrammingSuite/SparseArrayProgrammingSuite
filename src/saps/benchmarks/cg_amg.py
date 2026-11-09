@@ -64,7 +64,7 @@ def _build_tentative_prolongator(
     return _tentative_prolongator(agg)
 
 
-class AMGDataset(SuiteSparseDataset):
+class CGAMGDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -111,14 +111,14 @@ class AMGDataset(SuiteSparseDataset):
         }
 
 
-class AMGSuiteSparseGenerator(Generator[AMGDataset]):
+class CGAMGSuiteSparseGenerator(Generator[CGAMGDataset]):
     @property
     def name(self) -> str:
-        return "amg_suitesparse"
+        return "cg_amg_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Smoothed Aggregation AMG SuiteSparse"
+        return "AMG-Preconditioned Conjugate Gradients SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -137,112 +137,112 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return AMGBenchmark().authors
+        return CGAMGBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return AMGBenchmark().references
+        return CGAMGBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return AMGBenchmark().ai_disclosure
+        return CGAMGBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return AMGBenchmark().motivation
+        return CGAMGBenchmark().motivation
 
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
-    def datasets(self) -> list[AMGDataset]:
+    def datasets(self) -> list[CGAMGDataset]:
         # Symmetric positive definite matrices drawn from the same SuiteSparse
         # groups the PCG benchmark (which this solver is modelled on) uses.
         return [
-            AMGDataset("Andrews/Andrews", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Bai/mhd3200b", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Bai/mhd4800b", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Bai/mhdb416", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Bindel/ted_B", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Bindel/ted_B_unscaled", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Boeing/bcsstk34", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Boeing/bcsstm39", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Boeing/crystm01", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Boeing/crystm02", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Boeing/crystm03", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Boeing/msc00726", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Botonakis/thermomech_TC", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Botonakis/thermomech_TK", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Botonakis/thermomech_dM", max_iter=100, rel_tol=1e-06),
-            AMGDataset("CEMW/tmt_sym", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Cunningham/qa8fm", max_iter=100, rel_tol=1e-06),
-            AMGDataset("FIDAP/ex3", max_iter=100, rel_tol=1e-06),
-            AMGDataset("FIDAP/ex5", max_iter=100, rel_tol=1e-06),
-            AMGDataset("GHS_psdef/wathen100", max_iter=100, rel_tol=1e-06),
-            AMGDataset("GHS_psdef/wathen120", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk01", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk02", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk04", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk05", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk09", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk16", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk21", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstk22", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm02", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm05", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm06", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm07", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm08", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm09", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm11", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm19", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm20", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm21", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm22", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm23", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm24", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm25", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/bcsstm26", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/gr_30_30", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/lund_a", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/lund_b", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/nos3", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/nos4", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/nos5", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/nos6", max_iter=100, rel_tol=1e-06),
-            AMGDataset("HB/nos7", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Janna/StocF-1465", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Lourakis/bundle1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("MathWorks/Muu", max_iter=100, rel_tol=1e-06),
-            AMGDataset("MaxPlanck/shallow_water1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("MaxPlanck/shallow_water2", max_iter=100, rel_tol=1e-06),
-            AMGDataset(
+            CGAMGDataset("Andrews/Andrews", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Bai/mhd3200b", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Bai/mhd4800b", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Bai/mhdb416", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Bindel/ted_B", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Bindel/ted_B_unscaled", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Boeing/bcsstk34", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Boeing/bcsstm39", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Boeing/crystm01", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Boeing/crystm02", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Boeing/crystm03", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Boeing/msc00726", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Botonakis/thermomech_TC", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Botonakis/thermomech_TK", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Botonakis/thermomech_dM", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("CEMW/tmt_sym", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Cunningham/qa8fm", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("FIDAP/ex3", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("FIDAP/ex5", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("GHS_psdef/wathen100", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("GHS_psdef/wathen120", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk01", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk02", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk04", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk05", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk09", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk16", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk21", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstk22", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm02", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm05", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm06", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm07", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm08", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm09", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm11", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm19", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm20", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm21", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm22", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm23", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm24", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm25", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/bcsstm26", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/gr_30_30", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/lund_a", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/lund_b", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/nos3", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/nos4", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/nos5", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/nos6", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("HB/nos7", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Janna/StocF-1465", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Lourakis/bundle1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("MathWorks/Muu", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("MaxPlanck/shallow_water1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("MaxPlanck/shallow_water2", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset(
                 "McRae/ecology2", max_iter=100, rel_tol=1e-06, suites=["train", "trace"]
             ),
-            AMGDataset("Nasa/nasa2146", max_iter=100, rel_tol=1e-06, rhs_index=0),
-            AMGDataset("Norris/fv1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Norris/fv2", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Norris/fv3", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Oberwolfach/LF10", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Oberwolfach/LFAT5", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/bodyy4", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/bodyy5", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/mesh1e1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/mesh1em1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/mesh1em6", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/mesh2e1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/mesh2em5", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/mesh3e1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Pothen/mesh3em5", max_iter=100, rel_tol=1e-06),
-            AMGDataset("TKK/plbuckle", max_iter=100, rel_tol=1e-06),
-            AMGDataset("UTEP/Dubcova1", max_iter=100, rel_tol=1e-06),
-            AMGDataset("UTEP/Dubcova2", max_iter=100, rel_tol=1e-06),
-            AMGDataset("UTEP/Dubcova3", max_iter=100, rel_tol=1e-06),
-            AMGDataset("Um/2cubes_sphere", max_iter=100, rel_tol=1e-06, rhs_index=0),
+            CGAMGDataset("Nasa/nasa2146", max_iter=100, rel_tol=1e-06, rhs_index=0),
+            CGAMGDataset("Norris/fv1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Norris/fv2", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Norris/fv3", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Oberwolfach/LF10", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Oberwolfach/LFAT5", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/bodyy4", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/bodyy5", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/mesh1e1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/mesh1em1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/mesh1em6", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/mesh2e1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/mesh2em5", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/mesh3e1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Pothen/mesh3em5", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("TKK/plbuckle", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("UTEP/Dubcova1", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("UTEP/Dubcova2", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("UTEP/Dubcova3", max_iter=100, rel_tol=1e-06),
+            CGAMGDataset("Um/2cubes_sphere", max_iter=100, rel_tol=1e-06, rhs_index=0),
         ]
 
-    def generate(self, dataset: AMGDataset) -> DataInstance:
+    def generate(self, dataset: CGAMGDataset) -> DataInstance:
         if dataset.A is not None:
             A_bin = from_scipy(scipy_sparse.coo_array(dataset.A))
             assert dataset.b is not None, "Test datasets give A and b together"
@@ -269,37 +269,37 @@ class AMGSuiteSparseGenerator(Generator[AMGDataset]):
         )
 
 
-class AMGTestGenerator(AMGSuiteSparseGenerator):
+class CGAMGTestGenerator(CGAMGSuiteSparseGenerator):
     @property
     def name(self) -> str:
-        return "amg_test"
+        return "cg_amg_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Smoothed Aggregation AMG Test"
+        return "AMG-Preconditioned Conjugate Gradients Test"
 
     @property
     def description(self) -> str:
         return "Small inlined symmetric positive definite systems."
 
     @property
-    def datasets(self) -> list[AMGDataset]:
+    def datasets(self) -> list[CGAMGDataset]:
         return [
-            AMGDataset(
+            CGAMGDataset(
                 "3x3_tridiagonal",
                 pretty_name="3x3 Tridiagonal",
                 suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 b=np.array([4.0, 8.0, 16.0]),
             ),
-            AMGDataset(
+            CGAMGDataset(
                 "3x3_dense",
                 pretty_name="3x3 Dense",
                 suites=["test"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 b=np.array([13.0, -3.0, 8.0]),
             ),
-            AMGDataset(
+            CGAMGDataset(
                 "4x4_tridiagonal",
                 pretty_name="4x4 Tridiagonal",
                 suites=["test"],
@@ -313,14 +313,14 @@ class AMGTestGenerator(AMGSuiteSparseGenerator):
                 ),
                 b=np.array([8.0, -2.0, 6.0, 15.0]),
             ),
-            AMGDataset(
+            CGAMGDataset(
                 "3x3_indefinite_sparse",
                 pretty_name="3x3 Indefinite Sparse",
                 suites=["test"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 b=np.array([40.0, 10.0, -18.0]),
             ),
-            AMGDataset(
+            CGAMGDataset(
                 "3x3_scaled_tridiagonal",
                 pretty_name="3x3 Scaled Tridiagonal",
                 suites=["test"],
@@ -329,7 +329,7 @@ class AMGTestGenerator(AMGSuiteSparseGenerator):
                 ),
                 b=np.array([118.0, 116.0, 118.0]),
             ),
-            AMGDataset(
+            CGAMGDataset(
                 "5x5_sparse",
                 pretty_name="5x5 Sparse",
                 suites=["test"],
@@ -347,14 +347,14 @@ class AMGTestGenerator(AMGSuiteSparseGenerator):
         ]
 
 
-class AMGBenchmark(Benchmark):
+class CGAMGBenchmark(Benchmark):
     @property
     def name(self) -> str:
-        return "amg"
+        return "cg_amg"
 
     @property
     def pretty_name(self) -> str:
-        return "Algebraic Multigrid (AMG)"
+        return "AMG-Preconditioned Conjugate Gradients"
 
     @property
     def description(self) -> str:
@@ -453,7 +453,7 @@ class AMGBenchmark(Benchmark):
 
     @property
     def generators(self):
-        return [AMGTestGenerator(), AMGSuiteSparseGenerator()]
+        return [CGAMGTestGenerator(), CGAMGSuiteSparseGenerator()]
 
     def check(self, param):
         for item in self._output:

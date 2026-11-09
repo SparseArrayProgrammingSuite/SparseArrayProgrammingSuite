@@ -15,30 +15,31 @@ from binsparse.conversions import (
     to_scipy,
 )
 
-from saps.benchmarks.cg_amg import AMGBenchmark
+from saps.benchmarks.cg_amg import CGAMGBenchmark
 from saps.benchmarks.cg import CGBenchmark
 from saps.benchmarks.gmres import GMRESBenchmark
 from saps.benchmarks.jacobi import JacobiBenchmark
 from saps.benchmarks.lsqr import LSQRBenchmark
-from saps.benchmarks.cg_jacobi import BlockJacobiPCGBenchmark, JacobiPCGBenchmark
+from saps.benchmarks.cg_block_jacobi import CGBlockJacobiBenchmark
+from saps.benchmarks.cg_jacobi import CGJacobiBenchmark
 from saps.storage import LocalStorageBackend
 
 _SOLVERS = [
     CGBenchmark,
     JacobiBenchmark,
     GMRESBenchmark,
-    BlockJacobiPCGBenchmark,
-    JacobiPCGBenchmark,
+    CGBlockJacobiBenchmark,
+    CGJacobiBenchmark,
     LSQRBenchmark,
-    AMGBenchmark,
+    CGAMGBenchmark,
 ]
 _CHECKS = [pytest.param(cls, None, id=cls.__name__) for cls in _SOLVERS] + [
     pytest.param(GMRESBenchmark, {"residual_tol": 1e-6}, id="gmres_residual"),
     pytest.param(
-        BlockJacobiPCGBenchmark, {"check_residual": True}, id="block_pcg_residual"
+        CGBlockJacobiBenchmark, {"check_residual": True}, id="cg_block_jacobi_residual"
     ),
     pytest.param(
-        JacobiPCGBenchmark, {"check_residual": True}, id="jacobi_pcg_residual"
+        CGJacobiBenchmark, {"check_residual": True}, id="cg_jacobi_residual"
     ),
     pytest.param(LSQRBenchmark, {"convergence": "residual"}, id="lsqr_residual"),
     pytest.param(LSQRBenchmark, {"convergence": "gradient"}, id="lsqr_gradient"),
@@ -55,9 +56,9 @@ def _check(
     ]
     if benchmark_cls is not LSQRBenchmark:
         benchmark._input.append(from_numpy(np.zeros_like(x)))
-    if benchmark_cls in (BlockJacobiPCGBenchmark, JacobiPCGBenchmark):
+    if benchmark_cls in (CGBlockJacobiBenchmark, CGJacobiBenchmark):
         benchmark._input.append(from_numpy(np.eye(A.shape[0], dtype=A.dtype)))
-    if benchmark_cls is AMGBenchmark:
+    if benchmark_cls is CGAMGBenchmark:
         benchmark._input.append(
             from_scipy(sps.coo_array(np.eye(A.shape[0], dtype=A.dtype)))
         )
@@ -109,7 +110,7 @@ def test_solver_checks_reject_errors_above_convergence_tolerance(
         _check(benchmark_cls, A, b, b - error, meta=meta, ref_meta=ref_meta)
 
 
-@pytest.mark.parametrize("benchmark_cls", [BlockJacobiPCGBenchmark, JacobiPCGBenchmark])
+@pytest.mark.parametrize("benchmark_cls", [CGBlockJacobiBenchmark, CGJacobiBenchmark])
 def test_pcg_checks_accept_a_sparse_solution_vector(benchmark_cls):
     # SmartSparseFramework returns x as a sparse vector.
     _check(benchmark_cls, np.eye(3), np.ones(3), np.ones(3), x_sparse=True)
@@ -132,9 +133,9 @@ def test_lsqr_check_accepts_a_gradient_small_relative_to_the_residual():
     [
         CGBenchmark,
         JacobiBenchmark,
-        BlockJacobiPCGBenchmark,
-        JacobiPCGBenchmark,
-        AMGBenchmark,
+        CGBlockJacobiBenchmark,
+        CGJacobiBenchmark,
+        CGAMGBenchmark,
     ],
 )
 def test_solver_checks_respect_absolute_tolerance(benchmark_cls):
@@ -184,7 +185,7 @@ def test_lsqr_checks_stationarity_for_inconsistent_system(ref_meta):
         for benchmark_cls in _SOLVERS
         for generator_index in (0, 1)
         # This generator fetches its block partition from remote storage.
-        if (benchmark_cls, generator_index) != (BlockJacobiPCGBenchmark, 1)
+        if (benchmark_cls, generator_index) != (CGBlockJacobiBenchmark, 1)
     ],
 )
 def test_solver_generators_cache_input_dependent_checks(

@@ -18,11 +18,11 @@ from typing import Any
 DATASET_CLASSES = {
     "jacobi": "JacobiDataset",
     "cg": "CGDataset",
-    "jacobi_cg": "PCGDataset",
-    "block_jacobi_cg": "PCGDataset",
+    "jacobi_cg": "CGJacobiDataset",
+    "block_jacobi_cg": "CGBlockJacobiDataset",
     "lsqr": "LSQRDataset",
     "gmres": "GMRESDataset",
-    "amg": "AMGDataset",
+    "amg": "CGAMGDataset",
 }
 
 MAX_SUITESPARSE_RHS_PER_MATRIX = 100

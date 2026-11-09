@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import Any
 
 import numpy as np
@@ -82,7 +81,7 @@ def _generate_cg_data(source, A=None, rhs_index=None):
     return (A_bin, b, x0)
 
 
-class PCGDataset(SuiteSparseDataset):
+class CGBlockJacobiDataset(SuiteSparseDataset):
     def __init__(
         self,
         source_name: str,
@@ -115,14 +114,14 @@ class PCGDataset(SuiteSparseDataset):
         return {"max_iter": self.max_iter, "rel_tol": self.rel_tol}
 
 
-class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
+class CGBlockJacobiSuiteSparseGenerator(Generator[CGBlockJacobiDataset]):
     @property
     def name(self) -> str:
-        return "block_jacobi_pcg_suitesparse"
+        return "cg_block_jacobi_suitesparse"
 
     @property
     def pretty_name(self) -> str:
-        return "Block Jacobi Preconditioned Conjugate Gradient (PCG) SuiteSparse"
+        return "Block Jacobi-Preconditioned Conjugate Gradients SuiteSparse"
 
     @property
     def description(self) -> str:
@@ -142,467 +141,467 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
 
     @property
     def authors(self) -> list[Contributor]:
-        return BlockJacobiPCGBenchmark().authors
+        return CGBlockJacobiBenchmark().authors
 
     @property
     def references(self) -> list[Ref]:
-        return BlockJacobiPCGBenchmark().references
+        return CGBlockJacobiBenchmark().references
 
     @property
     def ai_disclosure(self) -> str:
-        return BlockJacobiPCGBenchmark().ai_disclosure
+        return CGBlockJacobiBenchmark().ai_disclosure
 
     @property
     def motivation(self) -> str:
-        return BlockJacobiPCGBenchmark().motivation
+        return CGBlockJacobiBenchmark().motivation
 
     @property
     def cacheable(self) -> bool:
         return False
 
     @property
-    def datasets(self) -> list[PCGDataset]:
+    def datasets(self) -> list[CGBlockJacobiDataset]:
         return [
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Andrews/Andrews",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Andrianov/net100",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Andrianov/net125",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Andrianov/net150",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Andrianov/net25",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Andrianov/net50",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Andrianov/net75",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Bai/dw256B", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Bai/dwb512", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Bai/mhd3200b",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Bai/mhd4800b",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Bai/mhdb416", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Bindel/ted_B",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Bindel/ted_B_unscaled",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Boeing/bcsstk34",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Boeing/bcsstm39",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Boeing/crystm01",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Boeing/crystm02",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Boeing/crystm03",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Botonakis/FEM_3D_thermal1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Botonakis/FEM_3D_thermal2",
                 suites=["standard", "trace", "train"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Botonakis/thermomech_TC",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Botonakis/thermomech_dM",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Brunetiere/thermal",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Cunningham/qa8fm",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "FEMLAB/poisson2D",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "FEMLAB/problem1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "FIDAP/ex29", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "FIDAP/ex37", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "FIDAP/ex5", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "FIDAP/ex7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Freescale/circuit5M_dc",
                 suites=["standard"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "GHS_psdef/jnlbrng1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "GHS_psdef/minsurfo",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "GHS_psdef/obstclae",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "GHS_psdef/wathen100",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "GHS_psdef/wathen120",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Grund/poli",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Guettel/TEM27623",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstk01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstk02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstk03", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstk04", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstk05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstk08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstk22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm06", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm07", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm09", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm11", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm12", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm19", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm20", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm21", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm23", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/bcsstm26", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/fs_541_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/gr_30_30", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/lund_a", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/lund_b", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/nos1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/nos4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/nos6", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "HB/nos7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Hamm/add32",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Lourakis/bundle1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "MathWorks/Muu",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "MathWorks/tomography",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "MaxPlanck/shallow_water1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "MaxPlanck/shallow_water2",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Mulvey/finan512",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Nasa/nasa2146",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
                 rhs_index=0,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Norris/fv1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Norris/fv2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Oberwolfach/LF10",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Oberwolfach/LFAT5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "PARSEC/Si2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/bodyy4",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/mesh1e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/mesh1em1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/mesh1em6",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/mesh2e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/mesh2em5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/mesh3e1",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Pothen/mesh3em5",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Sandia/ASIC_100ks",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Sandia/ASIC_320ks",
                 suites=["standard", "trace"],
                 max_iter=100,
                 rel_tol=1e-06,
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "Um/2cubes_sphere",
                 suites=["standard", "trace"],
                 max_iter=100,
@@ -611,16 +610,16 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
             ),
         ]
 
-    def generate(self, dataset: PCGDataset) -> DataInstance:
+    def generate(self, dataset: CGBlockJacobiDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
         # The preconditioner is costly to factor, so it is cached apart from A.
-        reference = BlockJacobiPCGSuiteSparseReferenceGenerator().cached_generate(
+        reference = CGBlockJacobiSuiteSparseReferenceGenerator().cached_generate(
             ReferenceDataset(dataset)
         )
         problem.inputs.extend(reference.inputs)
         return problem
 
-    def generate_inputs(self, dataset: PCGDataset) -> DataInstance:
+    def generate_inputs(self, dataset: CGBlockJacobiDataset) -> DataInstance:
         A_bin, b, x0 = _generate_cg_data(
             dataset.source_name,
             dataset.A,
@@ -634,78 +633,78 @@ class BlockJacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
         )
 
 
-class BlockJacobiPCGSuiteSparseReferenceGenerator(ReferenceGenerator[PCGDataset]):
+class CGBlockJacobiSuiteSparseReferenceGenerator(
+    ReferenceGenerator[CGBlockJacobiDataset]
+):
     @property
     def name(self) -> str:
-        return "block_jacobi_pcg_suitesparse_reference"
+        return "cg_block_jacobi_suitesparse_reference"
 
     @property
     def pretty_name(self) -> str:
-        return (
-            "Block Jacobi Preconditioned Conjugate Gradient (PCG) SuiteSparse Reference"
-        )
+        return "Block Jacobi-Preconditioned Conjugate Gradients SuiteSparse Reference"
 
     @property
     def description(self) -> str:
         return (
-            "Block Jacobi preconditioner for Block Jacobi Preconditioned Conjugate"
-            " Gradient (PCG) SuiteSparse, factored once and cached apart from its"
+            "Block Jacobi preconditioner for Block Jacobi-Preconditioned Conjugate"
+            " Gradients SuiteSparse, factored once and cached apart from its"
             " inputs."
         )
 
     @property
-    def datasets(self) -> list[ReferenceDataset[PCGDataset]]:
+    def datasets(self) -> list[ReferenceDataset[CGBlockJacobiDataset]]:
         return [
             ReferenceDataset(dataset)
-            for dataset in BlockJacobiPCGSuiteSparseGenerator().datasets
+            for dataset in CGBlockJacobiSuiteSparseGenerator().datasets
         ]
 
-    def generate(self, dataset: ReferenceDataset[PCGDataset]) -> DataInstance:
+    def generate(self, dataset: ReferenceDataset[CGBlockJacobiDataset]) -> DataInstance:
         A_bin = (
-            BlockJacobiPCGSuiteSparseGenerator()
+            CGBlockJacobiSuiteSparseGenerator()
             .generate_inputs(dataset.dataset)
             .inputs[0]
         )
         return DataInstance(inputs=[_block_jacobi_preconditioner(A_bin)], meta={})
 
 
-class BlockJacobiPCGSuiteSparseReferenceShellBenchmark(ShellBenchmark):
+class CGBlockJacobiSuiteSparseReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return BlockJacobiPCGSuiteSparseReferenceGenerator()
+        return CGBlockJacobiSuiteSparseReferenceGenerator()
 
 
-class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
+class CGBlockJacobiTestGenerator(CGBlockJacobiSuiteSparseGenerator):
     @property
     def name(self) -> str:
-        return "block_jacobi_pcg_test"
+        return "cg_block_jacobi_test"
 
     @property
     def pretty_name(self) -> str:
-        return "Block Jacobi Preconditioned Conjugate Gradient (PCG) Test"
+        return "Block Jacobi-Preconditioned Conjugate Gradients Test"
 
     @property
     def description(self) -> str:
         return "Small inlined symmetric positive definite systems."
 
     @property
-    def datasets(self) -> list[PCGDataset]:
+    def datasets(self) -> list[CGBlockJacobiDataset]:
         return [
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "3x3_tridiagonal",
                 pretty_name="3x3 Tridiagonal",
                 suites=["test"],
                 A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "3x3_dense",
                 pretty_name="3x3 Dense",
                 suites=["test"],
                 A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "4x4_tridiagonal",
                 pretty_name="4x4 Tridiagonal",
                 suites=["test"],
@@ -719,14 +718,14 @@ class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "3x3_indefinite_sparse",
                 pretty_name="3x3 Indefinite Sparse",
                 suites=["test"],
                 A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
                 ref_meta={"check_residual": True},
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "3x3_scaled_tridiagonal",
                 pretty_name="3x3 Scaled Tridiagonal",
                 suites=["test"],
@@ -735,7 +734,7 @@ class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
                 ),
                 ref_meta={"check_residual": True},
             ),
-            PCGDataset(
+            CGBlockJacobiDataset(
                 "5x5_sparse",
                 pretty_name="5x5 Sparse",
                 suites=["test"],
@@ -752,959 +751,13 @@ class BlockJacobiPCGTestGenerator(BlockJacobiPCGSuiteSparseGenerator):
             ),
         ]
 
-    def generate(self, dataset: PCGDataset) -> DataInstance:
+    def generate(self, dataset: CGBlockJacobiDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
         problem.inputs.append(_block_jacobi_preconditioner(problem.inputs[0]))
         return problem
 
 
-class JacobiPCGSuiteSparseGenerator(Generator[PCGDataset]):
-    @property
-    def name(self) -> str:
-        return "jacobi_pcg_suitesparse"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Jacobi Preconditioned Conjugate Gradient (PCG) SuiteSparse"
-
-    @property
-    def description(self) -> str:
-        return (
-            "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
-            " positive definite matrices, particularly those with a low convergence"
-            " criteria."
-        )
-
-    @property
-    def suites(self) -> list[str]:
-        return []
-
-    @property
-    def concepts(self) -> str:
-        return "<ccs2012></ccs2012>"
-
-    @property
-    def authors(self) -> list[Contributor]:
-        return BlockJacobiPCGBenchmark().authors
-
-    @property
-    def references(self) -> list[Ref]:
-        return BlockJacobiPCGBenchmark().references
-
-    @property
-    def ai_disclosure(self) -> str:
-        return BlockJacobiPCGBenchmark().ai_disclosure
-
-    @property
-    def motivation(self) -> str:
-        return BlockJacobiPCGBenchmark().motivation
-
-    @property
-    def cacheable(self) -> bool:
-        return False
-
-    @property
-    def datasets(self) -> list[PCGDataset]:
-        return [
-            PCGDataset(
-                "Andrews/Andrews",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Andrianov/ins2",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Andrianov/net100",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Andrianov/net125",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Andrianov/net150",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Andrianov/net25",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Andrianov/net50",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Andrianov/net75",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Bai/bfwb398", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Bai/bfwb62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Bai/bfwb782", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Bai/dw256B", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Bai/dwb512", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Bai/mhd3200b",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Bai/mhd4800b",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Bai/mhdb416", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Bindel/ted_B",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Bindel/ted_B_unscaled",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Boeing/bcsstk34",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Boeing/bcsstm39",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Boeing/crystm01",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Boeing/crystm02",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Boeing/crystm03",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Boeing/msc00726",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Botonakis/FEM_3D_thermal1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Botonakis/FEM_3D_thermal2",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Botonakis/thermomech_TC",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Botonakis/thermomech_dM",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Bourchtein/atmosmodd",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=1,
-            ),
-            PCGDataset(
-                "Bourchtein/atmosmodj",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=1,
-            ),
-            PCGDataset(
-                "Bourchtein/atmosmodl",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=1,
-            ),
-            PCGDataset(
-                "Bourchtein/atmosmodm",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=1,
-            ),
-            PCGDataset(
-                "Brunetiere/thermal",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Cunningham/qa8fm",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "FEMLAB/poisson2D",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "FEMLAB/problem1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "FIDAP/ex29", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "FIDAP/ex37", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "FIDAP/ex5", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "FIDAP/ex7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Freescale/circuit5M_dc",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "GHS_psdef/jnlbrng1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "GHS_psdef/minsurfo",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "GHS_psdef/obstclae",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "GHS_psdef/wathen100",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "GHS_psdef/wathen120",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Grund/poli",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "Guettel/TEM27623",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "HB/bcspwr01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcspwr02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstk01", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstk02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstk04", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstk08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstk22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm02", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm05", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm06", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm07", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm08", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm09", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm11", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm19", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm20", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm21", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm22", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm23", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/bcsstm26", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/can_144", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/can_24", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/can_61", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/can_62", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/can_73", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/can_96", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/dwt_59", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/dwt_66", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/dwt_72", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/fs_541_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/gr_30_30", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/jpwh_991", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/lap_25", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/lund_a", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/lund_b", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/nos4", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/nos6", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/nos7", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=1,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=10,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=11,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=12,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=14,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=15,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=16,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=17,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=18,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=19,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=2,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=3,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=4,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=5,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=6,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=62,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=7,
-            ),
-            PCGDataset(
-                "HB/orani678",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=8,
-            ),
-            PCGDataset(
-                "HB/watt_1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Hamm/add32",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "Lourakis/bundle1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "MathWorks/Muu",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "MathWorks/tomography",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "MaxPlanck/shallow_water1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "MaxPlanck/shallow_water2",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Mulvey/finan512",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nasa/nasa2146",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth02",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth03",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth04",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth05",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth06",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth07",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth08",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth09",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth10",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth11",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth12",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth13",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth16",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Nemeth/nemeth17",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Norris/fv1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Norris/fv2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Oberwolfach/LF10",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Oberwolfach/LFAT5",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "PARSEC/Si2", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-            PCGDataset(
-                "Pothen/bodyy4",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/mesh1e1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/mesh1em1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/mesh1em6",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/mesh2e1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/mesh2em5",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/mesh3e1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/mesh3em5",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Pothen/sphere2",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Sandia/ASIC_100ks",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Sandia/ASIC_320ks",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Sandia/ASIC_680ks",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-            ),
-            PCGDataset(
-                "Schenk_AFE/af_shell3",
-                suites=["standard", "trace", "train"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "Schenk_AFE/af_shell4",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "Schenk_AFE/af_shell7",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "Schenk_AFE/af_shell8",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "Um/2cubes_sphere",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "VDOL/hangGlider_1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "VDOL/tumorAntiAngiogenesis_1",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "VDOL/tumorAntiAngiogenesis_2",
-                suites=["standard", "trace"],
-                max_iter=100,
-                rel_tol=1e-06,
-                rhs_index=0,
-            ),
-            PCGDataset(
-                "VLSI/ss1", suites=["standard", "trace"], max_iter=100, rel_tol=1e-06
-            ),
-        ]
-
-    def generate(self, dataset: PCGDataset) -> DataInstance:
-        A_bin, b, x0 = _generate_cg_data(
-            dataset.source_name,
-            dataset.A,
-            rhs_index=dataset.rhs_index,
-        )
-        A = to_scipy(A_bin).tocoo()
-        M = A.diagonal()
-        M_bin = from_numpy(M)
-        b_bin = from_numpy(b)
-        x0_bin = from_numpy(x0)
-        return DataInstance(
-            inputs=[A_bin, b_bin, x0_bin, M_bin],
-            meta=dataset.benchmark_meta(),
-            ref_outputs=[from_scipy(np.abs(A))],
-            ref_meta={**(dataset.ref_meta or {}), "bnorm": float(np.linalg.norm(b))},
-        )
-
-
-class JacobiPCGTestGenerator(JacobiPCGSuiteSparseGenerator):
-    @property
-    def name(self) -> str:
-        return "jacobi_pcg_test"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Jacobi Preconditioned Conjugate Gradient (PCG) Test"
-
-    @property
-    def description(self) -> str:
-        return "Small inlined symmetric positive definite systems."
-
-    @property
-    def datasets(self) -> list[PCGDataset]:
-        return [
-            PCGDataset(
-                "3x3_tridiagonal",
-                pretty_name="3x3 Tridiagonal",
-                suites=["test"],
-                A=np.array([[6.0, -1.0, 0.0], [-1.0, 6.0, -1.0], [0.0, -1.0, 6.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PCGDataset(
-                "3x3_dense",
-                pretty_name="3x3 Dense",
-                suites=["test"],
-                A=np.array([[7.0, 2.0, 1.0], [2.0, 6.0, -1.0], [1.0, -1.0, 5.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PCGDataset(
-                "4x4_tridiagonal",
-                pretty_name="4x4 Tridiagonal",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [8.0, -1.0, 0.0, 0.0],
-                        [-1.0, 8.0, -1.0, 0.0],
-                        [0.0, -1.0, 8.0, -1.0],
-                        [0.0, 0.0, -1.0, 8.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            PCGDataset(
-                "3x3_indefinite_sparse",
-                pretty_name="3x3 Indefinite Sparse",
-                suites=["test"],
-                A=np.array([[12.0, 2.0, -1.0], [2.0, 10.0, 3.0], [-1.0, 3.0, 9.0]]),
-                ref_meta={"check_residual": True},
-            ),
-            PCGDataset(
-                "3x3_scaled_tridiagonal",
-                pretty_name="3x3 Scaled Tridiagonal",
-                suites=["test"],
-                A=np.array(
-                    [[120.0, -2.0, 0.0], [-2.0, 120.0, -2.0], [0.0, -2.0, 120.0]]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-            PCGDataset(
-                "5x5_sparse",
-                pretty_name="5x5 Sparse",
-                suites=["test"],
-                A=np.array(
-                    [
-                        [15.0, -2.0, 0.0, 0.0, -1.0],
-                        [-2.0, 14.0, -3.0, 0.0, 0.0],
-                        [0.0, -3.0, 16.0, -2.0, 0.0],
-                        [0.0, 0.0, -2.0, 15.0, -3.0],
-                        [-1.0, 0.0, 0.0, -3.0, 17.0],
-                    ]
-                ),
-                ref_meta={"check_residual": True},
-            ),
-        ]
-
-
-class _PCGBenchmarkBase(Benchmark, ABC):
+class CGBlockJacobiBenchmark(Benchmark):
     @property
     def authors(self) -> list[Contributor]:
         return [Contributor("Benjamin Berol", "bberol3@gatech.edu")]
@@ -1844,19 +897,17 @@ class _PCGBenchmarkBase(Benchmark, ABC):
             f"Preconditioned CG residual too high for {param.dataset.name}: {residual}"
         )
 
-
-class BlockJacobiPCGBenchmark(_PCGBenchmarkBase):
     @property
     def name(self) -> str:
-        return "block_jacobi_pcg"
+        return "cg_block_jacobi"
 
     @property
     def pretty_name(self) -> str:
-        return "Block Jacobi Preconditioned Conjugate Gradient (PCG)"
+        return "Block Jacobi-Preconditioned Conjugate Gradients"
 
     @property
     def generators(self):
-        return [BlockJacobiPCGTestGenerator(), BlockJacobiPCGSuiteSparseGenerator()]
+        return [CGBlockJacobiTestGenerator(), CGBlockJacobiSuiteSparseGenerator()]
 
     def benchmark(self, xp, meta: dict[str, Any], A, b, x0, M):
         rel_tol = meta.get("rel_tol", 1e-6)
@@ -1892,60 +943,6 @@ class BlockJacobiPCGBenchmark(_PCGBenchmarkBase):
 
                 y = xp.linalg.solve(M, r)
                 z = xp.linalg.solve(M.T, y)
-                new_rho = xp.vecdot(r, z)
-                beta = new_rho / rho
-                p = z + beta * p
-                rho = new_rho
-                rr = new_rr
-
-        return x
-
-
-class JacobiPCGBenchmark(_PCGBenchmarkBase):
-    @property
-    def name(self) -> str:
-        return "jacobi_pcg"
-
-    @property
-    def pretty_name(self) -> str:
-        return "Jacobi Preconditioned Conjugate Gradient (PCG)"
-
-    @property
-    def generators(self):
-        return [JacobiPCGTestGenerator(), JacobiPCGSuiteSparseGenerator()]
-
-    def benchmark(self, xp, meta: dict[str, Any], A, b, x0, M):
-        rel_tol = meta.get("rel_tol", 1e-6)
-        abs_tol = meta.get("abs_tol", 1e-20)
-        max_iter = meta.get("max_iter", 100)
-
-        tolerance = max(rel_tol * xp.sqrt(xp.vecdot(b, b))[()], abs_tol)
-        # tol_sq used to avoid having to sqrt dot products when checking tolerance
-        tol_sq = tolerance * tolerance
-
-        x = x0
-        r = b - A @ x
-        z = xp.replace(r / M, xp.nan, 0)
-        rho = xp.vecdot(r, z)
-        p = z
-        it = 0
-        rr = xp.vecdot(r, r)[()]
-
-        if rr >= tol_sq:
-            while it < max_iter:
-                Ap = A @ p
-                alpha = rho / xp.vecdot(p, Ap)
-                x = x + alpha * p
-                r = r - alpha * Ap
-
-                new_rr = xp.vecdot(r, r)[()]
-
-                it += 1
-
-                if new_rr < tol_sq:
-                    break
-
-                z = xp.replace(r / M, xp.nan, 0)
                 new_rho = xp.vecdot(r, z)
                 beta = new_rho / rho
                 p = z + beta * p

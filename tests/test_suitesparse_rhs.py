@@ -109,7 +109,7 @@ def test_invalid_rhs_selection_raises(monkeypatch, raw_system, rhs_count, rhs_in
         jacobi.JacobiSuiteSparseGenerator(),
         gmres.GMRESSuiteSparseGenerator(),
         lsqr.LSQRSuiteSparseGenerator(),
-        cg_jacobi.JacobiPCGSuiteSparseGenerator(),
+        cg_jacobi.CGJacobiSuiteSparseGenerator(),
     ],
     ids=lambda g: g.name,
 )

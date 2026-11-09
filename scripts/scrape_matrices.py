@@ -39,9 +39,19 @@ import saps.benchmarks.cg as saps_cg
 import saps.benchmarks.gmres as saps_gmres
 import saps.benchmarks.jacobi as saps_jacobi
 import saps.benchmarks.lsqr as saps_lsqr
-import saps.benchmarks.cg_jacobi as saps_pcg
+import saps.benchmarks.cg_block_jacobi as saps_cg_block_jacobi
+import saps.benchmarks.cg_jacobi as saps_cg_jacobi
 import saps.downloaders.suitesparse as saps_suitesparse_downloader
-from saps.benchmarks.cg_amg import AMGBenchmark, AMGDataset, AMGSuiteSparseGenerator
+from saps.benchmarks.cg_amg import (
+    CGAMGBenchmark,
+    CGAMGDataset,
+    CGAMGSuiteSparseGenerator,
+)
+from saps.benchmarks.cg_block_jacobi import (
+    CGBlockJacobiBenchmark,
+    CGBlockJacobiDataset,
+    CGBlockJacobiTestGenerator,
+)
 from saps.benchmarks.cg import CGBenchmark, CGDataset, CGSuiteSparseGenerator
 from saps.benchmarks.gmres import (
     GMRESBenchmark,
@@ -55,11 +65,9 @@ from saps.benchmarks.jacobi import (
 )
 from saps.benchmarks.lsqr import LSQRBenchmark, LSQRDataset, LSQRSuiteSparseGenerator
 from saps.benchmarks.cg_jacobi import (
-    BlockJacobiPCGBenchmark,
-    BlockJacobiPCGTestGenerator,
-    JacobiPCGBenchmark,
-    JacobiPCGSuiteSparseGenerator,
-    PCGDataset,
+    CGJacobiBenchmark,
+    CGJacobiDataset,
+    CGJacobiSuiteSparseGenerator,
 )
 from saps.framework import load_framework
 from saps.storage import DEFAULT_CACHE_DIR
@@ -309,7 +317,15 @@ def _saps_suitesparse_context(
     suitesparse_data_dir: Path | None,
     seed: int,
 ) -> Iterator[None]:
-    modules = (saps_amg, saps_cg, saps_gmres, saps_jacobi, saps_lsqr, saps_pcg)
+    modules = (
+        saps_amg,
+        saps_cg,
+        saps_cg_block_jacobi,
+        saps_cg_jacobi,
+        saps_gmres,
+        saps_jacobi,
+        saps_lsqr,
+    )
     original_fetches = {
         module: module.fetch_suitesparse_linear_system for module in modules
     }
@@ -354,16 +370,16 @@ SOLVERS = {
         dataset_cls=CGDataset,
     ),
     "jacobi_cg": SolverSpec(
-        benchmark=JacobiPCGBenchmark(),
-        generator=JacobiPCGSuiteSparseGenerator(),
-        dataset_cls=PCGDataset,
+        benchmark=CGJacobiBenchmark(),
+        generator=CGJacobiSuiteSparseGenerator(),
+        dataset_cls=CGJacobiDataset,
     ),
     "block_jacobi_cg": SolverSpec(
-        benchmark=BlockJacobiPCGBenchmark(),
+        benchmark=CGBlockJacobiBenchmark(),
         # The test generator factors the preconditioner directly; the SuiteSparse
         # generator caches it in the SAPS cache, which needs a listed dataset.
-        generator=BlockJacobiPCGTestGenerator(),
-        dataset_cls=PCGDataset,
+        generator=CGBlockJacobiTestGenerator(),
+        dataset_cls=CGBlockJacobiDataset,
     ),
     "lsqr": SolverSpec(
         benchmark=LSQRBenchmark(),
@@ -383,9 +399,9 @@ SOLVERS = {
     # Smoothed aggregation targets symmetric positive definite systems from
     # discretized elliptic PDEs, which SuiteSparse flags as 2D/3D problems.
     "amg": SolverSpec(
-        benchmark=AMGBenchmark(),
-        generator=AMGSuiteSparseGenerator(),
-        dataset_cls=AMGDataset,
+        benchmark=CGAMGBenchmark(),
+        generator=CGAMGSuiteSparseGenerator(),
+        dataset_cls=CGAMGDataset,
         spd_required=True,
         discretization_required=True,
     ),

@@ -9,7 +9,7 @@ from binsparse.conversions import from_numpy, from_scipy
 
 from frameworks.saps_numpy import NumpyFramework
 from saps.benchmarks.cg_amg import (
-    AMGBenchmark,
+    CGAMGBenchmark,
     _build_tentative_prolongator,
     _tentative_prolongator,
 )
@@ -48,7 +48,7 @@ def _solve(A, b, *, rel_tol=1e-8):
     xp = NumpyFramework()
     A_csr = sps.csr_matrix(A)
     tentative = _build_tentative_prolongator(A_csr, aggregate_size=3)
-    benchmark = AMGBenchmark()
+    benchmark = CGAMGBenchmark()
     meta = {"rel_tol": rel_tol, "max_iter": 200, "num_sweeps": 2}
     A_in = xp.from_binsparse(from_scipy(A_csr.tocoo()))
     b_in = xp.from_binsparse(from_numpy(b))
@@ -103,7 +103,7 @@ def _run_check(x, *, A=None, b=None, meta=None, ref_meta=None):
     A = np.eye(3) if A is None else A
     b = np.ones(3) if b is None else b
     P = sps.coo_array(_tentative_prolongator(np.array([0, 0, 1])))
-    benchmark = AMGBenchmark()
+    benchmark = CGAMGBenchmark()
     benchmark._input = [
         from_scipy(sps.coo_array(A)),
         from_numpy(b),

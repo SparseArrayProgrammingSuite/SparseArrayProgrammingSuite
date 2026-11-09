@@ -108,7 +108,7 @@ Use an acronym in a name only when the field uses it on its own as the method's 
 
 ### Names
 
-- Benchmark: the method in snake_case, such as `bellman_ford`, `jacobi_pcg`, or `cp_als_3d`.
+- Benchmark: the method in snake_case, such as `bellman_ford`, `cg_jacobi`, or `cp_als_3d`.
 - Generator: `<benchmark>_<source>`, such as `bfs_test`, `bfs_snap`, or `cg_suitesparse`. A generator shared by several benchmarks uses their family prefix (`ode_rc`, `cp_als_frostt`, `hosvd_dense`).
 - Shell generator: `<collection>_<kind>`, such as `snap_graph` or `suitesparse_matrix`; its benchmark is `<generator>_shell`. Don't use the bare collection name: prepared datasets are cached under `<cache>/<generator>/`, and downloaders keep raw files under `<cache>/<collection>/`.
 - Reference generator: `<generator>_reference`, such as `bfs_snap_reference`, for the cached expensive parts of an uncached generator's instances; its benchmark is `<generator>_reference_shell`.
@@ -118,7 +118,7 @@ Use an acronym in a name only when the field uses it on its own as the method's 
 
 ### Pretty Names
 
-Pretty names spell out each acronym in the name and follow it with the acronym in parentheses: `bfs` is "Breadth-First Search (BFS)" and `jacobi_pcg` is "Jacobi Preconditioned Conjugate Gradient (PCG)". Collection names stay as written.
+Pretty names spell out each acronym in the name and follow it with the acronym in parentheses: `bfs` is "Breadth-First Search (BFS)" and `cg` is "Conjugate Gradient (CG)". Collection names stay as written.
 
 - Benchmark: the method, with no "Algorithm" or "Benchmark" suffix.
 - Generator: the benchmark's pretty name followed by the source ("Breadth-First Search (BFS) SNAP", "Conjugate Gradient (CG) Test"), with no "Generator" or "Inputs" suffix.
