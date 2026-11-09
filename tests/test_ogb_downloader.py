@@ -211,10 +211,10 @@ def test_load_reads_csv_release_and_interleaves_inverse_edges(monkeypatch, tmp_p
     }
     assert data.num_classes == 47
     assert data.meta_info == {"add_inverse_edge": True}
-    assert sorted(path.name for path in tmp_path.iterdir()) == [
-        "ogbn_products",
-        "ogbn_products.lock",
-    ]
+    # filelock leaves its lock file on POSIX but deletes it on Windows.
+    assert sorted(
+        path.name for path in tmp_path.iterdir() if path.suffix != ".lock"
+    ) == ["ogbn_products"]
 
 
 def test_failed_download_leaves_no_partial_files(monkeypatch, tmp_path):
@@ -227,7 +227,8 @@ def test_failed_download_leaves_no_partial_files(monkeypatch, tmp_path):
     monkeypatch.setattr(urllib.request, "urlretrieve", download)
     with pytest.raises(OSError, match="download failed"):
         ogb.load_ogb_nodeprop_dataset("ogbn-products", data_dir=tmp_path)
-    assert sorted(path.name for path in tmp_path.iterdir()) == ["ogbn_products.lock"]
+    # filelock leaves its lock file on POSIX but deletes it on Windows.
+    assert not [path for path in tmp_path.iterdir() if path.suffix != ".lock"]
 
 
 def test_unknown_dataset_is_rejected(tmp_path):

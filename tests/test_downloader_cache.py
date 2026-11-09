@@ -196,10 +196,10 @@ def test_concurrent_ogb_downloads_reuse_raw_files(
     ]
     assert downloads == ["https://snap.stanford.edu/ogb/data/nodeproppred/arxiv.zip"]
     assert (directory / "raw/edge.csv.gz").read_bytes() == b"complete"
-    assert sorted(path.name for path in (tmp_path / "ogb").iterdir()) == [
-        "ogbn_arxiv",
-        "ogbn_arxiv.lock",
-    ]
+    # filelock leaves its lock file on POSIX but deletes it on Windows.
+    assert sorted(
+        path.name for path in (tmp_path / "ogb").iterdir() if path.suffix != ".lock"
+    ) == ["ogbn_arxiv"]
 
 
 def test_kaggle_failure_is_not_cached_and_explicit_root_wins(monkeypatch, tmp_path):
