@@ -1039,6 +1039,54 @@
     "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
     "ram": "394317828"
   },
+  "machine_6570baa5e21243cb": {
+    "machine": "atl1-1-02-006-32-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "394317832"
+  },
+  "machine_2d8b8c52b98c1d26": {
+    "machine": "atl1-1-01-003-36-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "790679264"
+  },
+  "machine_de25ec1ec1a061c2": {
+    "machine": "atl1-1-02-009-34-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "394318176"
+  },
+  "machine_acd697c36c521075": {
+    "machine": "atl1-1-03-002-25-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "196105068"
+  },
+  "machine_3a00bbe9effa40f1": {
+    "machine": "atl1-1-02-011-33-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "394317832"
+  },
+  "machine_4096c17902d81e5e": {
+    "machine": "atl1-1-02-011-34-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "394317828"
+  },
   "machine_654084145070b184": {
     "machine": "atl1-1-02-007-31-0.pace.gatech.edu",
     "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
@@ -1055,13 +1103,13 @@
     "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
     "ram": "394317836"
   },
-  "machine_8f0674c6f264d934": {
-    "machine": "atl1-1-01-003-35-0.pace.gatech.edu",
+  "machine_8339aade010ba368": {
+    "machine": "atl1-1-02-006-34-0.pace.gatech.edu",
     "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
     "num_cpu": "24",
     "arch": "x86_64",
     "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
-    "ram": "790679264"
+    "ram": "394317820"
   },
   "machine_7d807799ba06678f": {
     "machine": "atl1-1-02-005-27-0.pace.gatech.edu",
@@ -1071,6 +1119,14 @@
     "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
     "ram": "394317836"
   },
+  "machine_8f0674c6f264d934": {
+    "machine": "atl1-1-01-003-35-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "790679264"
+  },
   "machine_a1b197d09f8326fb": {
     "machine": "atl1-1-02-011-35-0.pace.gatech.edu",
     "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
@@ -1079,14 +1135,6 @@
     "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
     "ram": "394317832"
   },
-  "machine_8339aade010ba368": {
-    "machine": "atl1-1-02-006-34-0.pace.gatech.edu",
-    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
-    "num_cpu": "24",
-    "arch": "x86_64",
-    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
-    "ram": "394317820"
-  },
   "machine_879704be93114243": {
     "machine": "atl1-1-01-003-33-0.pace.gatech.edu",
     "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
@@ -1094,5 +1142,13 @@
     "arch": "x86_64",
     "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
     "ram": "790679264"
+  },
+  "machine_cd0356d5a7fb6797": {
+    "machine": "atl1-1-02-005-30-0.pace.gatech.edu",
+    "os": "Linux 5.14.0-687.64.1.el9_8.x86_64",
+    "num_cpu": "24",
+    "arch": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 6226 CPU @ 2.70GHz",
+    "ram": "394317832"
   }
 }
