@@ -407,7 +407,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                 name="medium_d2h",
                 pretty_name="Medium (D2h Symmetry)",
                 description="no=16, nv=48, blocked by D2h point-group symmetry.",
-                suites=["test"],
+                suites=["test", "trace"],
                 no=16,
                 nv=48,
                 irreps=D2H_IRREPS,

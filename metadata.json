@@ -139746,7 +139746,7 @@
       "concepts": "<ccs2012></ccs2012>",
       "description": "Computes T1 and T2 amplitudes for CCSD. Ported from the CTF (Cyclops Tensor Framework) CCSD reference implementation",
       "file": "src/saps/benchmarks/ccsd.py",
-      "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+      "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
       "generators": [
         {
           "ai_disclosure": "Generative AI was used to assist in debugging the benchmark. This statement was written by hand.",
@@ -139761,7 +139761,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "no=4, nv=6 \u2014 matches the C++ CTF reference.",
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+              "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
               "name": "small",
               "pretty_name": "Small",
               "suites": [
@@ -139773,6 +139773,9 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -139783,7 +139786,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "no=8, nv=12.",
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+              "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
               "name": "medium",
               "pretty_name": "Medium",
               "suites": [
@@ -139795,6 +139798,9 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -139805,7 +139811,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "no=16, nv=24.",
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+              "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
               "name": "large",
               "pretty_name": "Large",
               "suites": [
@@ -139817,6 +139823,9 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -139827,7 +139836,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "no=16, nv=32, blocked by D2h point-group symmetry.",
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+              "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
               "name": "small_d2h",
               "pretty_name": "Small (D2h Symmetry)",
               "suites": [
@@ -139839,6 +139848,9 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor",
                 "suite-standard-quantum",
                 "suite-test"
               ],
@@ -139849,11 +139861,12 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "no=16, nv=48, blocked by D2h point-group symmetry.",
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+              "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
               "name": "medium_d2h",
               "pretty_name": "Medium (D2h Symmetry)",
               "suites": [
-                "test"
+                "test",
+                "trace"
               ],
               "tags": [
                 "concept-applied-computing",
@@ -139861,8 +139874,12 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor",
                 "suite-standard-quantum",
-                "suite-test"
+                "suite-test",
+                "suite-trace"
               ],
               "topics": []
             },
@@ -139871,7 +139888,7 @@
               "concepts": "<ccs2012></ccs2012>",
               "description": "no=24, nv=96, blocked by D2h point-group symmetry; about the size of benzene in the cc-pVDZ basis (no=21, nv=93).",
               "file": "src/saps/benchmarks/ccsd.py",
-              "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+              "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
               "name": "large_d2h",
               "pretty_name": "Large (D2h Symmetry)",
               "suites": [
@@ -139884,6 +139901,9 @@
                 "concept-computing-methodologies",
                 "concept-physics",
                 "concept-quantum-mechanic-simulation",
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor",
                 "suite-standard",
                 "suite-standard-quantum",
                 "suite-train"
@@ -139893,7 +139913,7 @@
           ],
           "description": "Inputs are generated using the same deterministic pseudorandom fill as the C++ CTF reference (ccsd.cxx): canonical antisymmetric elements are set to ((flat_index * multiplier + tensor_id) % 13077) / 13077 - 0.5, then reflected via antisymmetry. This exactly reproduces the C++ reference output |T| = 380638. The D2h datasets add point-group symmetry: orbitals cycle through the 8 irreducible representations of D2h, and the integrals and amplitudes keep only the blocks whose irreducible representations multiply to the totally symmetric one, stored as sparse tensors.",
           "file": "src/saps/benchmarks/ccsd.py",
-          "freshness": "27e4fbf70b33b65198e8e958f306ce08649c750752703c9185897bf01a39f0ec",
+          "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
           "motivation": "",
           "name": "ccsd_synthetic",
           "pretty_name": "Coupled Cluster Singles and Doubles (CCSD) Synthetic",
@@ -139910,6 +139930,9 @@
             "concept-computing-methodologies",
             "concept-physics",
             "concept-quantum-mechanic-simulation",
+            "feature-dynamic-sparsity",
+            "feature-elementary-ops",
+            "feature-tensor",
             "suite-standard-quantum"
           ],
           "topics": [
@@ -139932,6 +139955,9 @@
         "standard-quantum"
       ],
       "tags": [
+        "feature-dynamic-sparsity",
+        "feature-elementary-ops",
+        "feature-tensor",
         "suite-standard-quantum"
       ],
       "topics": []
