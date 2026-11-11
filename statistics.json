@@ -12690,6 +12690,28 @@
         {
           "datasets": [
             {
+              "file": "src/saps/benchmarks/ccsd.py",
+              "freshness": "3f512ad8b88d1e8869ba18aa26c25382943c6410926b618b1790e65ea548ecb9",
+              "name": "medium_d2h",
+              "statistics": [
+                "feature-dynamic-sparsity",
+                "feature-elementary-ops",
+                "feature-tensor"
+              ]
+            }
+          ],
+          "name": "ccsd_synthetic",
+          "statistics": []
+        }
+      ],
+      "name": "ccsd",
+      "statistics": []
+    },
+    {
+      "generators": [
+        {
+          "datasets": [
+            {
               "file": "src/saps/benchmarks/cg.py",
               "freshness": "a1d06756a5560996b2f04b462266ec92a893a21c6e7f4aef55786c3f7a96926b",
               "name": "Andrews/Andrews",
