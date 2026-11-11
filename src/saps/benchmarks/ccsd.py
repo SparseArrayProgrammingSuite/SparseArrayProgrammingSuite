@@ -419,7 +419,7 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
                     "no=24, nv=96, blocked by D2h point-group symmetry; about the"
                     " size of benzene in the cc-pVDZ basis (no=21, nv=93)."
                 ),
-                suites=["standard", "trace", "train"],
+                suites=["standard", "train"],
                 no=24,
                 nv=96,
                 irreps=D2H_IRREPS,
