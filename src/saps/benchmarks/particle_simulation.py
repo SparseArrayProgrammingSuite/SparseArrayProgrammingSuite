@@ -509,11 +509,13 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
             Ref(
                 title="CS267 HW2-1: Parallelizing a Particle Simulation",
                 authors=[Author("CS 267 Staff")],
+                year=2025,
                 url="https://sites.google.com/lbl.gov/cs267-spr2025/hw-2-1",
             ),
             Ref(
                 title="CS267 HW2-1 Starter Code",
                 authors=[Author("CS 267 Staff")],
+                year=2023,
                 url="https://github.com/Berkeley-CS267/hw2-1",
             ),
         ]
@@ -743,6 +745,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             Ref(
                 title="OpenTraj ETH Dataset",
                 authors=[Author("OpenTraj Contributors")],
+                year=2021,
                 url=("https://github.com/crowdbotp/OpenTraj/tree/master/datasets/ETH"),
             )
         ]
@@ -874,9 +877,14 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="N-Body Data Archive",
+                title="The Stellar Dynamics Toolbox NEMO",
                 authors=[Author("Peter Teuben")],
-                url="https://carma.astro.umd.edu/nemo/archive/",
+                booktitle="Astronomical Data Analysis Software and Systems IV",
+                publisher="Astronomical Society of the Pacific",
+                volume=77,
+                pages="398",
+                year=1995,
+                url="https://ui.adsabs.harvard.edu/abs/1995ASPC...77..398T",
             ),
             Ref(
                 title="On the problem of distribution in globular star clusters",
@@ -1125,6 +1133,7 @@ class ParticleSimulationBenchmark(Benchmark):
             Ref(
                 title="Particle Simulation Algorithm",
                 authors=[Author("CS 267 Staff")],
+                year=2020,
                 url="https://github.com/Berkeley-CS267/hw2-1/blob/master/serial.cpp",
             )
         ]

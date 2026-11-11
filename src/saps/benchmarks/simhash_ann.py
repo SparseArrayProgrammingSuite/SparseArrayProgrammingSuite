@@ -327,6 +327,7 @@ class _SimHashANNRandomGeneratorMixin(SimHashANNGeneratorMixin):
             Ref(
                 title="Random projection implementation reference",
                 authors=[Author("scikit-learn contributors")],
+                year=2025,
                 url="https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615",
             ),
         ]
@@ -593,6 +594,7 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
                 journal="Proceedings of the IEEE",
                 year=1998,
                 url="http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf",
+                doi="10.1109/5.726791",
             ),
             Ref(
                 title="Learning Multiple Layers of Features from Tiny Images",
@@ -677,6 +679,7 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
                 title="Use of KNN for the Netflix Prize",
                 authors=[Author("Vini Hong"), Author("Anastasios Tsamis")],
                 institution="Stanford CS229",
+                year=2008,
                 url="https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf",
             ),
         ]
@@ -1404,6 +1407,7 @@ Nearest neighbor algorithms</concept_desc>
             Ref(
                 title="Random projection implementation reference",
                 authors=[Author("scikit-learn contributors")],
+                year=2025,
                 url="https://github.com/scikit-learn/scikit-learn/blob/d3898d9d57aeb1e960d266613a2e31b07bca39d7/sklearn/random_projection.py#L615",
             ),
             Ref(

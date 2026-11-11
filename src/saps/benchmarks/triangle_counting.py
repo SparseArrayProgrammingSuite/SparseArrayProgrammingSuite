@@ -211,6 +211,7 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
             Ref(
                 title="GraphMiner: Triangle Counting reference counts",
                 authors=[Author("Xuhao Chen")],
+                year=2024,
                 url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md",
             ),
             Ref(
@@ -414,11 +415,13 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
             Ref(
                 title="GraphMiner: Triangle Counting reference counts",
                 authors=[Author("Xuhao Chen")],
+                year=2024,
                 url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/triangle/README.md",
             ),
             Ref(
                 title="LAGraph: Known triangle counts for GAP graphs",
                 authors=[Author("Timothy A. Davis")],
+                year=2026,
                 url="https://github.com/GraphBLAS/LAGraph/blob/7543de1f310371c540c23ff5da82705aa4e94ea0/src/benchmark/tc_demo.c#L22-L27",
             ),
             Ref(

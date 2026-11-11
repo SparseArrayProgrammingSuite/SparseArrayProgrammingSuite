@@ -503,6 +503,7 @@ class SDDMMBenchmark(Benchmark):
                 journal="IEEE HiPC",
                 year=2018,
                 url="https://ieeexplore.ieee.org/iel7/8632556/8638028/08638042.pdf",
+                doi="10.1109/hipc.2018.00013",
             ),
         ]
 

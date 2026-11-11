@@ -2,9 +2,11 @@ import importlib
 import inspect
 import pkgutil
 import re
+import time
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from typing import cast
+from collections.abc import Callable
+from typing import Any, cast
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -247,6 +249,61 @@ def _ref_mismatches(actual: Ref, expected: Ref) -> list[str]:
     return mismatches
 
 
+def _missing_fields(ref: Ref) -> list[str]:
+    """The fields a citation can't do without that `ref` leaves out: what the
+    work is, who made it, when, and where to find it."""
+    missing = []
+    if not ref.title.strip():
+        missing.append("title")
+    if not ref.authors:
+        missing.append("authors")
+    if ref.year is None:
+        missing.append("year")
+    where = (ref.url, ref.doi, ref.journal, ref.conference, ref.booktitle)
+    if not any(where + (ref.publisher, ref.institution)):
+        missing.append("url, doi, or venue")
+    return missing
+
+
+def _crossref_call(call: Callable[..., Any], **kwargs: Any) -> Any:
+    """Crossref answers 429 when queried too fast, so back off and retry."""
+    from httpx2 import HTTPStatusError
+
+    for attempt in range(6):
+        try:
+            return call(**kwargs)
+        except HTTPStatusError as exc:
+            status = exc.response.status_code
+            if status not in (429, 500, 502, 503, 504) or attempt == 5:
+                raise
+            retry_after = exc.response.headers.get("Retry-After", "")
+            time.sleep(int(retry_after) if retry_after.isdigit() else 2**attempt)
+    raise AssertionError("unreachable")
+
+
+def _crossref_search(crossref_client: Any, ref: Ref) -> Ref | None:
+    """Crossref's record of the work `ref` cites, if it has one with the same
+    title and first author."""
+    if not ref.title.strip() or not ref.authors:
+        return None
+    response = _crossref_call(
+        crossref_client.works,
+        query_bibliographic=ref.title,
+        query_author=ref.authors[0].name,
+        limit=5,
+    )
+    for message in response["message"]["items"]:
+        candidate = _crossref_ref(message)
+        if (
+            candidate.authors
+            and _normalize_citation_text(candidate.title)
+            == _normalize_citation_text(ref.title)
+            and _author_key(candidate.authors[0]) == _author_key(ref.authors[0])
+        ):
+            return candidate
+    return None
+
+
 def _benchmark_instances():
     seen = set()
     for module_info in pkgutil.iter_modules(saps.benchmarks.__path__):
@@ -280,7 +337,18 @@ def _references_by_owner() -> dict[str, tuple[Ref, list[str]]]:
     }
 
 
+def test_citations_are_complete():
+    failures = [
+        f"Missing {', '.join(missing)}: {ref}\nowners={owners}"
+        for ref, owners in _references_by_owner().values()
+        if (missing := _missing_fields(ref))
+    ]
+    assert not failures, "\n\n".join(failures)
+
+
 def test_citations_match_crossref_or_arxiv():
+    """Every reference with a DOI or arXiv URL matches that record, and every
+    other reference cites a work Crossref doesn't have (else it needs its DOI)."""
     from habanero import Crossref
     from habanero.exceptions import RequestError
     from httpx2 import HTTPStatusError
@@ -309,12 +377,28 @@ def test_citations_match_crossref_or_arxiv():
 
         try:
             if doi:
-                expected = _crossref_ref(crossref_client.works(ids=doi)["message"])
+                expected = _crossref_ref(
+                    _crossref_call(crossref_client.works, ids=doi)["message"]
+                )
             elif arxiv_id:
                 expected = _oai_arxiv_ref(arxiv_session, arxiv_id)
                 if expected is None:
+                    failures.append(
+                        f"arXiv has no record of {arxiv_id}: {ref}\nowners={owners}"
+                    )
                     continue
             else:
+                found = _crossref_search(crossref_client, ref)
+                if found is not None:
+                    failures.append(
+                        "\n".join(
+                            [
+                                f"Crossref has this work, add its DOI: {ref}",
+                                f"owners={owners}",
+                                _ref_constructor(found),
+                            ]
+                        )
+                    )
                 continue
         except (
             HTTPStatusError,

@@ -447,6 +447,7 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
                 journal="AAAI",
                 url="https://networkrepository.com",
                 year=2015,
+                doi="10.1609/aaai.v29i1.9277",
             ),
         ]
 

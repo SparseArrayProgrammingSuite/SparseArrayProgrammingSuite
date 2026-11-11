@@ -209,6 +209,7 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
             Ref(
                 title="GraphMiner: k-Clique Listing reference counts",
                 authors=[Author("Xuhao Chen")],
+                year=2024,
                 url="https://github.com/chenxuhao/GraphMiner/blob/2a76e3f612e40e46a821d603ca11d10fcbc63ddd/src/clique/README.md",
             ),
             Ref(

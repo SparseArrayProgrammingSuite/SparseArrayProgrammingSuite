@@ -12,6 +12,7 @@ from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     DataInstance,
@@ -987,7 +988,8 @@ dydt_vector = A @ state + B @ input_array
                     "Benchmark examples for model reduction of linear time "
                     "invariant dynamical systems"
                 ),
-                authors=[],
+                authors=[Author("Younès Chahlaoui"), Author("Paul Van Dooren")],
+                year=2002,
                 url=SLICOT_BENCHMARK_PAGE_URL,
             )
         ]

@@ -1148,6 +1148,7 @@ class CGBenchmark(Benchmark):
                 authors=[Author("Yousef Saad")],
                 publisher="SIAM",
                 year=2003,
+                doi="10.1137/1.9780898718003",
             )
         ]
 

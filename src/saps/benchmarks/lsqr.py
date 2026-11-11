@@ -8,6 +8,7 @@ from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     DataInstance,
@@ -419,13 +420,26 @@ class LSQRBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="",
-                authors=[],
+                title=(
+                    "LSQR: An Algorithm for Sparse Linear Equations and Sparse"
+                    " Least Squares"
+                ),
+                authors=[
+                    Author("Christopher C. Paige"),
+                    Author("Michael A. Saunders"),
+                ],
+                journal="ACM Transactions on Mathematical Software",
+                volume=8,
+                number=1,
+                pages="43-71",
+                year=1982,
                 url="https://web.stanford.edu/group/SOL/software/lsqr/lsqr-toms82a.pdf",
+                doi="10.1145/355984.355989",
             ),
             Ref(
-                title="",
-                authors=[],
+                title="pykrylov: A library of Krylov methods in pure Python",
+                authors=[Author("Dominique Orban")],
+                year=2015,
                 url="https://github.com/PythonOptimizers/pykrylov/blob/master/pykrylov/lls/lsqr.py#L293",
             ),
         ]
