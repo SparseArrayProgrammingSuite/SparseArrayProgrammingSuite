@@ -472,7 +472,7 @@ class CCSDBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-quantum"]
+        return ["quantum", "numeric-tensor-networks"]
 
     @property
     def concepts(self) -> str:

@@ -549,7 +549,7 @@ class ModelCountingBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-logic"]
+        return ["counting", "boolean-tensor-networks"]
 
     @property
     def concepts(self) -> str:

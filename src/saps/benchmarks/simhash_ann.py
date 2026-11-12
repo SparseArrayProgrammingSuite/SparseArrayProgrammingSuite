@@ -1316,7 +1316,7 @@ class SimHashANNBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-spatial"]
+        return ["machine-learning", "iterative-dynamic"]
 
     @property
     def concepts(self) -> str:

@@ -549,7 +549,7 @@ class TriangleCountingBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-graphs-query"]
+        return ["counting", "boolean-tensor-networks"]
 
     @property
     def concepts(self) -> str:

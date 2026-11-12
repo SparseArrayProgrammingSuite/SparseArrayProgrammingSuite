@@ -1097,7 +1097,7 @@ class ParticleSimulationBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-spatial"]
+        return ["timestepping", "iterative-dynamic"]
 
     @property
     def concepts(self) -> str:

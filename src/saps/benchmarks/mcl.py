@@ -727,7 +727,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-graphs-iterative"]
+        return ["graphs", "iterative-dynamic"]
 
     @property
     def concepts(self) -> str:

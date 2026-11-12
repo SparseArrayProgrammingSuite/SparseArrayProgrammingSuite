@@ -305,7 +305,7 @@ class _FiniteDifferenceBenchmarkMixin:
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-spatial"]
+        return ["timestepping", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:

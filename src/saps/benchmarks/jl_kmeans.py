@@ -650,7 +650,7 @@ class JLKMeansBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-machine-learning"]
+        return ["machine-learning", "iterative-dynamic"]
 
     @property
     def concepts(self) -> str:

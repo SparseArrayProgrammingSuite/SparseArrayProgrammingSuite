@@ -2780,7 +2780,7 @@ class SubgraphMatchingBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-graphs-query"]
+        return ["counting", "boolean-tensor-networks"]
 
     @property
     def concepts(self) -> str:

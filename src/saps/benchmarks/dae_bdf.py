@@ -446,7 +446,7 @@ def _row_counts(matrix):
 class _DescriptorDAEBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
-        return ["standard-timestepping"]
+        return ["timestepping", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:

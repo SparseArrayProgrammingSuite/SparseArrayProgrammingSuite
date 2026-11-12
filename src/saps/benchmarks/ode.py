@@ -1134,7 +1134,7 @@ class _ODEBenchmarkBase(Benchmark, ABC):
 
     @property
     def suites(self):
-        return ["standard-timestepping"]
+        return ["timestepping", "iterative-fixed"]
 
     @property
     def generators(self):

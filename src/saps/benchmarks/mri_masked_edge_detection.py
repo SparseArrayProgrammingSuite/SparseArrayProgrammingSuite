@@ -323,7 +323,7 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-spatial"]
+        return ["image-processing", "feed-forward"]
 
     @property
     def concepts(self) -> str:

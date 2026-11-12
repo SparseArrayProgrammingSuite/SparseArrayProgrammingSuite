@@ -903,7 +903,7 @@ Each iteration:
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-machine-learning"]
+        return ["machine-learning", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:

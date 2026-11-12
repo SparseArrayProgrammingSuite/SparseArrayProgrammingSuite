@@ -528,7 +528,7 @@ class LTHConv2Benchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["lth", "standard-machine-learning"]
+        return ["lth", "machine-learning", "feed-forward"]
 
     @property
     def concepts(self) -> str:

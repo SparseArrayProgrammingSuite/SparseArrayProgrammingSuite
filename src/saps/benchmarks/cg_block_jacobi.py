@@ -834,7 +834,7 @@ class CGBlockJacobiBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-solvers"]
+        return ["solvers", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:
