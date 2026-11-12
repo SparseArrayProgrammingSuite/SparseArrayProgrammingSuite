@@ -703,7 +703,7 @@ class GCNBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-machine-learning"]
+        return ["machine-learning", "feed-forward"]
 
     @property
     def concepts(self) -> str:

@@ -378,7 +378,7 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-spatial"]
+        return ["image-processing", "feed-forward"]
 
     @property
     def concepts(self) -> str:
@@ -404,19 +404,52 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="",
-                authors=[],
+                title="Compilation of Sparse Array Programming Models",
+                authors=[
+                    Author("Rawn Henry"),
+                    Author("Olivia Hsu"),
+                    Author("Rohan Yadav"),
+                    Author("Stephen Chou"),
+                    Author("Kunle Olukotun"),
+                    Author("Saman Amarasinghe"),
+                    Author("Fredrik Kjolstad"),
+                ],
+                journal="Proceedings of the ACM on Programming Languages",
+                volume=5,
+                number="OOPSLA",
+                year=2021,
                 url="https://commit.csail.mit.edu/papers/2021/oopsla2021-array-programming.pdf",
+                doi="10.1145/3485505",
             ),
             Ref(
-                title="",
-                authors=[],
+                title="Edge Detection of MRI Images - A Review",
+                authors=[
+                    Author("Madhurima Banerjee"),
+                    Author("Samir Kumar Bandyopadhyay"),
+                ],
+                journal="European Journal of Pharmaceutical and Medical Research",
+                volume=3,
+                number=10,
+                pages="136-140",
+                year=2016,
                 url="https://www.researchgate.net/publication/310464068_EDGE_DETECTION_OF_MRI_IMAGES_-A_REVIEW",
             ),
             Ref(
-                title="",
-                authors=[],
+                title="Sparse Reconstruction Techniques in Magnetic Resonance Imaging",
+                authors=[
+                    Author("Alice C. Yang"),
+                    Author("Madison Kretzler"),
+                    Author("Sonja Sudarski"),
+                    Author("Vikas Gulani"),
+                    Author("Nicole Seiberlich"),
+                ],
+                journal="Investigative Radiology",
+                volume=51,
+                number=6,
+                pages="349-364",
+                year=2016,
                 url="https://pmc.ncbi.nlm.nih.gov/articles/PMC4948115/",
+                doi="10.1097/RLI.0000000000000274",
             ),
         ]
 

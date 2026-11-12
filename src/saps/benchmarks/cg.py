@@ -1108,7 +1108,7 @@ class CGBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-solvers"]
+        return ["solvers", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:
@@ -1148,6 +1148,7 @@ class CGBenchmark(Benchmark):
                 authors=[Author("Yousef Saad")],
                 publisher="SIAM",
                 year=2003,
+                doi="10.1137/1.9780898718003",
             )
         ]
 

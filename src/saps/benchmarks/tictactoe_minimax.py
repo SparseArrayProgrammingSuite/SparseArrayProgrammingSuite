@@ -315,7 +315,7 @@ class TicTacToeMinimaxBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-logic"]
+        return ["counting", "boolean-tensor-networks"]
 
     @property
     def concepts(self) -> str:

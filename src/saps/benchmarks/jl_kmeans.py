@@ -339,6 +339,7 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 journal="Proceedings of the IEEE",
                 year=1998,
                 url="http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf",
+                doi="10.1109/5.726791",
             ),
             Ref(
                 title="Learning Multiple Layers of Features from Tiny Images",
@@ -351,7 +352,9 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                     "MNIST Dataset Classification Utilizing k-NN Classifier"
                     " with Modified Sliding-window Metric"
                 ),
-                authors=[Author("Aditi Grover"), Author("Bahram Toghi")],
+                authors=[Author("Divas Grover"), Author("Behrad Toghi")],
+                year=2020,
+                doi="10.1007/978-3-030-17798-0_47",
             ),
         ]
 
@@ -492,6 +495,7 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
                 title="Use of KNN for the Netflix Prize",
                 authors=[Author("Vini Hong"), Author("Anastasios Tsamis")],
                 institution="Stanford CS229",
+                year=2008,
                 url="https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf",
             ),
         ]
@@ -646,7 +650,7 @@ class JLKMeansBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-machine-learning"]
+        return ["machine-learning", "iterative-dynamic"]
 
     @property
     def concepts(self) -> str:

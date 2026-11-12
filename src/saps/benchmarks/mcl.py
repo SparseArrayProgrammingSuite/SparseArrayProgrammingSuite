@@ -685,7 +685,7 @@ class MCLBenchmark(Benchmark):
         return [
             Ref(
                 title="Graph Algorithms in the Language of Linear Algebra",
-                authors=[],
+                authors=[Author("Kepner, Jeremy"), Author("Gilbert, John")],
                 publisher="Society for Industrial and Applied Mathematics",
                 year=2011,
                 url="https://doi.org/10.1137/1.9780898719918",
@@ -694,6 +694,7 @@ class MCLBenchmark(Benchmark):
             Ref(
                 title="markov_clustering",
                 authors=[Author("Guy Allard")],
+                year=2018,
                 url="https://github.com/GuyAllard/markov_clustering",
             ),
             Ref(
@@ -726,7 +727,7 @@ class MCLBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-graphs-iterative"]
+        return ["graphs", "iterative-dynamic"]
 
     @property
     def concepts(self) -> str:

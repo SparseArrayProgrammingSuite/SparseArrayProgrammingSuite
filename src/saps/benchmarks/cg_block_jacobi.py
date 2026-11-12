@@ -799,11 +799,29 @@ class CGBlockJacobiBenchmark(Benchmark):
                 number="1-4",
                 pages="71-89",
                 year=1992,
+                doi="10.1080/00207169208804096",
             ),
             Ref(
-                title="",
-                authors=[],
+                title=(
+                    "Templates for the Solution of Linear Systems: Building Blocks"
+                    " for Iterative Methods"
+                ),
+                authors=[
+                    Author("Richard Barrett"),
+                    Author("Michael Berry"),
+                    Author("Tony F. Chan"),
+                    Author("James Demmel"),
+                    Author("June Donato"),
+                    Author("Jack Dongarra"),
+                    Author("Victor Eijkhout"),
+                    Author("Roldan Pozo"),
+                    Author("Charles Romine"),
+                    Author("Henk van der Vorst"),
+                ],
+                publisher="SIAM",
+                year=1994,
                 url="https://www.netlib.org/templates/templates.pdf",
+                doi="10.1137/1.9781611971538",
             ),
         ]
 
@@ -816,7 +834,7 @@ class CGBlockJacobiBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-solvers"]
+        return ["solvers", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:

@@ -8,6 +8,7 @@ from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     DataInstance,
@@ -237,9 +238,26 @@ class GMRESSuiteSparseGenerator(Generator[GMRESDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="",
-                authors=[],
+                title=(
+                    "Templates for the Solution of Linear Systems: Building Blocks"
+                    " for Iterative Methods"
+                ),
+                authors=[
+                    Author("Richard Barrett"),
+                    Author("Michael Berry"),
+                    Author("Tony F. Chan"),
+                    Author("James Demmel"),
+                    Author("June Donato"),
+                    Author("Jack Dongarra"),
+                    Author("Victor Eijkhout"),
+                    Author("Roldan Pozo"),
+                    Author("Charles Romine"),
+                    Author("Henk van der Vorst"),
+                ],
+                publisher="SIAM",
+                year=1994,
                 url="https://www.netlib.org/templates/templates.pdf",
+                doi="10.1137/1.9781611971538",
             )
         ]
 
@@ -1497,14 +1515,41 @@ class GMRESBenchmark(Benchmark):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="",
-                authors=[],
+                title=(
+                    "Templates for the Solution of Linear Systems: Building Blocks"
+                    " for Iterative Methods"
+                ),
+                authors=[
+                    Author("Richard Barrett"),
+                    Author("Michael Berry"),
+                    Author("Tony F. Chan"),
+                    Author("James Demmel"),
+                    Author("June Donato"),
+                    Author("Jack Dongarra"),
+                    Author("Victor Eijkhout"),
+                    Author("Roldan Pozo"),
+                    Author("Charles Romine"),
+                    Author("Henk van der Vorst"),
+                ],
+                publisher="SIAM",
+                year=1994,
                 url="https://www.netlib.org/templates/templates.pdf",
+                doi="10.1137/1.9781611971538",
             ),
             Ref(
-                title="",
-                authors=[],
+                title="An Iterative Solver Benchmark",
+                authors=[
+                    Author("Jack Dongarra"),
+                    Author("Victor Eijkhout"),
+                    Author("Henk van der Vorst"),
+                ],
+                journal="Scientific Programming",
+                volume=9,
+                number=4,
+                pages="223-231",
+                year=2001,
                 url="https://www.netlib.org/utk/people/JackDongarra/PAPERS/sparse-bench.pdf",
+                doi="10.1155/2001/527931",
             ),
         ]
 
@@ -1525,7 +1570,7 @@ class GMRESBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-solvers"]
+        return ["solvers", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:

@@ -153,6 +153,13 @@ Suites are listed by name in `suites`, and each one becomes a `suite-<name>` tag
 - `standard-long`: canonical datasets that take hours each to prepare, such as the GAP graphs. They stay out of `standard`, and `--cache-datasets` skips them unless selected with `--tag suite-standard-long`; references of these datasets join this suite too.
 - `trace`: datasets whose operation behavior should be traced into `statistics.json`.
 
+Each benchmark also lists two suites that classify it, one by application and one by computational character:
+
+- Application: `graphs`, `counting`, `solvers`, `timestepping`, `data-analytics`, `image-processing`, `machine-learning`, or `quantum`.
+- Computational character: `iterative-fixed` (iterations over a fixed sparsity pattern), `iterative-dynamic` (iterations whose sparsity pattern changes), `semiring-fixpoints` (semiring products iterated to a fixpoint), `boolean-tensor-networks` (Boolean or counting contractions), `numeric-tensor-networks` (floating-point contractions), or `feed-forward` (a single pass with no iteration).
+
+For example, `--tag suite-graphs` selects the graph benchmarks and `--tag suite-feed-forward` the feed-forward ones. Microkernels use the `microkernel` suite instead.
+
 Use ACM CCS XML to describe problem domains. Paste the XML into `concepts`, and SAPS generates lowercase hyphenated topic tags prefixed with `concept-`, such as `concept-applied-computing`, `concept-physical-sciences-and-engineering`, or `concept-aerospace`.
 
 Every benchmark, generator, and dataset provides `concepts`. Use `"<ccs2012></ccs2012>"` as a stub until you have a classification. You can use the [ACM CCS 2012 generator](https://dl.acm.org/ccs/ccs.cfm), copy its XML output, and paste it in as `concepts`:
