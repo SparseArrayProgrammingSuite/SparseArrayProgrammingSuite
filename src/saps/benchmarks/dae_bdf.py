@@ -320,7 +320,8 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
         return [
             Ref(
                 title="SLICOT benchmark examples for model reduction",
-                authors=[],
+                authors=[Author("Younès Chahlaoui"), Author("Paul Van Dooren")],
+                year=2002,
                 url=slicot.SLICOT_BENCHMARK_PAGE_URL,
             )
         ]
@@ -445,7 +446,7 @@ def _row_counts(matrix):
 class _DescriptorDAEBenchmark(Benchmark):
     @property
     def suites(self) -> list[str]:
-        return ["standard-timestepping"]
+        return ["timestepping", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:
@@ -480,6 +481,7 @@ class _DescriptorDAEBenchmark(Benchmark):
             Ref(
                 title="BDF2: Backward Differentiation Formula of Order 2",
                 authors=[Author("John Burkardt")],
+                year=2022,
                 url="https://people.sc.fsu.edu/~jburkardt/py_src/bdf2/bdf2.py",
             ),
         ]

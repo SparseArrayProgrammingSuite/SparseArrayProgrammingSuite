@@ -836,7 +836,7 @@ class BFSBenchmark(Benchmark):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard-graphs-iterative"]
+        return ["graphs", "semiring-fixpoints"]
 
     @property
     def concepts(self) -> str:

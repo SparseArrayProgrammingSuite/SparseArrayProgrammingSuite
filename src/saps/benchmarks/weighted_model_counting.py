@@ -9,6 +9,7 @@ from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
 from saps.benchmark import (
+    Author,
     Benchmark,
     Contributor,
     DataInstance,
@@ -542,7 +543,8 @@ class WeightedModelCountingMCCompGenerator(
         return [
             Ref(
                 title="Model Counting Competition test instances",
-                authors=[],
+                authors=[Author("Arijit Shaw")],
+                year=2025,
                 url=MCCOMP_REPOSITORY_URL,
             )
         ]
@@ -634,7 +636,7 @@ class WeightedModelCountingBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-logic"]
+        return ["counting", "boolean-tensor-networks"]
 
     @property
     def concepts(self) -> str:

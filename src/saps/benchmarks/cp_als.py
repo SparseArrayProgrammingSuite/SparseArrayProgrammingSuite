@@ -539,7 +539,7 @@ class CPALSBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-data-analytics"]
+        return ["data-analytics", "numeric-tensor-networks"]
 
     @property
     def concepts(self) -> str:

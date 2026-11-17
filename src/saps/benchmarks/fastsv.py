@@ -543,7 +543,7 @@ class FastSVBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-graphs-iterative"]
+        return ["graphs", "semiring-fixpoints"]
 
     @property
     def concepts(self) -> str:

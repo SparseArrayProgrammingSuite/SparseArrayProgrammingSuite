@@ -586,7 +586,7 @@ class PageRankBenchmark(Benchmark):
 
     @property
     def suites(self):
-        return ["standard-graphs-iterative"]
+        return ["graphs", "iterative-fixed"]
 
     @property
     def concepts(self) -> str:
