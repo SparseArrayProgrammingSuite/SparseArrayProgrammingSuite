@@ -118,6 +118,7 @@ _TENSORS: list[FROSTTDataset] = [
         path="chicago-crime/comm/chicago-crime-comm.tns.gz",
         order=4,
         shape=(6186, 24, 77, 32),
+        license=licenses.FROSTT_CHICAGO_CRIME,
         description=(
             "Chicago crime reports (2001-2017): day x hour x community-area x"
             " crime-type, non-zeros are counts."
@@ -167,6 +168,7 @@ _TENSORS: list[FROSTTDataset] = [
         path="chicago-crime/geo/chicago-crime-geo.tns.gz",
         order=5,
         shape=(6185, 24, 380, 395, 32),
+        license=licenses.FROSTT_CHICAGO_CRIME,
         description=(
             "Chicago crime reports (2001-2017): day x hour x latitude x"
             " longitude x crime-type, non-zeros are counts. Companion to"
@@ -263,6 +265,7 @@ _TENSORS: list[FROSTTDataset] = [
         path="amazon/amazon-reviews.tns.gz",
         order=3,
         shape=(4821207, 1774269, 1805187),
+        license=licenses.FROSTT_AMAZON_REVIEWS,
         description=(
             "Amazon product reviews (from SNAP): user x product x word,"
             " after stopword removal and stemming."
@@ -273,6 +276,7 @@ _TENSORS: list[FROSTTDataset] = [
         path="patents/patents.tns.gz",
         order=3,
         shape=(46, 239172, 239172),
+        license=licenses.FROSTT_PATENTS,
         description=(
             "US utility patents: year x term x term, pairwise co-occurrence"
             " of terms within a 7-word window; each yearly slice is"
@@ -299,6 +303,7 @@ _TENSORS: list[FROSTTDataset] = [
         url="https://frostt-tensors.s3.us-east-2.amazonaws.com/FB-M/fb-m.tns.gz",
         order=3,
         shape=(23343790, 23344784, 166),
+        license=licenses.FROSTT_FB_M,
         description=(
             "Freebase Music knowledge base: entity x entity x relation,"
             " non-zeros are binary."

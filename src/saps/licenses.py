@@ -1,9 +1,10 @@
 """Licenses of the data that SAPS generators synthesize or download.
 
 Each generator's ``license`` property returns one of these constants. A
-`License` records the SPDX expression, where it was found, and the day it was
-read there. ``None`` means the source was checked and no license for its data
-could be found; the comment on each such constant says where it was checked.
+`License` records the SPDX expression, where it was found, the day it was read
+there, whether it allows redistribution, and notes on the evidence. ``None``
+means the source was checked and no license for its data could be found; the
+comment on each such constant says where it was checked.
 A license file covering a repository that merely redistributes someone else's
 data is not counted as a license for that data.
 """
@@ -17,8 +18,6 @@ from saps.benchmark import Author, License, Ref
 # All licenses below were checked on this day.
 _ACCESSED_2026_11_18 = datetime.date(2026, 11, 18)
 
-# Data synthesized by SAPS's own generator code (random matrices, test cases,
-# discretized PDEs, and the like).
 SAPS = License(
     spdx="MIT",
     ref=Ref(
@@ -28,11 +27,13 @@ SAPS = License(
         url="https://github.com/willow-ahrens/SparseArrayProgrammingSuite/blob/main/LICENSE",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "Data synthesized by SAPS's own generator code (random matrices, test cases, "
+        "discretized PDEs, and the like)."
+    ),
 )
 
-# The SuiteSparse Matrix Collection, including the matrices SAPS takes from its
-# SNAP, GAP, and LPnetlib groups. The About page states: "The matrices
-# themselves are under the CC-BY 4.0 License."
 SUITESPARSE = License(
     spdx="CC-BY-4.0",
     ref=Ref(
@@ -42,12 +43,14 @@ SUITESPARSE = License(
         url="https://sparse.tamu.edu/about",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "The SuiteSparse Matrix Collection, including the matrices SAPS takes from "
+        'its SNAP, GAP, and LPnetlib groups. The About page states: "The matrices '
+        'themselves are under the CC-BY 4.0 License."'
+    ),
 )
 
-# The OGB node property prediction datasets that SAPS uses, each licensed
-# separately on the same page: ogbn-arxiv under ODC-BY, ogbn-products under the
-# "Amazon license" (https://s3.amazonaws.com/amazon-reviews-pds/license.txt,
-# which no longer resolves), and ogbn-proteins under CC-0.
 OGB_NODEPROP = License(
     spdx="ODC-By-1.0 AND LicenseRef-Amazon-Reviews-PDS AND CC0-1.0",
     ref=Ref(
@@ -56,11 +59,20 @@ OGB_NODEPROP = License(
         url="https://ogb.stanford.edu/docs/nodeprop/",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=False,
+    notes=(
+        "The OGB node property prediction datasets that SAPS uses, each licensed "
+        "separately on the same page: ogbn-arxiv under ODC-BY, ogbn-products under "
+        'the "Amazon license" '
+        "(https://s3.amazonaws.com/amazon-reviews-pds/license.txt, which no longer "
+        "resolves), and ogbn-proteins under CC-0. The archived Amazon license "
+        "(https://web.archive.org/web/2020/https://s3.amazonaws.com/amazon-reviews-pds/license.txt)"
+        ' grants a revocable license "for purposes of academic research" and states '
+        '"You may not resell, republish, or make any commercial use of the Reviews '
+        'Library or its contents", so ogbn-products is not redistributable.'
+    ),
 )
 
-# QASMBench circuits, under a BSD-style license from Battelle Memorial
-# Institute that has no SPDX identifier. The license file is unchanged between
-# the commit the downloader pins and the default branch.
 QASMBENCH = License(
     spdx="LicenseRef-QASMBench",
     ref=Ref(
@@ -71,9 +83,14 @@ QASMBENCH = License(
         url="https://github.com/pnnl/QASMBench/blob/master/LICENSE",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "QASMBench circuits, under a BSD-style license from Battelle Memorial "
+        "Institute that has no SPDX identifier. The license file is unchanged between"
+        " the commit the downloader pins and the default branch."
+    ),
 )
 
-# The pruned Conv-2 network for the lottery-ticket benchmark.
 LTH_CONV2 = License(
     spdx="CC-BY-4.0",
     ref=Ref(
@@ -84,6 +101,8 @@ LTH_CONV2 = License(
         url="https://zenodo.org/records/22650920",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=("The pruned Conv-2 network for the lottery-ticket benchmark."),
 )
 
 # SLICOT's "Benchmark Examples for Model Reduction". Checked 2026-11-18: no
@@ -92,27 +111,127 @@ LTH_CONV2 = License(
 # SLICOT Working Note 2002-2, or on MORwiki ("License: NA").
 SLICOT_MODEL_REDUCTION: License | None = None
 
-# FROSTT tensors. Checked 2026-11-18: the tensor pages of
-# https://github.com/frostt-tensor/frostt-tensor.github.io state a license only
-# for lanl2 and uber_pickups, which have their own constants below; the other
-# tensors SAPS uses state none. The repository's MIT license covers the website.
+# FROSTT tensors. Checked 2026-11-18: FROSTT adds no data license of its own
+# (the MIT license of https://github.com/frostt-tensor/frostt-tensor.github.io
+# covers the website, and FROSTT issue #19 asking about tensor licenses is
+# unresolved), so each tensor is licensed by its upstream source. The tensors
+# with a license have their own constants below. The rest have none upstream:
+# - matmul_*: generated by FROSTT's own script, with no license on the output.
+# - darpa: MIT Lincoln Laboratory's 1998 DARPA intrusion detection data, via
+#   HaTen2. No license for the dataset; the site-wide terms of
+#   https://www.ll.mit.edu/ forbid copying or distributing "content", which may
+#   not have been meant to cover datasets.
+# - delicious_*, flickr_*: Uni Koblenz PINTS crawls; no terms on the PINTS or
+#   TAGora pages.
+# - enron: released by FERC and distributed by CMU and ISI as public record,
+#   with no license or public domain dedication.
+# - nell_*: CMU Read the Web; the knowledge base downloads state no license,
+#   and the tensors may come from internal CMU data (unconfirmed).
+# - nips: Chechik's extension of Roweis's NIPS data, which only asks for a
+#   citation; the papers' copyright stays with their authors or publishers.
+# - reddit_2015: Pushshift dumps, which have no license; under Reddit's terms
+#   users keep copyright in their comments.
+# - lbnl_network: LBNL/ICSI Enterprise Tracing, "© 2005 LBNL and ICSI" with no
+#   license; the README that came with the traces is no longer retrievable.
+# - vast_2015_mc1_*: VAST Challenge 2015 synthetic data; no license on the
+#   archived pages, and the original hosts are gone.
+# - toy: FROSTT's small example tensor, with no license.
 FROSTT: License | None = None
 
-# FROSTT's lanl2 tensor. Its page states "Public Domain" followed by CC0's
-# waiver wording: "To the extent possible under law, Los Alamos National
-# Laboratory has waived all copyright and related or neighboring rights to
-# Comprehensive, Multi-Source Cyber-Security Events."
 FROSTT_LANL2 = License(
     spdx="CC0-1.0",
     ref=Ref(
-        title="LANL2 Network Traffic",
-        authors=[Author("FROSTT")],
-        url="http://frostt.io/tensors/lanl2/",
+        title="Comprehensive, Multi-Source Cyber-Security Events",
+        authors=[Author("Alexander D. Kent")],
+        institution="Los Alamos National Laboratory",
+        year=2015,
+        url="https://csr.lanl.gov/data/cyber1/",
+        doi="10.17021/1179829",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "FROSTT's lanl2 tensor, from LANL's \"Comprehensive, Multi-Source "
+        'Cyber-Security Events" (Kent 2015), whose page states: "To the extent '
+        "possible under law, Los Alamos National Laboratory has waived all copyright "
+        "and related or neighboring rights to Comprehensive, Multi-Source "
+        'Cyber-Security Events", linking CC0 1.0.'
+    ),
 )
 
-# FROSTT's uber_pickups tensor. Its page states "CC0: Public Domain".
+FROSTT_FB_M = License(
+    spdx="CC-BY-2.5",
+    ref=Ref(
+        title="Freebase Data Dumps",
+        authors=[Author("Google")],
+        url="https://developers.google.com/freebase",
+    ),
+    date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "FROSTT's fb_m (Freebase Music) tensor, built by HaTen2 from the Freebase "
+        'data dumps, which are "provided under the CC-BY license" linking CC BY 2.5. '
+        "HaTen2 adds no license, only a request to cite it. Freebase's API terms "
+        "(https://developers.google.com/freebase/terms) also apply."
+    ),
+)
+
+FROSTT_PATENTS = License(
+    spdx="LicenseRef-Public-Domain",
+    ref=Ref(
+        title="Terms of Use for USPTO Websites",
+        authors=[Author("United States Patent and Trademark Office")],
+        url="https://www.uspto.gov/terms-use-uspto-websites",
+    ),
+    date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "FROSTT's patents tensor. FROSTT gives no source, but it is almost certainly "
+        "US patent text processed in Karypis's lab at the University of Minnesota "
+        "(unconfirmed). The USPTO states that, subject to the exceptions in 37 CFR "
+        '1.71(d) & (e) and 1.84(s), "the text and drawings of a patent are typically '
+        'not subject to copyright restrictions".'
+    ),
+)
+
+FROSTT_CHICAGO_CRIME = License(
+    spdx="LicenseRef-Chicago-Data-Terms-of-Use",
+    ref=Ref(
+        title="Data Terms of Use",
+        authors=[Author("City of Chicago")],
+        url="https://www.chicago.gov/content/city/en/narr/foia/data_disclaimer.html",
+    ),
+    date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "FROSTT's chicago_crime_* tensors, from the Chicago Data Portal, whose "
+        'license field says "See Terms of Use". Those terms are not an open license: '
+        "they require a specific disclaimer, let the City revoke use, include an "
+        "indemnity, and forbid trying to identify specific addresses. The terms "
+        "contemplate distributing derivative applications, provided they carry the "
+        "City's disclaimer, but the City \"may require a user of this data to "
+        'terminate any and all display, distribution or other use" at any time.'
+    ),
+)
+
+FROSTT_AMAZON_REVIEWS = License(
+    spdx="LicenseRef-SNAP-Amazon-Research-Only",
+    ref=Ref(
+        title="Amazon review data README",
+        authors=[Author("Julian McAuley"), Author("Jure Leskovec")],
+        institution="Stanford University",
+        url="https://snap.stanford.edu/data/amazon/amazon_readme.txt",
+    ),
+    date_accessed=_ACCESSED_2026_11_18,
+    redistributable=False,
+    notes=(
+        "FROSTT's amazon_reviews tensor, from SNAP's web-Amazon data (McAuley and "
+        'Leskovec), whose README states: "Amazon review data will be made available '
+        '(for research purposes only) on request." Nothing grants permission to '
+        "redistribute it."
+    ),
+)
+
 FROSTT_UBER_PICKUPS = License(
     spdx="CC0-1.0",
     ref=Ref(
@@ -121,6 +240,8 @@ FROSTT_UBER_PICKUPS = License(
         url="http://frostt.io/tensors/uber-pickups/",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=('FROSTT\'s uber_pickups tensor. Its page states "CC0: Public Domain".'),
 )
 
 # OpenML datasets 554 (mnist_784) and 40927 (CIFAR_10). Checked 2026-11-18:
@@ -165,13 +286,6 @@ EWAP: License | None = None
 # graph datasets carry those licenses themselves.
 GCARE: License | None = None
 
-# G-CARE's yago graph: the YAGO 2009-w10-5 Notation 3 export (yago.n3, dated
-# 2009-03-06). 65 of the graph's 91 relation sizes equal that export's
-# predicate counts exactly (e.g. hasFamilyName 569,410, hasGivenName 568,852,
-# bornOnDate 441,274), and the rest are a few triples smaller; RDF-3X's 2008
-# dump matches 5 and the 2009-10-31 release is larger. The download page states
-# "The Notation 3 version of YAGO is licensed under the GNU Free Documentation
-# License" with no version, which lets the recipient pick any published one.
 GCARE_YAGO = License(
     spdx="GFDL-1.1-or-later",
     ref=Ref(
@@ -189,11 +303,19 @@ GCARE_YAGO = License(
         ),
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "G-CARE's yago graph: the YAGO 2009-w10-5 Notation 3 export (yago.n3, dated "
+        "2009-03-06). 65 of the graph's 91 relation sizes equal that export's "
+        "predicate counts exactly (e.g. hasFamilyName 569,410, hasGivenName 568,852, "
+        "bornOnDate 441,274), and the rest are a few triples smaller; RDF-3X's 2008 "
+        "dump matches 5 and the 2009-10-31 release is larger. The download page "
+        'states "The Notation 3 version of YAGO is licensed under the GNU Free '
+        'Documentation License" with no version, which lets the recipient pick any '
+        "published one."
+    ),
 )
 
-# G-CARE's lubm80 graph: synthetic LUBM data for 80 universities, made by
-# Lehigh's UBA 1.7 generator, whose source files are under GPL version 2 "or
-# (at your option) any later version".
 GCARE_LUBM80 = License(
     spdx="GPL-2.0-or-later",
     ref=Ref(
@@ -204,12 +326,14 @@ GCARE_LUBM80 = License(
         url="https://swat.cse.lehigh.edu/projects/lubm/uba1.7.zip",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "G-CARE's lubm80 graph: synthetic LUBM data for 80 universities, made by "
+        "Lehigh's UBA 1.7 generator, whose source files are under GPL version 2 \"or "
+        '(at your option) any later version".'
+    ),
 )
 
-# G-CARE's aids graph: the 10,000 AIDS antiviral screen compounds used by
-# QuickSI, from the National Cancer Institute's Developmental Therapeutics
-# Program. A US government work, so in the public domain; SPDX has no
-# identifier for that.
 GCARE_AIDS = License(
     spdx="LicenseRef-Public-Domain",
     ref=Ref(
@@ -219,11 +343,15 @@ GCARE_AIDS = License(
         url="https://www.cancer.gov/policies/copyright-reuse",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "G-CARE's aids graph: the 10,000 AIDS antiviral screen compounds used by "
+        "QuickSI, from the National Cancer Institute's Developmental Therapeutics "
+        "Program. A US government work, so in the public domain; SPDX has no "
+        "identifier for that."
+    ),
 )
 
-# G-CARE's human graph: Han's group's re-creation (Lee et al., PVLDB 6(2), 2012)
-# of GADDI's human protein interaction network, labeled with Gene Ontology
-# terms, which are CC BY 4.0. Neither paper names the interaction database.
 GCARE_HUMAN = License(
     spdx="CC-BY-4.0",
     ref=Ref(
@@ -232,4 +360,11 @@ GCARE_HUMAN = License(
         url="https://geneontology.org/docs/go-citation-policy/",
     ),
     date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes=(
+        "G-CARE's human graph: Han's group's re-creation (Lee et al., PVLDB 6(2), "
+        "2012) of GADDI's human protein interaction network, labeled with Gene "
+        "Ontology terms, which are CC BY 4.0. Neither paper names the interaction "
+        "database."
+    ),
 )

@@ -116,19 +116,25 @@ class License:
     ``spdx`` is an SPDX license expression. Use ``AND`` when one dataset
     combines data under several licenses, and ``LicenseRef-<name>`` for terms
     that have no SPDX identifier. ``ref`` is where the license was found, and
-    ``date_accessed`` is the day it was read there.
+    ``date_accessed`` is the day it was read there. ``redistributable`` says
+    whether the terms let others redistribute the data, as SAPS's caches do.
+    ``notes`` records the evidence: what the source says, and any caveats.
     """
 
     spdx: str
     ref: Ref
     date_accessed: datetime.date
+    redistributable: bool
+    notes: str = ""
 
     @property
-    def metadata(self) -> dict[str, str]:
+    def metadata(self) -> dict[str, Any]:
         return {
             "spdx": self.spdx,
             "ref": str(self.ref),
             "date_accessed": self.date_accessed.isoformat(),
+            "redistributable": self.redistributable,
+            "notes": self.notes,
         }
 
 
@@ -142,7 +148,7 @@ class Inherit(enum.Enum):
 INHERIT = Inherit.INHERIT
 
 
-def _license_metadata(license: License | None) -> dict[str, str] | None:
+def _license_metadata(license: License | None) -> dict[str, Any] | None:
     return None if license is None else license.metadata
 
 

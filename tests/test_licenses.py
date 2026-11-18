@@ -14,6 +14,7 @@ from saps.metadata import _benchmark_instances
 # SPDX license identifiers used so far; extend this when a source adds one.
 KNOWN_SPDX_IDS = {
     "MIT",
+    "CC-BY-2.5",
     "CC-BY-4.0",
     "CC0-1.0",
     "ODC-By-1.0",
@@ -38,6 +39,8 @@ def _check_license(license: License) -> None:
     assert isinstance(license.date_accessed, datetime.date)
     assert license.date_accessed <= datetime.date.today()
     assert license.ref.url, "a license must say where it was found"
+    assert isinstance(license.redistributable, bool)
+    assert isinstance(license.notes, str)
     tokens = re.split(r"\s+|[()]", license.spdx)
     for token in filter(None, tokens):
         if token in ("AND", "OR", "WITH"):
@@ -94,11 +97,15 @@ def test_license_metadata_is_json_ready():
         spdx="CC-BY-4.0",
         ref=Ref(title="About", authors=[Author("A. Person")], url="https://x.test"),
         date_accessed=datetime.date(2026, 11, 18),
+        redistributable=True,
+        notes="The About page says so.",
     )
     assert license.metadata == {
         "spdx": "CC-BY-4.0",
         "ref": 'A. Person. "About", URL: https://x.test.',
         "date_accessed": "2026-11-18",
+        "redistributable": True,
+        "notes": "The About page says so.",
     }
 
 
@@ -119,6 +126,7 @@ _OTHER = License(
     spdx="CC0-1.0",
     ref=Ref(title="Other", authors=[Author("B. Person")], url="https://y.test"),
     date_accessed=datetime.date(2026, 11, 18),
+    redistributable=False,
 )
 
 
