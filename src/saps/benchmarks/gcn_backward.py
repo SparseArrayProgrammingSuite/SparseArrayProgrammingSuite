@@ -14,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
     License,
     Ref,
     ReferenceDataset,
@@ -21,7 +22,7 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.benchmarks.gcn import _SIGMAS, _UNIT_ROUNDOFF, gcn_reference
-from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
+from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset, ogb_license
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps.downloaders.ogb import normalized_undirected_adjacency
 
@@ -223,6 +224,10 @@ class GCNBackwardOGBDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return ogb_license(self.source_name)
 
     @property
     def metadata(self) -> dict[str, Any]:

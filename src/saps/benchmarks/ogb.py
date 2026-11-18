@@ -14,11 +14,25 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
     License,
     Ref,
     ShellBenchmark,
 )
 from saps.downloaders.ogb import OGBNodePropData, load_ogb_nodeprop_dataset
+
+# Each OGB dataset's own license; the generators' licenses.OGB_NODEPROP covers
+# them together.
+_OGB_LICENSES = {
+    "ogbn-arxiv": licenses.OGBN_ARXIV,
+    "ogbn-products": licenses.OGBN_PRODUCTS,
+    "ogbn-proteins": licenses.OGBN_PROTEINS,
+}
+
+
+def ogb_license(source_name: str) -> License | None | Inherit:
+    """The license of the OGB dataset ``source_name``."""
+    return _OGB_LICENSES[source_name]
 
 
 class OGBDataset(Dataset):
@@ -58,6 +72,10 @@ class OGBDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return ogb_license(self.source_name)
 
     @property
     def metadata(self) -> dict[str, Any]:

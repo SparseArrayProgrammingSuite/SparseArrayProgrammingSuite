@@ -61,16 +61,55 @@ OGB_NODEPROP = License(
     date_accessed=_ACCESSED_2026_11_18,
     redistributable=False,
     notes=(
-        "The OGB node property prediction datasets that SAPS uses, each licensed "
-        "separately on the same page: ogbn-arxiv under ODC-BY, ogbn-products under "
-        'the "Amazon license" '
-        "(https://s3.amazonaws.com/amazon-reviews-pds/license.txt, which no longer "
-        "resolves), and ogbn-proteins under CC-0. The archived Amazon license "
+        "The OGB node property prediction datasets that SAPS uses, taken together. "
+        "OGB licenses each separately on the same page, and each SAPS dataset "
+        "carries its own license: OGBN_ARXIV, OGBN_PRODUCTS, or OGBN_PROTEINS. "
+        "Not redistributable because ogbn-products is not."
+    ),
+)
+
+OGBN_ARXIV = License(
+    spdx="ODC-By-1.0",
+    ref=Ref(
+        title="Node Property Prediction",
+        authors=[Author("Open Graph Benchmark")],
+        url="https://ogb.stanford.edu/docs/nodeprop/",
+    ),
+    date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes='OGB\'s ogbn-arxiv dataset, listed with "License: ODC-BY".',
+)
+
+OGBN_PRODUCTS = License(
+    spdx="LicenseRef-Amazon-Reviews-PDS",
+    ref=Ref(
+        title="Node Property Prediction",
+        authors=[Author("Open Graph Benchmark")],
+        url="https://ogb.stanford.edu/docs/nodeprop/",
+    ),
+    date_accessed=_ACCESSED_2026_11_18,
+    redistributable=False,
+    notes=(
+        'OGB\'s ogbn-products dataset, listed with "License: Amazon license", '
+        "linking https://s3.amazonaws.com/amazon-reviews-pds/license.txt, which no "
+        "longer resolves. The archived copy "
         "(https://web.archive.org/web/2020/https://s3.amazonaws.com/amazon-reviews-pds/license.txt)"
         ' grants a revocable license "for purposes of academic research" and states '
         '"You may not resell, republish, or make any commercial use of the Reviews '
-        'Library or its contents", so ogbn-products is not redistributable.'
+        'Library or its contents".'
     ),
+)
+
+OGBN_PROTEINS = License(
+    spdx="CC0-1.0",
+    ref=Ref(
+        title="Node Property Prediction",
+        authors=[Author("Open Graph Benchmark")],
+        url="https://ogb.stanford.edu/docs/nodeprop/",
+    ),
+    date_accessed=_ACCESSED_2026_11_18,
+    redistributable=True,
+    notes='OGB\'s ogbn-proteins dataset, listed with "License: CC-0".',
 )
 
 QASMBENCH = License(
