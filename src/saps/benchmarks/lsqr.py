@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import (
@@ -101,6 +103,10 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
     @property
     def motivation(self) -> str:
         return "Uses small inlined least-squares systems to verify convergence."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -279,6 +285,10 @@ class LSQRSuiteSparseGenerator(Generator[LSQRDataset]):
     @property
     def motivation(self) -> str:
         return self.description
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:

@@ -8,6 +8,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,6 +16,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -737,6 +739,10 @@ class SimHashANNTestDenseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) Test (Dense Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
             SimHashANNRandomDataset(
@@ -774,6 +780,10 @@ class SimHashANNTestSparseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) Test (Sparse Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
             SimHashANNRandomDataset(
@@ -809,6 +819,10 @@ class SimHashANNRandomDenseGenerator(
     @property
     def pretty_name(self) -> str:
         return "SimHash Approximate Nearest Neighbor (ANN) Random (Dense Projection)"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
@@ -885,6 +899,10 @@ class SimHashANNRandomSparseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) Random (Sparse Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
             SimHashANNRandomDataset(
@@ -959,6 +977,10 @@ class SimHashANNOpenMLDenseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Dense Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.OPENML
+
+    @property
     def datasets(self) -> list[SimHashANNDataset]:
         return [
             SimHashANNDataset(
@@ -1009,6 +1031,10 @@ class SimHashANNOpenMLSparseGenerator(
     @property
     def pretty_name(self) -> str:
         return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Sparse Projection)"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OPENML
 
     @property
     def datasets(self) -> list[SimHashANNDataset]:
@@ -1066,6 +1092,10 @@ class SimHashANNNetflixPrizeDenseGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
+
+    @property
     def datasets(self) -> list[SimHashANNDataset]:
         return [
             SimHashANNDataset(
@@ -1107,6 +1137,10 @@ class SimHashANNNetflixPrizeSparseGenerator(
             "SimHash Approximate Nearest Neighbor (ANN) Netflix Prize (Sparse"
             " Projection)"
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
 
     @property
     def datasets(self) -> list[SimHashANNDataset]:
@@ -1156,6 +1190,10 @@ class SimHashANNOpenMLDenseReferenceGenerator(ReferenceGenerator[SimHashANNDatas
         )
 
     @property
+    def license(self) -> License | None:
+        return SimHashANNOpenMLDenseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -1192,6 +1230,10 @@ class SimHashANNOpenMLSparseReferenceGenerator(ReferenceGenerator[SimHashANNData
             " (Sparse Projection),"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return SimHashANNOpenMLSparseGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
@@ -1235,6 +1277,10 @@ class SimHashANNNetflixPrizeDenseReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return SimHashANNNetflixPrizeDenseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -1276,6 +1322,10 @@ class SimHashANNNetflixPrizeSparseReferenceGenerator(
             " Prize (Sparse Projection),"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return SimHashANNNetflixPrizeSparseGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:

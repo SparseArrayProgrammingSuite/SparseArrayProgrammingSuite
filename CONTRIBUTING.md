@@ -38,7 +38,7 @@ A complete benchmark contribution includes:
 - A benchmark function: the sparse array program being measured.
 - One or more generators: deterministic ways to produce inputs for that benchmark.
 - Datasets: named generator configurations representing specific benchmark runs.
-- Metadata: authors, references, motivation, concepts, suites, and AI disclosure.
+- Metadata: authors, references, motivation, concepts, suites, AI disclosure, and the data license of each generator, or of a dataset that overrides it.
 - Correctness tests: evidence that the benchmark computes the intended result.
 - A rationale: evidence that the problem and selected data are representative or useful.
 
@@ -86,6 +86,8 @@ A `Generator` owns the logic for producing related datasets. A `Dataset` is one 
 - `ref_meta`: expected non-array output metadata, when available.
 
 Generators should be deterministic. If random data is needed, use fixed seeds and record enough metadata to reproduce the dataset. Large generated datasets should be cacheable through the storage backend unless there is a specific reason to opt out.
+
+Every generator declares the license of its data in a `license` property, returning a constant from `saps/licenses.py`. A `License` holds an SPDX expression, a `Ref` to where the license was found, and the `date_accessed` on which it was read there. Data synthesized by SAPS code uses `licenses.SAPS`. For a new external source, find its license on the source's own pages and add a constant; use `AND` when one dataset combines data under several licenses, and `LicenseRef-<name>` for terms with no SPDX identifier. If no license can be found, make the constant `None` and say in a comment where you looked and when. A license file on a repository that only redistributes someone else's data does not count. When some of a generator's datasets come from a differently licensed source, those datasets override the dataset `license` property; it defaults to `INHERIT`, which takes the generator's license, and `Generator.dataset_license(dataset)` gives the license that applies. A `ReferenceGenerator` returns its source generator's license, and a `ReferenceDataset` its wrapped dataset's.
 
 Concrete generators must be reachable from a benchmark so metadata, freshness checks, and dataset caching can discover them. If a generator is intentionally standalone data plumbing rather than part of a runnable benchmark, wrap it in a small `ShellBenchmark`: implement only the `generator` property and let the shell expose the generator under a `{generator.name}_shell` benchmark record.
 

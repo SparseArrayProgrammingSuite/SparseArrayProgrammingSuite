@@ -4,6 +4,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,6 +12,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -177,6 +179,10 @@ class SDDMMSuiteSparseGenerator(Generator):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[SDDMMSuiteSparseDataset]:
         return [
             SDDMMSuiteSparseDataset(
@@ -226,6 +232,10 @@ class SDDMMSuiteSparseReferenceGenerator(ReferenceGenerator[SDDMMSuiteSparseData
             "Reference outputs for Sampled Dense-Dense Matrix Multiplication (SDDMM)"
             " SuiteSparse, cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return SDDMMSuiteSparseGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[SDDMMSuiteSparseDataset]]:
@@ -380,6 +390,10 @@ class SDDMMUniformRandomGenerator(Generator):
             "workload Bharadwaj et al. use, swept over their range of nonzeros "
             "per row so that row occupancy rather than matrix size varies."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:

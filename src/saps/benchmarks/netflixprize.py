@@ -6,12 +6,14 @@ import numpy as np
 
 from binsparse.conversions import from_scipy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -103,6 +105,10 @@ class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
             "cacheable generator for the parsed matrix avoids redundant downloads, "
             "parsing, and cached copies."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
 
     @property
     def datasets(self) -> list[NetflixPrizeDataset]:

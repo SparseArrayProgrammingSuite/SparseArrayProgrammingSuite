@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import (
@@ -96,6 +98,10 @@ class CGTestGenerator(Generator[CGDataset]):
     @property
     def motivation(self) -> str:
         return "Uses small inlined linear systems to verify solver correctness."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -233,6 +239,10 @@ class CGSuiteSparseGenerator(Generator[CGDataset]):
             " positive definite matrices, particularly those with a low convergence"
             " criteria"
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:

@@ -5,6 +5,7 @@ from scipy.sparse import coo_array
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, from_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -132,6 +134,10 @@ class MSBFSTestGenerator(Generator[MSBFSDataset]):
         return (
             "Provide small multi-source BFS examples for benchmark correctness checks."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -350,6 +356,10 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
         return "Generate sparse graph inputs for multi-source breadth-first search."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -460,6 +470,10 @@ class MSBFSSNAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return MSBFSSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[MSBFSDataset]]:
         return [ReferenceDataset(dataset) for dataset in MSBFSSNAPGenerator().datasets]
 
@@ -550,6 +564,10 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
         return "Generate GAP graph inputs for multi-source breadth-first search."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -594,6 +612,10 @@ class MSBFSGAPReferenceGenerator(ReferenceGenerator[MSBFSDataset]):
             "Reference outputs for Multi-Source Breadth-First Search (MS-BFS) GAP,"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return MSBFSGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[MSBFSDataset]]:

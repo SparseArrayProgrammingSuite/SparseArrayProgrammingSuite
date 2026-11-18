@@ -7,6 +7,7 @@ from binsparse import CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, to_numpy
 from numba import njit, prange
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,9 +15,15 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
 )
-from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
+from saps.benchmarks.frostt import (
+    fetch_frostt_tensor,
+    frostt_tensor_license,
+    frostt_tensor_shape,
+)
 from saps.util.tensor_checks import (
     assert_residual,
     decomposition_outputs,
@@ -161,6 +168,10 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[HOSVDDataset]:
         datasets = [
             HOSVDDataset(
@@ -291,6 +302,10 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
             "factor matrices that were both sparse and dense. These factor "
             "matrices were used to construct a factorizable matrix."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[HOSVDDataset]:
@@ -448,6 +463,10 @@ class HOSVDFROSTTDataset(Dataset):
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
+    @property
+    def license(self) -> License | None | Inherit:
+        return frostt_tensor_license(self.tensor_name)
+
 
 def _hosvd_frostt_dataset(tensor_name, ranks, suites):
     shape = frostt_tensor_shape(tensor_name)
@@ -543,6 +562,10 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
             " contractions and projected SVDs, so select datasets by name rather"
             " than running this whole generator unfiltered."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.FROSTT
 
     @property
     def datasets(self) -> list[HOSVDFROSTTDataset]:

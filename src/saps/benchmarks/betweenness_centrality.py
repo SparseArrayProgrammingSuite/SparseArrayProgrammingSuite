@@ -5,6 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -211,6 +213,10 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         return "Provide small graph examples for centrality correctness checks."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -387,6 +393,10 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
         return "Generate sparse directed graph inputs for betweenness centrality."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -523,6 +533,10 @@ class BetweennessCentralitySNAPReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return BetweennessCentralitySNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[BetweennessCentralitySNAPDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -633,6 +647,10 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
         return "Generate GAP graph inputs for betweenness centrality."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -683,6 +701,10 @@ class BetweennessCentralityGAPReferenceGenerator(
             "Reference outputs for Betweenness Centrality GAP, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return BetweennessCentralityGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[BetweennessCentralityGAPDataset]]:

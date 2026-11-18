@@ -8,6 +8,7 @@ from scipy.sparse import csr_array
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,6 +16,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -310,6 +312,10 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -539,6 +545,10 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[ParticleSimulationCS267Dataset]:
         return [
             ParticleSimulationCS267Dataset(
@@ -647,6 +657,10 @@ class ParticleSimulationCS267ReferenceGenerator(
             "Reference outputs for Particle Simulation CS267, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return ParticleSimulationCS267Generator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[ParticleSimulationCS267Dataset]]:
@@ -767,6 +781,10 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             "CS267-derived repulsive-force setup rather than being inferred from "
             "the EWAP files."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.EWAP
 
     @property
     def datasets(self) -> list[ParticleSimulationEWAPDataset]:
@@ -931,6 +949,10 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.NEMO_ARCHIVE
+
+    @property
     def datasets(self) -> list[ParticleSimulationDataset]:
         return [
             ParticleSimulationDataset(
@@ -1052,6 +1074,10 @@ class ParticleSimulationNEMOReferenceGenerator(
             "Reference outputs for Particle Simulation NEMO, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return ParticleSimulationNEMOGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[ParticleSimulationDataset]]:

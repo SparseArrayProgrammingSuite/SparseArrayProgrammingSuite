@@ -15,6 +15,7 @@ import numpy as np
 from binsparse.conversions import from_numpy, to_numpy
 from filelock import FileLock
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -22,6 +23,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.codegen import define_function
@@ -406,6 +408,10 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
             "locked atomic downloads allow concurrent and chunked SAPS runs to "
             "reuse the same ONNX files safely."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.LTH_CONV2
 
     @property
     def cacheable(self) -> bool:

@@ -5,6 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -100,6 +102,10 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -255,6 +261,10 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
         return "Generate sparse graph inputs for connected components."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -369,6 +379,10 @@ class ConnectedComponentsSNAPReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return ConnectedComponentsSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[ConnectedComponentsDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -462,6 +476,10 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
         return "Generate GAP graph inputs for connected components."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -510,6 +528,10 @@ class ConnectedComponentsGAPReferenceGenerator(
             "Reference outputs for Connected Components GAP, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return ConnectedComponentsGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[ConnectedComponentsDataset]]:

@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -154,6 +156,10 @@ class CGBlockJacobiSuiteSparseGenerator(Generator[CGBlockJacobiDataset]):
     @property
     def motivation(self) -> str:
         return CGBlockJacobiBenchmark().motivation
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -653,6 +659,10 @@ class CGBlockJacobiSuiteSparseReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return CGBlockJacobiSuiteSparseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[CGBlockJacobiDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -686,6 +696,10 @@ class CGBlockJacobiTestGenerator(CGBlockJacobiSuiteSparseGenerator):
     @property
     def description(self) -> str:
         return "Small inlined symmetric positive definite systems."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[CGBlockJacobiDataset]:

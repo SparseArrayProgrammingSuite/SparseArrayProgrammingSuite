@@ -5,6 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.snap import fetch_snap_graph
@@ -99,6 +101,10 @@ class FourCliqueCountingTestGenerator(Generator[FourCliqueCountingDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for 4-clique-count correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -266,6 +272,10 @@ class FourCliqueCountingSNAPGenerator(Generator[FourCliqueCountingDataset]):
     @property
     def motivation(self) -> str:
         return "Generate sparse graph inputs for 4-clique counting."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:

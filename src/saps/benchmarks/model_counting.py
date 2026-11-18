@@ -7,6 +7,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,6 +15,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -169,6 +171,10 @@ class ModelCountingTestGenerator(
     @property
     def motivation(self) -> str:
         return "Uses a predefined set of formulas to verify correctness."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -345,6 +351,10 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_TEST_INSTANCES
+
+    @property
     def datasets(self) -> list[MCCompDataset]:
         return [
             MCCompDataset("Track1_MC/random_mc_1", suites=[]),
@@ -448,6 +458,10 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
             "Track1 instances have exact integer model counts, so they can be "
             "run by the existing unweighted model-counting einsum benchmark."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_TEST_INSTANCES
 
     @property
     def datasets(self) -> list[MCCompDataset]:

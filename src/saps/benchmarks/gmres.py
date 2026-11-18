@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import (
@@ -113,6 +115,10 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
     @property
     def motivation(self) -> str:
         return "Uses small inlined linear systems to verify GMRES convergence."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -275,6 +281,10 @@ class GMRESSuiteSparseGenerator(Generator[GMRESDataset]):
             "GMRES is the most widely used and effective method for solving "
             "linear systems that are indefinite, non-symmetric, and sparse."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:

@@ -7,6 +7,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,6 +15,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -166,6 +168,10 @@ class JLKMeansTestGenerator(Generator[JLKMeansTestDataset]):
     @property
     def motivation(self) -> str:
         return JLKMeansBenchmark().motivation
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -370,6 +376,10 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.OPENML
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -446,6 +456,10 @@ class JLKMeansOpenMLReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return JLKMeansOpenMLGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
         return [
             ReferenceDataset(dataset) for dataset in JLKMeansOpenMLGenerator().datasets
@@ -510,6 +524,10 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
             "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
             "ratings matrix."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
 
     @property
     def datasets(self) -> list[JLKMeansDataset]:
@@ -578,6 +596,10 @@ class JLKMeansNetflixPrizeReferenceGenerator(ReferenceGenerator[JLKMeansDataset]
             "Reference outputs for Johnson-Lindenstrauss (JL) k-Means Netflix Prize,"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return JLKMeansNetflixPrizeGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:

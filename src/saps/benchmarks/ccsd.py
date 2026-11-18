@@ -6,6 +6,7 @@ import sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.util.ball import Ball, einsum_bound
@@ -364,6 +366,10 @@ class CCSDSyntheticGenerator(Generator[CCSDDataset]):
     @property
     def motivation(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[CCSDDataset]:

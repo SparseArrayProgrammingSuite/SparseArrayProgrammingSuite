@@ -6,6 +6,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -272,6 +274,10 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
     @property
     def motivation(self) -> str:
         return "Uses small graph examples to verify the GCN training loop."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -536,6 +542,10 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[GCNBackwardDataset]:
         return [
             GCNBackwardDataset(
@@ -660,6 +670,10 @@ class GCNBackwardSuiteSparseReferenceGenerator(ReferenceGenerator[GCNBackwardDat
         )
 
     @property
+    def license(self) -> License | None:
+        return GCNBackwardSuiteSparseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[GCNBackwardDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -737,6 +751,10 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
             "the training target, which takes a float64 run of the training loop "
             "to find, apart from the inputs the OGB shell already caches."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OGB_NODEPROP
 
     @property
     def cacheable(self) -> bool:
@@ -827,6 +845,10 @@ class GCNBackwardOGBReferenceGenerator(ReferenceGenerator[GCNBackwardOGBDataset]
             "Training targets from a float64 run of Graph Convolutional Network (GCN)"
             " Backward OGB, cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return GCNBackwardOGBGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[GCNBackwardOGBDataset]]:

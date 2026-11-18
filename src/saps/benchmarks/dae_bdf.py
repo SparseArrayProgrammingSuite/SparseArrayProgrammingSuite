@@ -11,6 +11,7 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -18,6 +19,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.downloaders import slicot
@@ -277,6 +279,10 @@ class DAEBDFTestGenerator(_DescriptorDAEGenerator):
         return "Uses a small singular-mass descriptor system to verify DAE steps."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[DAEBDFDataset]:
         return [
             DAEBDFDataset(
@@ -332,6 +338,10 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
             "Uses SLICOT models with an explicit E matrix as descriptor systems. "
             "Implicit DAE steps solve linear systems built from residual Jacobians."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SLICOT_MODEL_REDUCTION
 
     @property
     def datasets(self) -> list[DAEBDFDataset]:

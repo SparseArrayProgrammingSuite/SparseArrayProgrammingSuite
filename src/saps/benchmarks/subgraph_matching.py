@@ -12,13 +12,17 @@ from binsparse import (
 )
 from binsparse.conversions import to_numpy
 
+from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -33,11 +37,13 @@ class GCAREDataset(Dataset):
         pretty_name,
         description,
         suites,
+        license: License | None | Inherit = INHERIT,
     ):
         self._name = name
         self._pretty_name = pretty_name
         self._description = description
         self._suites = suites
+        self._license = license
 
     @property
     def name(self) -> str:
@@ -58,6 +64,10 @@ class GCAREDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
 
 class SubgraphMatchingGCAREDataset(Dataset):
@@ -182,6 +192,10 @@ class SubgraphMatchingTestGenerator(
     @property
     def motivation(self) -> str:
         return SubgraphMatchingBenchmark().motivation
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[SubgraphMatchingTestDataset]:
@@ -324,30 +338,38 @@ class GCAREGraphGenerator(Generator[GCAREDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.GCARE
+
+    @property
     def datasets(self) -> list[GCAREDataset]:
         # Note: NumpyFramework will fail to run even for the smallest data.
         return [
             GCAREDataset(
                 name="human",
                 pretty_name="human",
+                license=licenses.GCARE_HUMAN,
                 description=("G-CARE Human Subset (Small)"),
                 suites=[],
             ),
             GCAREDataset(
                 name="aids",
                 pretty_name="aids",
+                license=licenses.GCARE_AIDS,
                 description=("G-CARE AIDS Subset (Medium)"),
                 suites=[],
             ),
             GCAREDataset(
                 name="lubm80",
                 pretty_name="lubm80",
+                license=licenses.GCARE_LUBM80,
                 description=("G-CARE LUBM80 Subset (Large)"),
                 suites=[],
             ),
             GCAREDataset(
                 name="yago",
                 pretty_name="yago",
+                license=licenses.GCARE_YAGO,
                 description=("G-CARE YAGO Subset (Huge)"),
                 suites=[],
             ),
@@ -512,6 +534,10 @@ class SubgraphMatchingGCAREHumanGenerator(SubgraphMatchingGCAREGenerator):
         return "Subgraph Matching G-CARE Human"
 
     @property
+    def license(self) -> License | None:
+        return licenses.GCARE_HUMAN
+
+    @property
     def datasets(self):
         return [
             SubgraphMatchingGCAREDataset("human", "Star_3/uf_Q_2_1", suites=["trace"]),
@@ -574,6 +600,10 @@ class SubgraphMatchingGCAREAIDSGenerator(SubgraphMatchingGCAREGenerator):
     @property
     def pretty_name(self) -> str:
         return "Subgraph Matching G-CARE AIDS"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.GCARE_AIDS
 
     @property
     def datasets(self):
@@ -1373,6 +1403,10 @@ class SubgraphMatchingGCARELUBM80Generator(SubgraphMatchingGCAREGenerator):
         return "Subgraph Matching G-CARE LUBM80"
 
     @property
+    def license(self) -> License | None:
+        return licenses.GCARE_LUBM80
+
+    @property
     def datasets(self):
         return [
             SubgraphMatchingGCAREDataset("lubm80", "lubm80_Q9"),
@@ -1392,6 +1426,10 @@ class SubgraphMatchingGCAREYAGOGenerator(SubgraphMatchingGCAREGenerator):
     @property
     def pretty_name(self) -> str:
         return "Subgraph Matching G-CARE YAGO"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.GCARE_YAGO
 
     @property
     def datasets(self):

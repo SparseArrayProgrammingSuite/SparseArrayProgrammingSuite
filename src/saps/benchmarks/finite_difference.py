@@ -4,6 +4,7 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,6 +12,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 
@@ -203,6 +205,10 @@ class FiniteDifference1DBurgersGenerator(
         return "Finite Difference 1D Burgers"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference1DDataset]:
         return [
             FiniteDifference1DDataset(
@@ -240,6 +246,10 @@ class FiniteDifference1DBuckleyLeverettGenerator(
         return "Finite Difference 1D Buckley-Leverett"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference1DDataset]:
         return [
             FiniteDifference1DDataset(
@@ -275,6 +285,10 @@ class FiniteDifference1DLinearAdvectionGenerator(
     @property
     def pretty_name(self) -> str:
         return "Finite Difference 1D Linear Advection"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[FiniteDifference1DDataset]:
@@ -628,6 +642,10 @@ class FiniteDifference2DBurgersGenerator(
         return "Finite Difference 2D Burgers"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference2DDataset]:
         return [
             FiniteDifference2DDataset(
@@ -669,6 +687,10 @@ class FiniteDifference2DBuckleyLeverettGenerator(
         return "Finite Difference 2D Buckley-Leverett"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference2DDataset]:
         return [
             FiniteDifference2DDataset(
@@ -708,6 +730,10 @@ class FiniteDifference2DLinearAdvectionGenerator(
     @property
     def pretty_name(self) -> str:
         return "Finite Difference 2D Linear Advection"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[FiniteDifference2DDataset]:

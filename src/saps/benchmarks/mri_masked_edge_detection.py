@@ -6,6 +6,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 
@@ -126,6 +128,10 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
     @property
     def motivation(self) -> str:
         return "Provide small masked MRI examples for correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -246,6 +252,10 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
     @property
     def motivation(self) -> str:
         return MRIMaskedEdgeDetectionBenchmark().motivation
+
+    @property
+    def license(self) -> License | None:
+        return licenses.KAGGLE_BRAIN_MRI
 
     @property
     def datasets(self) -> list[MRIMaskedEdgeDetectionDataset]:

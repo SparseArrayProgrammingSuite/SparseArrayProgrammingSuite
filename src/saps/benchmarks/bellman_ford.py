@@ -5,6 +5,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -132,6 +134,10 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for Bellman-Ford correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -428,6 +434,10 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
     @property
     def motivation(self) -> str:
         return "Generate weighted graph inputs for Bellman-Ford."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -758,6 +768,10 @@ class BellmanFordSNAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         return "Reference outputs for Bellman-Ford SNAP, cached apart from its inputs."
 
     @property
+    def license(self) -> License | None:
+        return BellmanFordSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[BellmanFordDataset]]:
         return [
             ReferenceDataset(dataset) for dataset in BellmanFordSNAPGenerator().datasets
@@ -852,6 +866,10 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
         return "Generate weighted GAP graph inputs for Bellman-Ford."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -915,6 +933,10 @@ class BellmanFordGAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
     @property
     def description(self) -> str:
         return "Reference outputs for Bellman-Ford GAP, cached apart from its inputs."
+
+    @property
+    def license(self) -> License | None:
+        return BellmanFordGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[BellmanFordDataset]]:

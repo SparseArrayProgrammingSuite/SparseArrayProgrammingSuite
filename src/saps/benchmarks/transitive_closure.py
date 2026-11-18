@@ -6,6 +6,7 @@ import scipy.sparse as scipy_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -104,6 +106,10 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small reachability examples for correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -261,6 +267,10 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
         return "Generate sparse directed graph inputs for transitive closure."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[TransitiveClosureDataset]:
         # fmt: off
         return [
@@ -378,6 +388,10 @@ class TransitiveClosureSNAPReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return TransitiveClosureSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[TransitiveClosureDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -472,6 +486,10 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
         return "Generate GAP directed graph inputs for transitive closure."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -528,6 +546,10 @@ class TransitiveClosureGAPReferenceGenerator(
             "Reference outputs for Transitive Closure GAP, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return TransitiveClosureGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[TransitiveClosureDataset]]:

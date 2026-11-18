@@ -5,12 +5,14 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -681,6 +683,10 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
             " cacheable generator for the raw download avoids redundant downloads and"
             " redundant cached copies of the same matrix."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[SuiteSparseDataset]:

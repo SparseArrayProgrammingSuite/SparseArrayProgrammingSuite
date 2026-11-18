@@ -7,12 +7,14 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -133,6 +135,10 @@ class OGBGraphGenerator(Generator[OGBDataset]):
             "redundant downloads while allowing child benchmark generators to keep "
             "their benchmark-specific inputs uncached."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OGB_NODEPROP
 
     @property
     def datasets(self) -> list[OGBDataset]:

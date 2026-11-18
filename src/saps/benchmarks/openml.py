@@ -13,12 +13,14 @@ import numpy as np
 from binsparse.conversions import from_numpy, to_numpy
 from filelock import FileLock
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -162,6 +164,10 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
             "cacheable generator for the prepared feature matrix avoids redundant "
             "downloads and redundant cached copies."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OPENML
 
     @property
     def datasets(self) -> list[OpenMLDataset]:

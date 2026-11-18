@@ -3,6 +3,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,6 +11,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
@@ -94,6 +96,10 @@ class MatrixVectorMultiplicationDenseGenerator(Generator):
     @property
     def motivation(self) -> str:
         return "Generate dense matrices for matrix-vector multiplication."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -307,6 +313,10 @@ class MatrixVectorMultiplicationSuiteSparseGenerator(Generator):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[Dataset]:
         return [
             MatrixVectorMultiplicationSuiteSparseDataset(
@@ -437,6 +447,10 @@ class MatrixVectorMultiplicationUniformRandomGenerator(Generator):
             "multiplication over a range of densities. The density values are "
             "just a synthetic sweep."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:

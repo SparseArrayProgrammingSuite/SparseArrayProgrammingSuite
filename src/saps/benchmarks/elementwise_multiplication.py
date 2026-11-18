@@ -3,6 +3,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,6 +11,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
@@ -96,6 +98,10 @@ class ElementwiseMultiplicationDenseGenerator(Generator):
     @property
     def motivation(self) -> str:
         return "Generate dense matrices for elementwise multiplication."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -287,6 +293,10 @@ class ElementwiseMultiplicationSuiteSparseGenerator(Generator):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[Dataset]:
         return [
             ElementwiseMultiplicationSuiteSparseDataset(
@@ -445,6 +455,10 @@ class ElementwiseMultiplicationUniformRandomGenerator(Generator):
             "advance, and operands whose patterns differ, where it is not. The "
             "overlap parameterisation follows PASTA; the inputs are synthetic."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:

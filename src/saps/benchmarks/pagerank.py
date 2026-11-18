@@ -5,6 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -137,6 +139,10 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for PageRank correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -285,6 +291,10 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
         return "Generate sparse graph inputs for PageRank."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -395,6 +405,10 @@ class PageRankSNAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
         return "Reference outputs for PageRank SNAP, cached apart from its inputs."
 
     @property
+    def license(self) -> License | None:
+        return PageRankSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[PageRankDataset]]:
         return [
             ReferenceDataset(dataset) for dataset in PageRankSNAPGenerator().datasets
@@ -482,6 +496,10 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
         return "Generate GAP graph inputs for PageRank."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -526,6 +544,10 @@ class PageRankGAPReferenceGenerator(ReferenceGenerator[PageRankDataset]):
     @property
     def description(self) -> str:
         return "Reference outputs for PageRank GAP, cached apart from its inputs."
+
+    @property
+    def license(self) -> License | None:
+        return PageRankGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[PageRankDataset]]:

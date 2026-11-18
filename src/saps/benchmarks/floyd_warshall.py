@@ -9,6 +9,7 @@ import sparse as sp
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_sparse, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -16,6 +17,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -137,6 +139,10 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for shortest-path correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -396,6 +402,10 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[FloydWarshallDataset]:
         # fmt: off
         return [
@@ -513,6 +523,10 @@ class FloydWarshallSNAPReferenceGenerator(ReferenceGenerator[FloydWarshallDatase
         return (
             "Reference outputs for Floyd-Warshall SNAP, cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return FloydWarshallSNAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[FloydWarshallDataset]]:
@@ -694,6 +708,10 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
         return ""
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[FloydWarshallDataset]:
         # fmt: off
         return [
@@ -747,6 +765,10 @@ class FloydWarshallGAPReferenceGenerator(ReferenceGenerator[FloydWarshallDataset
     @property
     def description(self) -> str:
         return "Reference outputs for Floyd-Warshall GAP, cached apart from its inputs."
+
+    @property
+    def license(self) -> License | None:
+        return FloydWarshallGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[FloydWarshallDataset]]:

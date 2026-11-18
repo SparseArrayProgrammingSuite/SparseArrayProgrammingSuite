@@ -5,6 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.gap import fetch_gap_graph
@@ -100,6 +102,10 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for triangle-count correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -268,6 +274,10 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
     @property
     def motivation(self) -> str:
         return "Generate sparse graph inputs for triangle counting."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -474,6 +484,10 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
     @property
     def motivation(self) -> str:
         return "Generate GAP graph inputs for triangle counting."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:

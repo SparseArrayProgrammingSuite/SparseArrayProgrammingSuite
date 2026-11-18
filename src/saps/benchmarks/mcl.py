@@ -7,6 +7,7 @@ import scipy.sparse as scipy_sparse
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,6 +15,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -256,6 +258,10 @@ class MCLTestGenerator(Generator[MCLDataset]):
         return MCLBenchmark().motivation
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[MCLDataset]:
         planted_clique = np.zeros((10, 10), dtype=np.float32)
         planted_clique[:4, :4] = 1.0
@@ -380,6 +386,10 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
         return MCLBenchmark().motivation
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -490,6 +500,10 @@ class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return MCLSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
         return [ReferenceDataset(dataset) for dataset in MCLSNAPGenerator().datasets]
 
@@ -564,6 +578,10 @@ class MCLGAPGenerator(Generator[MCLDataset]):
         return MCLBenchmark().motivation
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -610,6 +628,10 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
             "Reference outputs for Markov Clustering (MCL) GAP, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return MCLGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[MCLDataset]]:

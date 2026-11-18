@@ -1,11 +1,15 @@
 from binsparse import CustomTensor, ElementLevel, SparseLevel
 
+from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -27,6 +31,7 @@ class FROSTTDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
+        license: License | None | Inherit = INHERIT,
     ):
         self._name = name
         self.path = path
@@ -36,6 +41,7 @@ class FROSTTDataset(Dataset):
         self._pretty_name = pretty_name
         self._description = description
         self._suites = suites or []
+        self._license = license
 
     @property
     def name(self) -> str:
@@ -44,6 +50,10 @@ class FROSTTDataset(Dataset):
     @property
     def pretty_name(self) -> str:
         return self._pretty_name or self._name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def description(self) -> str:
@@ -146,6 +156,7 @@ _TENSORS: list[FROSTTDataset] = [
         path="uber-pickups/uber.tns.gz",
         order=4,
         shape=(183, 24, 1140, 1717),
+        license=licenses.FROSTT_UBER_PICKUPS,
         description=(
             "Uber pickups in New York City: date x hour x latitude x"
             " longitude, non-zeros are pickup counts."
@@ -313,6 +324,7 @@ _TENSORS: list[FROSTTDataset] = [
         url="https://frostt-tensors.s3.us-east-2.amazonaws.com/LANL2/lanl2.tns.gz",
         order=5,
         shape=(3760, 11153, 8710, 75146, 8),
+        license=licenses.FROSTT_LANL2,
         description=(
             "Anonymized LANL NetFlow data (58 days): 10-minute time bin x"
             " source device x destination device x destination port x"
@@ -393,6 +405,10 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.FROSTT
+
+    @property
     def datasets(self) -> list[FROSTTDataset]:
         return _TENSORS
 
@@ -427,6 +443,11 @@ def fetch_frostt_tensor(name: str) -> DataInstance:
             f"Dataset {name!r} is not listed in FROSTTTensorGenerator.datasets."
         )
     return raw_generator.cached_generate(raw_dataset)
+
+
+def frostt_tensor_license(name: str) -> License | None | Inherit:
+    """A raw FROSTT tensor's own license, for datasets built from that tensor."""
+    return next(d for d in _TENSORS if d.name == name).license
 
 
 def frostt_tensor_shape(name: str) -> tuple[int, ...]:

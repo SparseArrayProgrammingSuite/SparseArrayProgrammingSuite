@@ -6,6 +6,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -210,6 +212,10 @@ class GCNTestGenerator(Generator[GCNDataset]):
         return "Uses small graph examples to verify the GCN forward pass."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -377,6 +383,10 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -498,6 +508,10 @@ class GCNSuiteSparseReferenceGenerator(ReferenceGenerator[GCNDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return GCNSuiteSparseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[GCNDataset]]:
         return [
             ReferenceDataset(dataset) for dataset in GCNSuiteSparseGenerator().datasets
@@ -569,6 +583,10 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
             "exact float64 reference output, which is costly to compute on these "
             "large graphs, apart from the inputs the OGB shell already caches."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OGB_NODEPROP
 
     @property
     def cacheable(self) -> bool:
@@ -659,6 +677,10 @@ class GCNOGBReferenceGenerator(ReferenceGenerator[GCNOGBDataset]):
             "Reference outputs for Graph Convolutional Network (GCN) OGB, cached"
             " apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return GCNOGBGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[GCNOGBDataset]]:

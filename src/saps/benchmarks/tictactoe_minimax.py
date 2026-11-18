@@ -2,12 +2,14 @@ import numpy as np
 
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Benchmark,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 
@@ -207,6 +209,10 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
             " this helps us measure how sparsity can affect performance at different"
             " depths."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[TicTacToeMinimaxDataset]:

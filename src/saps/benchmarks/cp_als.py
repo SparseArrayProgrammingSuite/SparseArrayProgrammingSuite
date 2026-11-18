@@ -3,6 +3,7 @@ import numpy as np
 from binsparse.conversions import from_numpy
 from numba import njit, prange
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,9 +11,11 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
 )
-from saps.benchmarks.frostt import fetch_frostt_tensor
+from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_license
 from saps.util.tensor_checks import (
     assert_residual,
     decomposition_outputs,
@@ -100,6 +103,10 @@ class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
     @property
     def motivation(self):
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def references(self):
@@ -338,6 +345,10 @@ class CPALSFROSTTDataset(Dataset):
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
+    @property
+    def license(self) -> License | None | Inherit:
+        return frostt_tensor_license(self.tensor_name)
+
 
 class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
     def __init__(self, n: int | None = None):
@@ -412,6 +423,10 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
             " genuinely irregular sparsity patterns, unlike the synthetic"
             " low-rank-by-construction tensors generated elsewhere in this file."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.FROSTT
 
     @property
     def datasets(self):

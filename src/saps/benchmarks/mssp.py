@@ -7,6 +7,7 @@ import sparse as sp
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,6 +15,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -174,6 +176,10 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for shortest-path correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -464,6 +470,10 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
         return ""
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[MSSPDataset]:
         # fmt: off
         return [
@@ -520,6 +530,10 @@ class MSSPGAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
             "Reference outputs for Multi-Source Shortest Paths (MSSP) GAP, cached"
             " apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return MSSPGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[MSSPDataset]]:
@@ -603,6 +617,10 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
     @property
     def motivation(self) -> str:
         return "Generate unweighted SNAP graph inputs for multi-source shortest paths."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -715,6 +733,10 @@ class MSSPSNAPReferenceGenerator(ReferenceGenerator[MSSPDataset]):
             "Reference outputs for Multi-Source Shortest Paths (MSSP) SNAP, cached"
             " apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return MSSPSNAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[MSSPDataset]]:

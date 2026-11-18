@@ -8,6 +8,7 @@ from scipy import ndimage
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,6 +16,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 
@@ -165,6 +167,10 @@ class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]
         return "Provide small Sobel edge examples for benchmark correctness checks."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -305,6 +311,10 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
     @property
     def motivation(self) -> str:
         return MRISobelEdgeDetectionBenchmark().motivation
+
+    @property
+    def license(self) -> License | None:
+        return licenses.KAGGLE_BRAIN_MRI
 
     @property
     def datasets(self) -> list[MRISobelEdgeDetectionDataset]:

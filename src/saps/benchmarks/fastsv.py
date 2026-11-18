@@ -6,6 +6,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -97,6 +99,10 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small graph examples for FastSV correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -239,6 +245,10 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
         return "Generate sparse graph inputs for FastSV."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -349,6 +359,10 @@ class FastSVSNAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
         return "Reference outputs for FastSV SNAP, cached apart from its inputs."
 
     @property
+    def license(self) -> License | None:
+        return FastSVSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[FastSVDataset]]:
         return [ReferenceDataset(dataset) for dataset in FastSVSNAPGenerator().datasets]
 
@@ -440,6 +454,10 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
         return "Generate GAP graph inputs for FastSV."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -484,6 +502,10 @@ class FastSVGAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
     @property
     def description(self) -> str:
         return "Reference outputs for FastSV GAP, cached apart from its inputs."
+
+    @property
+    def license(self) -> License | None:
+        return FastSVGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[FastSVDataset]]:

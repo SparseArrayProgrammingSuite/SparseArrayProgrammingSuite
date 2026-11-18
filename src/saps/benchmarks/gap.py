@@ -3,12 +3,14 @@
 from copy import copy
 from typing import Any
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -505,6 +507,10 @@ class GAPGraphGenerator(Generator[GAPDataset]):
     @property
     def motivation(self) -> str:
         return "Reuse prepared SuiteSparse GAP matrices across graph benchmarks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[GAPDataset]:

@@ -1,3 +1,5 @@
+import datetime
+import enum
 import inspect
 import logging
 import os
@@ -107,6 +109,43 @@ class Ref:
         )
 
 
+@dataclass
+class License:
+    """The license of a generator's or dataset's data, as documented on a given day.
+
+    ``spdx`` is an SPDX license expression. Use ``AND`` when one dataset
+    combines data under several licenses, and ``LicenseRef-<name>`` for terms
+    that have no SPDX identifier. ``ref`` is where the license was found, and
+    ``date_accessed`` is the day it was read there.
+    """
+
+    spdx: str
+    ref: Ref
+    date_accessed: datetime.date
+
+    @property
+    def metadata(self) -> dict[str, str]:
+        return {
+            "spdx": self.spdx,
+            "ref": str(self.ref),
+            "date_accessed": self.date_accessed.isoformat(),
+        }
+
+
+class Inherit(enum.Enum):
+    """The type of `INHERIT`."""
+
+    INHERIT = "inherit"
+
+
+# A dataset whose `Dataset.license` is `INHERIT` takes its generator's license.
+INHERIT = Inherit.INHERIT
+
+
+def _license_metadata(license: License | None) -> dict[str, str] | None:
+    return None if license is None else license.metadata
+
+
 def _tag_slug(value: str) -> str:
     tag = re.sub(r"[^0-9A-Za-z]+", "-", value.lower())
     return re.sub(r"-+", "-", tag).strip("-")
@@ -201,8 +240,20 @@ class Motivated(ABC):
 
 class Dataset(Tagged):
     @property
+    def license(self) -> License | None | Inherit:
+        """This dataset's license, when it differs from its generator's.
+
+        The default, `INHERIT`, takes the generator's license; override this
+        only for a dataset whose data comes from a source licensed differently
+        from the generator's other datasets. ``None`` means no license could be
+        found for this dataset's data, as for `Generator.license`.
+        `Generator.dataset_license` resolves a dataset's license.
+        """
+        return INHERIT
+
+    @property
     def metadata(self) -> dict[str, Any]:
-        return {
+        metadata: dict[str, Any] = {
             "file": self.file,
             "freshness": self.freshness,
             "name": self.name,
@@ -212,6 +263,11 @@ class Dataset(Tagged):
             "concepts": self.concepts,
             "topics": self.topics,
         }
+        # Present only when it overrides the generator's license.
+        license = self.license
+        if license is not INHERIT:
+            metadata["license"] = _license_metadata(license)
+        return metadata
 
 
 @dataclass
@@ -229,6 +285,23 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
     @property
     @abstractmethod
     def datasets(self) -> list[TDataset]: ...
+
+    @property
+    @abstractmethod
+    def license(self) -> License | None:
+        """The license of this generator's data, or ``None`` if none was found.
+
+        Data synthesized by SAPS code is under the SAPS license. Data from an
+        external source is under that source's license. ``None`` means the
+        source was checked and no license could be found for its data; the
+        constants in `saps.licenses` record where each source was checked.
+        A dataset can override this with its own `Dataset.license`.
+        """
+
+    def dataset_license(self, dataset: TDataset) -> License | None:
+        """The license of ``dataset``'s data: its own, or else this generator's."""
+        license = dataset.license
+        return self.license if license is INHERIT else license
 
     @property
     def cacheable(self) -> bool:
@@ -284,6 +357,7 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
             "motivation": self.motivation,
+            "license": _license_metadata(self.license),
             "datasets": [dataset.metadata for dataset in self.datasets],
         }
 
@@ -592,6 +666,10 @@ class ReferenceDataset(Dataset, Generic[TDataset]):
     @property
     def freshness(self) -> str:
         return self.dataset.freshness
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self.dataset.license
 
 
 class ReferenceGenerator(Generator[ReferenceDataset[TDataset]], ABC):

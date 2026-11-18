@@ -5,6 +5,7 @@ from scipy.sparse import coo_array
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -117,6 +119,10 @@ class BFSTestGenerator(Generator[BFSDataset]):
     @property
     def motivation(self) -> str:
         return "Provide small BFS examples for benchmark correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -298,6 +304,10 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
     @property
     def motivation(self) -> str:
         return "Generate sparse graph inputs for breadth-first search."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -622,6 +632,10 @@ class BFSSNAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return BFSSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[BFSDataset]]:
         return [ReferenceDataset(dataset) for dataset in BFSSNAPGenerator().datasets]
 
@@ -711,6 +725,10 @@ class BFSGAPGenerator(Generator[BFSDataset]):
         return "Generate GAP graph inputs for breadth-first search."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -777,6 +795,10 @@ class BFSGAPReferenceGenerator(ReferenceGenerator[BFSDataset]):
             "Reference outputs for Breadth-First Search (BFS) GAP, cached apart from"
             " its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return BFSGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[BFSDataset]]:

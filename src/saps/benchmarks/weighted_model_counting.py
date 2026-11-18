@@ -8,6 +8,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,6 +16,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.codegen import (
@@ -355,6 +357,10 @@ class WeightedModelCountingTestGenerator(
         return "Uses a predefined set of formulas to verify correctness."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -559,6 +565,10 @@ class WeightedModelCountingMCCompGenerator(
             "Track4 instances provide weighted CNF formulas from a standard "
             "model-counting corpus."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_TEST_INSTANCES
 
     @property
     def datasets(self) -> list[WeightedModelCountingMCCompDataset]:

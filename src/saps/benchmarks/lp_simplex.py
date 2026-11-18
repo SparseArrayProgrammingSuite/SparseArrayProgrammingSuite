@@ -24,6 +24,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -31,6 +32,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -307,6 +309,10 @@ class LPSimplexTestGenerator(Generator[LPSimplexTestDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -566,6 +572,10 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -628,6 +638,10 @@ class LPSimplexLPnetlibReferenceGenerator(ReferenceGenerator[LPSimplexLPnetlibDa
             "Reference outputs for Linear Programming (LP) Simplex LPnetlib, cached"
             " apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return LPSimplexLPnetlibGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[LPSimplexLPnetlibDataset]]:

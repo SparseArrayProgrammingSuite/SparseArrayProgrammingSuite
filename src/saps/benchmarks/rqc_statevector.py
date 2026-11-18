@@ -6,7 +6,16 @@ import sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
-from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps import licenses
+from saps.benchmark import (
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    License,
+    Ref,
+)
 from saps.benchmarks.qasmbench import QASMBENCH_REFERENCES, fetch_qasmbench_circuit
 from saps.util.error_bounds import summation_error_bound
 
@@ -92,6 +101,10 @@ class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
     @property
     def motivation(self) -> str:
         return RQCStatevectorBenchmark().motivation
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[RQCStatevectorDataset]:
@@ -358,6 +371,10 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
     @property
     def motivation(self) -> str:
         return RQCStatevectorBenchmark().motivation
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[RQCStatevectorDataset]:
@@ -683,6 +700,10 @@ class RQCStatevectorQASMBenchGenerator(Generator[RQCStatevectorQASMBenchDataset]
             " arithmetic, and error correction, keep their statevectors sparse,"
             " which sparse array frameworks can exploit."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.QASMBENCH
 
     @property
     def datasets(self) -> list[RQCStatevectorQASMBenchDataset]:

@@ -3,6 +3,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,6 +11,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -99,6 +101,10 @@ class MatrixMultiplicationDenseGenerator(Generator):
     @property
     def motivation(self) -> str:
         return "Generate dense matrices for matrix multiplication."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -288,6 +294,10 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def datasets(self) -> list[MatrixMultiplicationSuiteSparseDataset]:
         return [
             MatrixMultiplicationSuiteSparseDataset(
@@ -337,6 +347,10 @@ class MatrixMultiplicationSuiteSparseReferenceGenerator(
             "Reference outputs for Matrix Multiplication SuiteSparse, cached apart"
             " from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return MatrixMultiplicationSuiteSparseGenerator().license
 
     @property
     def datasets(
@@ -474,6 +488,10 @@ class MatrixMultiplicationUniformRandomGenerator(Generator):
             "Generate pairs of uniform random sparse matrices for SpGEMM over a "
             "range of densities. The density values are a synthetic sweep."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:

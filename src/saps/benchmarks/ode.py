@@ -11,6 +11,7 @@ import scipy.sparse as scipy_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -18,6 +19,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.codegen import define_function
@@ -618,6 +620,10 @@ dydt_vector = (Vs - state) / tau
         return ""
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[ODERCDataset]:
         return [
             ODERCDataset(
@@ -699,6 +705,10 @@ dydt_vector = xp.stack([dVc, d2Vc])
         return ""
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[ODERLCDataset]:
         return [
             ODERLCDataset(
@@ -777,6 +787,10 @@ dydt_vector = xp.stack([dxdt, dydt])
     @property
     def motivation(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[ODELotkaVolterraDataset]:
@@ -865,6 +879,10 @@ dydt_vector = lin + non_lin
     @property
     def motivation(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[ODEBrusselatorDataset]:
@@ -1004,6 +1022,10 @@ dydt_vector = A @ state + B @ input_array
             "SLICOT model-reduction examples provide realistic linear dynamical "
             "systems for ODE integration benchmarks."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SLICOT_MODEL_REDUCTION
 
     @property
     def datasets(self) -> list[ODESLICOTDataset]:

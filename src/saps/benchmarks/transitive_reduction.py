@@ -9,6 +9,7 @@ from binsparse.conversions import (
     from_sparse,
 )
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -16,6 +17,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -115,6 +117,10 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         return ""
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[TransitiveReductionDataset]:
         return [
             TransitiveReductionDataset(
@@ -204,6 +210,10 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
     @property
     def motivation(self) -> str:
         return "Generate sparse directed graph inputs for transitive reduction."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[TransitiveReductionDataset]:
@@ -320,6 +330,10 @@ class TransitiveReductionSNAPReferenceGenerator(
             "Reference outputs for Transitive Reduction SNAP, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return TransitiveReductionSNAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[TransitiveReductionDataset]]:
@@ -450,6 +464,10 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
         return "Generate GAP directed graph inputs for transitive reduction."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
     def cacheable(self) -> bool:
         return False
 
@@ -534,6 +552,10 @@ class TransitiveReductionGAPReferenceGenerator(
             "Reference outputs for Transitive Reduction GAP, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return TransitiveReductionGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[TransitiveReductionDataset]]:
