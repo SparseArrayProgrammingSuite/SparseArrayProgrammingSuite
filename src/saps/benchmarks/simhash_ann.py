@@ -10,12 +10,14 @@ from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to
 
 from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
     License,
     Ref,
     ReferenceDataset,
@@ -398,6 +400,7 @@ class SimHashANNDataset(Dataset):
         candidate_target: int,
         target_probability: float,
         pretty_name: str | None = None,
+        license: License | None | Inherit = INHERIT,
     ):
         self._source_name = source_name
         self._pretty_name = pretty_name or source_name
@@ -409,10 +412,15 @@ class SimHashANNDataset(Dataset):
         self.max_projections = max_projections
         self.candidate_target = candidate_target
         self.target_probability = target_probability
+        self._license = license
 
     @property
     def name(self) -> str:
         return self._source_name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def pretty_name(self) -> str:
@@ -994,6 +1002,7 @@ class SimHashANNOpenMLDenseGenerator(
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.MNIST,
             ),
             SimHashANNDataset(
                 "cifar10",
@@ -1050,6 +1059,7 @@ class SimHashANNOpenMLSparseGenerator(
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.MNIST,
             ),
             SimHashANNDataset(
                 "cifar10",

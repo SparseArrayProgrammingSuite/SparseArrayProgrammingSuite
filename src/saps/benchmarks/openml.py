@@ -15,11 +15,13 @@ from filelock import FileLock
 
 from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
     License,
     Ref,
     ShellBenchmark,
@@ -49,6 +51,7 @@ class OpenMLDataset(Dataset):
         description: str | None = None,
         suites: list[str] | None = None,
         scale: float = 1.0,
+        license: License | None | Inherit = INHERIT,
     ):
         self._name = name
         self.data_id = data_id
@@ -62,10 +65,15 @@ class OpenMLDataset(Dataset):
         self._description = description
         self._suites = suites or []
         self.scale = scale
+        self._license = license
 
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def pretty_name(self) -> str:
@@ -183,6 +191,7 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                     "OpenML copy of the MNIST 28x28 handwritten digit image dataset."
                 ),
                 scale=255.0,
+                license=licenses.MNIST,
             ),
             OpenMLDataset(
                 "cifar10",

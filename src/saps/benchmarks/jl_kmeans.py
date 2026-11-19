@@ -9,12 +9,14 @@ from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
 from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
     License,
     Ref,
     ReferenceDataset,
@@ -264,6 +266,7 @@ class JLKMeansDataset(Dataset):
         max_iter=100,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
+        license: License | None | Inherit = INHERIT,
     ):
         self._source_name = source_name
         self._pretty_name = pretty_name or source_name
@@ -272,10 +275,15 @@ class JLKMeansDataset(Dataset):
         self.c = c
         self.max_iter = max_iter
         self._suites = suites or []
+        self._license = license
 
     @property
     def name(self) -> str:
         return self._source_name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def pretty_name(self) -> str:
@@ -392,6 +400,7 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 eps=0.3,
                 suites=["standard", "trace"],
                 pretty_name="MNIST",
+                license=licenses.MNIST,
             ),
             JLKMeansDataset(
                 "cifar10",

@@ -15,8 +15,9 @@ import datetime
 
 from saps.benchmark import Author, License, Ref
 
-# All licenses below were checked on this day.
+# Each license below was checked on one of these days.
 _ACCESSED_2026_11_18 = datetime.date(2026, 11, 18)
+_ACCESSED_2026_11_19 = datetime.date(2026, 11, 19)
 
 SAPS = License(
     spdx="MIT",
@@ -285,8 +286,40 @@ FROSTT_UBER_PICKUPS = License(
 
 # OpenML datasets 554 (mnist_784) and 40927 (CIFAR_10). Checked 2026-11-18:
 # both report licence "Public" through https://www.openml.org/api/v1/json/data/,
-# which is OpenML's default value for that field rather than a license.
+# which is OpenML's default value for that field rather than a license. The
+# mnist datasets carry their own license, MNIST, below. For CIFAR-10, checked
+# 2026-11-19: https://www.cs.toronto.edu/~kriz/cifar.html states no license and
+# asks only for a citation, and Armory's "MIT" for it
+# (https://armory.readthedocs.io/en/develop/dataset_licensing/) is under the
+# copyright of Valay Shah, who is not a CIFAR-10 author.
 OPENML: License | None = None
+
+MNIST = License(
+    spdx="CC-BY-SA-3.0",
+    ref=Ref(
+        title="MNIST digits classification dataset",
+        authors=[Author("Keras")],
+        url="https://keras.io/api/datasets/mnist/",
+    ),
+    date_accessed=_ACCESSED_2026_11_19,
+    redistributable=True,
+    notes=(
+        "MNIST, from OpenML's copy (dataset 554, mnist_784). The Keras page states "
+        '"Yann LeCun and Corinna Cortes hold the copyright of MNIST dataset, which '
+        "is a derivative work from original NIST datasets. MNIST dataset is made "
+        "available under the terms of the Creative Commons Attribution-Share Alike "
+        '3.0 license." PyMVPA (http://www.pymvpa.org/datadb/mnist.html) states the '
+        "same in the same words. Neither gives a source, and MNIST's own page "
+        "(http://yann.lecun.com/exdb/mnist/) could not be reached to confirm it "
+        "(unconfirmed). This license covers only LeCun and Cortes's rights. No NIST "
+        "license was found for Special Databases 1 and 3, which MNIST is built from: "
+        "their nist.gov pages are gone, and Special Database 19's states none. If "
+        "NIST holds them as Standard Reference Data, "
+        'https://www.nist.gov/srd/public-law states "None of our SRD may be '
+        'reproduced, stored in a retrieval system or transmitted" without prior '
+        "permission."
+    ),
+)
 
 # Netflix Prize data from Kaggle (netflix-inc/netflix-prize-data). Checked
 # 2026-11-18: Kaggle lists "Other (specified in description)", but the
