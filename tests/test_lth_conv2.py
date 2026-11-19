@@ -75,10 +75,10 @@ def conv_model(tmp_path, monkeypatch):
         size_threshold=0,
     )
     monkeypatch.setenv("LTH_CONV2_ONNX", str(model_path))
-    # Stand in for CIFAR-10 with images this model takes.
+    # Stand in for the PASS photos with images this model takes.
     monkeypatch.setattr(
         lth_conv2,
-        "_cifar10_test_images",
+        "_pass_images",
         lambda count: (
             np.random.default_rng(0)
             .standard_normal((count, 1, 4, 4))

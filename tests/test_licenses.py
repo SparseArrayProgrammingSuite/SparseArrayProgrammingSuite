@@ -14,6 +14,7 @@ from saps.metadata import _benchmark_instances
 # SPDX license identifiers used so far; extend this when a source adds one.
 KNOWN_SPDX_IDS = {
     "MIT",
+    "CC-BY-2.0",
     "CC-BY-2.5",
     "CC-BY-4.0",
     "CC-BY-SA-3.0",

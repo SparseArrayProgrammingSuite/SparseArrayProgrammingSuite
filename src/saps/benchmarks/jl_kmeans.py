@@ -356,10 +356,19 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 doi="10.1109/5.726791",
             ),
             Ref(
-                title="Learning Multiple Layers of Features from Tiny Images",
-                authors=[Author("Alex Krizhevsky")],
-                year=2009,
-                url="https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf",
+                title=(
+                    "Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine "
+                    "Learning Algorithms"
+                ),
+                authors=[
+                    Author("Han Xiao"),
+                    Author("Kashif Rasul"),
+                    Author("Roland Vollgraf"),
+                ],
+                journal="Arxiv",
+                volume="arXiv:1708.07747",
+                year=2017,
+                url="https://arxiv.org/abs/1708.07747",
             ),
             Ref(
                 title=(
@@ -379,7 +388,7 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML. "
+            "MNIST and Fashion-MNIST provide dense image feature matrices from OpenML. "
             "k = 10 aligns with the ten classes in each dataset."
         )
 
@@ -403,11 +412,12 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 license=licenses.MNIST,
             ),
             JLKMeansDataset(
-                "cifar10",
+                "fashion_mnist",
                 k=10,
                 eps=0.3,
                 suites=["standard", "trace", "train"],
-                pretty_name="CIFAR-10",
+                pretty_name="Fashion-MNIST",
+                license=licenses.FASHION_MNIST,
             ),
         ]
 

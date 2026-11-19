@@ -607,10 +607,19 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
                 doi="10.1109/5.726791",
             ),
             Ref(
-                title="Learning Multiple Layers of Features from Tiny Images",
-                authors=[Author("Alex Krizhevsky")],
-                year=2009,
-                url="https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf",
+                title=(
+                    "Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine "
+                    "Learning Algorithms"
+                ),
+                authors=[
+                    Author("Han Xiao"),
+                    Author("Kashif Rasul"),
+                    Author("Roland Vollgraf"),
+                ],
+                journal="Arxiv",
+                volume="arXiv:1708.07747",
+                year=2017,
+                url="https://arxiv.org/abs/1708.07747",
             ),
         ]
 
@@ -627,7 +636,7 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
     @property
     def motivation(self) -> str:
         return (
-            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML "
+            "MNIST and Fashion-MNIST provide dense image feature matrices from OpenML "
             "for approximate nearest-neighbor search."
         )
 
@@ -1005,16 +1014,17 @@ class SimHashANNOpenMLDenseGenerator(
                 license=licenses.MNIST,
             ),
             SimHashANNDataset(
-                "cifar10",
+                "fashion_mnist",
                 k=5,
                 eps=0.3,
                 seed=0,
                 suites=["standard"],
-                pretty_name="CIFAR-10",
+                pretty_name="Fashion-MNIST",
                 max_tables=64,
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.FASHION_MNIST,
             ),
         ]
 
@@ -1062,16 +1072,17 @@ class SimHashANNOpenMLSparseGenerator(
                 license=licenses.MNIST,
             ),
             SimHashANNDataset(
-                "cifar10",
+                "fashion_mnist",
                 k=5,
                 eps=0.3,
                 seed=0,
                 suites=["standard"],
-                pretty_name="CIFAR-10",
+                pretty_name="Fashion-MNIST",
                 max_tables=64,
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.FASHION_MNIST,
             ),
         ]
 

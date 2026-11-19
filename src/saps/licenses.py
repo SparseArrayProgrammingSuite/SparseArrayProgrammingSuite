@@ -132,7 +132,7 @@ QASMBENCH = License(
 )
 
 LTH_CONV2 = License(
-    spdx="CC-BY-4.0",
+    spdx="CC-BY-4.0 AND CC-BY-2.0",
     ref=Ref(
         title="CIFAR Conv-2 Lottery Ticket Hypothesis Benchmark Artifacts",
         authors=[Author("Ramya Polaki")],
@@ -142,7 +142,46 @@ LTH_CONV2 = License(
     ),
     date_accessed=_ACCESSED_2026_11_18,
     redistributable=True,
-    notes=("The pruned Conv-2 network for the lottery-ticket benchmark."),
+    notes=(
+        "The pruned Conv-2 network for the lottery-ticket benchmark, under CC-BY-4.0 "
+        "in its Zenodo record, together with the PASS images it classifies, which "
+        "are under PASS's license: CC-BY-2.0 photos in a CC-BY-4.0 dataset."
+    ),
+)
+
+PASS = License(
+    spdx="CC-BY-4.0 AND CC-BY-2.0",
+    ref=Ref(
+        title=(
+            "PASS: An ImageNet replacement for self-supervised pretraining without "
+            "humans"
+        ),
+        authors=[
+            Author("Yuki M. Asano"),
+            Author("Christian Rupprecht"),
+            Author("Andrew Zisserman"),
+            Author("Andrea Vedaldi"),
+        ],
+        institution="University of Oxford",
+        url="https://www.robots.ox.ac.uk/~vgg/data/pass/",
+    ),
+    date_accessed=_ACCESSED_2026_11_19,
+    redistributable=True,
+    notes=(
+        'PASS photos, from Zenodo record 6615455. The project page states "The PASS '
+        "dataset is available to download for commercial/research purposes under a "
+        'Creative Commons Attribution 4.0 International License" and "The whole '
+        "dataset only contains CC-BY licensed images with full attribution "
+        'information." Each photo keeps its own Flickr license: all 1,439,588 rows '
+        'of the record\'s pass_metadata.csv give "Attribution License", taken here '
+        "to be Flickr's license 4, which "
+        "https://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html "
+        'now lists as "CC BY 2.0". That page no longer uses the name, so this is '
+        "unconfirmed; Flickr's only other attribution-only license is CC BY 4.0. "
+        "pass_metadata.csv names each photo's creator by the hash that names its "
+        "file. The pass_images generator records the hashes of the photos it uses, "
+        "which it center-crops and downsamples to 32x32."
+    ),
 )
 
 # SLICOT's "Benchmark Examples for Model Reduction". Checked 2026-11-18: no
@@ -284,15 +323,37 @@ FROSTT_UBER_PICKUPS = License(
     notes=('FROSTT\'s uber_pickups tensor. Its page states "CC0: Public Domain".'),
 )
 
-# OpenML datasets 554 (mnist_784) and 40927 (CIFAR_10). Checked 2026-11-18:
-# both report licence "Public" through https://www.openml.org/api/v1/json/data/,
-# which is OpenML's default value for that field rather than a license. The
-# mnist datasets carry their own license, MNIST, below. For CIFAR-10, checked
-# 2026-11-19: https://www.cs.toronto.edu/~kriz/cifar.html states no license and
-# asks only for a citation, and Armory's "MIT" for it
+# OpenML datasets 554 (mnist_784) and 40996 (Fashion-MNIST). Checked 2026-11-18
+# and 2026-11-19: both report licence "Public" through
+# https://www.openml.org/api/v1/json/data/, which is OpenML's default value for
+# that field rather than a license. Each OpenML dataset carries its source's
+# license instead: MNIST or FASHION_MNIST, below. SAPS dropped OpenML's
+# CIFAR-10 (40927), which has no license: checked 2026-11-19,
+# https://www.cs.toronto.edu/~kriz/cifar.html states none and asks only for a
+# citation, and Armory's "MIT" for it
 # (https://armory.readthedocs.io/en/develop/dataset_licensing/) is under the
 # copyright of Valay Shah, who is not a CIFAR-10 author.
 OPENML: License | None = None
+
+FASHION_MNIST = License(
+    spdx="MIT",
+    ref=Ref(
+        title="Fashion-MNIST LICENSE",
+        authors=[Author("Zalando SE")],
+        year=2017,
+        url="https://github.com/zalandoresearch/fashion-mnist/blob/master/LICENSE",
+    ),
+    date_accessed=_ACCESSED_2026_11_19,
+    redistributable=True,
+    notes=(
+        "Fashion-MNIST, from OpenML's copy (dataset 40996), which names Zalando "
+        "Research as its source. Zalando's repository, which publishes the dataset, "
+        'is under the MIT license, "Copyright © 2017 Zalando SE". Its README states '
+        '"Fashion-MNIST is a dataset of Zalando\'s article images" and applies the '
+        "license to the repository without saying separately that it covers the "
+        "data files."
+    ),
+)
 
 MNIST = License(
     spdx="CC-BY-SA-3.0",

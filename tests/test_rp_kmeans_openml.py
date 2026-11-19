@@ -100,10 +100,10 @@ def test_fetch_openml_reuses_shared_download_cache(
     monkeypatch.setattr(_openml, "urlopen", fake_urlopen)
     monkeypatch.setattr(_openml, "fetch_openml", fake_fetch_openml)
 
-    result = _fetch_openml(40927)
-    assert _fetch_openml(40927) == result
+    result = _fetch_openml(40996)
+    assert _fetch_openml(40996) == result
 
-    assert result["data_id"] == 40927
+    assert result["data_id"] == 40996
     assert Path(result["data_home"]).is_dir()
     assert len(urls) == 1
     assert urls[0].startswith("https://openml.org/data/v1/download/1?nocache=")
@@ -116,8 +116,8 @@ def test_fetch_openml_features_uses_shared_cache(monkeypatch):
     raw = DataInstance(
         inputs=[from_numpy(np.ones((2, 3), dtype=np.float32))],
         meta={
-            "data_id": 40927,
-            "openml_name": "CIFAR_10",
+            "data_id": 40996,
+            "openml_name": "Fashion-MNIST",
             "version": 1,
             "num_rows": 2,
             "num_features": 3,
@@ -131,11 +131,11 @@ def test_fetch_openml_features_uses_shared_cache(monkeypatch):
 
     monkeypatch.setattr(OpenMLDatasetGenerator, "cached_generate", fake_cached_generate)
 
-    features, meta = fetch_openml_features("cifar10")
+    features, meta = fetch_openml_features("fashion_mnist")
 
-    assert calls == [("openml_dataset", "cifar10")]
+    assert calls == [("openml_dataset", "fashion_mnist")]
     np.testing.assert_array_equal(features, np.ones((2, 3), dtype=np.float32))
-    assert meta["openml_name"] == "CIFAR_10"
+    assert meta["openml_name"] == "Fashion-MNIST"
 
 
 def test_rp_kmeans_openml_generator_derives_inputs_from_cached_source(monkeypatch):
@@ -178,14 +178,14 @@ def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
 
     assert [dataset.name for dataset in openml_generator.datasets] == [
         "mnist",
-        "cifar10",
+        "fashion_mnist",
     ]
     assert {dataset.name: dataset.suites for dataset in openml_generator.datasets} == {
         "mnist": ["standard", "trace"],
-        "cifar10": ["standard", "trace", "train"],
+        "fashion_mnist": ["standard", "trace", "train"],
     }
     assert "rp_kmeans_mnist" not in {generator.name for generator in generators}
-    assert "rp_kmeans_cifar10" not in {generator.name for generator in generators}
+    assert "rp_kmeans_fashion_mnist" not in {generator.name for generator in generators}
 
 
 def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):

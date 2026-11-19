@@ -194,14 +194,18 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                 license=licenses.MNIST,
             ),
             OpenMLDataset(
-                "cifar10",
-                data_id=40927,
-                openml_name="CIFAR_10",
+                "fashion_mnist",
+                data_id=40996,
+                openml_name="Fashion-MNIST",
                 version=1,
-                task_id=167124,
-                pretty_name="CIFAR-10",
-                description=("OpenML copy of the CIFAR-10 32x32 color image dataset."),
+                task_id=146825,
+                pretty_name="Fashion-MNIST",
+                description=(
+                    "OpenML copy of the Fashion-MNIST 28x28 grayscale clothing image "
+                    "dataset."
+                ),
                 scale=255.0,
+                license=licenses.FASHION_MNIST,
             ),
         ]
 

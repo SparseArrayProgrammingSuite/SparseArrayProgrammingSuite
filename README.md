@@ -481,8 +481,8 @@ matrices remain commented out with their original metadata and are not exposed
 by SNAP generators.
 
 The OpenML shell caches the feature matrix together with train/test row indices
-from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and CIFAR-10 uses
-task 167124, both at repeat 0, fold 0, sample 0. ANN generators consume these splits;
+from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and Fashion-MNIST uses
+task 146825, both at repeat 0, fold 0, sample 0. ANN generators consume these splits;
 clustering generators can still consume the complete feature matrix. Refresh old
 OpenML caches that contain only the feature matrix with:
 

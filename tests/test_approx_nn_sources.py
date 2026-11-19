@@ -27,7 +27,10 @@ pytestmark = pytest.mark.usefixtures("uncached_references")
 )
 @pytest.mark.parametrize(
     "source_name,data_id,openml_name,task_id",
-    [("mnist", 554, "mnist_784", 3573), ("cifar10", 40927, "CIFAR_10", 167124)],
+    [
+        ("mnist", 554, "mnist_784", 3573),
+        ("fashion_mnist", 40996, "Fashion-MNIST", 146825),
+    ],
 )
 def test_simhash_ann_openml_generator_uses_cached_task_split(
     monkeypatch, generator_cls, source_name, data_id, openml_name, task_id
@@ -127,7 +130,7 @@ def test_simhash_ann_benchmark_uses_openml_and_netflix_shell_generators():
         )
         assert [dataset.name for dataset in openml_generator.datasets] == [
             "mnist",
-            "cifar10",
+            "fashion_mnist",
         ]
         assert {
             dataset.name: dataset.suites for dataset in openml_generator.datasets
@@ -135,7 +138,7 @@ def test_simhash_ann_benchmark_uses_openml_and_netflix_shell_generators():
             "mnist": ["standard", "trace", "train"]
             if kind == "sparse"
             else ["standard", "trace"],
-            "cifar10": ["standard"],
+            "fashion_mnist": ["standard"],
         }
         assert f"simhash_ann_netflix_prize_{kind}" in generator_names
         assert f"simhash_ann_random_{kind}" in generator_names

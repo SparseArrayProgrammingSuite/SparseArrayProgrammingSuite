@@ -278,9 +278,9 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
         actual
         == [
             "simhash_ann_openml_dense.mnist",
-            "simhash_ann_openml_dense.cifar10",
+            "simhash_ann_openml_dense.fashion_mnist",
             "simhash_ann_openml_sparse.mnist",
-            "simhash_ann_openml_sparse.cifar10",
+            "simhash_ann_openml_sparse.fashion_mnist",
             "simhash_ann_netflix_prize_dense.netflix",
         ][chunk_index::5]
     )
