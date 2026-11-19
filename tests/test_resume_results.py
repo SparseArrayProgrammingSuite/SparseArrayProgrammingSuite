@@ -281,7 +281,7 @@ def test_competition_selects_standard_simhash_datasets_without_machine_prompts(
             "simhash_ann_openml_dense.fashion_mnist",
             "simhash_ann_openml_sparse.mnist",
             "simhash_ann_openml_sparse.fashion_mnist",
-            "simhash_ann_netflix_prize_dense.netflix",
+            "simhash_ann_goodbooks_dense.goodbooks",
         ][chunk_index::5]
     )
     assert kwargs["machine_params"].machine == "run_12345-task-0"

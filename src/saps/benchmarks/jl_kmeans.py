@@ -23,7 +23,7 @@ from saps.benchmark import (
     ReferenceGenerator,
     ShellBenchmark,
 )
-from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
+from saps.benchmarks.goodbooks import fetch_goodbooks_matrix
 from saps.benchmarks.openml import fetch_openml_features
 
 # The check allows a clustering to cost this much more than the same algorithm
@@ -496,18 +496,18 @@ class JLKMeansOpenMLReferenceShellBenchmark(ShellBenchmark):
         return JLKMeansOpenMLReferenceGenerator()
 
 
-class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
+class JLKMeansGoodbooksGenerator(Generator[JLKMeansDataset]):
     @property
     def name(self) -> str:
-        return "jl_kmeans_netflix_prize"
+        return "jl_kmeans_goodbooks"
 
     @property
     def pretty_name(self) -> str:
-        return "Johnson-Lindenstrauss (JL) k-Means Netflix Prize"
+        return "Johnson-Lindenstrauss (JL) k-Means goodbooks-10k"
 
     @property
     def description(self) -> str:
-        return "Loads Netflix Prize ratings for RP k-means clustering."
+        return "Loads goodbooks-10k ratings for RP k-means clustering."
 
     @property
     def suites(self) -> list[str]:
@@ -525,11 +525,9 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
     def references(self) -> list[Ref]:
         return [
             Ref(
-                title="Use of KNN for the Netflix Prize",
-                authors=[Author("Vini Hong"), Author("Anastasios Tsamis")],
-                institution="Stanford CS229",
-                year=2008,
-                url="https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf",
+                title="goodbooks-10k",
+                authors=[Author("Zygmunt Zając")],
+                url="https://github.com/zygmuntz/goodbooks-10k",
             ),
         ]
 
@@ -540,23 +538,23 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
     @property
     def motivation(self) -> str:
         return (
-            "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
-            "ratings matrix."
+            "goodbooks-10k provides a 53,424 users × 10,000 books sparse matrix of "
+            "one-to-five star ratings."
         )
 
     @property
     def license(self) -> License | None:
-        return licenses.NETFLIX_PRIZE
+        return licenses.GOODBOOKS
 
     @property
     def datasets(self) -> list[JLKMeansDataset]:
         return [
             JLKMeansDataset(
-                "netflix",
+                "goodbooks",
                 k=10,
                 eps=0.3,
                 suites=["standard"],
-                pretty_name="Netflix Prize",
+                pretty_name="goodbooks-10k",
             ),
         ]
 
@@ -566,7 +564,7 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
 
     def generate(self, dataset: JLKMeansDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
-        reference = JLKMeansNetflixPrizeReferenceGenerator().cached_generate(
+        reference = JLKMeansGoodbooksReferenceGenerator().cached_generate(
             ReferenceDataset(dataset)
         )
         problem.ref_outputs = reference.ref_outputs
@@ -574,7 +572,7 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
         return problem
 
     def generate_inputs(self, dataset: JLKMeansDataset) -> DataInstance:
-        data, source_meta = fetch_netflixprize_matrix()
+        data, source_meta = fetch_goodbooks_matrix()
 
         training = from_scipy(data.tocoo())
 
@@ -592,44 +590,44 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
                 "c": dataset.c,
                 "max_iter": dataset.max_iter,
                 "num_rows": source_meta["num_users"],
-                "num_features": source_meta["num_movies"],
+                "num_features": source_meta["num_books"],
                 "source_num_users": source_meta["num_users"],
-                "source_num_movies": source_meta["num_movies"],
+                "source_num_books": source_meta["num_books"],
                 "source_num_ratings": source_meta["num_ratings"],
             },
         )
 
 
-class JLKMeansNetflixPrizeReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
+class JLKMeansGoodbooksReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
     @property
     def name(self) -> str:
-        return "jl_kmeans_netflix_prize_reference"
+        return "jl_kmeans_goodbooks_reference"
 
     @property
     def pretty_name(self) -> str:
-        return "Johnson-Lindenstrauss (JL) k-Means Netflix Prize Reference"
+        return "Johnson-Lindenstrauss (JL) k-Means goodbooks-10k Reference"
 
     @property
     def description(self) -> str:
         return (
-            "Reference outputs for Johnson-Lindenstrauss (JL) k-Means Netflix Prize,"
+            "Reference outputs for Johnson-Lindenstrauss (JL) k-Means goodbooks-10k,"
             " cached apart from its inputs."
         )
 
     @property
     def license(self) -> License | None:
-        return JLKMeansNetflixPrizeGenerator().license
+        return JLKMeansGoodbooksGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
         return [
             ReferenceDataset(dataset)
-            for dataset in JLKMeansNetflixPrizeGenerator().datasets
+            for dataset in JLKMeansGoodbooksGenerator().datasets
         ]
 
     def generate(self, dataset: ReferenceDataset[JLKMeansDataset]) -> DataInstance:
         training, R = (
-            JLKMeansNetflixPrizeGenerator().generate_inputs(dataset.dataset).inputs
+            JLKMeansGoodbooksGenerator().generate_inputs(dataset.dataset).inputs
         )
         ref_meta = _cost_ref_meta(
             to_scipy(training).tocsr(), to_numpy(R), dataset.dataset
@@ -637,10 +635,10 @@ class JLKMeansNetflixPrizeReferenceGenerator(ReferenceGenerator[JLKMeansDataset]
         return DataInstance(inputs=[], meta={}, ref_meta=ref_meta)
 
 
-class JLKMeansNetflixPrizeReferenceShellBenchmark(ShellBenchmark):
+class JLKMeansGoodbooksReferenceShellBenchmark(ShellBenchmark):
     @property
     def generator(self) -> Generator:
-        return JLKMeansNetflixPrizeReferenceGenerator()
+        return JLKMeansGoodbooksReferenceGenerator()
 
 
 class JLKMeansBenchmark(Benchmark):
@@ -737,7 +735,7 @@ Dimensionality reduction</concept_desc>
         return [
             JLKMeansTestGenerator(),
             JLKMeansOpenMLGenerator(),
-            JLKMeansNetflixPrizeGenerator(),
+            JLKMeansGoodbooksGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict[str, Any], A, R):

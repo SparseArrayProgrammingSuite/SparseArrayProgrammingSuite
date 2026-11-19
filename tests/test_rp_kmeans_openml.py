@@ -13,7 +13,7 @@ from saps.benchmark import DataInstance
 from saps.benchmarks.jl_kmeans import (
     JLKMeansBenchmark,
     JLKMeansDataset,
-    JLKMeansNetflixPrizeGenerator,
+    JLKMeansGoodbooksGenerator,
     JLKMeansOpenMLGenerator,
 )
 from saps.benchmarks.openml import (
@@ -188,21 +188,21 @@ def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
     assert "rp_kmeans_fashion_mnist" not in {generator.name for generator in generators}
 
 
-def test_rp_kmeans_netflix_generator_uses_shared_shell(monkeypatch):
+def test_rp_kmeans_goodbooks_generator_uses_shared_shell(monkeypatch):
     source = scipy.sparse.csr_matrix(np.arange(30, dtype=np.float32).reshape(6, 5))
 
-    def fake_fetch_netflixprize_matrix():
+    def fake_fetch_goodbooks_matrix():
         return source, {
             "num_users": source.shape[0],
-            "num_movies": source.shape[1],
+            "num_books": source.shape[1],
             "num_ratings": source.nnz,
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.jl_kmeans.fetch_netflixprize_matrix",
-        fake_fetch_netflixprize_matrix,
+        "saps.benchmarks.jl_kmeans.fetch_goodbooks_matrix",
+        fake_fetch_goodbooks_matrix,
     )
-    generator = JLKMeansNetflixPrizeGenerator()
+    generator = JLKMeansGoodbooksGenerator()
     dataset = generator.datasets[0]
 
     instance = generator.generate(dataset)

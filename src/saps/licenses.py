@@ -382,10 +382,26 @@ MNIST = License(
     ),
 )
 
-# Netflix Prize data from Kaggle (netflix-inc/netflix-prize-data). Checked
-# 2026-11-18: Kaggle lists "Other (specified in description)", but the
-# description specifies no license.
-NETFLIX_PRIZE: License | None = None
+GOODBOOKS = License(
+    spdx="CC-BY-SA-4.0",
+    ref=Ref(
+        title="goodbooks-10k LICENSE",
+        authors=[Author("Zygmunt Zając")],
+        url="https://github.com/zygmuntz/goodbooks-10k/blob/master/LICENSE",
+    ),
+    date_accessed=_ACCESSED_2026_11_19,
+    redistributable=True,
+    notes=(
+        "goodbooks-10k's ratings.csv: 5,976,479 one-to-five star ratings of the "
+        "10,000 most-rated Goodreads books by 53,424 users. The repository's "
+        'LICENSE states "This work is licensed under the Creative Commons '
+        'Attribution-ShareAlike 4.0 International License." The README does not '
+        "say how the ratings were collected from Goodreads. goodbooks-10k replaces "
+        "the Netflix Prize data from Kaggle (netflix-inc/netflix-prize-data), which "
+        'has no license: checked 2026-11-18, Kaggle lists "Other (specified in '
+        'description)", but the description specifies none.'
+    ),
+)
 
 # Brain MRI images from Kaggle
 # (navoneel/brain-mri-images-for-brain-tumor-detection). Checked 2026-11-18:

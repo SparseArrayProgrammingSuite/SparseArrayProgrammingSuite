@@ -18,6 +18,7 @@ KNOWN_SPDX_IDS = {
     "CC-BY-2.5",
     "CC-BY-4.0",
     "CC-BY-SA-3.0",
+    "CC-BY-SA-4.0",
     "CC0-1.0",
     "ODC-By-1.0",
     "GFDL-1.1-or-later",
