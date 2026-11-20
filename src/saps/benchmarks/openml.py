@@ -130,7 +130,8 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:
@@ -207,6 +208,20 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                 scale=255.0,
                 license=licenses.FASHION_MNIST,
             ),
+            # De-listed: CIFAR-10 has no license (see licenses.OPENML). It stays
+            # commented out because this shell is in the cached shell suite.
+            # OpenMLDataset(
+            #     "cifar10",
+            #     data_id=40927,
+            #     openml_name="CIFAR_10",
+            #     version=1,
+            #     task_id=167124,
+            #     pretty_name="CIFAR-10",
+            #     description=(
+            #         "OpenML copy of the CIFAR-10 32x32 color image dataset."
+            #     ),
+            #     scale=255.0,
+            # ),
         ]
 
     def generate(self, dataset: OpenMLDataset) -> DataInstance:

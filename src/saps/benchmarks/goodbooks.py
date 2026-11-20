@@ -82,7 +82,8 @@ class GoodbooksRatingsGenerator(Generator[GoodbooksDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:
@@ -98,6 +99,7 @@ class GoodbooksRatingsGenerator(Generator[GoodbooksDataset]):
             Ref(
                 title="goodbooks-10k",
                 authors=[Author("Zygmunt Zając")],
+                year=2017,
                 url="https://github.com/zygmuntz/goodbooks-10k",
             ),
         ]

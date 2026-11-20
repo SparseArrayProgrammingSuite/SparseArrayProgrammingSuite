@@ -186,6 +186,13 @@ def test_rp_kmeans_benchmark_uses_one_openml_generator_for_standard_datasets():
     }
     assert "rp_kmeans_mnist" not in {generator.name for generator in generators}
     assert "rp_kmeans_fashion_mnist" not in {generator.name for generator in generators}
+    # The Netflix Prize generator stays, but de-listed.
+    netflix_generator = next(
+        generator
+        for generator in generators
+        if generator.name == "jl_kmeans_netflix_prize"
+    )
+    assert [dataset.suites for dataset in netflix_generator.datasets] == [[]]
 
 
 def test_rp_kmeans_goodbooks_generator_uses_shared_shell(monkeypatch):

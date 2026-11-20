@@ -105,7 +105,8 @@ class OGBGraphGenerator(Generator[OGBDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:

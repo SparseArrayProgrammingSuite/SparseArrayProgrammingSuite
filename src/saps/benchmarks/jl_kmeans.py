@@ -24,6 +24,7 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.benchmarks.goodbooks import fetch_goodbooks_matrix
+from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
 from saps.benchmarks.openml import fetch_openml_features
 
 # The check allows a clustering to cost this much more than the same algorithm
@@ -419,6 +420,16 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 pretty_name="Fashion-MNIST",
                 license=licenses.FASHION_MNIST,
             ),
+            # De-listed: CIFAR-10 has no license (see licenses.OPENML). It stays
+            # commented out because its reference would join the cached shell
+            # suite through JLKMeansOpenMLReferenceShellBenchmark.
+            # JLKMeansDataset(
+            #     "cifar10",
+            #     k=10,
+            #     eps=0.3,
+            #     suites=["standard", "trace", "train"],
+            #     pretty_name="CIFAR-10",
+            # ),
         ]
 
     def generate(self, dataset: JLKMeansDataset) -> DataInstance:
@@ -496,6 +507,162 @@ class JLKMeansOpenMLReferenceShellBenchmark(ShellBenchmark):
         return JLKMeansOpenMLReferenceGenerator()
 
 
+class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_kmeans_netflix_prize"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Johnson-Lindenstrauss (JL) k-Means Netflix Prize"
+
+    @property
+    def description(self) -> str:
+        return "Loads Netflix Prize ratings for RP k-means clustering."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Maksim Krylykov", "mkrylykov3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="Use of KNN for the Netflix Prize",
+                authors=[Author("Vini Hong"), Author("Anastasios Tsamis")],
+                institution="Stanford CS229",
+                year=2008,
+                url="https://cs229.stanford.edu/proj2008/HongTsamis-UseOfKNNForTheNetflixPrize.pdf",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "No generative AI was used to implement benchmark functions."
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
+            "ratings matrix."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
+
+    @property
+    def datasets(self) -> list[JLKMeansDataset]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so it's in no suite and isn't run or cached.
+        # JLKMeansGoodbooksGenerator replaces it.
+        return [
+            JLKMeansDataset(
+                "netflix",
+                k=10,
+                eps=0.3,
+                suites=[],
+                pretty_name="Netflix Prize",
+            ),
+        ]
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    def generate(self, dataset: JLKMeansDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = JLKMeansNetflixPrizeReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: JLKMeansDataset) -> DataInstance:
+        data, source_meta = fetch_netflixprize_matrix()
+
+        training = from_scipy(data.tocoo())
+
+        d = data.shape[1]
+        t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
+        value = 1 / (t**0.5)
+        rng = np.random.default_rng(0)
+        R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(np.float32)
+
+        return DataInstance(
+            inputs=[training, from_numpy(R)],
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "c": dataset.c,
+                "max_iter": dataset.max_iter,
+                "num_rows": source_meta["num_users"],
+                "num_features": source_meta["num_movies"],
+                "source_num_users": source_meta["num_users"],
+                "source_num_movies": source_meta["num_movies"],
+                "source_num_ratings": source_meta["num_ratings"],
+            },
+        )
+
+
+class JLKMeansNetflixPrizeReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
+    @property
+    def suites(self) -> list[str]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so this isn't in the cached shell suite.
+        return []
+
+    @property
+    def name(self) -> str:
+        return "jl_kmeans_netflix_prize_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Johnson-Lindenstrauss (JL) k-Means Netflix Prize Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Johnson-Lindenstrauss (JL) k-Means Netflix Prize,"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return JLKMeansNetflixPrizeGenerator().license
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in JLKMeansNetflixPrizeGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[JLKMeansDataset]) -> DataInstance:
+        training, R = (
+            JLKMeansNetflixPrizeGenerator().generate_inputs(dataset.dataset).inputs
+        )
+        ref_meta = _cost_ref_meta(
+            to_scipy(training).tocsr(), to_numpy(R), dataset.dataset
+        )
+        return DataInstance(inputs=[], meta={}, ref_meta=ref_meta)
+
+
+class JLKMeansNetflixPrizeReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return JLKMeansNetflixPrizeReferenceGenerator()
+
+
 class JLKMeansGoodbooksGenerator(Generator[JLKMeansDataset]):
     @property
     def name(self) -> str:
@@ -527,6 +694,7 @@ class JLKMeansGoodbooksGenerator(Generator[JLKMeansDataset]):
             Ref(
                 title="goodbooks-10k",
                 authors=[Author("Zygmunt Zając")],
+                year=2017,
                 url="https://github.com/zygmuntz/goodbooks-10k",
             ),
         ]
@@ -736,6 +904,7 @@ Dimensionality reduction</concept_desc>
             JLKMeansTestGenerator(),
             JLKMeansOpenMLGenerator(),
             JLKMeansGoodbooksGenerator(),
+            JLKMeansNetflixPrizeGenerator(),
         ]
 
     def benchmark(self, xp, meta: dict[str, Any], A, R):

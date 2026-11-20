@@ -47,7 +47,9 @@ SUITESPARSE = License(
     redistributable=True,
     notes=(
         "The SuiteSparse Matrix Collection, including the matrices SAPS takes from "
-        'its SNAP, GAP, and LPnetlib groups. The About page states: "The matrices '
+        "its SNAP, GAP, and LPnetlib groups, and the model reduction problems of "
+        "its Oberwolfach, Rommes and Puri groups, which replace SLICOT's (see "
+        'SLICOT_MODEL_REDUCTION). The About page states: "The matrices '
         'themselves are under the CC-BY 4.0 License."'
     ),
 )
@@ -187,7 +189,8 @@ PASS = License(
 # SLICOT's "Benchmark Examples for Model Reduction". Checked 2026-11-18: no
 # license on https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction,
 # in its archives, in the SLICOT/Benchmark-ModelReduction GitHub repository, in
-# SLICOT Working Note 2002-2, or on MORwiki ("License: NA").
+# SLICOT Working Note 2002-2, or on MORwiki ("License: NA"). Its generators
+# are de-listed in favor of SuiteSparse's model reduction problems.
 SLICOT_MODEL_REDUCTION: License | None = None
 
 # FROSTT tensors. Checked 2026-11-18: FROSTT adds no data license of its own
@@ -327,7 +330,7 @@ FROSTT_UBER_PICKUPS = License(
 # and 2026-11-19: both report licence "Public" through
 # https://www.openml.org/api/v1/json/data/, which is OpenML's default value for
 # that field rather than a license. Each OpenML dataset carries its source's
-# license instead: MNIST or FASHION_MNIST, below. SAPS dropped OpenML's
+# license instead: MNIST or FASHION_MNIST, below. SAPS de-listed OpenML's
 # CIFAR-10 (40927), which has no license: checked 2026-11-19,
 # https://www.cs.toronto.edu/~kriz/cifar.html states none and asks only for a
 # citation, and Armory's "MIT" for it
@@ -387,6 +390,7 @@ GOODBOOKS = License(
     ref=Ref(
         title="goodbooks-10k LICENSE",
         authors=[Author("Zygmunt Zając")],
+        year=2017,
         url="https://github.com/zygmuntz/goodbooks-10k/blob/master/LICENSE",
     ),
     date_accessed=_ACCESSED_2026_11_19,
@@ -397,11 +401,14 @@ GOODBOOKS = License(
         'LICENSE states "This work is licensed under the Creative Commons '
         'Attribution-ShareAlike 4.0 International License." The README does not '
         "say how the ratings were collected from Goodreads. goodbooks-10k replaces "
-        "the Netflix Prize data from Kaggle (netflix-inc/netflix-prize-data), which "
-        'has no license: checked 2026-11-18, Kaggle lists "Other (specified in '
-        'description)", but the description specifies none.'
+        "the Netflix Prize data, which has no license (see NETFLIX_PRIZE)."
     ),
 )
+
+# Netflix Prize data from Kaggle (netflix-inc/netflix-prize-data). Checked
+# 2026-11-18: Kaggle lists "Other (specified in description)", but the
+# description specifies no license. Its generators are de-listed.
+NETFLIX_PRIZE: License | None = None
 
 # Brain MRI images from Kaggle
 # (navoneel/brain-mri-images-for-brain-tumor-detection). Checked 2026-11-18:

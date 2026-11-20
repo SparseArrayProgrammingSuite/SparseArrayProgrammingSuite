@@ -65,6 +65,52 @@ def test_download_and_read_matrix_returns_canonical_coo(monkeypatch, tmp_path):
     assert tensor.values is A.data
 
 
+def test_load_model_reduction_reads_named_matrices_sparse(monkeypatch, tmp_path):
+    import scipy.sparse as sps
+
+    matrix_dir = tmp_path / "problem"
+    matrix_dir.mkdir()
+    header = "%%MatrixMarket matrix coordinate"
+    (matrix_dir / "problem.mtx").write_text(
+        f"{header} real general\n2 2 2\n1 1 -2.0\n2 2 -3.0\n", encoding="utf-8"
+    )
+    (matrix_dir / "problem_E.mtx").write_text(
+        f"{header} real general\n2 2 1\n1 1 4.0\n", encoding="utf-8"
+    )
+    # A pattern file, like many SuiteSparse input matrices, reads as ones.
+    (matrix_dir / "problem_B.mtx").write_text(
+        f"{header} pattern general\n2 1 1\n2 1\n", encoding="utf-8"
+    )
+    # Matrices that aren't named, such as the outputs C, aren't read.
+    (matrix_dir / "problem_C.mtx").write_text("not a matrix", encoding="utf-8")
+    matrix = SimpleNamespace(name="problem", group="test")
+    monkeypatch.setattr(
+        suitesparse,
+        "download_suitesparse_matrix",
+        lambda name, data_dir=None: (matrix_dir, matrix),
+    )
+
+    matrices, meta = suitesparse.load_suitesparse_model_reduction(
+        "test/problem", (suitesparse.SUITESPARSE_PRIMARY, "E", "B")
+    )
+
+    assert set(matrices) == {suitesparse.SUITESPARSE_PRIMARY, "E", "B"}
+    assert all(sps.issparse(value) for value in matrices.values())
+    np.testing.assert_array_equal(
+        matrices[suitesparse.SUITESPARSE_PRIMARY].toarray(), [[-2.0, 0.0], [0.0, -3.0]]
+    )
+    np.testing.assert_array_equal(matrices["E"].toarray(), [[4.0, 0.0], [0.0, 0.0]])
+    np.testing.assert_array_equal(matrices["B"].toarray(), [[0.0], [1.0]])
+    assert meta == {
+        "dataset_name": "test/problem",
+        "matrix_group": "test",
+        "n": 2,
+        "nnz": 2,
+    }
+    with pytest.raises(FileNotFoundError):
+        suitesparse.load_suitesparse_model_reduction("test/problem", ("M",))
+
+
 def test_ssgetpy_index_lives_in_saps_cache(monkeypatch, tmp_path):
     # ssgetpy reads HOME on first import to place its index.
     modules = tmp_path / "modules"

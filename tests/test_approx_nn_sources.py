@@ -147,7 +147,14 @@ def test_simhash_ann_benchmark_uses_openml_and_goodbooks_shell_generators():
         assert f"simhash_ann_goodbooks_{kind}" in generator_names
         assert f"simhash_ann_random_{kind}" in generator_names
         assert f"simhash_ann_test_{kind}" in generator_names
-    assert len(generator_names) == len(generators) == 8
+        # The Netflix Prize generators stay, but de-listed.
+        netflix_generator = next(
+            generator
+            for generator in generators
+            if generator.name == f"simhash_ann_netflix_prize_{kind}"
+        )
+        assert [dataset.suites for dataset in netflix_generator.datasets] == [[]]
+    assert len(generator_names) == len(generators) == 10
 
 
 def test_simhash_projection_variants_share_random_inputs_and_are_reproducible():

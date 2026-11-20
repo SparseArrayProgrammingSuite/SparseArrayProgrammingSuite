@@ -695,7 +695,10 @@ class ReferenceGenerator(Generator[ReferenceDataset[TDataset]], ABC):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite. A reference generator whose
+        # data must not be cached, such as one de-listed for its license,
+        # returns [] instead.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:

@@ -23,7 +23,16 @@ DATASET_CLASSES = {
     "lsqr": "LSQRDataset",
     "gmres": "GMRESDataset",
     "amg": "CGAMGDataset",
+    "dae_bdf": "DAEBDFSuiteSparseDataset",
+    "ode": "ODESuiteSparseDataset",
 }
+
+# These solvers time integrators on model reduction problems instead of
+# solving linear systems, and record the steps they pick.
+MODEL_REDUCTION_SOLVERS = frozenset({"dae_bdf", "ode"})
+# saps.downloaders.suitesparse.SUITESPARSE_PRIMARY, which names a problem's
+# primary matrix.
+SUITESPARSE_PRIMARY = "primary"
 
 MAX_SUITESPARSE_RHS_PER_MATRIX = 100
 
@@ -34,11 +43,32 @@ def _result_setting(result: dict[str, Any], new_name: str, old_name: str) -> Any
     return result[old_name]
 
 
+def _model_reduction_descriptor(
+    solver: str, source_name: str, result: dict[str, Any]
+) -> str:
+    args = [json.dumps(source_name)]
+    # List the system's matrices in the order its equations use them.
+    system = result["system"]
+    for role in ("E", "A", "M", "D", "K", "B"):
+        name = system.get(role)
+        if name is None:
+            continue
+        value = (
+            "SUITESPARSE_PRIMARY" if name == SUITESPARSE_PRIMARY else json.dumps(name)
+        )
+        args.append(f"{role}={value}")
+    args.append(f"t_max={result['t_max']!r}")
+    args.append(f"step={result['step']!r}")
+    return f"{DATASET_CLASSES[solver]}({', '.join(args)})"
+
+
 def _descriptor(solver: str, record: dict[str, Any], result: dict[str, Any]) -> str:
     source_name = record.get(
         "source_name",
         f"{record['matrix_group']}/{record['matrix_name']}",
     )
+    if solver in MODEL_REDUCTION_SOLVERS:
+        return _model_reduction_descriptor(solver, source_name, result)
     name = json.dumps(source_name)
     rhs_index = record.get("rhs_index")
     args = [
@@ -51,10 +81,15 @@ def _descriptor(solver: str, record: dict[str, Any], result: dict[str, Any]) -> 
     return f"{DATASET_CLASSES[solver]}({name}{args_str})"
 
 
-def _format_solver_settings(settings: set[tuple[Any, Any]]) -> str:
+def _format_solver_settings(solver: str, settings: set[tuple[Any, Any]]) -> str:
+    keys = (
+        ("step_target_seconds", "hundred_step_limit_seconds")
+        if solver in MODEL_REDUCTION_SOLVERS
+        else ("max_iter", "rel_tol")
+    )
     settings_dicts = [
-        {"max_iter": max_iter, "rel_tol": rel_tol}
-        for max_iter, rel_tol in sorted(settings, key=lambda item: repr(item))
+        dict(zip(keys, item, strict=True))
+        for item in sorted(settings, key=lambda item: repr(item))
     ]
     if len(settings_dicts) == 1:
         return json.dumps(settings_dicts[0], sort_keys=True)
@@ -67,7 +102,9 @@ def _passes_rhs_filter(record: dict[str, Any]) -> bool:
     return int(record["rhs_index"]) < MAX_SUITESPARSE_RHS_PER_MATRIX
 
 
-def _solver_settings(result: dict[str, Any]) -> tuple[Any, Any]:
+def _solver_settings(solver: str, result: dict[str, Any]) -> tuple[Any, Any]:
+    if solver in MODEL_REDUCTION_SOLVERS:
+        return (result["step_target_seconds"], result["hundred_step_limit_seconds"])
     return (
         _result_setting(result, "max_iter", "max_iters"),
         _result_setting(result, "rel_tol", "tolerance"),
@@ -98,7 +135,7 @@ def main() -> int:
                 if not _passes_rhs_filter(record):
                     continue
                 for solver, result in record.get("results", {}).items():
-                    solver_settings[solver].add(_solver_settings(result))
+                    solver_settings[solver].add(_solver_settings(solver, result))
                     source_name = record.get(
                         "source_name",
                         f"{record['matrix_group']}/{record['matrix_name']}",
@@ -119,7 +156,8 @@ def main() -> int:
                     )
 
     for solver, items in descriptors.items():
-        print(f"{solver}_settings = {_format_solver_settings(solver_settings[solver])}")
+        settings = _format_solver_settings(solver, solver_settings[solver])
+        print(f"{solver}_settings = {settings}")
         print()
         print(f"{solver}_datasets = [")
         for _label, descriptor in sorted(items):

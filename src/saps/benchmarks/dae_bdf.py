@@ -23,6 +23,10 @@ from saps.benchmark import (
     Ref,
 )
 from saps.downloaders import slicot
+from saps.downloaders.suitesparse import (
+    SUITESPARSE_PRIMARY,
+    load_suitesparse_model_reduction,
+)
 
 
 class DAEBDFDataset(Dataset):
@@ -109,30 +113,85 @@ class DAEBDFDataset(Dataset):
         return metadata
 
 
+class DAEBDFSuiteSparseDataset(DAEBDFDataset):
+    """A SuiteSparse model reduction problem as a descriptor system E y' = A y + B u.
+
+    A first-order problem names the SuiteSparse matrices that are E, A and B. A
+    second-order problem M x'' + D x' + K x = B u names M, K, B and, if damped,
+    D. It becomes the first-order system in y = [x; x'] with E = [[I, 0], [0, M]],
+    A = [[0, I], [-K, -D]] and input matrix [[0], [B]]. Each matrix is named by
+    the suffix of its auxiliary file, or by SUITESPARSE_PRIMARY.
+    """
+
+    def __init__(
+        self,
+        source_name: str,
+        *,
+        B: str,
+        E: str | None = None,
+        A: str | None = None,
+        M: str | None = None,
+        D: str | None = None,
+        K: str | None = None,
+        suites: list[str] | None = None,
+        t_max: float,
+        step: float,
+    ):
+        if (E is None or A is None) == (M is None or K is None):
+            raise ValueError(f"{source_name} must name either E and A, or M and K.")
+        super().__init__(
+            source_name.partition("/")[2],
+            suites=suites,
+            source_name=source_name,
+            t_max=t_max,
+            step=step,
+        )
+        self.matrix_names = {"E": E, "A": A, "M": M, "D": D, "K": K, "B": B}
+
+    @property
+    def second_order(self) -> bool:
+        return self.matrix_names["M"] is not None
+
+    @property
+    def description(self) -> str:
+        if self.second_order:
+            return (
+                f"SuiteSparse model reduction problem {self.source_name}, a "
+                "second-order system written as a first-order descriptor system."
+            )
+        return (
+            f"SuiteSparse model reduction problem {self.source_name} as a "
+            "descriptor system."
+        )
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        metadata = super().metadata
+        metadata["system"] = {
+            role: name for role, name in self.matrix_names.items() if name is not None
+        }
+        return metadata
+
+
 class _DescriptorDAEGenerator(Generator[DAEBDFDataset]):
+    def system(self, dataset: DAEBDFDataset) -> tuple[Any, Any, Any, Any]:
+        """E, A and B of dataset's descriptor system, and its source's metadata."""
+        if dataset.E is None or dataset.A is None or dataset.B is None:
+            raise ValueError("DAE test datasets must define E, A and B.")
+        return dataset.E, dataset.A, dataset.B, None
+
     def generate(self, dataset: DAEBDFDataset) -> DataInstance:
-        source_meta = None
-        if dataset.source_name is not None:
-            variables, source_meta = slicot.load_slicot_problem(dataset.source_name)
-            variables = {key.lower(): value for key, value in variables.items()}
-            for name in ("a", "b", "e"):
-                if name not in variables:
-                    raise ValueError(f"SLICOT MAT file is missing {name.upper()!r}.")
-            A, B, E = variables["a"], variables["b"], variables["e"]
-        else:
-            if dataset.E is None or dataset.A is None or dataset.B is None:
-                raise ValueError("DAE test datasets must define E, A and B.")
-            A, B, E = dataset.A, dataset.B, dataset.E
+        E, A, B, source_meta = self.system(dataset)
         matrices = []
         for value in (A, E, B):
             if isinstance(value, pydata_sparse.SparseArray):
                 value = value.to_scipy_sparse()
             matrices.append(
-                value.astype(np.float64).tocsr()
-                if scipy_sparse.issparse(value)
-                else np.asarray(value, dtype=np.float64)
+                value.tocsr() if scipy_sparse.issparse(value) else np.asarray(value)
             )
-        A, E, B = matrices
+        # A complex system, such as SuiteSparse's windscreen, stays complex.
+        dtype = np.result_type(*(matrix.dtype for matrix in matrices), np.float64)
+        A, E, B = (matrix.astype(dtype) for matrix in matrices)
         for name, matrix in (("A", A), ("E", E)):
             if (
                 matrix.ndim != 2
@@ -343,14 +402,26 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
     def license(self) -> License | None:
         return licenses.SLICOT_MODEL_REDUCTION
 
+    def system(self, dataset: DAEBDFDataset) -> tuple[Any, Any, Any, Any]:
+        assert dataset.source_name is not None
+        variables, source_meta = slicot.load_slicot_problem(dataset.source_name)
+        variables = {key.lower(): value for key, value in variables.items()}
+        for name in ("a", "b", "e"):
+            if name not in variables:
+                raise ValueError(f"SLICOT MAT file is missing {name.upper()!r}.")
+        return variables["e"], variables["a"], variables["b"], source_meta
+
     @property
     def datasets(self) -> list[DAEBDFDataset]:
+        # De-listed: SLICOT's model reduction examples have no license (see
+        # licenses.SLICOT_MODEL_REDUCTION), so they're in no suite and aren't run.
+        # DAEBDFSuiteSparseGenerator replaces them.
         return [
             DAEBDFDataset(
                 "tline",
                 source_name="tline.mat",
                 description="SLICOT example of a transmission line model.",
-                suites=["standard", "trace"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -358,7 +429,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "peec",
                 source_name="peec.mat",
                 description="SLICOT partial element equivalent circuit model.",
-                suites=["standard", "trace"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -366,7 +437,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "heat-disc",
                 source_name="heat-disc.mat",
                 description="SLICOT discretization of the previous equation.",
-                suites=["standard", "trace"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -374,7 +445,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_1",
                 source_name="MNA_1.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=["standard", "trace"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -382,7 +453,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_2",
                 source_name="MNA_2.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=["standard", "trace"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -390,7 +461,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_3",
                 source_name="MNA_3.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=["standard", "trace", "train"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -398,7 +469,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_4",
                 source_name="MNA_4.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=["standard", "trace"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -406,11 +477,642 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_5",
                 source_name="MNA_5.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=["standard", "trace"],
+                suites=[],
                 t_max=0.02,
                 step=0.01,
             ),
         ]
+
+
+class DAEBDFSuiteSparseGenerator(_DescriptorDAEGenerator):
+    @property
+    def name(self) -> str:
+        return "dae_bdf_suitesparse"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "Differential-Algebraic Equation (DAE) Backward Differentiation Formula"
+            " (BDF) SuiteSparse"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Loads SuiteSparse model reduction problems as descriptor systems for "
+            "implicit DAE solvers, writing second-order problems in first-order form."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The university of Florida sparse matrix collection",
+                authors=[
+                    Author("Timothy A. Davis"),
+                    Author("Yifan Hu"),
+                ],
+                journal="ACM Transactions on Mathematical Software",
+                publisher="Association for Computing Machinery (ACM)",
+                volume="38",
+                number="1",
+                pages="1-25",
+                year=2011,
+                url="https://doi.org/10.1145/2049662.2049663",
+                doi="10.1145/2049662.2049663",
+            )
+        ]
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "SuiteSparse's model reduction problems are linear dynamical systems from "
+            "heat transfer, structural mechanics, acoustics, circuits and power "
+            "networks. Implicit DAE steps solve linear systems built from residual "
+            "Jacobians. Step counts come from scripts/scrape_matrices.py, which "
+            "picks about 10 seconds of steps on the SciPy framework."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
+    def datasets(self) -> list[DAEBDFDataset]:
+        return [
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/LF10",
+                M="M",
+                D="E",
+                K=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=225.49,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/LF10000",
+                M="M",
+                D="E",
+                K=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=4.3,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/LFAT5",
+                M="M",
+                D="E",
+                K=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=226.67,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/LFAT5000",
+                M="M",
+                D="E",
+                K=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=6.57,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/chipcool0",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=0.07,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/chipcool1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=0.07,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/filter2D",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=20.12,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/flowmeter0",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=1.86,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/flowmeter5",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=1.94,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/gyro",
+                M="M",
+                K=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=0.09,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/inlet",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=0.79,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/piston",
+                M="M",
+                D="E",
+                K=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=3.5,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/rail_1357",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=34.01,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/rail_20209",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard", "trace"],
+                t_max=1.15,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/rail_5177",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard", "train"],
+                t_max=6.94,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/rail_79841",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=0.17,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/spiral",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=1.09,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/t2dah",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=1.08,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/t2dal",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=5.18,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/t2dal_bci",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=5.07,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Oberwolfach/t3dl",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=0.04,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Puri/ABACUS_shell_hd",
+                M="M",
+                D="E",
+                K="K",
+                B="b",
+                suites=["standard"],
+                t_max=0.22,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Puri/ABACUS_shell_ld",
+                M="M",
+                D="E",
+                K="K",
+                B="b",
+                suites=["standard"],
+                t_max=0.22,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Puri/ABACUS_shell_md",
+                M="M",
+                D="E",
+                K="K",
+                B="b",
+                suites=["standard"],
+                t_max=0.22,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Puri/ABACUS_shell_ud",
+                M="M",
+                K="K",
+                B="b",
+                suites=["standard", "trace"],
+                t_max=0.24,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M10PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=161.83,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M10PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=171.02,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M20PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=134.8,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M20PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=146.27,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M40PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=96.71,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M40PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=102.8,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M80PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=59.99,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/M80PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=77.98,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S10PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=163.71,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S10PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=174.51,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S20PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=134.86,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S20PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=145.74,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S40PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=99.18,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S40PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=96.31,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S80PI_n",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=63.05,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/S80PI_n1",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=68.15,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bauru5727",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=4.96,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bips07_1693",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=14.08,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bips07_1998",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=11.96,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bips07_2476",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=10.76,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bips07_3078",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=9.94,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bips98_1142",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=15.56,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bips98_1450",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=14.46,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/bips98_606",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=19.16,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/descriptor_xingo6u",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=9.74,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/juba40k",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=5.12,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/mimo28x28_system",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=14.2,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/mimo46x46_system",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=14.28,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/mimo8x8_system",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=14.19,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/nopss_11k",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=15.76,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/ww_vref_6405",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=14.1,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/xingo3012",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=9.8,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/xingo_afonso_itaipu",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=15.41,
+                step=0.01,
+            ),
+            DAEBDFSuiteSparseDataset(
+                "Rommes/zeros_nopss_13k",
+                E="E",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard"],
+                t_max=14.95,
+                step=0.01,
+            ),
+        ]
+
+    def system(self, dataset: DAEBDFDataset) -> tuple[Any, Any, Any, Any]:
+        assert isinstance(dataset, DAEBDFSuiteSparseDataset)
+        assert dataset.source_name is not None
+        names = dataset.matrix_names
+        matrices, source_meta = load_suitesparse_model_reduction(
+            dataset.source_name,
+            tuple(dict.fromkeys(name for name in names.values() if name is not None)),
+        )
+
+        def matrix(role: str) -> Any:
+            name = names[role]
+            assert name is not None, f"{dataset.source_name} names no {role}"
+            return matrices[name]
+
+        B = matrix("B")
+        if not dataset.second_order:
+            return matrix("E"), matrix("A"), B, source_meta
+        # M x'' + D x' + K x = B u in first-order form, with y = [x; x'].
+        M, K = matrix("M"), matrix("K")
+        n = K.shape[0]
+        identity = scipy_sparse.identity(n, format="csr")
+        damping = None if names["D"] is None else -matrix("D")
+        E = scipy_sparse.block_diag([identity, M], format="csr")
+        A = scipy_sparse.bmat([[None, identity], [-K, damping]], format="csr")
+        B = scipy_sparse.vstack(
+            [scipy_sparse.csr_matrix((n, B.shape[1])), B], format="csr"
+        )
+        return E, A, B, source_meta
 
 
 _EPS = np.finfo(np.float64).eps
@@ -487,7 +1189,7 @@ class _DescriptorDAEBenchmark(Benchmark):
     @property
     def references(self) -> list[Ref]:
         return [
-            *DAEBDFSLICOTGenerator().references,
+            *DAEBDFSuiteSparseGenerator().references,
             Ref(
                 title="BDF2: Backward Differentiation Formula of Order 2",
                 authors=[Author("John Burkardt")],
@@ -509,7 +1211,11 @@ class _DescriptorDAEBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[DAEBDFDataset]]:
-        return [DAEBDFTestGenerator(), DAEBDFSLICOTGenerator()]
+        return [
+            DAEBDFTestGenerator(),
+            DAEBDFSLICOTGenerator(),
+            DAEBDFSuiteSparseGenerator(),
+        ]
 
     def check(self, param):
         for item in self._output:
@@ -540,7 +1246,15 @@ class _DescriptorDAEBenchmark(Benchmark):
             int(np.max(_row_counts(matrix), initial=0))
             for matrix in (E, A, B, *startup[:2], *bdf2[:2])
         )
-        gamma = _gamma(rounds + 6)
+        # A complex operation is up to four real ones, as in saps.util.error_bounds.
+        ops = (
+            4
+            if any(
+                np.iscomplexobj(matrix) for matrix in (E, A, B, *startup[:2], *bdf2[:2])
+            )
+            else 1
+        )
+        gamma = _gamma(ops * (rounds + 6))
 
         # yp is a backward difference of y.
         np.testing.assert_array_equal(yp[0], 0)
@@ -552,7 +1266,7 @@ class _DescriptorDAEBenchmark(Benchmark):
                 (3 * np.abs(y[i]) + 4 * np.abs(y[i - 1]) + np.abs(y[i - 2])) / (2 * dt)
             )
         error = np.abs(yp[1:] - np.array(differences))
-        assert np.all(error <= 2 * _gamma(4) * np.array(magnitudes)), (
+        assert np.all(error <= 2 * _gamma(ops * 4) * np.array(magnitudes)), (
             f"yp isn't the backward difference of y for {param.dataset.name}"
         )
 
@@ -592,9 +1306,9 @@ class _DescriptorDAEBenchmark(Benchmark):
             solve[rows] = abs(L) @ (abs(U) @ z)
             bound = (
                 gamma * (magnitude + 2 * solve)
-                + 4 * (rounds + 6) * _UNDERFLOW
+                + 4 * ops * (rounds + 6) * _UNDERFLOW
                 + abs(scale - factor_scale) * (abs_A @ np.abs(correction))
-                + _gamma(1)
+                + _gamma(ops)
                 * (
                     coefficients[0] * abs_E @ np.abs(y[i])
                     + abs(scale) * abs_A @ np.abs(y[i])
@@ -623,7 +1337,10 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
 
     @property
     def description(self) -> str:
-        return "Fixed-step BDF2 for SLICOT DAEs with LU factors from the generator."
+        return (
+            "Fixed-step BDF2 for descriptor-system DAEs with LU factors from the "
+            "generator."
+        )
 
     def benchmark(
         self,
@@ -645,7 +1362,9 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
     ):
         start, stop = meta["span"]
         n, dt = meta["n"], meta["dt"]
-        forcing = B @ xp.asarray(meta["input"], dtype=xp.float64)
+        # A complex system's states are complex.
+        dtype = xp.result_type(E.dtype, A.dtype, B.dtype, xp.float64)
+        forcing = B @ xp.asarray(meta["input"], dtype=dtype)
         tspan = (start, stop)
         y0 = meta["y0"]
         startup_factors = (L_start, U_start, rows_start, cols_start)
@@ -699,7 +1418,7 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
             or tspan[1] <= tspan[0]):
           raise ValueError("tspan must contain two finite, increasing times.")
         n = int(n)
-        y0 = xp.reshape(xp.asarray(y0, dtype=xp.float64), (-1,))
+        y0 = xp.reshape(xp.asarray(y0, dtype=dtype), (-1,))
 
         t = xp.linspace ( tspan[0], tspan[1], n + 1, dtype=xp.float64 )
         y = []

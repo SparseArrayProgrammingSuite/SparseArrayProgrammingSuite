@@ -38,10 +38,13 @@ import saps.benchmarks.cg as saps_cg
 import saps.benchmarks.cg_amg as saps_amg
 import saps.benchmarks.cg_block_jacobi as saps_cg_block_jacobi
 import saps.benchmarks.cg_jacobi as saps_cg_jacobi
+import saps.benchmarks.dae_bdf as saps_dae_bdf
 import saps.benchmarks.gmres as saps_gmres
 import saps.benchmarks.jacobi as saps_jacobi
 import saps.benchmarks.lsqr as saps_lsqr
+import saps.benchmarks.ode as saps_ode
 import saps.downloaders.suitesparse as saps_suitesparse_downloader
+from saps.benchmark import Param
 from saps.benchmarks.cg import CGBenchmark, CGDataset, CGSuiteSparseGenerator
 from saps.benchmarks.cg_amg import (
     CGAMGBenchmark,
@@ -83,9 +86,34 @@ SOLVER_NAMES = (
     "lsqr",
     "gmres",
     "amg",
+    "dae_bdf",
+    "ode",
 )
 
 LSQR_MATRIX_KINDS = frozenset({"least squares problem"})
+
+MODEL_REDUCTION_KINDS = frozenset(
+    {"model reduction problem", "eigenvalue/model reduction problem"}
+)
+
+# Each model reduction dataset gets the step count that runs for about
+# STEP_TARGET_SECONDS on this framework. A problem whose 100 steps would take
+# longer than HUNDRED_STEP_LIMIT_SECONDS is left out.
+STEP_TARGET_SECONDS = 10.0
+HUNDRED_STEP_LIMIT_SECONDS = 600.0
+# Timing probes grow until they run this long, so noise doesn't swamp them.
+PROBE_MIN_SECONDS = 1.0
+# The DAE step size. BDF2 is stable at any step, so only the count matters.
+DAE_STEP = 0.01
+# Base ODE steps to try, largest first. Each method scales them by its
+# step_multiplier, and the largest whose runs stay finite and pass the check
+# is kept.
+ODE_STEPS = (0.1, 0.01, 0.001, 0.0001, 1e-05, 1e-06)
+ODE_METHODS = (
+    saps_ode.ForwardEulerBenchmark,
+    saps_ode.BackwardEulerBenchmark,
+    saps_ode.RK4Benchmark,
+)
 
 MAX_SUITESPARSE_RHS_PER_MATRIX = 100
 
@@ -221,7 +249,11 @@ def _rhs_variants(
     suitesparse_data_dir: Path | None,
 ) -> list[RHSVariant]:
     rows = int(matrix.rows)
-    if not any(_solver_will_run(solver, matrix) for solver in solvers):
+    # Only the linear solvers take a right-hand side.
+    if not any(
+        isinstance(SOLVERS[solver], SolverSpec) and _solver_will_run(solver, matrix)
+        for solver in solvers
+    ):
         return [RHSVariant("synthetic", None, 0)]
 
     matrix_dir, downloaded_matrix = (
@@ -312,6 +344,257 @@ def _as_real_sparse_matrix(matrix: Any) -> sps.spmatrix:
     return A.tocsr()
 
 
+@dataclass
+class ModelReductionSpec:
+    """Times a SAPS integrator on a model reduction problem to pick its steps.
+
+    *form* is "dae" for the descriptor-system BDF2 benchmark, which takes problems
+    with an E or a mass matrix M, or "ode" for the explicit ODE benchmarks, which
+    take problems with E = I.
+    """
+
+    name: str
+    form: str
+
+    def skip_reason(self, matrix: Any) -> str | None:
+        matrix_kind = _matrix_kind(matrix)
+        if matrix_kind not in MODEL_REDUCTION_KINDS:
+            return f"{self.name} does not accept matrix kind {matrix_kind!r}"
+        return None
+
+    def result_settings(self) -> dict[str, Any]:
+        return {
+            "step_target_seconds": STEP_TARGET_SECONDS,
+            "hundred_step_limit_seconds": HUNDRED_STEP_LIMIT_SECONDS,
+        }
+
+
+def _model_reduction_system(
+    matrix: Any,
+    data_dir: Path | None,
+) -> tuple[str, dict[str, str | None]]:
+    """A model reduction problem's form, and the files that hold its matrices.
+
+    Returns ("dae", names) for a descriptor or second-order system, or
+    ("ode", names) for one with E = I, where names maps each system matrix to
+    an auxiliary file's suffix or to SUITESPARSE_PRIMARY. Raises ValueError if
+    the problem doesn't define a system the integrators can run.
+    """
+    matrix_dir, downloaded = saps_suitesparse_downloader.download_suitesparse_matrix(
+        _matrix_source_name(matrix),
+        data_dir=data_dir,
+    )
+
+    def has(suffix: str) -> bool:
+        return (
+            saps_suitesparse_downloader.suitesparse_aux_path(
+                matrix_dir, downloaded.name, suffix
+            )
+            is not None
+        )
+
+    primary = saps_suitesparse_downloader.SUITESPARSE_PRIMARY
+    # Puri's ABACUS problems name their input matrix b rather than B.
+    B = "B" if has("B") else "b" if has("b") else None
+    if B is None:
+        raise ValueError("no input matrix B")
+    if has("M"):
+        # Second-order M x'' + D x' + K x = B u. Oberwolfach stores K as the
+        # primary matrix and damping D as E; Puri stores K, M and E separately.
+        return "dae", {
+            "M": "M",
+            "D": "E" if has("E") else None,
+            "K": "K" if has("K") else primary,
+            "B": B,
+        }
+    if has("E"):
+        return "dae", {"E": "E", "A": primary, "B": B}
+    if matrix.group == "Rommes":
+        # The Rommes group states that E = I when a problem omits E.
+        return "ode", {"A": primary, "B": B}
+    raise ValueError("no E or M matrix, and no statement that E = I")
+
+
+def _probe_steps(steps: int, seconds_per_step: float) -> int:
+    """More steps for a probe that ran under PROBE_MIN_SECONDS."""
+    needed = math.ceil(1.2 * PROBE_MIN_SECONDS / max(seconds_per_step, 1e-9))
+    return max(2 * steps, needed)
+
+
+def _run_dae(matrix: Any, names: dict[str, str | None], xp: Any) -> dict[str, Any]:
+    source_name = _matrix_source_name(matrix)
+    generator = saps_dae_bdf.DAEBDFSuiteSparseGenerator()
+    kwargs = {role: name for role, name in names.items() if name is not None}
+    steps = 2
+    while True:
+        dataset = saps_dae_bdf.DAEBDFSuiteSparseDataset(
+            source_name, **kwargs, t_max=steps * DAE_STEP, step=DAE_STEP
+        )
+        param = Param(generator, dataset)
+        benchmark = saps_dae_bdf.DAEBDFBenchmark()
+        start = time.perf_counter()
+        benchmark.setup(param, use_cache=False, xp=xp)
+        setup_seconds = time.perf_counter() - start
+        start = time.perf_counter()
+        benchmark.run(param)
+        seconds = time.perf_counter() - start
+        benchmark.check(param)
+        order = int(benchmark._meta["order"])
+        # The states have E, A and B's type: complex for windscreen.
+        itemsize = np.result_type(
+            np.float64,
+            *(saps_dae_bdf._matrix(value).dtype for value in benchmark._input[:3]),
+        ).itemsize
+        benchmark.teardown(param)
+        seconds_per_step = seconds / steps
+        if 100 * seconds_per_step > HUNDRED_STEP_LIMIT_SECONDS:
+            return {
+                "status": "too_slow",
+                "converged": False,
+                "order": order,
+                "probe_steps": steps,
+                "seconds_per_step": _safe_float(seconds_per_step),
+                "setup_seconds": _safe_float(setup_seconds),
+            }
+        if seconds >= PROBE_MIN_SECONDS:
+            break
+        steps = _probe_steps(steps, seconds_per_step)
+    chosen = max(2, round(STEP_TARGET_SECONDS / seconds_per_step))
+    return {
+        "status": "ok",
+        "converged": True,
+        "order": order,
+        "steps": chosen,
+        "step": DAE_STEP,
+        "t_max": round(chosen * DAE_STEP, 10),
+        "probe_steps": steps,
+        "seconds_per_step": _safe_float(seconds_per_step),
+        "setup_seconds": _safe_float(setup_seconds),
+        # The benchmark returns y and y' at every step.
+        "output_bytes": 2 * (chosen + 1) * order * itemsize,
+    }
+
+
+def _run_ode_method(
+    benchmark_cls: Any,
+    source_name: str,
+    names: dict[str, str | None],
+    step: float,
+    t_max: float,
+    xp: Any,
+) -> tuple[float, int]:
+    """Run and check one ODE method, returning its seconds and step count."""
+    benchmark = benchmark_cls()
+    generator = saps_ode.ODESuiteSparseGenerator()
+    dataset = saps_ode.ODESuiteSparseDataset(
+        source_name, A=names["A"], B=names["B"], t_max=t_max, step=step
+    )
+    param = Param(generator, dataset)
+    benchmark.setup(param, use_cache=False, xp=xp)
+    start = time.perf_counter()
+    benchmark.run(param)
+    seconds = time.perf_counter() - start
+    benchmark.check(param)
+    # The first output holds the times, one more than the steps.
+    steps = int(benchmark._output[0].shape[0]) - 1
+    benchmark.teardown(param)
+    return seconds, steps
+
+
+def _run_ode(matrix: Any, names: dict[str, str | None], xp: Any) -> dict[str, Any]:
+    source_name = _matrix_source_name(matrix)
+    failures = {}
+    for step in ODE_STEPS:
+        try:
+            # Grow the span until the slowest method's probe is long enough.
+            t_max = 100 * step
+            while True:
+                rates = {}
+                for benchmark_cls in ODE_METHODS:
+                    seconds, steps = _run_ode_method(
+                        benchmark_cls, source_name, names, step, t_max, xp
+                    )
+                    if 100 * seconds / max(steps, 1) > HUNDRED_STEP_LIMIT_SECONDS:
+                        return {
+                            "status": "too_slow",
+                            "converged": False,
+                            "method": benchmark_cls().name,
+                            "seconds_per_step": _safe_float(seconds / max(steps, 1)),
+                        }
+                    rates[benchmark_cls().name] = seconds / t_max
+                slowest = max(rates.values())
+                if slowest * t_max >= PROBE_MIN_SECONDS:
+                    break
+                t_max *= max(2.0, 1.2 * PROBE_MIN_SECONDS / max(slowest * t_max, 1e-9))
+            # Span the slowest method's target run, to three significant digits.
+            chosen = float(f"{STEP_TARGET_SECONDS / slowest:.3g}")
+            # The full span must stay finite and pass every method's check too.
+            seconds = {
+                benchmark_cls().name: _run_ode_method(
+                    benchmark_cls, source_name, names, step, chosen, xp
+                )[0]
+                for benchmark_cls in ODE_METHODS
+            }
+        except (AssertionError, FloatingPointError, OverflowError) as exc:
+            failures[repr(step)] = f"{type(exc).__name__}: {exc}"[:500]
+            continue
+        return {
+            "status": "ok",
+            "converged": True,
+            "step": step,
+            "t_max": chosen,
+            "seconds": {name: _safe_float(value) for name, value in seconds.items()},
+            "rejected_steps": failures,
+        }
+    return {
+        "status": "unstable",
+        "converged": False,
+        "rejected_steps": failures,
+    }
+
+
+def _run_model_reduction(
+    spec: ModelReductionSpec,
+    matrix: Any,
+    xp: Any,
+    data_dir: Path | None,
+) -> dict[str, Any]:
+    start = time.perf_counter()
+    try:
+        try:
+            form, names = _model_reduction_system(matrix, data_dir)
+        except ValueError as exc:
+            return {
+                "status": "skipped",
+                "converged": False,
+                "reason": str(exc),
+                **spec.result_settings(),
+            }
+        if form != spec.form:
+            return {
+                "status": "skipped",
+                "converged": False,
+                "reason": f"{spec.name} does not take {form} problems",
+                "system": names,
+                **spec.result_settings(),
+            }
+        result = (
+            _run_dae(matrix, names, xp)
+            if form == "dae"
+            else _run_ode(matrix, names, xp)
+        )
+        return {**result, "system": names, **spec.result_settings()}
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "status": "error",
+            "converged": False,
+            "seconds": _safe_float(time.perf_counter() - start),
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+            **spec.result_settings(),
+        }
+
+
 @contextlib.contextmanager
 def _saps_suitesparse_context(
     suitesparse_data_dir: Path | None,
@@ -350,11 +633,27 @@ def _saps_suitesparse_context(
     for module in original_fetches:
         module.fetch_suitesparse_linear_system = _fetch_suitesparse_linear_system
 
+    # The model reduction generators read from the same SuiteSparse root.
+    integrators = (saps_dae_bdf, saps_ode)
+    original_loaders = {
+        module: module.load_suitesparse_model_reduction for module in integrators
+    }
+
+    def _load_suitesparse_model_reduction(source_name: str, names: tuple[str, ...]):
+        return saps_suitesparse_downloader.load_suitesparse_model_reduction(
+            source_name, names, data_dir=suitesparse_data_dir
+        )
+
+    for module in original_loaders:
+        module.load_suitesparse_model_reduction = _load_suitesparse_model_reduction
+
     try:
         yield
     finally:
         for module, fetch in original_fetches.items():
             module.fetch_suitesparse_linear_system = fetch
+        for module, load in original_loaders.items():
+            module.load_suitesparse_model_reduction = load
 
 
 SOLVERS = {
@@ -405,6 +704,8 @@ SOLVERS = {
         spd_required=True,
         discretization_required=True,
     ),
+    "dae_bdf": ModelReductionSpec(name="dae_bdf", form="dae"),
+    "ode": ModelReductionSpec(name="ode", form="ode"),
 }
 
 
@@ -472,6 +773,7 @@ def _run_solver(
     matrix: Any,
     rhs_index: int | None,
     xp: Any,
+    data_dir: Path | None = None,
 ) -> dict[str, Any]:
     spec = SOLVERS[solver_name]
     skip_reason = spec.skip_reason(matrix)
@@ -482,6 +784,8 @@ def _run_solver(
             "reason": skip_reason,
             **spec.result_settings(),
         }
+    if isinstance(spec, ModelReductionSpec):
+        return _run_model_reduction(spec, matrix, xp, data_dir)
 
     start = time.perf_counter()
     try:
@@ -579,6 +883,7 @@ def _matrix_record(
     variant: RHSVariant,
     solvers: Iterable[str],
     xp: Any,
+    data_dir: Path | None = None,
 ) -> dict[str, Any]:
     rows = int(matrix.rows)
     cols = int(matrix.cols)
@@ -588,7 +893,9 @@ def _matrix_record(
     results = {}
     source_name = _matrix_source_name(matrix)
     for solver_name in solvers:
-        results[solver_name] = _run_solver(solver_name, matrix, variant.index, xp)
+        results[solver_name] = _run_solver(
+            solver_name, matrix, variant.index, xp, data_dir
+        )
 
     record = {
         "matrix_name": matrix.name,
@@ -713,7 +1020,7 @@ def main() -> int:
 
                 print(f"Checking {label}", flush=True)
                 try:
-                    record = _matrix_record(matrix, variant, solvers, xp)
+                    record = _matrix_record(matrix, variant, solvers, xp, args.data_dir)
                 except Exception as exc:  # noqa: BLE001
                     print(f"Failed to check {label}: {exc}")
                     record = {

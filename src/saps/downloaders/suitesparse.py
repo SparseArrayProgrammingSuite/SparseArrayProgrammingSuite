@@ -99,6 +99,44 @@ def _download_and_read_matrix(
     return matrix_dir, matrix, A
 
 
+# Names a model reduction problem's primary matrix, as opposed to one of its
+# auxiliary <name>_<suffix>.mtx files, which are named by their suffix.
+SUITESPARSE_PRIMARY = "primary"
+
+
+def load_suitesparse_model_reduction(
+    source_name: str,
+    names: tuple[str, ...],
+    *,
+    data_dir: str | Path | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Download (if needed) and read matrices of a SuiteSparse model reduction problem.
+
+    Returns ``(matrices, meta)``. *matrices* holds each matrix in *names* as a
+    SciPy CSR matrix: `SUITESPARSE_PRIMARY` names the primary matrix, and any
+    other name the auxiliary file ``<name>_<suffix>.mtx`` with that suffix,
+    matched case-sensitively (``b`` and ``B`` are different files). Pattern
+    files read as ones.
+    """
+    import scipy.sparse as sps
+    from scipy.io import mmread
+
+    matrix_dir, matrix, primary = _download_and_read_matrix(source_name, data_dir)
+    matrices = {
+        name: primary.tocsr()
+        if name == SUITESPARSE_PRIMARY
+        else sps.csr_matrix(mmread(_require_aux_path(matrix_dir, matrix.name, name)))
+        for name in names
+    }
+    meta = {
+        "dataset_name": source_name,
+        "matrix_group": matrix.group,
+        "n": primary.shape[0],
+        "nnz": primary.nnz,
+    }
+    return matrices, meta
+
+
 def load_suitesparse_matrix(
     source_name: str,
     *,
