@@ -15,7 +15,10 @@ from saps.benchmark import (
     License,
     Ref,
 )
-from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_license
+from saps.benchmarks.frostt import (
+    fetch_frostt_tensor,
+    frostt_tensor_license,
+)
 from saps.util.tensor_checks import (
     assert_residual,
     decomposition_outputs,
@@ -376,7 +379,8 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
 
     @property
     def suites(self):
-        return ["standard"]
+        # Only datasets whose tensors are licensed are standard.
+        return []
 
     @property
     def concepts(self) -> str:
@@ -440,35 +444,36 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
                 max_iter=max_iter,
                 suites=suites,
             )
+            # Unlicensed tensors are in no cached suite, nor trace or train.
             for n, tensor_name, rank, max_iter, suites in [
-                (3, "matmul_2_2_2", 2, 20, ["trace", "train"]),
-                (3, "matmul_3_3_3", 2, 20, ["trace"]),
-                (3, "matmul_4_3_2", 2, 20, ["trace"]),
-                (3, "matmul_4_4_3", 2, 20, ["trace"]),
-                (3, "matmul_4_4_4", 2, 20, ["trace"]),
-                (3, "matmul_5_5_5", 3, 20, ["trace"]),
-                (3, "matmul_6_3_3", 3, 20, ["trace"]),
+                (3, "matmul_2_2_2", 2, 20, ["standard", "trace", "train"]),
+                (3, "matmul_3_3_3", 2, 20, ["standard", "trace"]),
+                (3, "matmul_4_3_2", 2, 20, ["standard", "trace"]),
+                (3, "matmul_4_4_3", 2, 20, ["standard", "trace"]),
+                (3, "matmul_4_4_4", 2, 20, ["standard", "trace"]),
+                (3, "matmul_5_5_5", 3, 20, ["standard", "trace"]),
+                (3, "matmul_6_3_3", 3, 20, ["standard", "trace"]),
                 (3, "nell_2", 10, 5, []),
                 (3, "vast_2015_mc1_3d", 10, 5, []),
                 (3, "nell_1", 10, 5, []),
                 (3, "flickr_3d", 10, 5, []),
                 (3, "delicious_3d", 10, 5, []),
-                (3, "amazon_reviews", 10, 5, []),
-                (3, "patents", 10, 5, []),
+                (3, "amazon_reviews", 10, 5, ["standard"]),
+                (3, "patents", 10, 5, ["standard"]),
                 (3, "reddit_2015", 10, 5, []),
-                (3, "fb_m", 10, 5, []),
+                (3, "fb_m", 10, 5, ["standard"]),
                 (3, "darpa", 10, 5, []),
-                (4, "toy", 2, 5, ["trace"]),
-                (4, "nips", 10, 5, ["trace"]),
-                (4, "uber_pickups", 10, 5, ["trace"]),
-                (4, "chicago_crime_comm", 10, 5, ["trace", "train"]),
+                (4, "toy", 2, 5, []),
+                (4, "nips", 10, 5, []),
+                (4, "uber_pickups", 10, 5, ["standard", "trace"]),
+                (4, "chicago_crime_comm", 10, 5, ["standard", "trace", "train"]),
                 (4, "enron", 10, 5, []),
                 (4, "flickr_4d", 10, 5, []),
                 (4, "delicious_4d", 10, 5, []),
                 (5, "lbnl_network", 10, 5, []),
-                (5, "chicago_crime_geo", 10, 5, ["trace", "train"]),
+                (5, "chicago_crime_geo", 10, 5, ["standard", "trace", "train"]),
                 (5, "vast_2015_mc1_5d", 10, 5, []),
-                (5, "lanl2", 10, 5, []),
+                (5, "lanl2", 10, 5, ["standard"]),
             ]
         ]
 

@@ -97,6 +97,7 @@ _TENSORS: list[FROSTTDataset] = [
         order=3,
         # Tensor order via real downloads: (k*n, m*n, m*k).
         shape=(k * n, m * n, m * k),
+        license=licenses.FROSTT_MATMUL,
         description=(
             f"FROSTT matrix-multiplication tensor for a ({m}x{k}) * ({k}x{n}) product."
         ),
@@ -295,7 +296,6 @@ _TENSORS: list[FROSTTDataset] = [
             " subreddits, and words appearing fewer than 5 times are"
             " excluded."
         ),
-        suites=["standard-long"],
     ),
     FROSTTDataset(
         "fb_m",

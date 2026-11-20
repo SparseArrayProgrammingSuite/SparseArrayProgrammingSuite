@@ -513,7 +513,8 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        # Only datasets whose tensors are licensed are standard.
+        return []
 
     @property
     def concepts(self) -> str:
@@ -571,36 +572,37 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
     def datasets(self) -> list[HOSVDFROSTTDataset]:
         datasets = [
             _hosvd_frostt_dataset(tensor_name, ranks, suites)
+            # Unlicensed tensors are in no cached suite, nor trace or train.
             for (tensor_name, ranks, suites) in [
-                ("matmul_2_2_2", (2, 2, 2), ["trace"]),
-                ("matmul_3_3_3", (2, 2, 2), ["trace"]),
-                ("matmul_4_3_2", (2, 2, 2), ["trace"]),
-                ("matmul_4_4_3", (2, 2, 2), ["trace"]),
-                ("matmul_4_4_4", (2, 2, 2), ["trace"]),
-                ("matmul_5_5_5", (2, 2, 2), ["trace", "train"]),
-                ("matmul_6_3_3", (2, 2, 2), ["trace"]),
+                ("matmul_2_2_2", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_3_3_3", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_4_3_2", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_4_4_3", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_4_4_4", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_5_5_5", (2, 2, 2), ["standard", "trace", "train"]),
+                ("matmul_6_3_3", (2, 2, 2), ["standard", "trace"]),
                 ("nell_2", (5, 5, 5), []),
                 ("vast_2015_mc1_3d", (5, 5, 2), []),
                 ("nell_1", (5, 5, 5), []),
                 ("flickr_3d", (5, 5, 5), []),
                 ("delicious_3d", (5, 5, 5), []),
-                ("amazon_reviews", (5, 5, 5), []),
-                ("patents", (5, 5, 5), []),
+                ("amazon_reviews", (5, 5, 5), ["standard"]),
+                ("patents", (5, 5, 5), ["standard"]),
                 ("reddit_2015", (5, 5, 5), []),
-                ("fb_m", (5, 5, 5), []),
+                ("fb_m", (5, 5, 5), ["standard"]),
                 ("darpa", (5, 5, 5), []),
-                ("toy", (2, 2, 2, 2), ["trace", "train"]),
+                ("toy", (2, 2, 2, 2), []),
                 ("nips", (5, 5, 5, 5), []),
-                ("uber_pickups", (5, 5, 5, 5), []),
-                ("chicago_crime_comm", (5, 5, 5, 5), []),
+                ("uber_pickups", (5, 5, 5, 5), ["standard"]),
+                ("chicago_crime_comm", (5, 5, 5, 5), ["standard"]),
                 ("enron", (5, 5, 5, 5), []),
                 ("flickr_4d", (5, 5, 5, 5), []),
                 ("delicious_4d", (5, 5, 5, 5), []),
                 ("lbnl_network", (5, 5, 5, 5, 5), []),
-                ("chicago_crime_geo", (5, 5, 5, 5, 5), []),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5), ["standard"]),
                 # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
                 ("vast_2015_mc1_5d", (5, 5, 2, 5, 5), []),
-                ("lanl2", (5, 5, 5, 5, 5), []),
+                ("lanl2", (5, 5, 5, 5, 5), ["standard"]),
             ]
         ]
 
