@@ -304,7 +304,7 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "Provide small particle examples for benchmark correctness checks while "
             "exercising the same CS267-derived cutoff, minimum-radius softening, "
@@ -535,7 +535,7 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "The CS267 homework initializes particles on a shuffled regular grid "
             "with random velocities so baseline implementations can focus on the "
@@ -773,7 +773,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "Pedestrian trajectories provide real-world 2D interaction data that can "
             "exercise the particle simulation benchmark without changing the source "
@@ -955,7 +955,7 @@ class ParticleSimulationLyonGenerator(Generator[ParticleSimulationLyonDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "Dense crowd trajectories provide real-world 2D interaction data that "
             "can exercise the particle simulation benchmark without changing the "
@@ -1102,7 +1102,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "The particle simulation is used to model particle interaction present in"
             " mechanics, biology, astronomy, and other fields on a simplitic level. "
@@ -1279,16 +1279,14 @@ class ParticleSimulationBenchmark(Benchmark):
         return "Particle Simulation"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
-            " array operations. The cutoff parameter is the interaction radius and"
-            " the smallest cell width: forces ramp linearly to zero over the last 5%"
-            " of the cutoff radius, and only pairs whose cell indices differ by at"
-            " most one on every axis are evaluated. A periodic box wraps its cells"
-            " and pairs interact through their nearest periodic image. This"
-            " benchmark evaluates performance characteristics and numerical"
-            " properties."
+            "Simulates the behavior of particles in a system, integrating their "
+            "positions and velocities over time based on the forces acting on them. We "
+            "use a simple gravitational force model with a cutoff range and softening "
+            "factor. The cutoff makes the interaction between particles sparse. We "
+            "scatter particles into buckets, then interact only with particles in "
+            "neighboring buckets using a sparse stencil."
         )
 
     @property
@@ -1342,10 +1340,27 @@ class ParticleSimulationBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "The particle simulation is used to model particle interaction present in"
-            " mechanics, biology, astronomy, and other fields on a simplitic level."
+            "Benchmark implementation for Particule_Simulation_Algorithm using sparse "
+            "array operations. The cutoff parameter is the interaction radius and the "
+            "smallest cell width: forces ramp linearly to zero over the last 5% of the "
+            "cutoff radius, and only pairs whose cell indices differ by at most one on "
+            "every axis are evaluated. A periodic box wraps its cells and pairs "
+            "interact through their nearest periodic image. This benchmark evaluates "
+            "performance characteristics and numerical properties. The particle "
+            "simulation is used to model particle interaction present in mechanics, "
+            "biology, astronomy, and other fields on a simplitic level."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"Forces ramp linearly to zero over the last 5\% of the cutoff radius, so "
+            "they stay continuous as pairs move out of range, and we check that every "
+            "position and velocity lies within interval bounds that contain every "
+            "float64 evaluation of the simulation under any floating-point "
+            r"reassociation or fused multiply-add~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

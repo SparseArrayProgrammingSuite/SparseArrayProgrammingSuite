@@ -184,7 +184,7 @@ class ModelCountingTestGenerator(
         Generative AI was used to debug code. This statement was written by hand."""
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses a predefined set of formulas to verify correctness."
 
     @property
@@ -360,7 +360,7 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Model counting competition instances provide standard CNF inputs "
             "for evaluating exact, projected, weighted, and algebraic counting "
@@ -470,7 +470,7 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Track1 instances have exact integer model counts, so they can be "
             "run by the existing unweighted model-counting einsum benchmark."
@@ -605,7 +605,7 @@ class ModelCountingMCCompPoolGenerator(
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Formulas from the applications that the Model Counting Competitions "
             "collected, small enough that a dense evaluation of the counting "
@@ -723,8 +723,12 @@ class ModelCountingBenchmark(Benchmark):
         return "Model Counting"
 
     @property
-    def description(self):
-        return "Benchmarks Model Counting Algorithm using einsum operations."
+    def description(self) -> str:
+        return (
+            "Counts the satisfying assignments of a SAT problem with a straightforward "
+            "brute-force reduction to an einsum over the clauses, in which each "
+            r"variable is an index into a 0-1 vector~\cite{dudek_efficient_2020}."
+        )
 
     @property
     def suites(self):
@@ -766,10 +770,19 @@ class ModelCountingBenchmark(Benchmark):
             Generative AI was used to debug code. This statement was written by hand."""
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Model Counting is used to determine the total number of satisfying"
-            " assignments for a SAT problem."
+            "Benchmarks Model Counting Algorithm using einsum operations. Model "
+            "Counting is used to determine the total number of satisfying assignments "
+            "for a SAT problem."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Counts are integers, so we check them exactly against each instance's "
+            "stored count, which we first check against an independent brute-force "
+            "count."
         )
 
     @property

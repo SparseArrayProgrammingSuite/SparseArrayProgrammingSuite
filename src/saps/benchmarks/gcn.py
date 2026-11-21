@@ -213,7 +213,7 @@ class GCNTestGenerator(Generator[GCNDataset]):
         return GCNBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small graph examples to verify the GCN forward pass."
 
     @property
@@ -374,7 +374,7 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Graphs are widely used for abstracting systems of interacting objects,"
             " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
@@ -581,7 +581,7 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Uses complete real-world node features and graph structure from the "
             "Open Graph Benchmark instead of synthesized GCN inputs. SAPS caches the "
@@ -729,10 +729,10 @@ class GCNBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Computes a 2-layer Graph Convolutional Network forward pass: "
-            "h1 = ReLU(adjacency @ features @ weights1 + bias1) "
-            "output = adjacency @ h1 @ weights2 + bias2 "
-            "Implementation based on Scorch (Yan et al., 2024)."
+            "Computes the forward pass of a two-layer graph convolutional network, $H "
+            r"= \mathrm{ReLU}(\hat{A} X W_1 + b_1)$ and $Y = \hat{A} H W_2 + b_2$, "
+            r"where $\hat{A}$ is the normalized adjacency matrix, $X$ holds the node "
+            "features, and $W_i$ and $b_i$ are weights and biases."
         )
 
     @property
@@ -818,17 +818,28 @@ class GCNBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Graphs are widely used for abstracting systems of interacting objects,"
-            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
-            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
-            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
-            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
-            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
-            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
-            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
-            " matrix is used, which is inherently sparse."
+            "Computes a 2-layer Graph Convolutional Network forward pass: h1 = "
+            "ReLU(adjacency @ features @ weights1 + bias1) output = adjacency @ h1 @ "
+            "weights2 + bias2 Implementation based on Scorch (Yan et al., 2024). "
+            "Graphs are widely used for abstracting systems of interacting objects, "
+            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel "
+            "et al., 2015), molecular graphs (Wu et al., 2018), and biological "
+            "networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects "
+            "(Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and "
+            "source code (Allamanis et al., 2017). Machine learning (ML), especially "
+            "deep learning, on graphs is an emerging field (Hamilton et al., 2017b; "
+            "Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny "
+            "matrix is used, which is inherently sparse."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Inference runs in float32, so we check that each output lies within 8 "
+            "standard deviations of its float64 reference, as predicted by "
+            r"probabilistic rounding error analysis~\cite{higham_new_2019}."
         )
 
     @property

@@ -1525,7 +1525,7 @@ class MCCompPoolInstanceGenerator(Generator[MCCompPoolDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The competition organizers published every instance submitted to "
             "them, not only those they selected, so the pools hold small instances "

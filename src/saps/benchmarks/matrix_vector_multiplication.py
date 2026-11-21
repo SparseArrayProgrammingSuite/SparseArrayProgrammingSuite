@@ -94,7 +94,7 @@ class MatrixVectorMultiplicationDenseGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate dense matrices for matrix-vector multiplication."
 
     @property
@@ -302,7 +302,7 @@ class MatrixVectorMultiplicationSuiteSparseGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate real sparse matrices for matrix-vector multiplication, "
             "using the benchmark suite of Vuduc's SpMV autotuning study: 26 of "
@@ -441,7 +441,7 @@ class MatrixVectorMultiplicationUniformRandomGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate uniform random sparse matrices for matrix-vector "
             "multiplication over a range of densities. The density values are "
@@ -507,15 +507,25 @@ class MatrixVectorMultiplicationBenchmark(Benchmark):
         return "Matrix-Vector Multiplication"
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Matrix-vector multiplication is the key operator in linear algebra"
-            "and it is widely used in almost every sparse array application. "
+            r"The multiplication of a matrix and a vector.C_i = \sum_j A_ij B_j "
+            "Matrix-vector multiplication is the key operator in linear algebraand it "
+            "is widely used in almost every sparse array application."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Sums may be computed in any order, so for inner dimension $n$ we check "
+            r"entries to an absolute error of $\gamma_n \max_i (|A||b|)_i$, Higham's "
+            r"bound on the error of summation in any order, where $\gamma_n = "
+            r"n\epsilon/(1 - n\epsilon)$ for machine epsilon $\epsilon$."
         )
 
     @property
     def description(self) -> str:
-        return "The multiplication of a matrix and a vector.C_i = \\sum_j A_ij B_j"
+        return r"Multiplies a matrix by a vector, $y_i = \sum_j A_{ij} b_j$."
 
     @property
     def suites(self) -> list[str]:

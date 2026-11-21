@@ -506,7 +506,7 @@ class GAPGraphGenerator(Generator[GAPDataset]):
         return "This shell generator was written with assistance from Claude."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Reuse prepared SuiteSparse GAP matrices across graph benchmarks."
 
     @property

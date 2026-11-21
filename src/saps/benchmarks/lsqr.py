@@ -101,7 +101,7 @@ class LSQRTestGenerator(Generator[LSQRDataset]):
         return LSQRBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small inlined least-squares systems to verify convergence."
 
     @property
@@ -283,7 +283,7 @@ class LSQRSuiteSparseGenerator(Generator[LSQRDataset]):
         return LSQRBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return self.description
 
     @property
@@ -403,27 +403,38 @@ class LSQRBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Hand written code based on the algorithm defined in Paige and "
-            "Saunders' LSQR paper. Implementation structure was also based "
-            "around the work of Michael Friedlander and Dominique Orban."
+            r"Solves least-squares problems to minimize the $\ell_2$-norm of the "
+            "residual with the LSQR method. This method works even for rectangular and "
+            "ill-conditioned systems. Each iteration requires only 2 sparse "
+            "matrix-vector multiplications (SpMVs)."
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            '"[LSQR] is analytically equivalent to the standard method of '
-            "conjugate gradients, but possesses more favorable numerical "
-            "properties...  Numerical tests are described comparing LSQR with "
-            "several other conjugate-gradient algorithms, indicating that LSQR "
-            'is the most reliable algorithm when A is ill-conditioned." '
-            "C. C. Paige and M. A. Saunders, "
-            '"LSQR: An Algorithm for Sparse Linear Equations and Sparse Least '
-            'Squares," ACM Transactions on Mathematical Software, vol. 8, '
-            "no. 1, 1982, p. 43. The main computation of the algorithm is 2 SpMVs per"
-            " iteration Av and ATu. Through sparsity the computation is lowered from"
-            " two operations of O(n^2) to two O(nnz). This efficiency allows the"
-            " algorithm to handle massive, ill-conditioned systems with very low"
-            " storage requirements."
+            "Hand written code based on the algorithm defined in Paige and Saunders' "
+            "LSQR paper. Implementation structure was also based around the work of "
+            'Michael Friedlander and Dominique Orban. "[LSQR] is analytically '
+            "equivalent to the standard method of conjugate gradients, but possesses "
+            "more favorable numerical properties... Numerical tests are described "
+            "comparing LSQR with several other conjugate-gradient algorithms, "
+            "indicating that LSQR is the most reliable algorithm when A is "
+            'ill-conditioned." C. C. Paige and M. A. Saunders, "LSQR: An Algorithm for '
+            'Sparse Linear Equations and Sparse Least Squares," ACM Transactions on '
+            "Mathematical Software, vol. 8, no. 1, 1982, p. 43. The main computation "
+            "of the algorithm is 2 SpMVs per iteration Av and ATu. Through sparsity "
+            "the computation is lowered from two operations of O(n^2) to two O(nnz). "
+            "This efficiency allows the algorithm to handle massive, ill-conditioned "
+            "systems with very low storage requirements."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"LSQR stops on either of Paige and Saunders' tests, a small residual $\|b "
+            r"- Ax\|$ or a small gradient $\|A^\top(b - Ax)\|$~\cite{paige1982lsqr}, so "
+            "we check that the result passes one of them under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

@@ -137,7 +137,7 @@ class PageRankTestGenerator(Generator[PageRankDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for PageRank correctness checks."
 
     @property
@@ -287,7 +287,7 @@ class PageRankSNAPGenerator(Generator[PageRankDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse graph inputs for PageRank."
 
     @property
@@ -492,7 +492,7 @@ class PageRankGAPGenerator(Generator[PageRankDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP graph inputs for PageRank."
 
     @property
@@ -595,15 +595,12 @@ class PageRankBenchmark(Benchmark):
         return "PageRank"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "The out-degree of the adjacency is found by summing columns, giving "
-            "us the number of outbound links per page. If out-degree is not 0, "
-            "we divide by k (the number of outbound links). If out-degree is 0, "
-            "that means the node had no links, so we distribute it evenly among "
-            "all nodes to preserve probability mass. We then run iteration "
-            "multiple times so that the PageRank vector converges to its "
-            "theoretical stationary value."
+            "Ranks vertices by influence, repeatedly setting each vertex's rank to the "
+            "sum of its neighbors' ranks, each divided by that neighbor's out-degree. "
+            "Each iteration is a sparse matrix-vector product, so PageRank behaves "
+            "like an iterative solver applied to a graph."
         )
 
     @property
@@ -680,10 +677,24 @@ class PageRankBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Pagerank is included as a common graph algorithm benchmark problem, "
-            "appearing in the GAP benchmark, for example."
+            "The out-degree of the adjacency is found by summing columns, giving us "
+            "the number of outbound links per page. If out-degree is not 0, we divide "
+            "by k (the number of outbound links). If out-degree is 0, that means the "
+            "node had no links, so we distribute it evenly among all nodes to preserve "
+            "probability mass. We then run iteration multiple times so that the "
+            "PageRank vector converges to its theoretical stationary value. Pagerank "
+            "is included as a common graph algorithm benchmark problem, appearing in "
+            "the GAP benchmark, for example."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "PageRank stops at a tolerance or an iteration limit, so we check that the "
+            r"ranks are nonnegative, sum to one, and lie within the $\ell_1$ error "
+            "bound of that truncated power iteration from the reference ranks."
         )
 
     @property

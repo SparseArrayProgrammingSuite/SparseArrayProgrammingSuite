@@ -167,7 +167,7 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Several benchmarks use the same OpenML image datasets. Sharing a "
             "cacheable generator for the prepared feature matrix avoids redundant "

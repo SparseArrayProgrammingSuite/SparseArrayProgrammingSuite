@@ -104,7 +104,7 @@ class CPALSFactorizableGenerator(Generator[CPALSFactorizableDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return ""
 
     @property
@@ -421,7 +421,7 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "Real sparse tensors from FROSTT exercise CP-ALS's MTTKRP kernel against"
             " genuinely irregular sparsity patterns, unlike the synthetic"
@@ -547,14 +547,14 @@ class CPALSBenchmark(Benchmark):
         return f"Canonical Polyadic Alternating Least Squares (CP-ALS) {self.n}D"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Computes the CP decomposition using Alternating Least Squares (ALS). "
-            "Factorizes an N-D tensor X into factor matrices such that: "
-            "$X \\approx \\sum_{r=1}^{R} \\lambda_r \\cdot a_r \\circ b_r "
-            "\\circ ...$ where $\\circ$ denotes the outer product, R is the rank, "
-            "and $\\lambda$ are the weights. Handwritten code based on the standard "
-            "CP-ALS algorithm from Kolda and Bader (2009). "
+            "Computes the canonical polyadic (CP) decomposition of an $N$-dimensional "
+            "tensor $X$ with alternating least squares (ALS), factoring it into factor "
+            r"matrices such that, in 3D, $X_{ijk} \approx \sum_{r} \lambda_r A_{ir} "
+            r"B_{jr} C_{kr}$, where $\lambda$ are the weights. Follows the standard "
+            "CP-ALS algorithm, repeatedly updating each factor matrix with least "
+            "squares fits."
         )
 
     @property
@@ -630,21 +630,36 @@ class CPALSBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "The Alternating Least Squares (ALS) algorithm for CANDECOMP/PARAFAC (CP)"
-            " plays a critical role in tensor decomposition, which has applications in"
-            " various fields such as signal processing, pscyhometrics, neuroscience,"
-            " and graph analysis. Within the ALS algorithm, the Matricized-Tensor Times"
-            " Khatri-Rao Product (MTTKRP) operation is a computationally intensive step"
-            " that often dominates the overall runtime. Efficiently implementing MTTKRP"
-            " is crucial for the performance of the ALS algorithm. The input tensor is"
-            " sparse, and the ALS algorithm takes advantage of this sparsity through"
-            " its MTTKRP kernel, which process only the non-zero elements of the"
-            " tensor. For sparse tensors with nnz << I * J * K, the complexity reduces"
-            " from O(I * J * K * R) to O(nnz * R), where nnz is the number of non-zero"
-            " elements in the tensor and R is the decomposition rank. This makes it"
-            " practical to work with large-scale applications."
+            "Computes the CP decomposition using Alternating Least Squares (ALS). "
+            r"Factorizes an N-D tensor X into factor matrices such that: $X \approx "
+            r"\sum_{r=1}^{R} \lambda_r \cdot a_r \circ b_r \circ ...$ where $\circ$ "
+            r"denotes the outer product, R is the rank, and $\lambda$ are the weights. "
+            "Handwritten code based on the standard CP-ALS algorithm from Kolda and "
+            "Bader (2009). The Alternating Least Squares (ALS) algorithm for "
+            "CANDECOMP/PARAFAC (CP) plays a critical role in tensor decomposition, "
+            "which has applications in various fields such as signal processing, "
+            "pscyhometrics, neuroscience, and graph analysis. Within the ALS "
+            "algorithm, the Matricized-Tensor Times Khatri-Rao Product (MTTKRP) "
+            "operation is a computationally intensive step that often dominates the "
+            "overall runtime. Efficiently implementing MTTKRP is crucial for the "
+            "performance of the ALS algorithm. The input tensor is sparse, and the ALS "
+            "algorithm takes advantage of this sparsity through its MTTKRP kernel, "
+            "which process only the non-zero elements of the tensor. For sparse "
+            "tensors with nnz << I * J * K, the complexity reduces from O(I * J * K * "
+            "R) to O(nnz * R), where nnz is the number of non-zero elements in the "
+            "tensor and R is the decomposition rank. This makes it practical to work "
+            "with large-scale applications."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Decompositions are not unique, so we check that the reconstruction error "
+            r"$\|X - Y\|$ is below a tolerance relative to $\|X\|$, without expanding "
+            "the model $Y$, under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

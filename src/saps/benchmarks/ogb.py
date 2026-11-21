@@ -149,7 +149,7 @@ class OGBGraphGenerator(Generator[OGBDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Large OGB graphs can be reused by several graph-learning benchmarks. "
             "Sharing a cacheable generator for the prepared source graph avoids "

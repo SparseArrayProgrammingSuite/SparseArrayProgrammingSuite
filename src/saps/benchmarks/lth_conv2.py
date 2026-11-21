@@ -417,7 +417,7 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "This generator turns a reproducible lottery-ticket training artifact "
             "into fixed benchmark inputs. The runner-managed shared cache and "
@@ -535,17 +535,10 @@ class LTHConv2Benchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived "
-            "from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training "
-            "and pruning infrastructure, and motivated by the original LTH and "
-            "Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was "
-            "trained on CIFAR-10 and subjected to 20 levels of iterative global "
-            "magnitude pruning. The selected checkpoint and pruning mask were "
-            "combined and exported as a dense ONNX model whose zero-valued "
-            "parameters preserve approximately 87.84% sparsity. The model and its "
-            "external tensor data are archived in Zenodo record 22650920. ONNXPY "
-            "translates that graph into inline array-based Python during setup, which "
-            "the SAPS runner executes across supported array frameworks."
+            "Runs image classification inference with a convolutional neural network "
+            "(CNN), pruned to sparsify the weights of each layer as in the Lottery "
+            r"Ticket Hypothesis (LTH)~\cite{frankle2018lottery}. The full network is "
+            "translated from ONNX and inlined into a static Python function body."
         )
 
     @property
@@ -577,13 +570,32 @@ class LTHConv2Benchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "This benchmark connects a reproducible lottery-ticket training "
-            "artifact to framework-independent sparse inference measurement. "
-            "The archived ONNX model is the source of truth, ONNXPY preserves "
-            "its graph as array operations, and the SAPS runner supplies framework "
-            "selection, timing, diagnostics, shared caching, and result recording."
+            "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived from "
+            "the Lottery Ticket Hypothesis workflow. Using OpenLTH's training and "
+            "pruning infrastructure, and motivated by the original LTH and Uber AI "
+            "lottery-ticket studies, the CIFAR Conv-2 architecture was trained on "
+            "CIFAR-10 and subjected to 20 levels of iterative global magnitude "
+            "pruning. The selected checkpoint and pruning mask were combined and "
+            "exported as a dense ONNX model whose zero-valued parameters preserve "
+            "approximately 87.84% sparsity. The model and its external tensor data are "
+            "archived in Zenodo record 22650920. ONNXPY translates that graph into "
+            "inline array-based Python during setup, which the SAPS runner executes "
+            "across supported array frameworks. This benchmark connects a reproducible "
+            "lottery-ticket training artifact to framework-independent sparse "
+            "inference measurement. The archived ONNX model is the source of truth, "
+            "ONNXPY preserves its graph as array operations, and the SAPS runner "
+            "supplies framework selection, timing, diagnostics, shared caching, and "
+            "result recording."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Inference runs in float32, so we check that each output lies within 8 "
+            "standard deviations of its float64 reference, as predicted by "
+            r"probabilistic rounding error analysis~\cite{higham_new_2019}."
         )
 
     @property

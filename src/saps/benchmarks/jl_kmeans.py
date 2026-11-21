@@ -169,8 +169,8 @@ class JLKMeansTestGenerator(Generator[JLKMeansTestDataset]):
         return JLKMeansBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return JLKMeansBenchmark().motivation
+    def notes(self) -> str:
+        return JLKMeansBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -387,7 +387,7 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "MNIST and Fashion-MNIST provide dense image feature matrices from OpenML. "
             "k = 10 aligns with the ten classes in each dataset."
@@ -549,7 +549,7 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
         return "No generative AI was used to implement benchmark functions."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
             "ratings matrix."
@@ -704,7 +704,7 @@ class JLKMeansGoodbooksGenerator(Generator[JLKMeansDataset]):
         return "No generative AI was used to implement benchmark functions."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "goodbooks-10k provides a 53,424 users × 10,000 books sparse matrix of "
             "one-to-five star ratings."
@@ -824,14 +824,27 @@ class JLKMeansBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "Labels points into k clusters."
+        return (
+            "Uses a sparse Johnson-Lindenstrauss (JL) random projection to reduce the "
+            "dimensionality of the data before applying k-means clustering. The "
+            "k-means clustering step involves a standard iterative assignment and "
+            "centroid update procedure, but the selection of cluster centers involves "
+            "sparse mask operations and one-hot vectors."
+        )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Random Projections reduce dimensionality for k-means clustering. Input"
-            " points can be high-dimensional and sparse, which are then projected on a"
-            " random matrix."
+            "Labels points into k clusters. Random Projections reduce dimensionality "
+            "for k-means clustering. Input points can be high-dimensional and sparse, "
+            "which are then projected on a random matrix."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "$k$-means has many local optima, so we check that the clustering costs at "
+            r"most 1\% more than the reference clustering."
         )
 
     @property

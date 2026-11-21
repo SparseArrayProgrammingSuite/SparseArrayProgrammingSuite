@@ -493,7 +493,7 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
         return "This shell generator was written with assistance from OpenAI Codex."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Reuse prepared SuiteSparse SNAP matrices across graph benchmarks."
 
     @property

@@ -190,8 +190,8 @@ class SubgraphMatchingTestGenerator(
         return SubgraphMatchingBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return SubgraphMatchingBenchmark().motivation
+    def notes(self) -> str:
+        return SubgraphMatchingBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -332,7 +332,7 @@ class GCAREGraphGenerator(Generator[GCAREDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Subgraph matching and counting are classic problems and widely "
             "used in query evaluations in database systems."
@@ -448,7 +448,7 @@ class SubgraphMatchingGCAREGenerator(
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Subgraph matching and counting are classic problems and widely "
             "used in query evaluations in database systems."
@@ -2814,8 +2814,13 @@ class SubgraphMatchingBenchmark(Benchmark):
         return "Subgraph Matching"
 
     @property
-    def description(self):
-        return "Benchmarks subgraph matching algorithms using einsum operations."
+    def description(self) -> str:
+        return (
+            "Counts the matches of small query graphs, or motifs, within a larger "
+            r"labeled graph. For example, $\sum_{ijk} "
+            r"\mathit{Coworkers}_{ij}\mathit{Friends}_{ik}\mathit{Friends}_{kj}$ counts "
+            "the coworkers who share a friend."
+        )
 
     @property
     def suites(self):
@@ -2845,10 +2850,18 @@ class SubgraphMatchingBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Subgraph matching and counting are classic problems and widely "
-            "used in query evaluations in database systems."
+            "Benchmarks subgraph matching algorithms using einsum operations. Subgraph "
+            "matching and counting are classic problems and widely used in query "
+            "evaluations in database systems."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Counts are integers, so we check them exactly against the true counts "
+            "published with G-CARE."
         )
 
     @property

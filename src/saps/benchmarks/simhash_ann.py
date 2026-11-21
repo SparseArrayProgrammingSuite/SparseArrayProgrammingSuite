@@ -348,7 +348,7 @@ class _SimHashANNRandomGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Random hyperplane hashing (SimHash) is a fundamental primitive "
             "in locality-sensitive hashing and randomized numerical linear "
@@ -380,7 +380,7 @@ class _SimHashANNTestGeneratorMixin(_SimHashANNRandomGeneratorMixin):
         return "<ccs2012></ccs2012>"
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide a small SimHash ANN example for benchmark correctness checks."
 
     @property
@@ -635,7 +635,7 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "MNIST and Fashion-MNIST provide dense image feature matrices from OpenML "
             "for approximate nearest-neighbor search."
@@ -715,7 +715,7 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
             f"ratings matrix, tested with {self.projection_kind} projections."
@@ -786,7 +786,7 @@ class _SimHashANNGoodbooksGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "goodbooks-10k provides a 53,424 users × 10,000 books sparse matrix of "
             "one-to-five star ratings, tested with "
@@ -1681,11 +1681,16 @@ class SimHashANNBenchmark(Benchmark):
         return "SimHash Approximate Nearest Neighbor (ANN)"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Matches SimHash signatures across LSH tables on a shrinking "
-            "prefix of signs until enough candidates are found, then ranks "
-            "them by cosine distance in the original space."
+            "Matches SimHash signatures across LSH tables on a shrinking prefix of "
+            "signs until enough candidates are found, then ranks them by cosine "
+            "distance in the original space. Similar to an LSH forest approach, "
+            "candidates are collected from decreasing distance scales. Each step "
+            "scatters query data points into different array positions, and intersects "
+            "array positions with sparse-sparse multiplication. A sparse array of "
+            "candidate pairs masks a dense distance computation to compute true "
+            "candidates."
         )
 
     @property
@@ -1824,13 +1829,23 @@ Nearest neighbor algorithms</concept_desc>
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "The purpose of this is to create python tests that are for RLA methods. "
-            "Specifically, I will first show the application of random hyperplane "
-            "hashing (SimHash) for NN. My goal is to write benchmarks on "
-            "applications of RNLA, for graph algorithms, PDEs, and Scientific "
-            "Machine Learning"
+            "Matches SimHash signatures across LSH tables on a shrinking prefix of "
+            "signs until enough candidates are found, then ranks them by cosine "
+            "distance in the original space. The purpose of this is to create python "
+            "tests that are for RLA methods. Specifically, I will first show the "
+            "application of random hyperplane hashing (SimHash) for NN. My goal is to "
+            "write benchmarks on applications of RNLA, for graph algorithms, PDEs, and "
+            "Scientific Machine Learning"
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"SimHash search is approximate, so we check that at least 90\% of the "
+            "returned neighbors are no farther than the reference search's $k$-th "
+            "nearest neighbor."
         )
 
     @property

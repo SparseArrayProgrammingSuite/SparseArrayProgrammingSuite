@@ -104,7 +104,7 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small reachability examples for correctness checks."
 
     @property
@@ -263,7 +263,7 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse directed graph inputs for transitive closure."
 
     @property
@@ -482,7 +482,7 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP directed graph inputs for transitive closure."
 
     @property
@@ -604,14 +604,10 @@ class TransitiveClosureBenchmark(Benchmark):
         return "Transitive Closure"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Computes bounded-hop reachability by Boolean matrix squaring, starting"
-            " with the adjacency matrix and identity. A maximum-degree bound limits"
-            " the squaring count to keep output density at most 1% by default."
-            " Stops earlier at a fixed point; a density-limited result may be a"
-            " partial transitive closure. Inputs already above the bound receive"
-            " no squarings."
+            "Computes bounded-hop reachability by squaring the adjacency matrix in the "
+            r"$(\lor,\land)$ semiring."
         )
 
     @property
@@ -675,8 +671,18 @@ class TransitiveClosureBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def notes(self) -> str:
+        return (
+            "Computes bounded-hop reachability by Boolean matrix squaring, starting "
+            "with the adjacency matrix and identity. A maximum-degree bound limits the "
+            "squaring count to keep output density at most 1% by default. Stops "
+            "earlier at a fixed point; a density-limited result may be a partial "
+            "transitive closure. Inputs already above the bound receive no squarings."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return "Reachability is deterministic, so we check it exactly."
 
     @property
     def generators(self) -> list[Generator]:

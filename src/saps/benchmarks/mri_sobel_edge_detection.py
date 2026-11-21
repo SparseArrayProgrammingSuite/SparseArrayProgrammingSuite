@@ -198,7 +198,7 @@ class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]
         return MRISobelEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small Sobel edge examples for benchmark correctness checks."
 
     @property
@@ -332,8 +332,8 @@ class MRISobelEdgeDetectionIXIGenerator(Generator[MRISobelEdgeDetectionDataset])
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
-        return MRISobelEdgeDetectionBenchmark().motivation
+    def notes(self) -> str:
+        return MRISobelEdgeDetectionBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -441,8 +441,8 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
         return MRISobelEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MRISobelEdgeDetectionBenchmark().motivation
+    def notes(self) -> str:
+        return MRISobelEdgeDetectionBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -489,13 +489,10 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: This code implements a simple edge detection"
-            " algorithm on a 2D MRI image. The algorithm computes the gradients in the"
-            " X and Y directions using the concept of a Sobel operator, which is a"
-            " common method for edge detection. The sobel operator was recreated using"
-            " array shifts that account for sparse patterns. The magnitude of the"
-            " gradients is computed and then masked with a threshold to produce a"
-            " binary edge map."
+            "In SAPS, the Sobel operator is the product of the image with a "
+            "central-difference matrix that acts on one dimension and a smoothing "
+            "matrix that acts on the other. We compare each pixel's gradient magnitude "
+            "with a threshold to create a binary edge map."
         )
 
     @property
@@ -511,15 +508,28 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
         return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Motivation: Edge detection is a crucial task that is a part of image"
-            " processing pipelines. It is often the case that images and scans in the"
-            " medical field rquire post-processing to extract useful information. In"
-            " this case, we are using a 2D MRI image to produce thresholded edge maps."
-            " Since medical images are large and often contain redundant information,"
-            " it is important to process them efficiently. The redundancy of MRI makes"
-            " them a good candidate for sparse processing."
+            "What does this code do: This code implements a simple edge detection "
+            "algorithm on a 2D MRI image. The algorithm computes the gradients in the "
+            "X and Y directions using the concept of a Sobel operator, which is a "
+            "common method for edge detection. The sobel operator was recreated using "
+            "array shifts that account for sparse patterns. The magnitude of the "
+            "gradients is computed and then masked with a threshold to produce a "
+            "binary edge map. Motivation: Edge detection is a crucial task that is a "
+            "part of image processing pipelines. It is often the case that images and "
+            "scans in the medical field rquire post-processing to extract useful "
+            "information. In this case, we are using a 2D MRI image to produce "
+            "thresholded edge maps. Since medical images are large and often contain "
+            "redundant information, it is important to process them efficiently. The "
+            "redundancy of MRI makes them a good candidate for sparse processing."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "The edge map is binary, so we check it exactly against a "
+            r"\texttt{scipy.ndimage} Sobel reference."
         )
 
     @property

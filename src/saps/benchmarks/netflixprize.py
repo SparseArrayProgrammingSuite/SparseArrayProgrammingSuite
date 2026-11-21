@@ -101,7 +101,7 @@ class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Multiple benchmarks reuse the Netflix Prize ratings matrix. Sharing a "
             "cacheable generator for the parsed matrix avoids redundant downloads, "

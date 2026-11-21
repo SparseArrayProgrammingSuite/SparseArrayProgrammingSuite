@@ -38,7 +38,7 @@ A complete benchmark contribution includes:
 - A benchmark function: the sparse array program being measured.
 - One or more generators: deterministic ways to produce inputs for that benchmark.
 - Datasets: named generator configurations representing specific benchmark runs.
-- Metadata: authors, references, motivation, concepts, suites, AI disclosure, and the data license of each generator, or of a dataset that overrides it.
+- Metadata: authors, references, a description, implementation notes, concepts, suites, AI disclosure, and the data license of each generator, or of a dataset that overrides it. Each benchmark also states its correctness check: how its output is verified, and the optimizations that allows.
 - Correctness tests: evidence that the benchmark computes the intended result.
 - A rationale: evidence that the problem and selected data are representative or useful.
 

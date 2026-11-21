@@ -150,8 +150,8 @@ class CGAMGSuiteSparseGenerator(Generator[CGAMGDataset]):
         return CGAMGBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return CGAMGBenchmark().motivation
+    def notes(self) -> str:
+        return CGAMGBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -369,12 +369,10 @@ class CGAMGBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Solves sparse symmetric positive definite linear systems with"
-            " conjugate gradient, preconditioned by a smoothed-aggregation"
-            " algebraic-multigrid two-level V-cycle. The"
-            " coarse operator is formed with the Galerkin triple product R @ A @ P,"
-            " where the restriction R is short and wide, the prolongation P is tall"
-            " and narrow, and A is square."
+            "Solves sparse symmetric positive definite linear systems with conjugate "
+            "gradient, preconditioned by a smoothed-aggregation algebraic-multigrid "
+            "two-level V-cycle. The coarse operator is formed with the Galerkin triple "
+            r"product $R^\top A P$, where $R$ and $P$ are narrow, all sparse matrices."
         )
 
     @property
@@ -448,17 +446,30 @@ class CGAMGBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Algebraic multigrid is one of the most effective solvers for the sparse"
-            " symmetric positive definite systems that arise from discretized PDEs."
-            " The two-level V-cycle forms its coarse operator with the Galerkin"
-            " triple product R @ A @ P. Because the restriction R is short and wide"
-            " and the prolongation P is tall and narrow while A is square, these"
-            " sparse-sparse matrix multiplications exercise exactly the U * A * V"
-            " SpGEMM shape that sparse autoscheduling must handle well. Keeping the"
-            " operators sparse is what makes the setup and each cycle scale with the"
-            " number of non-zeros rather than the square of the dimension."
+            "Solves sparse symmetric positive definite linear systems with conjugate "
+            "gradient, preconditioned by a smoothed-aggregation algebraic-multigrid "
+            "two-level V-cycle. The coarse operator is formed with the Galerkin triple "
+            "product R @ A @ P, where the restriction R is short and wide, the "
+            "prolongation P is tall and narrow, and A is square. Algebraic multigrid "
+            "is one of the most effective solvers for the sparse symmetric positive "
+            "definite systems that arise from discretized PDEs. The two-level V-cycle "
+            "forms its coarse operator with the Galerkin triple product R @ A @ P. "
+            "Because the restriction R is short and wide and the prolongation P is "
+            "tall and narrow while A is square, these sparse-sparse matrix "
+            "multiplications exercise exactly the U * A * V SpGEMM shape that sparse "
+            "autoscheduling must handle well. Keeping the operators sparse is what "
+            "makes the setup and each cycle scale with the number of non-zeros rather "
+            "than the square of the dimension."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"The solver stops once the residual $\|b - Ax\|$ drops below a tolerance, "
+            "so we check that the result passes the same test under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

@@ -164,7 +164,7 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
         return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small masked MRI examples for correctness checks."
 
     @property
@@ -291,8 +291,8 @@ class MRIMaskedEdgeDetectionIXIGenerator(Generator[MRIMaskedEdgeDetectionDataset
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
-        return MRIMaskedEdgeDetectionBenchmark().motivation
+    def notes(self) -> str:
+        return MRIMaskedEdgeDetectionBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -386,8 +386,8 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
         return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MRIMaskedEdgeDetectionBenchmark().motivation
+    def notes(self) -> str:
+        return MRIMaskedEdgeDetectionBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -434,10 +434,11 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: This code implements a masked edge detection"
-            " algorithm on a 2D MRI image. The benchmark performs boolean threshold"
-            " mask operations using t1=75% and t2=80% thresholds and a"
-            " Region-of-Interest (ROI) mask."
+            "Extracts edge pixels from a 2D brain MRI image. The algorithm compares "
+            "the image with lower and upper thresholds, intersects each resulting "
+            "Boolean mask with a region of interest mask, and combines the two "
+            "intersected masks with an XOR. This is done so that only pixels in the "
+            "region of interest that fall between the thresholds are kept."
         )
 
     @property
@@ -471,15 +472,26 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
         return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Motivation: Edge detection is a crucial task that is a part of image"
-            " processing pipelines. It is often the case that images and scans in the"
-            " medical field rquire post-processing to extract useful information. In"
-            " this case, we are using a 2D MRI image to produce thresholded edge maps."
-            " Since medical images are large and often contain redundant information,"
-            " it is important to process them efficiently. The redundancy of MRI makes"
-            " them a good candidate for sparse processing."
+            "What does this code do: This code implements a masked edge detection "
+            "algorithm on a 2D MRI image. The benchmark performs boolean threshold "
+            "mask operations using t1=75% and t2=80% thresholds and a "
+            "Region-of-Interest (ROI) mask. Motivation: Edge detection is a crucial "
+            "task that is a part of image processing pipelines. It is often the case "
+            "that images and scans in the medical field rquire post-processing to "
+            "extract useful information. In this case, we are using a 2D MRI image to "
+            "produce thresholded edge maps. Since medical images are large and often "
+            "contain redundant information, it is important to process them "
+            "efficiently. The redundancy of MRI makes them a good candidate for sparse "
+            "processing."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Thresholds and masks are Boolean maps, so we check the edge mask exactly "
+            "against a NumPy reference."
         )
 
     @property

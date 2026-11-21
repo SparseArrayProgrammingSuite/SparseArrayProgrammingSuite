@@ -124,7 +124,7 @@ class PASSImageGenerator(Generator[PASSImageDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The LTH Conv-2 network was trained on 32x32 CIFAR-10 images, which have "
             "no license. PASS's CC-BY photos stand in for them. Streaming only the "

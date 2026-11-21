@@ -684,7 +684,7 @@ dydt_vector = (Vs - state) / tau
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
 
     @property
@@ -769,7 +769,7 @@ dydt_vector = xp.stack([dVc, d2Vc])
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
 
     @property
@@ -853,7 +853,7 @@ dydt_vector = xp.stack([dxdt, dydt])
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
 
     @property
@@ -945,7 +945,7 @@ dydt_vector = lin + non_lin
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
 
     @property
@@ -1085,7 +1085,7 @@ dydt_vector = A @ state + B @ input_array
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "SLICOT model-reduction examples provide realistic linear dynamical "
             "systems for ODE integration benchmarks."
@@ -1261,7 +1261,7 @@ dydt_vector = A @ state + B @ input_array
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "SuiteSparse model reduction problems provide realistic linear dynamical "
             "systems for ODE integration benchmarks. Steps come from "
@@ -1394,8 +1394,20 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self):
-        return ""
+    def description(self) -> str:
+        return (
+            "Integrates ordinary differential equations (ODEs) with Forward Euler, "
+            "Backward Euler, and fourth-order Runge-Kutta (RK4) updates, using sparse "
+            "operations."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Each step depends only on the previous state, so we recompute every step "
+            "from the framework's previous state and check that the two agree under "
+            r"any floating-point reassociation~\cite[(2.6)]{higham_accuracy_1993}."
+        )
 
     @abstractmethod
     def _step(self, model: _StepModel, t: float, step: float, y):
@@ -1449,7 +1461,7 @@ class ForwardEulerBenchmark(_ODEBenchmarkBase):
         return "Forward Euler"
 
     @property
-    def description(self):
+    def notes(self) -> str:
         return "Integrates ODE initial-value problems with the forward Euler method."
 
     def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
@@ -1498,10 +1510,10 @@ class BackwardEulerBenchmark(_ODEBenchmarkBase):
         return "Backward Euler"
 
     @property
-    def description(self):
+    def notes(self) -> str:
         return (
-            "Integrates ODE initial-value problems with backward Euler, "
-            "using ten fixed-point iterations per step."
+            "Integrates ODE initial-value problems with backward Euler, using ten "
+            "fixed-point iterations per step."
         )
 
     def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
@@ -1556,10 +1568,10 @@ class RK4Benchmark(_ODEBenchmarkBase):
         return "Fourth-Order Runge-Kutta (RK4)"
 
     @property
-    def description(self):
+    def notes(self) -> str:
         return (
-            "Integrates ODE initial-value problems with the classical "
-            "fourth-order Runge-Kutta method."
+            "Integrates ODE initial-value problems with the classical fourth-order "
+            "Runge-Kutta method."
         )
 
     def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:

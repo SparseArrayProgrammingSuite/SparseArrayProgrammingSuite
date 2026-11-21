@@ -411,7 +411,7 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Many tensor-decomposition benchmarks reuse the same FROSTT tensors."
             " Sharing a single cacheable generator for the raw download avoids"

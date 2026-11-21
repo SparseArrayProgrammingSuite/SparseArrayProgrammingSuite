@@ -277,7 +277,7 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
         return GCNBackwardBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small graph examples to verify the GCN training loop."
 
     @property
@@ -533,7 +533,7 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Graphs are widely used for abstracting systems of interacting objects,"
             " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
@@ -749,7 +749,7 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Uses complete real-world node features, graph structure, and labels "
             "from the Open Graph Benchmark for the GCN training loop. SAPS caches "
@@ -905,33 +905,13 @@ class GCNBackwardBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return """
-Benchmarks 2-layer GCN training loop (forward, backward, weight updates).
-
-Each iteration:
-    Forward pass:
-        Z1 = A @ X
-        H1_pre = Z1 @ W1 + b1
-        H1 = ReLU(H1_pre)
-        Z2 = A @ H1
-        Y = Z2 @ W2 + b2
-
-    Backward pass (MSE loss):
-        dY = (2/N) * (Y - T)
-        dW2 = Z2.T @ dY
-        db2 = sum(dY, axis=0)
-        dZ2 = dY @ W2.T
-        dH1 = A.T @ dZ2
-        dH1_pre = dH1 * (H1_pre > 0)
-        dW1 = Z1.T @ dH1_pre
-        db1 = sum(dH1_pre, axis=0)
-
-    Weight updates:
-        W1 = W1 - lr * dW1
-        b1 = b1 - lr * db1
-        W2 = W2 - lr * dW2
-        b2 = b2 - lr * db2
-        """
+        return (
+            "Trains the same two-layer GCN by gradient descent on a mean squared error "
+            "loss, with hand-written derivatives for the backward pass. Each iteration "
+            "runs the forward pass, propagates the gradient back through the graph by "
+            r"multiplying with $\hat{A}^\top$, masks it by the ReLU, and updates the "
+            "weights and biases."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -1003,17 +983,32 @@ Each iteration:
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Graphs are widely used for abstracting systems of interacting objects,"
-            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
-            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
-            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
-            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
-            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
-            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
-            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
-            " matrix is used, which is inherently sparse."
+            "Benchmarks 2-layer GCN training loop (forward, backward, weight updates). "
+            "Each iteration: Forward pass: Z1 = A @ X H1_pre = Z1 @ W1 + b1 H1 = "
+            "ReLU(H1_pre) Z2 = A @ H1 Y = Z2 @ W2 + b2 Backward pass (MSE loss): dY = "
+            "(2/N) * (Y - T) dW2 = Z2.T @ dY db2 = sum(dY, axis=0) dZ2 = dY @ W2.T dH1 "
+            "= A.T @ dZ2 dH1_pre = dH1 * (H1_pre > 0) dW1 = Z1.T @ dH1_pre db1 = "
+            "sum(dH1_pre, axis=0) Weight updates: W1 = W1 - lr * dW1 b1 = b1 - lr * "
+            "db1 W2 = W2 - lr * dW2 b2 = b2 - lr * db2 Graphs are widely used for "
+            "abstracting systems of interacting objects, such as social networks "
+            "(Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular "
+            "graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, "
+            "2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), "
+            "manifolds (Bronstein et al., 2017), and source code (Allamanis et al., "
+            "2017). Machine learning (ML), especially deep learning, on graphs is an "
+            "emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et "
+            "al. To represent a graph, an adjaceny matrix is used, which is inherently "
+            "sparse."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Training stops once the loss falls below a fraction of its initial value, "
+            "so we check that the final loss passes the same test, allowing 8 standard "
+            r"deviations of float32 rounding error~\cite{higham_new_2019}."
         )
 
     @property

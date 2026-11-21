@@ -393,7 +393,7 @@ class WeightedModelCountingTestGenerator(
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses a predefined set of formulas to verify correctness."
 
     @property
@@ -600,7 +600,7 @@ class WeightedModelCountingMCCompGenerator(
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Track4 instances provide weighted CNF formulas from a standard "
             "model-counting corpus."
@@ -693,7 +693,7 @@ class WeightedModelCountingMCCompPoolGenerator(
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Weighted and projected weighted formulas from the Model Counting "
             "Competitions, small enough that a dense evaluation of the counting "
@@ -809,8 +809,11 @@ class WeightedModelCountingBenchmark(Benchmark):
         return "Weighted Model Counting"
 
     @property
-    def description(self):
-        return "Benchmarks Weighted Model Counting Algorithm using einsum operations."
+    def description(self) -> str:
+        return (
+            "Counts the total weight of the satisfying assignments of a SAT problem, "
+            "given variable weights, typically probabilities."
+        )
 
     @property
     def suites(self):
@@ -836,9 +839,21 @@ class WeightedModelCountingBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return """Weighted Model Counting extends model counting
-                by assigning specific weights to the variables."""
+    def notes(self) -> str:
+        return (
+            "Benchmarks Weighted Model Counting Algorithm using einsum operations. "
+            "Weighted Model Counting extends model counting by assigning specific "
+            "weights to the variables."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Each weighted count sums one product of weights per model, so we check it "
+            "against an independent brute-force count up to the rounding error of that "
+            "sum under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
+        )
 
     @property
     def generators(self) -> list[Generator[Any]]:

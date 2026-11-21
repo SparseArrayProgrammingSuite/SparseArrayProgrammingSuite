@@ -99,7 +99,7 @@ class MatrixMultiplicationDenseGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate dense matrices for matrix multiplication."
 
     @property
@@ -283,7 +283,7 @@ class MatrixMultiplicationSuiteSparseGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate real sparse matrices for squaring (A*A), the operation "
             "both classes of SpGEMM application reduce to: graph algorithms, "
@@ -483,7 +483,7 @@ class MatrixMultiplicationUniformRandomGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate pairs of uniform random sparse matrices for SpGEMM over a "
             "range of densities. The density values are a synthetic sweep."
@@ -551,15 +551,25 @@ class MatrixMultiplicationBenchmark(Benchmark):
         return "Matrix Multiplication"
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Matrix multiplication is the key operator in linear algebra"
-            "and it is widely used in almost every sparse array application. "
+            r"The multiplication of two matrices.C_ik = \sum_k A_ij B_jk Matrix "
+            "multiplication is the key operator in linear algebraand it is widely used "
+            "in almost every sparse array application."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Sums may be computed in any order, so for inner dimension $n$ we check "
+            r"entries to an absolute error of $\gamma_n \max_{ik} (|A||B|)_{ik}$, "
+            r"Higham's bound on the error of summation in any order, where $\gamma_n = "
+            r"n\epsilon/(1 - n\epsilon)$ for machine epsilon $\epsilon$."
         )
 
     @property
     def description(self) -> str:
-        return "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk"
+        return r"Multiplies two matrices, $C_{ik} = \sum_j A_{ij} B_{jk}$."
 
     @property
     def suites(self) -> list[str]:

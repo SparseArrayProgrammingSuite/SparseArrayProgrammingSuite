@@ -209,7 +209,7 @@ class BetweennessCentralityTestGenerator(Generator[BetweennessCentralityDataset]
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for centrality correctness checks."
 
     @property
@@ -389,7 +389,7 @@ class BetweennessCentralitySNAPGenerator(Generator[BetweennessCentralitySNAPData
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse directed graph inputs for betweenness centrality."
 
     @property
@@ -643,7 +643,7 @@ class BetweennessCentralityGAPGenerator(Generator[BetweennessCentralityGAPDatase
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP graph inputs for betweenness centrality."
 
     @property
@@ -771,20 +771,12 @@ class BetweennessCentralityBenchmark(Benchmark):
         return "Betweenness Centrality"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "This code is based on the Brandes betweenness centrality algorithm. The "
-            "current code for the benchmark takes a two step approach. The first step "
-            "involves going layer by layer from each selected starting node to find "
-            "the total amount of shortest paths that lead to a node. So for example "
-            "4 -> 6 could have 3 diff shortest paths and 4 -> 2 could have only 1 "
-            "shortest path. The second step is for tracing backwards to see how many "
-            "times a node appears in other shortest paths. The number of times this "
-            "node is in one of the shortest path divided by total shortest paths "
-            "between the two edge nodes gets added to the intermediate nodes bc score. "
-            "GAP and SNAP cases use four sources per trial, include source "
-            "dependencies, and normalize by the maximum score. Small test cases "
-            "use all sources unless bc_sources is supplied."
+            "Computes betweenness centrality with Brandes' algorithm. The first phase "
+            "counts the shortest paths, adding up the path counts of each vertex's "
+            "parents with a $(+,*)$ semiring multiplication. The second phase counts "
+            "how often each vertex appears on other shortest paths."
         )
 
     @property
@@ -866,8 +858,29 @@ class BetweennessCentralityBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def notes(self) -> str:
+        return (
+            "This code is based on the Brandes betweenness centrality algorithm. The "
+            "current code for the benchmark takes a two step approach. The first step "
+            "involves going layer by layer from each selected starting node to find "
+            "the total amount of shortest paths that lead to a node. So for example 4 "
+            "-> 6 could have 3 diff shortest paths and 4 -> 2 could have only 1 "
+            "shortest path. The second step is for tracing backwards to see how many "
+            "times a node appears in other shortest paths. The number of times this "
+            "node is in one of the shortest path divided by total shortest paths "
+            "between the two edge nodes gets added to the intermediate nodes bc score. "
+            "GAP and SNAP cases use four sources per trial, include source "
+            "dependencies, and normalize by the maximum score. Small test cases use "
+            "all sources unless bc_sources is supplied."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Path counts grow quickly, but every floating-point value stays positive, "
+            "so for graph diameter $D$ and maximum degree $d$ we check scores to a "
+            r"relative error of $3dD^2\epsilon$~\cite[(2.6)]{higham_accuracy_1993}."
+        )
 
     @property
     def generators(self) -> list[Generator]:

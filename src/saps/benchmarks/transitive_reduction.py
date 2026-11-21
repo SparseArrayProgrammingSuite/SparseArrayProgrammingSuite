@@ -113,7 +113,7 @@ class TransitiveReductionTestGenerator(Generator[TransitiveReductionDataset]):
         return "No generative AI was used to construct the benchmark function."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
 
     @property
@@ -208,7 +208,7 @@ class TransitiveReductionSNAPGenerator(Generator[TransitiveReductionDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse directed graph inputs for transitive reduction."
 
     @property
@@ -460,7 +460,7 @@ class TransitiveReductionGAPGenerator(Generator[TransitiveReductionDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP directed graph inputs for transitive reduction."
 
     @property
@@ -646,8 +646,10 @@ class TransitiveReductionBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Iterative transitive reduction on a sparse overlap graph, following "
-            "the diBELLA reduction step."
+            "Iteratively reduces a distance matrix, following the diBELLA reduction "
+            "step: an edge is dropped when a path of two other edges is shorter. Each "
+            "iteration finds the shortest two-hop paths with a sparse matrix product "
+            r"in the $(\min,+)$ semiring."
         )
 
     @property
@@ -719,13 +721,21 @@ class TransitiveReductionBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "This benchmark implements the iterative transitive reduction step from "
-            "the diBELLA 2D paper. The overlap graph R is a sparse matrix where "
-            "R[i, j] represents the suffix length of an overlap between read i and "
-            "read j. The reduction is implemented as sparse (min, +) semiring "
-            "SpGEMM to find shortest 2-hop paths."
+            "Iterative transitive reduction on a sparse overlap graph, following the "
+            "diBELLA reduction step. This benchmark implements the iterative "
+            "transitive reduction step from the diBELLA 2D paper. The overlap graph R "
+            "is a sparse matrix where R[i, j] represents the suffix length of an "
+            "overlap between read i and read j. The reduction is implemented as sparse "
+            "(min, +) semiring SpGEMM to find shortest 2-hop paths."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Weights are random integers from 1 to 255, so float64 path lengths are "
+            "exact and we check the reduced matrix exactly."
         )
 
     @property

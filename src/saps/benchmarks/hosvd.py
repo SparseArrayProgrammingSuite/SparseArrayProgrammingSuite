@@ -160,7 +160,7 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         return HOSVD3DBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The data for this benchmark was created by randomly generating "
             "factor matrices that were both sparse and dense. These factor "
@@ -296,7 +296,7 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         return HOSVD3DBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The data for this benchmark was created by randomly generating "
             "factor matrices that were both sparse and dense. These factor "
@@ -555,7 +555,7 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Real sparse tensors from FROSTT exercise Tucker decomposition against"
             " irregular sparsity patterns. Random orthonormal factors avoid SVDs of"
@@ -643,29 +643,43 @@ class HOSVDBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "This code implements the Tucker Decomposition or HOSVD algorithm for"
-            " decomposing high-order tensors into a core-tensor that can be projected"
-            " onto factor matrices along each mode. A typical 3D tensor will have 3"
-            " modes (row, column, and frontal) and thus 3 factor matrices. The"
-            " algorithm starts from reproducible random orthonormal factor matrices"
-            " with column counts given by the ranks parameter. Then, HOOI"
-            " iteratively updates each factor matrix by projecting the original tensor"
-            " onto other factor matrices. The iteration continues until max iterations"
-            " is reached or the change in factor matrices becomes insignificant. The"
-            " resulting factor matrices and the core tensor are returned by the"
-            " benchmark function."
+            "Computes the Higher-Order Singular Value Decomposition (HOSVD) of an "
+            "$N$-dimensional tensor $X$, factorizing it into a core tensor $G$ and "
+            r"factor matrices such that, in 3D, $X_{ijk} \approx \sum_{pqr} G_{pqr} "
+            "A_{ip} B_{jq} C_{kr}$. Uses the HOOI (Higher-Order Orthogonal Iteration) "
+            "algorithm, repeatedly projecting the tensor onto the current factor "
+            "matrices and updating them with the resulting SVDs."
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Tensor decomposition are essential for efficiently analyzing"
-            " multi-dimensional data and can cut out noise during preprocessing. Tensor"
-            " decomposition has applications in signal processing, computer vision,"
-            " numerical linear algebra, and many other fields. HOSVD or Tucker"
-            " Decomposition is one of the most widely used methods for tensor"
-            " decomposition on high-level tensors, which are tensors with 3 or more"
-            " dimensions."
+            "This code implements the Tucker Decomposition or HOSVD algorithm for "
+            "decomposing high-order tensors into a core-tensor that can be projected "
+            "onto factor matrices along each mode. A typical 3D tensor will have 3 "
+            "modes (row, column, and frontal) and thus 3 factor matrices. The "
+            "algorithm starts from reproducible random orthonormal factor matrices "
+            "with column counts given by the ranks parameter. Then, HOOI iteratively "
+            "updates each factor matrix by projecting the original tensor onto other "
+            "factor matrices. The iteration continues until max iterations is reached "
+            "or the change in factor matrices becomes insignificant. The resulting "
+            "factor matrices and the core tensor are returned by the benchmark "
+            "function. Tensor decomposition are essential for efficiently analyzing "
+            "multi-dimensional data and can cut out noise during preprocessing. Tensor "
+            "decomposition has applications in signal processing, computer vision, "
+            "numerical linear algebra, and many other fields. HOSVD or Tucker "
+            "Decomposition is one of the most widely used methods for tensor "
+            "decomposition on high-level tensors, which are tensors with 3 or more "
+            "dimensions."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Decompositions are not unique, so we check that the reconstruction error "
+            r"$\|X - Y\|$ is below a tolerance relative to $\|X\|$, without expanding "
+            "the model $Y$, under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

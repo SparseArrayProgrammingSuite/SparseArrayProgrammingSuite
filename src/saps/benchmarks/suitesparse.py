@@ -678,7 +678,7 @@ class SuiteSparseMatrixGenerator(Generator[SuiteSparseDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Many benchmarks reuse the same SuiteSparse matrices. Sharing a single"
             " cacheable generator for the raw download avoids redundant downloads and"

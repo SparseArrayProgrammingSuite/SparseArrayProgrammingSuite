@@ -203,7 +203,7 @@ class TicTacToeMinimaxBoardsGenerator(Generator[TicTacToeMinimaxDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Boards have range of sparsity so they go from empty to being very dense"
             " this helps us measure how sparsity can affect performance at different"
@@ -311,12 +311,14 @@ class TicTacToeMinimaxBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: Implement a fully tensorized, non-recursive"
-            " minimax search over a tic-tac-toe game. Game states are represented as"
-            " tensors. Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2)"
-            " where n indexes boards, i,j are board positions and p is the player"
-            " channel. Given any board state within the game, it should return the"
-            " result of the game."
+            "Determines the optimal move in a game of tic-tac-toe with the minimax "
+            "algorithm, assuming optimal play. Our version is a single tensor program "
+            "with no recursion. A batch of boards is stored in one tensor of shape "
+            "$(N, 3, 3, 2)$, where $N$ indexes the boards, the middle axes are the 3 "
+            "by 3 grid, and the final axis records whether each square holds an X or "
+            "an O. Valid moves, win conditions, and optimal moves are found by masking "
+            "and filtering similar tensors. Illegal moves are zeroed out, and their "
+            "zeros propagate through the search tree."
         )
 
     @property
@@ -355,13 +357,22 @@ class TicTacToeMinimaxBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "This benchmark will do sparse array operations on tic-tac-toe"
-            "game trees. Sparsity should increase as you go deeper into the game/tree."
-            "Invalid boards states caused by bad moves are zeroed out. You can test "
-            "empty board all the way to the higher depth starting states"
+            "What does this code do: Implement a fully tensorized, non-recursive "
+            "minimax search over a tic-tac-toe game. Game states are represented as "
+            "tensors. Game state is represented as S[n, i, j, p] of shape (N, 3, 3, 2) "
+            "where n indexes boards, i,j are board positions and p is the player "
+            "channel. Given any board state within the game, it should return the "
+            "result of the game. This benchmark will do sparse array operations on "
+            "tic-tac-toegame trees. Sparsity should increase as you go deeper into the "
+            "game/tree.Invalid boards states caused by bad moves are zeroed out. You "
+            "can test empty board all the way to the higher depth starting states"
         )
+
+    @property
+    def correctness(self) -> str:
+        return "Minimax results are integers, checked exactly."
 
     @property
     def generators(self):

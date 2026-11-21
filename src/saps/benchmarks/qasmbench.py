@@ -125,7 +125,7 @@ class QASMBenchCircuitGenerator(Generator[QASMBenchDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "QASMBench collects quantum algorithm circuits, such as state"
             " preparation, arithmetic, and error correction, as standard inputs"

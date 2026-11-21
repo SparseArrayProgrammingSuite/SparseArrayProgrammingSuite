@@ -100,7 +100,7 @@ class ConnectedComponentsTestGenerator(Generator[ConnectedComponentsDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for correctness checks."
 
     @property
@@ -257,7 +257,7 @@ class ConnectedComponentsSNAPGenerator(Generator[ConnectedComponentsDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse graph inputs for connected components."
 
     @property
@@ -472,7 +472,7 @@ class ConnectedComponentsGAPGenerator(Generator[ConnectedComponentsDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP graph inputs for connected components."
 
     @property
@@ -585,10 +585,12 @@ class ConnectedComponentsBenchmark(Benchmark):
         return "Connected Components"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Computes the simply connected components of a directed graph using label"
-            " propagation."
+            "Computes the weakly connected components of a directed graph by fixpoint "
+            "label propagation. Each vertex takes the minimum label among itself and "
+            r"its neighbors, a matrix-vector product in the $(\min,\mathrm{second})$ "
+            "semiring."
         )
 
     @property
@@ -653,8 +655,15 @@ class ConnectedComponentsBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def notes(self) -> str:
+        return (
+            "Computes the simply connected components of a directed graph using label "
+            "propagation."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return "Component labels are deterministic, so we check them exactly."
 
     @property
     def generators(self) -> list[Generator]:

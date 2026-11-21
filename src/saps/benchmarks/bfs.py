@@ -117,7 +117,7 @@ class BFSTestGenerator(Generator[BFSDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small BFS examples for benchmark correctness checks."
 
     @property
@@ -302,7 +302,7 @@ class BFSSNAPGenerator(Generator[BFSDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse graph inputs for breadth-first search."
 
     @property
@@ -721,7 +721,7 @@ class BFSGAPGenerator(Generator[BFSDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP graph inputs for breadth-first search."
 
     @property
@@ -848,12 +848,12 @@ class BFSBenchmark(Benchmark):
         return "Breadth-First Search (BFS)"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "The Breadth-First Search algorithm is an important graph traversal"
-            " technique used to explore vertices by layers. It is a fundamental"
-            " building block for more complex graph algorithms, especially in areas"
-            " like parallel processing and high-performance computing."
+            "Computes a breadth-first traversal by iteratively expanding a visited "
+            "vertex set. Each step multiplies a Boolean frontier vector by the "
+            r"adjacency matrix in the $(\lor,\land)$ semiring, masked by the visited "
+            "set."
         )
 
     @property
@@ -918,14 +918,26 @@ class BFSBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "In standard BFS, algorithms on sparse graphs are faster because they"
-            " process fewer edges, and specialized algebraic methods use sparsity to"
-            " avoid unnecessary computations by focusing only on non-zero elements."
-            " Optimizing the use of sparse data structures and algorithms is key to"
-            " achieving high performance, as it reduces memory footprint and leads to"
-            " faster traversals."
+            "The Breadth-First Search algorithm is an important graph traversal "
+            "technique used to explore vertices by layers. It is a fundamental "
+            "building block for more complex graph algorithms, especially in areas "
+            "like parallel processing and high-performance computing. In standard BFS, "
+            "algorithms on sparse graphs are faster because they process fewer edges, "
+            "and specialized algebraic methods use sparsity to avoid unnecessary "
+            "computations by focusing only on non-zero elements. Optimizing the use of "
+            "sparse data structures and algorithms is key to achieving high "
+            "performance, as it reduces memory footprint and leads to faster "
+            "traversals."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Visit levels are deterministic, so we check them exactly. This allows "
+            "push-pull optimizations, which trade filtering the frontier for filtering "
+            "the visited set."
         )
 
     @property

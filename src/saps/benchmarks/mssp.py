@@ -174,7 +174,7 @@ class MSSPTestGenerator(Generator[MSSPDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for shortest-path correctness checks."
 
     @property
@@ -466,7 +466,7 @@ class MSSPGAPGenerator(Generator[MSSPDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
 
     @property
@@ -615,7 +615,7 @@ class MSSPSNAPGenerator(Generator[MSSPDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate unweighted SNAP graph inputs for multi-source shortest paths."
 
     @property
@@ -788,11 +788,11 @@ class MSSPBenchmark(Benchmark):
         return "Multi-Source Shortest Paths (MSSP)"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Computes shortest paths from a list of source vertices to every vertex"
-            " in a weighted directed graph by repeated min-plus relaxation of a"
-            " source-by-vertex distance matrix."
+            "Computes shortest paths from a list of source vertices to every vertex in "
+            r"a directed graph by repeated $(\min,+)$ relaxation of a source-by-vertex "
+            "distance matrix."
         )
 
     @property
@@ -857,12 +857,24 @@ class MSSPBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Sparse graphs reduce unnecessary computation, as most entries in the"
-            " adjacency matrix represent non-edges and begin as inifinity. Efficient"
-            " sparse representations allow the backend framework to skip work and"
-            " minimize memory movement during the relaxation steps of the algorithm."
+            "Computes shortest paths from a list of source vertices to every vertex in "
+            "a weighted directed graph by repeated min-plus relaxation of a "
+            "source-by-vertex distance matrix. Sparse graphs reduce unnecessary "
+            "computation, as most entries in the adjacency matrix represent non-edges "
+            "and begin as inifinity. Efficient sparse representations allow the "
+            "backend framework to skip work and minimize memory movement during the "
+            "relaxation steps of the algorithm."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Weights are random integers from 1 to 255, so float64 path lengths are "
+            "exact in any summation order and we check distances exactly. This allows "
+            "``active set'' optimizations, which turn each relaxation into a "
+            "sparse-sparse matrix product."
         )
 
     @property

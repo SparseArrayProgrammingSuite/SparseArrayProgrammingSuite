@@ -238,13 +238,19 @@ class Attributed(ABC):
     def ai_disclosure(self) -> str: ...
 
 
-class Motivated(ABC):
+class Noted(ABC):
     @property
     @abstractmethod
-    def motivation(self) -> str: ...
+    def notes(self) -> str:
+        """Implementation notes, describing code and data sources, etc."""
 
 
 class Dataset(Tagged):
+    @property
+    def notes(self) -> str:
+        """Implementation notes, describing code and data sources, etc."""
+        return ""
+
     @property
     def license(self) -> License | None | Inherit:
         """This dataset's license, when it differs from its generator's.
@@ -265,6 +271,7 @@ class Dataset(Tagged):
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
+            "notes": self.notes,
             "suites": self.suites,
             "concepts": self.concepts,
             "topics": self.topics,
@@ -287,7 +294,7 @@ class DataInstance:
 TDataset = TypeVar("TDataset", bound=Dataset)
 
 
-class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
+class Generator(Tagged, Attributed, Noted, Generic[TDataset]):
     @property
     @abstractmethod
     def datasets(self) -> list[TDataset]: ...
@@ -356,13 +363,13 @@ class Generator(Tagged, Attributed, Motivated, Generic[TDataset]):
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
+            "notes": self.notes,
             "suites": self.suites,
             "concepts": self.concepts,
             "topics": self.topics,
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
-            "motivation": self.motivation,
             "license": _license_metadata(self.license),
             "datasets": [dataset.metadata for dataset in self.datasets],
         }
@@ -377,10 +384,16 @@ class Param(Generic[TDataset]):
         return f"{self.generator.name}.{self.dataset.name}"
 
 
-class Benchmark(Tagged, Attributed, Motivated):
+class Benchmark(Tagged, Attributed, Noted):
     @property
     @abstractmethod
     def generators(self) -> list[Generator[Any]]: ...
+
+    @property
+    @abstractmethod
+    def correctness(self) -> str:
+        """How the correctness of the benchmark is verified, and the
+        optimizations that allows."""
 
     @abstractmethod
     def benchmark(
@@ -570,13 +583,14 @@ class Benchmark(Tagged, Attributed, Motivated):
             "name": self.name,
             "pretty_name": self.pretty_name,
             "description": self.description,
+            "notes": self.notes,
+            "correctness": self.correctness,
             "suites": self.suites,
             "concepts": self.concepts,
             "topics": self.topics,
             "authors": [str(a) for a in self.authors],
             "references": [str(r) for r in self.references],
             "ai_disclosure": self.ai_disclosure,
-            "motivation": self.motivation,
             "generators": [generator.metadata for generator in self.generators],
         }
 
@@ -619,7 +633,11 @@ class ShellBenchmark(Benchmark, ABC):
         return ""
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
+        return ""
+
+    @property
+    def correctness(self) -> str:
         return ""
 
     @property
@@ -656,6 +674,10 @@ class ReferenceDataset(Dataset, Generic[TDataset]):
     @property
     def description(self) -> str:
         return self.dataset.description
+
+    @property
+    def notes(self) -> str:
+        return self.dataset.notes
 
     @property
     def suites(self) -> list[str]:
@@ -717,5 +739,5 @@ class ReferenceGenerator(Generator[ReferenceDataset[TDataset]], ABC):
         return ""
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""

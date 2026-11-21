@@ -302,7 +302,7 @@ class LPSimplexTestGenerator(Generator[LPSimplexTestDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Provide small LP examples covering distinct outcome cases "
             "for benchmark correctness checks."
@@ -561,7 +561,7 @@ class LPSimplexLPnetlibGenerator(Generator[LPSimplexLPnetlibDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Netlib is the reference test set that linear programming solvers report"
             " against, so it measures the simplex benchmark on the problems the field"
@@ -704,13 +704,12 @@ class LPSimplexBenchmark(Benchmark):
         return "Linear Programming (LP) Simplex"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "The revised simplex method solves standard-form linear programs"
-            " min c^T x s.t. A x = b, x >= 0 by moving between basic feasible"
-            " solutions, maintaining and updating a basis inverse rather than"
-            " a full tableau. It is a foundational algorithm in operations"
-            " research and numerical optimization."
+            r"The revised simplex method solves standard-form linear programs $\min c^T "
+            r"x$ subject to $A x = b$ and $x \ge 0$, moving between basic feasible "
+            "solutions while maintaining and updating a basis inverse rather than a "
+            "full tableau."
         )
 
     @property
@@ -808,17 +807,30 @@ class LPSimplexBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Linear programming is a core building block for iterative"
-            " numerical solvers, resource allocation, and scheduling problems"
-            " throughout scientific computing. The revised simplex method is"
-            " a good stress test for array-based frameworks because, aside"
-            " from the outer pivot loop (each pivot depends on the basis"
-            " produced by the previous one) and a short bounded cleanup step"
-            " after Phase 1, the pricing step, ratio test, and basis-inverse"
-            " update can all be expressed as collective array operations"
-            " rather than scalar loops."
+            "The revised simplex method solves standard-form linear programs min c^T x "
+            "s.t. A x = b, x >= 0 by moving between basic feasible solutions, "
+            "maintaining and updating a basis inverse rather than a full tableau. It "
+            "is a foundational algorithm in operations research and numerical "
+            "optimization. Linear programming is a core building block for iterative "
+            "numerical solvers, resource allocation, and scheduling problems "
+            "throughout scientific computing. The revised simplex method is a good "
+            "stress test for array-based frameworks because, aside from the outer "
+            "pivot loop (each pivot depends on the basis produced by the previous one) "
+            "and a short bounded cleanup step after Phase 1, the pricing step, ratio "
+            "test, and basis-inverse update can all be expressed as collective array "
+            "operations rather than scalar loops."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Optimal solutions need not be unique, so instead of comparing solutions "
+            "we check that the solver's status agrees with SciPy's (unless it hits its "
+            "iteration limit), and that a solution reported optimal satisfies $Ax = b$ "
+            r"and $x \ge 0$ and attains SciPy's optimal objective, each to within "
+            "$10^{-6}$."
         )
 
     @property

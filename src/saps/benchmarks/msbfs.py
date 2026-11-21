@@ -130,7 +130,7 @@ class MSBFSTestGenerator(Generator[MSBFSDataset]):
         return "These tests were written with assistance from Claude."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Provide small multi-source BFS examples for benchmark correctness checks."
         )
@@ -352,7 +352,7 @@ class MSBFSSNAPGenerator(Generator[MSBFSDataset]):
         return "This generator was written with assistance from Claude."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse graph inputs for multi-source breadth-first search."
 
     @property
@@ -560,7 +560,7 @@ class MSBFSGAPGenerator(Generator[MSBFSDataset]):
         return "This generator was written with assistance from Claude."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP graph inputs for multi-source breadth-first search."
 
     @property
@@ -666,13 +666,12 @@ class MSBFSBenchmark(Benchmark):
         return "Multi-Source Breadth-First Search (MS-BFS)"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Runs one breadth-first search from each of several source vertices at"
-            " once. The frontiers of all searches are stacked into a sparse"
-            " source-by-vertex boolean matrix, so each step of every search is"
-            " advanced together by one sparse matrix-matrix product with the"
-            " adjacency matrix."
+            "Computes breadth-first search from each of several source vertices at "
+            "once. Batching many searches into one traversal is how graph analytics "
+            "such as betweenness centrality, closeness centrality, and all-pairs "
+            "reachability amortize work over sources."
         )
 
     @property
@@ -755,15 +754,25 @@ class MSBFSBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Batching many searches into one traversal is how graph analytics such"
-            " as betweenness centrality, closeness centrality, and all-pairs"
-            " reachability amortize work over sources. The frontier becomes a sparse"
-            " matrix whose rows can have very different densities, and each step is"
-            " a masked sparse matrix-matrix product, so performance depends on"
-            " choosing formats and loop orders that exploit sparsity in both the"
-            " frontier and the graph."
+            "Runs one breadth-first search from each of several source vertices at "
+            "once. The frontiers of all searches are stacked into a sparse "
+            "source-by-vertex boolean matrix, so each step of every search is advanced "
+            "together by one sparse matrix-matrix product with the adjacency matrix. "
+            "Batching many searches into one traversal is how graph analytics such as "
+            "betweenness centrality, closeness centrality, and all-pairs reachability "
+            "amortize work over sources. The frontier becomes a sparse matrix whose "
+            "rows can have very different densities, and each step is a masked sparse "
+            "matrix-matrix product, so performance depends on choosing formats and "
+            "loop orders that exploit sparsity in both the frontier and the graph."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Visit levels are deterministic, so we check them exactly. This allows "
+            "changing the frontier's format as its sparsity changes."
         )
 
     @property

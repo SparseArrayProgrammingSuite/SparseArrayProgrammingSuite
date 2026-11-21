@@ -99,8 +99,8 @@ class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
         return RQCStatevectorBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return RQCStatevectorBenchmark().motivation
+    def notes(self) -> str:
+        return RQCStatevectorBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -369,8 +369,8 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
         return RQCStatevectorBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return RQCStatevectorBenchmark().motivation
+    def notes(self) -> str:
+        return RQCStatevectorBenchmark().notes
 
     @property
     def license(self) -> License | None:
@@ -694,7 +694,7 @@ class RQCStatevectorQASMBenchGenerator(Generator[RQCStatevectorQASMBenchDataset]
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Many quantum algorithms, such as state preparation, reversible"
             " arithmetic, and error correction, keep their statevectors sparse,"
@@ -736,8 +736,8 @@ class RQCStatevectorBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Simulates a specified quantum circuit on an n-qubit state vector, "
-            "using the standard reshape + einsum gate application pattern."
+            "Simulates a quantum circuit on an $n$-qubit state vector, applying each "
+            "gate with the standard reshape and einsum pattern."
         )
 
     @property
@@ -774,8 +774,20 @@ class RQCStatevectorBenchmark(Benchmark):
         return ""
 
     @property
-    def motivation(self) -> str:
-        return self.description
+    def notes(self) -> str:
+        return (
+            "Simulates a specified quantum circuit on an n-qubit state vector, using "
+            "the standard reshape + einsum gate application pattern."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Gates are unitary, so rounding errors never compound, and we check that "
+            "the state vector lies within a 2-norm bound of the reference that holds "
+            "under any floating-point reassociation within each "
+            r"gate~\cite[(2.6)]{higham_accuracy_1993}."
+        )
 
     @property
     def generators(self):

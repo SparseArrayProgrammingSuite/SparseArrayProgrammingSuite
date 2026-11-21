@@ -334,7 +334,7 @@ class DAEBDFTestGenerator(_DescriptorDAEGenerator):
         return []
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses a small singular-mass descriptor system to verify DAE steps."
 
     @property
@@ -392,7 +392,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
         ]
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Uses SLICOT models with an explicit E matrix as descriptor systems. "
             "Implicit DAE steps solve linear systems built from residual Jacobians."
@@ -526,7 +526,7 @@ class DAEBDFSuiteSparseGenerator(_DescriptorDAEGenerator):
         ]
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "SuiteSparse's model reduction problems are linear dynamical systems from "
             "heat transfer, structural mechanics, acoustics, circuits and power "
@@ -1204,10 +1204,6 @@ class _DescriptorDAEBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
-        return "Solves descriptor-form DAEs using explicit residual Jacobians."
-
-    @property
     def generators(self) -> list[Generator[DAEBDFDataset]]:
         return [
             DAEBDFTestGenerator(),
@@ -1336,8 +1332,27 @@ class DAEBDFBenchmark(_DescriptorDAEBenchmark):
     @property
     def description(self) -> str:
         return (
+            "Solves differential-algebraic equations (DAEs) with the backward "
+            "differentiation formula (BDF), where the derivative update at each step "
+            "is given by solving a linear system whose triangular factors are passed "
+            "in as benchmark inputs."
+        )
+
+    @property
+    def notes(self) -> str:
+        return (
             "Fixed-step BDF2 for descriptor-system DAEs with LU factors from the "
-            "generator."
+            "generator. Solves descriptor-form DAEs using explicit residual Jacobians."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Each step solves its implicit equation through the given LU factors, so "
+            "we check that the derivatives are backward differences of the states and "
+            "that each step satisfies the descriptor system up to the rounding error "
+            "of that solve under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     def benchmark(
