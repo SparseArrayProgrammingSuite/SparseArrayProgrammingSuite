@@ -271,7 +271,6 @@ _TENSORS: list[FROSTTDataset] = [
         order=3,
         shape=(4821207, 1774269, 1805187),
         license=licenses.FROSTT_AMAZON_REVIEWS,
-        suites=["shell"],
         description=(
             "Amazon product reviews (from SNAP): user x product x word,"
             " after stopword removal and stemming."

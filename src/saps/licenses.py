@@ -335,23 +335,16 @@ FROSTT_CHICAGO_CRIME = License(
     ),
 )
 
-FROSTT_AMAZON_REVIEWS = License(
-    spdx="LicenseRef-SNAP-Amazon-Research-Only",
-    ref=Ref(
-        title="Amazon review data README",
-        authors=[Author("Julian McAuley"), Author("Jure Leskovec")],
-        institution="Stanford University",
-        url="https://snap.stanford.edu/data/amazon/amazon_readme.txt",
-    ),
-    date_accessed=_ACCESSED_2026_11_18,
-    redistributable=False,
-    notes=(
-        "FROSTT's amazon_reviews tensor, from SNAP's web-Amazon data (McAuley and "
-        'Leskovec), whose README states: "Amazon review data will be made available '
-        '(for research purposes only) on request." Nothing grants permission to '
-        "redistribute it."
-    ),
-)
+# FROSTT's amazon_reviews tensor, from SNAP's web-Amazon data (McAuley and
+# Leskovec). Checked 2026-11-20: FROSTT's page for it
+# (http://frostt.io/tensors/amazon-reviews/) lists "License: Unknown";
+# https://snap.stanford.edu/data/web-Amazon.html states no license; and
+# https://snap.stanford.edu/data/amazon/amazon_readme.txt only points to
+# https://nijianmo.github.io/amazon/index.html, which states none either. The
+# README's 2013 and 2015 versions (on the Wayback Machine) said the raw reviews
+# "will be made available (for research purposes only) on request"; that
+# sentence was gone by 2021. Its datasets are de-listed.
+FROSTT_AMAZON_REVIEWS: License | None = None
 
 FROSTT_UBER_PICKUPS = License(
     spdx="CC0-1.0",

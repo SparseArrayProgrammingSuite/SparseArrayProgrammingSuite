@@ -458,7 +458,7 @@ class CPALSFROSTTGenerator(Generator[CPALSFROSTTDataset]):
                 (3, "nell_1", 10, 5, []),
                 (3, "flickr_3d", 10, 5, []),
                 (3, "delicious_3d", 10, 5, []),
-                (3, "amazon_reviews", 10, 5, ["standard"]),
+                (3, "amazon_reviews", 10, 5, []),
                 (3, "patents", 10, 5, ["standard"]),
                 (3, "reddit_2015", 10, 5, []),
                 (3, "fb_m", 10, 5, ["standard"]),

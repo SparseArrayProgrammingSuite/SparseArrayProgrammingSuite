@@ -586,7 +586,7 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
                 ("nell_1", (5, 5, 5), []),
                 ("flickr_3d", (5, 5, 5), []),
                 ("delicious_3d", (5, 5, 5), []),
-                ("amazon_reviews", (5, 5, 5), ["standard"]),
+                ("amazon_reviews", (5, 5, 5), []),
                 ("patents", (5, 5, 5), ["standard"]),
                 ("reddit_2015", (5, 5, 5), []),
                 ("fb_m", (5, 5, 5), ["standard"]),
