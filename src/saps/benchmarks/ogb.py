@@ -105,8 +105,10 @@ class OGBGraphGenerator(Generator[OGBDataset]):
 
     @property
     def suites(self) -> list[str]:
-        # --cache-datasets prepares the shell suite.
-        return ["shell"]
+        # --cache-datasets prepares the shell suite, which each redistributable
+        # dataset joins itself. ogbn-products is not redistributable (see
+        # licenses.OGBN_PRODUCTS), so it is de-listed.
+        return []
 
     @property
     def concepts(self) -> str:
@@ -168,6 +170,7 @@ class OGBGraphGenerator(Generator[OGBDataset]):
                     "Citation network of arXiv Computer Science papers for "
                     "node-property prediction."
                 ),
+                suites=["shell"],
             ),
             OGBDataset(
                 "ogbn-products",
@@ -182,6 +185,7 @@ class OGBGraphGenerator(Generator[OGBDataset]):
                     "Protein-protein association network with species labels and "
                     "averaged edge-feature node inputs."
                 ),
+                suites=["shell"],
             ),
         ]
 

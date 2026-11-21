@@ -332,8 +332,9 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
 
     @property
     def suites(self) -> list[str]:
-        # --cache-datasets prepares the shell suite.
-        return ["shell"]
+        # De-listed: the MC 2025 test instances have no license (see
+        # licenses.MCCOMP_TEST_INSTANCES), so this isn't in the cached shell suite.
+        return []
 
     @property
     def concepts(self) -> str:
@@ -481,19 +482,20 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
 
     @property
     def datasets(self) -> list[MCCompDataset]:
+        # De-listed: the MC 2025 test instances have no license (see
+        # licenses.MCCOMP_TEST_INSTANCES), so these are in no cached suite, nor
+        # trace or train.
         return [
-            MCCompDataset("Track1_MC/random_mc_1", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_2", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_3", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_4", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_5", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_6", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_7", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_8", suites=["standard", "trace"]),
-            MCCompDataset(
-                "Track1_MC/random_mc_9", suites=["standard", "trace", "train"]
-            ),
-            MCCompDataset("Track1_MC/random_mc_10", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_1", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_2", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_3", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_4", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_5", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_6", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_7", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_8", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_9", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_10", suites=[]),
         ]
 
     def generate(self, dataset: MCCompDataset):
@@ -622,7 +624,22 @@ class ModelCountingMCCompPoolGenerator(
 
     @property
     def datasets(self) -> list[MCCompPoolDataset]:
-        return MCCOMP_POOL_MODEL_COUNTING_INSTANCES
+        # m3_d5_n24_jdp_0 traces and trains the benchmark: 24 variables, 39
+        # clauses and 682,889 models, from the MC 2024 submission that the
+        # competition's mc2024_track1_186 to mc2024_track1_190 come from.
+        return [
+            MCCompPoolDataset(
+                dataset.source_path,
+                suites=(
+                    ["trace", "train"]
+                    if dataset.source_path
+                    == "mc2024-track1-mc_collected/MC2024_Track1_Set6_Pehousek_"
+                    "2024-02-16/plain/m3_d5_n24_jdp_0.cnf.xz"
+                    else []
+                ),
+            )
+            for dataset in MCCOMP_POOL_MODEL_COUNTING_INSTANCES
+        ]
 
     def generate(self, dataset: MCCompPoolDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)

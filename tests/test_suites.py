@@ -28,6 +28,34 @@ DELISTED_GENERATORS = {
     "simhash_ann_netflix_prize_sparse_reference",
     "mri_masked_edge_detection_kaggle",
     "mri_sobel_edge_detection_kaggle",
+    "particle_simulation_ewap",
+    "mccomp_instance",
+    "model_counting_mccomp",
+    "weighted_model_counting_mccomp",
+}
+
+# Datasets de-listed for their data's license from generators that keep others
+# listed.
+DELISTED_DATASETS = {
+    "frostt_tensor": {
+        "nell_2",
+        "lbnl_network",
+        "toy",
+        "nips",
+        "vast_2015_mc1_3d",
+        "nell_1",
+        "vast_2015_mc1_5d",
+        "enron",
+        "flickr_3d",
+        "flickr_4d",
+        "delicious_3d",
+        "delicious_4d",
+        "reddit_2015",
+        "darpa",
+    },
+    "ogb_graph": {"ogbn-products"},
+    "gcn_ogb": {"ogbn-products"},
+    "gcn_backward_ogb": {"ogbn-products"},
 }
 
 
@@ -72,6 +100,10 @@ def test_shell_generators_are_in_the_shell_suite():
         "jl_kmeans_netflix_prize_reference",
         "simhash_ann_netflix_prize_dense_reference",
         "simhash_ann_netflix_prize_sparse_reference",
+        "mccomp_instance",
+        # These put each listed dataset in the shell suite on its own.
+        "frostt_tensor",
+        "ogb_graph",
     }
 
 
@@ -85,3 +117,27 @@ def test_delisted_generators_keep_their_datasets_out_of_cached_suites(name):
     assert datasets, f"{name} lists no datasets"
     for dataset, suites in datasets:
         assert not suites & CACHED_SUITES, f"{name}.{dataset.name} is in {suites}"
+
+
+@pytest.mark.parametrize("name", sorted(DELISTED_DATASETS))
+def test_delisted_datasets_stay_out_of_cached_suites(name):
+    suites_by_dataset = {
+        dataset.name: suites
+        for _, generator, dataset, suites in DATASETS
+        if generator.name == name
+    }
+    assert DELISTED_DATASETS[name] <= set(suites_by_dataset)
+    for dataset_name, suites in suites_by_dataset.items():
+        cached = suites & CACHED_SUITES
+        if dataset_name in DELISTED_DATASETS[name]:
+            assert not cached, f"{name}.{dataset_name} is in {suites}"
+        else:
+            assert cached, f"{name}.{dataset_name} is in no cached suite"
+
+
+@pytest.mark.parametrize("name", ["gcn_ogb_reference", "gcn_backward_ogb_reference"])
+def test_references_of_delisted_datasets_are_not_listed(name):
+    names = {
+        dataset.name for _, generator, dataset, _ in DATASETS if generator.name == name
+    }
+    assert names == {"ogbn-arxiv", "ogbn-proteins"}

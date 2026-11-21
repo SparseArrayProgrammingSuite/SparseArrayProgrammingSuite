@@ -616,7 +616,9 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
                     "Amazon product co-purchasing network for large-scale "
                     "node-property prediction."
                 ),
-                suites=["standard", "trace", "train"],
+                # De-listed: ogbn-products is not redistributable (see
+                # licenses.OGBN_PRODUCTS).
+                suites=[],
             ),
             GCNOGBDataset(
                 "ogbn-proteins",
@@ -689,7 +691,12 @@ class GCNOGBReferenceGenerator(ReferenceGenerator[GCNOGBDataset]):
 
     @property
     def datasets(self) -> list[ReferenceDataset[GCNOGBDataset]]:
-        return [ReferenceDataset(dataset) for dataset in GCNOGBGenerator().datasets]
+        # ogbn-products is de-listed, so its reference isn't cached either.
+        return [
+            ReferenceDataset(dataset)
+            for dataset in GCNOGBGenerator().datasets
+            if dataset.name != "ogbn-products"
+        ]
 
     def generate(self, dataset: ReferenceDataset[GCNOGBDataset]) -> DataInstance:
         adjacency, *dense = GCNOGBGenerator().generate_inputs(dataset.dataset).inputs

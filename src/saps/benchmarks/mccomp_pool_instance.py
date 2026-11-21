@@ -30,8 +30,9 @@ class MCCompPoolDataset(Dataset):
     repeats, and the file's suffixes, and spells its other dots as underscores.
     """
 
-    def __init__(self, source_path: str):
+    def __init__(self, source_path: str, *, suites: list[str] | None = None):
         self.source_path = source_path
+        self._suites = suites or []
 
     @property
     def name(self) -> str:
@@ -52,7 +53,7 @@ class MCCompPoolDataset(Dataset):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        return self._suites
 
     @property
     def concepts(self) -> str:

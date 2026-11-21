@@ -478,3 +478,20 @@ def test_weighted_mccomp_pool_generators_count_the_projection(monkeypatch, tmp_p
         rtol=0,
         atol=problem.ref_meta["error_bound"],
     )
+
+
+@pytest.mark.parametrize(
+    ("generator", "traced"),
+    [
+        (
+            ModelCountingMCCompPoolGenerator(),
+            "MC2024_Track1_Set6_Pehousek_2024-02-16/plain/m3_d5_n24_jdp_0",
+        ),
+        (WeightedModelCountingMCCompPoolGenerator(), "mc2024_track4_182"),
+    ],
+    ids=lambda value: getattr(value, "name", value),
+)
+def test_mccomp_pool_traces_and_trains_one_instance(generator, traced):
+    assert {
+        dataset.name: dataset.suites for dataset in generator.datasets if dataset.suites
+    } == {traced: ["trace", "train"]}

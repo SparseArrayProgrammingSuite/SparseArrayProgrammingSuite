@@ -612,37 +612,20 @@ class WeightedModelCountingMCCompGenerator(
 
     @property
     def datasets(self) -> list[WeightedModelCountingMCCompDataset]:
+        # De-listed: the MC 2025 test instances have no license (see
+        # licenses.MCCOMP_TEST_INSTANCES), so these are in no cached suite, nor
+        # trace or train.
         return [
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_1", suites=["standard", "trace", "train"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_2", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_3", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_4", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_5", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_6", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_7", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_8", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_9", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_10", suites=["standard", "trace"]
-            ),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_1", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_2", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_3", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_4", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_5", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_6", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_7", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_8", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_9", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_10", suites=[]),
         ]
 
     def generate(self, dataset: WeightedModelCountingMCCompDataset):
@@ -729,7 +712,20 @@ class WeightedModelCountingMCCompPoolGenerator(
 
     @property
     def datasets(self) -> list[MCCompPoolDataset]:
-        return MCCOMP_POOL_WEIGHTED_INSTANCES
+        # The largest instance, mc2024_track4_182, traces and trains the
+        # benchmark: 13 variables projected onto 9, so it exercises projection.
+        return [
+            MCCompPoolDataset(
+                dataset.source_path,
+                suites=(
+                    ["trace", "train"]
+                    if dataset.source_path
+                    == "mc2024-track4-pwmc_competition/mc2024_track4_182.cnf.xz"
+                    else []
+                ),
+            )
+            for dataset in MCCOMP_POOL_WEIGHTED_INSTANCES
+        ]
 
     def generate(self, dataset: MCCompPoolDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)

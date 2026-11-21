@@ -23,6 +23,7 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.downloaders.ewap import download_ewap_dataset
+from saps.downloaders.lyon import download_lyon_dataset
 from saps.downloaders.nemo import load_saps_nemo_dataset
 from saps.util.interval import Interval, add, maximum, minimum
 
@@ -308,7 +309,7 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
             "Provide small particle examples for benchmark correctness checks while "
             "exercising the same CS267-derived cutoff, minimum-radius softening, "
             "time step, and unit gravitational constant used by the synthetic and "
-            "EWAP repulsive-force datasets."
+            "pedestrian repulsive-force datasets."
         )
 
     @property
@@ -788,6 +789,9 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
 
     @property
     def datasets(self) -> list[ParticleSimulationEWAPDataset]:
+        # De-listed: the EWAP data has no license (see licenses.EWAP), so it's in
+        # no suite and isn't run or cached. ParticleSimulationLyonGenerator
+        # replaces it.
         return [
             ParticleSimulationEWAPDataset(
                 name="seq_eth",
@@ -808,7 +812,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
                     "The force parameters are the CS267-style repulsive benchmark "
                     "constants because EWAP does not provide simulation constants."
                 ),
-                suites=["standard", "trace"],
+                suites=[],
             ),
             ParticleSimulationEWAPDataset(
                 name="seq_hotel",
@@ -829,7 +833,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
                     "The force parameters are the CS267-style repulsive benchmark "
                     "constants because EWAP does not provide simulation constants."
                 ),
-                suites=["standard", "trace"],
+                suites=[],
             ),
         ]
 
@@ -838,18 +842,167 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             dataset.scene,
             num_steps=dataset.num_steps,
         )
-        meta["parameters"] = dataset.parameters
-        x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
-        bounds = particle_sim_bounds(
-            x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], dataset.parameters
+        return _pedestrian_instance(inputs, meta, dataset.parameters)
+
+
+def _pedestrian_instance(inputs, meta, parameters) -> DataInstance:
+    meta["parameters"] = parameters
+    x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
+    bounds = particle_sim_bounds(
+        x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], parameters
+    )
+    return DataInstance(
+        inputs=inputs,
+        meta=meta,
+        # Every output's lower bound, then every output's upper bound.
+        ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+        + [from_numpy(bound.hi) for bound in bounds],
+    )
+
+
+class ParticleSimulationLyonDataset(ParticleSimulationDataset):
+    def __init__(
+        self,
+        sequence: str,
+        num_steps: int,
+        description: str,
+        parameters: dict[str, Any],
+        suites: list[str],
+    ):
+        super().__init__(
+            name=sequence,
+            num_steps=num_steps,
+            pretty_name=sequence.replace("_", " "),
+            description=description,
+            suites=suites,
+            tags=["physics", "simulation", "sparse", "pedestrian", "lyon"],
+            parameters=parameters,
         )
-        return DataInstance(
-            inputs=inputs,
-            meta=meta,
-            # Every output's lower bound, then every output's upper bound.
-            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
-            + [from_numpy(bound.hi) for bound in bounds],
+        self._sequence = sequence
+
+    @property
+    def sequence(self) -> str:
+        return self._sequence
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["source_sequence"] = self.sequence
+        return data
+
+
+class ParticleSimulationLyonGenerator(Generator[ParticleSimulationLyonDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "particle_simulation_lyon"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Particle Simulation Lyon"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Loads pedestrian trajectories from the 2022 Festival of Lights in Lyon "
+            "as particle initial conditions: the crowd at a sequence's most "
+            "crowded frame, with each pedestrian's velocity over the 0.4 s around "
+            "it. The data supplies positions only, so this generator uses the same "
+            "CS267-style "
+            "repulsive parameters as the synthetic dataset: cutoff 0.01, softening "
+            "0.0001, dt 0.0005, G 1.0, and scalar mass tensor 0.01."
         )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def tags(self) -> list[str]:
+        return ["physics", "particle-simulation", "sparse", "pedestrian", "lyon"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            licenses.LYON_FESTIVAL_OF_LIGHTS.ref,
+            Ref(
+                title=(
+                    "Dense Crowd Dynamics and Pedestrian Trajectories: A Multiscale "
+                    "Field Dataset from the Festival of Lights in Lyon"
+                ),
+                authors=licenses.LYON_FESTIVAL_OF_LIGHTS.ref.authors,
+                journal="Scientific Data",
+                volume=12,
+                pages="718",
+                year=2025,
+                doi="10.1038/s41597-025-04732-3",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def motivation(self):
+        return (
+            "Dense crowd trajectories provide real-world 2D interaction data that "
+            "can exercise the particle simulation benchmark without changing the "
+            "source coordinate scale. Because the source data is not a physical "
+            "N-body snapshot, the interaction parameters mirror the CS267-derived "
+            "repulsive-force setup rather than being inferred from the trajectories."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.LYON_FESTIVAL_OF_LIGHTS
+
+    @property
+    def datasets(self) -> list[ParticleSimulationLyonDataset]:
+        parameters = {
+            "force_model": "cs267_repulsive",
+            "boundary_model": "periodic_box",
+            "cutoff": 0.01,
+            "softening": 0.0001,
+            "dt": 0.0005,
+            "gravitational_constant": 1.0,
+        }
+        return [
+            ParticleSimulationLyonDataset(
+                sequence=sequence,
+                num_steps=50,
+                description=(
+                    f"The {n} pedestrians in the most crowded frame of the Lyon "
+                    f"Festival of Lights {view}, in source coordinates, with z "
+                    "and vz set to 0. The force parameters are the CS267-style "
+                    "repulsive benchmark constants because the data does not "
+                    "provide simulation constants."
+                ),
+                parameters=parameters,
+                suites=["standard", "trace"],
+            )
+            for sequence, n, view in (
+                ("LargeView_zoom_O", 595, "wide CCTV view LargeView_zoom_O"),
+                ("TopView_2B", 122, "top-view sequence TopView_2B"),
+            )
+        ]
+
+    def generate(self, dataset: ParticleSimulationLyonDataset):
+        inputs, meta = download_lyon_dataset(
+            dataset.sequence, num_steps=dataset.num_steps
+        )
+        return _pedestrian_instance(inputs, meta, dataset.parameters)
 
 
 class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
@@ -1200,6 +1353,7 @@ class ParticleSimulationBenchmark(Benchmark):
         return [
             ParticleSimulationTestGenerator(),
             ParticleSimulationCS267Generator(),
+            ParticleSimulationLyonGenerator(),
             ParticleSimulationEWAPGenerator(),
             ParticleSimulationNEMOGenerator(),
         ]

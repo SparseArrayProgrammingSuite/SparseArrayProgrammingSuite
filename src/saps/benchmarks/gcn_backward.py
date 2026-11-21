@@ -782,7 +782,9 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
                     "Amazon product co-purchasing network for large-scale "
                     "node-property prediction."
                 ),
-                suites=["standard"],
+                # De-listed: ogbn-products is not redistributable (see
+                # licenses.OGBN_PRODUCTS).
+                suites=[],
             ),
             GCNBackwardOGBDataset(
                 "ogbn-proteins",
@@ -857,8 +859,11 @@ class GCNBackwardOGBReferenceGenerator(ReferenceGenerator[GCNBackwardOGBDataset]
 
     @property
     def datasets(self) -> list[ReferenceDataset[GCNBackwardOGBDataset]]:
+        # ogbn-products is de-listed, so its reference isn't cached either.
         return [
-            ReferenceDataset(dataset) for dataset in GCNBackwardOGBGenerator().datasets
+            ReferenceDataset(dataset)
+            for dataset in GCNBackwardOGBGenerator().datasets
+            if dataset.name != "ogbn-products"
         ]
 
     def generate(

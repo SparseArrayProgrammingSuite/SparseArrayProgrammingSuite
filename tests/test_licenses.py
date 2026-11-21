@@ -117,9 +117,11 @@ def test_reference_generators_share_their_sources_license():
         if key.endswith("ReferenceGenerator"):
             source = GENERATORS[key.removesuffix("ReferenceGenerator") + "Generator"]
             assert generator.license is source.license, key
-            for reference, dataset in zip(
-                generator.datasets, source.datasets, strict=True
-            ):
+            # A reference generator may leave out datasets de-listed from its
+            # source, so pair each reference with its dataset by name.
+            datasets = {dataset.name: dataset for dataset in source.datasets}
+            for reference in generator.datasets:
+                dataset = datasets[reference.name]
                 assert generator.dataset_license(reference) is source.dataset_license(
                     dataset
                 ), (key, dataset.name)

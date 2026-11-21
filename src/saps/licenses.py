@@ -524,8 +524,48 @@ SAPS_NEMO = License(
 
 # The ETH Walking Pedestrians (EWAP) dataset, fetched from OpenTraj. Checked
 # 2026-11-18: OpenTraj's README for the dataset states no license, and its
-# repository-wide MIT license does not cover ETH Zurich's data.
+# repository-wide MIT license does not cover ETH Zurich's data. Checked
+# 2026-11-20: ETH's own release,
+# https://data.vision.ee.ethz.ch/cvl/aem/ewap_dataset_full.tgz, has a README
+# and per-sequence info files that state no license either, only "Please write
+# to stefpell@vision.ee.ethz.ch for any question or comment." Its generators
+# are de-listed.
 EWAP: License | None = None
+
+LYON_FESTIVAL_OF_LIGHTS = License(
+    spdx="CC-BY-4.0",
+    ref=Ref(
+        title=(
+            "Dense Crowd Dynamics and Pedestrian Trajectories: A Multiscale Field "
+            "Study at the Fête des Lumières in Lyon"
+        ),
+        authors=[
+            Author("Oscar Dufour"),
+            Author("Huu-Tu Dang"),
+            Author("Jakob Cordes"),
+            Author("Raphael Korbmacher"),
+            Author("Benoit Gaudou"),
+            Author("Mohcine Chraibi"),
+            Author("Alexandre Nicolas"),
+            Author("Antoine Tordeux"),
+        ],
+        publisher="Zenodo",
+        year=2024,
+        url="https://zenodo.org/records/13830435",
+        doi="10.5281/zenodo.13830435",
+    ),
+    date_accessed=_ACCESSED_2026_11_20,
+    redistributable=True,
+    notes=(
+        "Pedestrian trajectories recorded during the 2022 Festival of Lights in "
+        "Lyon within the French-German MADRAS project, about 7,000 trajectories "
+        "at densities up to 4 people per square meter. The authors' Zenodo "
+        'record (Data_Madras.zip) lists the license "cc-by-4.0", and the data '
+        "paper (Scientific Data 12, 718, 2025, doi:10.1038/s41597-025-04732-3) "
+        "is CC BY 4.0 too. These trajectories replace EWAP's, which have no "
+        "license (see EWAP)."
+    ),
+)
 
 # G-CARE subgraph matching datasets and query sets. Checked 2026-11-18, with no
 # license found in any of: https://github.com/yspark-dblab/gcare, which links the

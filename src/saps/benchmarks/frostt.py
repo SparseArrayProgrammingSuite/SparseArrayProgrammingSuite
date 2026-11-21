@@ -98,6 +98,7 @@ _TENSORS: list[FROSTTDataset] = [
         # Tensor order via real downloads: (k*n, m*n, m*k).
         shape=(k * n, m * n, m * k),
         license=licenses.FROSTT_MATMUL,
+        suites=["shell"],
         description=(
             f"FROSTT matrix-multiplication tensor for a ({m}x{k}) * ({k}x{n}) product."
         ),
@@ -120,6 +121,7 @@ _TENSORS: list[FROSTTDataset] = [
         order=4,
         shape=(6186, 24, 77, 32),
         license=licenses.FROSTT_CHICAGO_CRIME,
+        suites=["shell"],
         description=(
             "Chicago crime reports (2001-2017): day x hour x community-area x"
             " crime-type, non-zeros are counts."
@@ -159,6 +161,7 @@ _TENSORS: list[FROSTTDataset] = [
         order=4,
         shape=(183, 24, 1140, 1717),
         license=licenses.FROSTT_UBER_PICKUPS,
+        suites=["shell"],
         description=(
             "Uber pickups in New York City: date x hour x latitude x"
             " longitude, non-zeros are pickup counts."
@@ -170,6 +173,7 @@ _TENSORS: list[FROSTTDataset] = [
         order=5,
         shape=(6185, 24, 380, 395, 32),
         license=licenses.FROSTT_CHICAGO_CRIME,
+        suites=["shell"],
         description=(
             "Chicago crime reports (2001-2017): day x hour x latitude x"
             " longitude x crime-type, non-zeros are counts. Companion to"
@@ -267,6 +271,7 @@ _TENSORS: list[FROSTTDataset] = [
         order=3,
         shape=(4821207, 1774269, 1805187),
         license=licenses.FROSTT_AMAZON_REVIEWS,
+        suites=["shell"],
         description=(
             "Amazon product reviews (from SNAP): user x product x word,"
             " after stopword removal and stemming."
@@ -283,7 +288,7 @@ _TENSORS: list[FROSTTDataset] = [
             " of terms within a 7-word window; each yearly slice is"
             " symmetric."
         ),
-        suites=["standard-long"],
+        suites=["shell", "standard-long"],
     ),
     FROSTTDataset(
         "reddit_2015",
@@ -304,6 +309,7 @@ _TENSORS: list[FROSTTDataset] = [
         order=3,
         shape=(23343790, 23344784, 166),
         license=licenses.FROSTT_FB_M,
+        suites=["shell"],
         description=(
             "Freebase Music knowledge base: entity x entity x relation,"
             " non-zeros are binary."
@@ -330,6 +336,7 @@ _TENSORS: list[FROSTTDataset] = [
         order=5,
         shape=(3760, 11153, 8710, 75146, 8),
         license=licenses.FROSTT_LANL2,
+        suites=["shell"],
         description=(
             "Anonymized LANL NetFlow data (58 days): 10-minute time bin x"
             " source device x destination device x destination port x"
@@ -363,8 +370,10 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
 
     @property
     def suites(self) -> list[str]:
-        # --cache-datasets prepares the shell suite.
-        return ["shell"]
+        # --cache-datasets prepares the shell suite, which each tensor with a
+        # license joins itself. Tensors with no license (see licenses.FROSTT)
+        # are de-listed.
+        return []
 
     @property
     def concepts(self) -> str:

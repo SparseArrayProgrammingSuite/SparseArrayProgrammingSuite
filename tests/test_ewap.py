@@ -105,7 +105,8 @@ def test_ewap_particle_sim_generator_uses_downloader(monkeypatch):
         "seq_eth",
         "seq_hotel",
     ]
-    assert all(dataset.suites == ["standard", "trace"] for dataset in datasets)
+    # De-listed for EWAP's missing license.
+    assert all(dataset.suites == [] for dataset in datasets)
     assert all(
         dataset.parameters["force_model"] == "cs267_repulsive" for dataset in datasets
     )
