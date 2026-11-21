@@ -23,7 +23,7 @@ from saps.benchmark import (
     ShellBenchmark,
 )
 from saps.downloaders.ewap import download_ewap_dataset
-from saps.downloaders.nemo import download_nemo_dataset
+from saps.downloaders.nemo import load_saps_nemo_dataset
 from saps.util.interval import Interval, add, maximum, minimum
 
 
@@ -868,8 +868,10 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
     @property
     def description(self) -> str:
         return (
-            "Loads real-world initial conditions for particle simulation benchmarks. "
-            "NEMO datasets use source mass columns, unscaled archive coordinates, "
+            "Loads initial conditions that SAPS generated with NEMO "
+            "(scripts/generate_nemo_particles.py): Plummer spheres and a Milky "
+            "Way/M31 collision of Kuijken-Dubinski disk-bulge-halo galaxies. "
+            "NEMO datasets use source mass columns, unscaled source coordinates, "
             "Newtonian gravity with G 1.0 in N-body units, dt 1/32, softening 0.05, "
             "and short interaction bucket widths chosen to exercise sparse workloads "
             "rather than accurately approximate full gravitational forces."
@@ -915,7 +917,17 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 year=1911,
             ),
             Ref(
-                title="The return of the tidal tails in NGC 7252",
+                title="Nearly self-consistent disc-bulge-halo models for galaxies",
+                authors=[Author("Konrad Kuijken"), Author("John Dubinski")],
+                journal="Monthly Notices of the Royal Astronomical Society",
+                volume=277,
+                number=4,
+                pages="1341-1353",
+                year=1995,
+                doi="10.1093/mnras/277.4.1341",
+            ),
+            Ref(
+                title="Using Tidal Tails to Probe Dark Matter Halos",
                 authors=[
                     Author("John Dubinski"),
                     Author("J. Christopher Mihos"),
@@ -925,6 +937,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 volume=462,
                 pages="576",
                 year=1996,
+                doi="10.1086/177174",
             ),
         ]
 
@@ -950,7 +963,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
 
     @property
     def license(self) -> License | None:
-        return licenses.NEMO_ARCHIVE
+        return licenses.SAPS_NEMO
 
     @property
     def datasets(self) -> list[ParticleSimulationDataset]:
@@ -969,15 +982,16 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 },
                 pretty_name="Plummer (N=128)",
                 description=(
-                    "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
-                    " using mass, position, and velocity columns. The dataset uses "
+                    "Plummer-model equilibrium snapshot generated with NEMO's "
+                    "mkplummer (seed 123), using mass, position, and velocity "
+                    "columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
                     "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
-                source_path="plummer/tab128.gz",
+                source_path="plummer_128.tab.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimulationDataset(
@@ -994,19 +1008,20 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 },
                 pretty_name="Plummer (N=1024)",
                 description=(
-                    "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
-                    " using mass, position, and velocity columns. The dataset uses "
+                    "Plummer-model equilibrium snapshot generated with NEMO's "
+                    "mkplummer (seed 123), using mass, position, and velocity "
+                    "columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
                     "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace", "train"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
-                source_path="plummer/tab1024.gz",
+                source_path="plummer_1024.tab.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimulationDataset(
-                name="dubinski_m31",
+                name="mw_m31",
                 n_particles=81920,
                 num_steps=10,
                 parameters={
@@ -1017,10 +1032,12 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="Dubinski Milky Way/M31",
+                pretty_name="Milky Way/M31 Collision",
                 description=(
-                    "Dubinski Milky Way/Andromeda collision initial conditions from the"
-                    " NEMO archive, stored as mass and six phase-space coordinates. "
+                    "Milky Way/Andromeda collision initial conditions, set up like "
+                    "Dubinski, Mihos and Hernquist's (1996) model B from two "
+                    "Kuijken-Dubinski model B galaxies made with NEMO's mkkd95, "
+                    "stored as mass and six phase-space coordinates. "
                     "The dataset uses source masses, G 1.0 N-body units, dt 1/32, "
                     "softening 0.05, and bucket width 0.1 to create a sparse "
                     "gravity workload. This width is not a physically "
@@ -1028,7 +1045,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 ),
                 suites=["standard"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
-                source_path="dubinski/dubinski.tab.gz",
+                source_path="mw_m31.tab.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
         ]
@@ -1044,7 +1061,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
     def generate_inputs(self, dataset: ParticleSimulationDataset) -> DataInstance:
         if dataset.source_path is None or dataset.source_columns is None:
             raise ValueError(f"Particle dataset {dataset.name} has no NEMO source")
-        inputs, meta = download_nemo_dataset(
+        inputs, meta = load_saps_nemo_dataset(
             dataset.source_path,
             columns=dataset.source_columns,
             wrap=dataset.source_wrap,

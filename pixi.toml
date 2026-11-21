@@ -76,6 +76,7 @@ scikit-learn = "==1.9.0"
 ssgetpy = "==1.0rc2"
 onnx = "==1.23.0"
 python-graphblas = "==2025.2.0"
+pysdd = "==1.0.7"
 # Indirect dependencies.
 anyio = "==4.14.0"
 asv-runner = "==0.2.1"
@@ -86,6 +87,7 @@ certifi = "==2026.6.17"
 cffi = "==2.1.1"
 charset-normalizer = "==3.4.7"
 cloudpickle = "==3.1.2"
+cython = "==3.3.1"
 distlib = "==0.4.3"
 h11 = "==0.16.0"
 h5py = "==3.16.0"
@@ -166,6 +168,7 @@ pytest-timeout = "==2.4.0"
 igraph = "==1.0.0"
 pandas = "==2.3.3"
 python-graphblas = "==2025.2.0"
+pysdd = "==1.0.7"
 
 # PyTorch, CPU and CUDA alike (frameworks/saps_pytorch.py). Data generation
 # doesn't need it.

@@ -497,6 +497,10 @@ completed files. Source subdirectories are `suitesparse`, `frostt`,
 use `artifacts/lth`. An explicit downloader `data_dir` takes precedence.
 These source caches persist independently of job-local environments and `$TMPDIR`.
 G-CARE records completed extraction so later loads reuse the extracted files.
+So do the Model Counting Competition 2020-2024 archives under `mccomp/zenodo`.
+`--cache-datasets` downloads the eight that the listed instances come from,
+about 2 GB, or 4 GB on disk once unpacked; `scripts/scan_mccomp_pool.py`, which
+lists the instances, reads all 20.
 
 
 Each finishing task refreshes the combined files with the results saved so far.

@@ -100,7 +100,7 @@ def test_check_accepts_result_matching_both_counts():
 
 
 def test_check_rejects_stored_count_disagreeing_with_reference():
-    with pytest.raises(AssertionError, match="NumPy brute-force reference counts 4"):
+    with pytest.raises(AssertionError, match="PySDD reference counts 4"):
         _benchmark(5, 5, 4).check(_PARAM)
 
 
@@ -110,5 +110,5 @@ def test_check_rejects_wrong_result():
 
 
 def test_check_requires_reference_count():
-    with pytest.raises(AssertionError, match="No NumPy reference count"):
+    with pytest.raises(AssertionError, match="No PySDD reference count"):
         _benchmark(5, 5, None).check(_PARAM)

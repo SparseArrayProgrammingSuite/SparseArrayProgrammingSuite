@@ -26,6 +26,8 @@ DELISTED_GENERATORS = {
     "simhash_ann_netflix_prize_dense_reference",
     "simhash_ann_netflix_prize_sparse",
     "simhash_ann_netflix_prize_sparse_reference",
+    "mri_masked_edge_detection_kaggle",
+    "mri_sobel_edge_detection_kaggle",
 }
 
 

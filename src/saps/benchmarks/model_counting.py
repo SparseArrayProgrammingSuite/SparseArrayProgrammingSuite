@@ -17,7 +17,15 @@ from saps.benchmark import (
     Generator,
     License,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
     ShellBenchmark,
+)
+from saps.benchmarks.mccomp_pool_instance import (
+    MCCOMP_POOL_MODEL_COUNTING_INSTANCES,
+    MCCompPoolDataset,
+    MCCompPoolInstanceGenerator,
+    fetch_mccomp_pool_instance,
 )
 from saps.codegen import (
     constant_function_source,
@@ -62,18 +70,25 @@ def clauses_to_einsum(clauses):
 
 
 def referenceModelCount(num_vars: int, clauses: list[list[int]]) -> int:
-    """Count satisfying assignments by enumerating all ``2**num_vars`` of them.
+    """Count the assignments of ``num_vars`` variables that satisfy ``clauses``.
 
-    Row ``i`` of ``assignments`` sets variable ``v`` to bit ``v - 1`` of ``i``.
-    An empty clause is unsatisfiable, and no clauses leaves every row satisfied.
+    PySDD compiles the conjunction of clauses into a sentential decision diagram
+    and counts its models exactly, over every variable its manager declares. An
+    empty clause is unsatisfiable, and no clauses leaves every assignment
+    satisfied.
     """
-    assignments = (np.arange(2**num_vars)[:, None] >> np.arange(num_vars)) & 1
-    satisfied = np.ones(2**num_vars, dtype=bool)
+    from pysdd.sdd import SddManager
+
+    # A manager needs at least one variable, so declare one that no clause
+    # uses; it doubles the count.
+    manager = SddManager(num_vars + 1, False)
+    formula = manager.true()
     for clause in clauses:
-        literals = np.asarray(clause, dtype=np.int64)
-        values = assignments[:, np.abs(literals) - 1].astype(bool) ^ (literals < 0)
-        satisfied &= values.any(axis=1)
-    return int(satisfied.sum())
+        disjunction = manager.false()
+        for literal in clause:
+            disjunction = disjunction | manager.literal(literal)
+        formula = formula & disjunction
+    return formula.global_model_count() // 2
 
 
 class ModelCountingTestDataset(Dataset):
@@ -549,6 +564,138 @@ def parse_mccomp_exact(cnf_text: str) -> tuple[str | None, str | None]:
     return None, None
 
 
+class ModelCountingMCCompPoolGenerator(
+    _MCFunctionGenerator, Generator[MCCompPoolDataset]
+):
+    @property
+    def name(self) -> str:
+        return "model_counting_mccomp_pool"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Model Counting MCComp Pool"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Counts the models of the small Track 1 instances in the Model "
+            "Counting Competition 2020-2024 archives."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCCompPoolInstanceGenerator().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def motivation(self) -> str:
+        return (
+            "Formulas from the applications that the Model Counting Competitions "
+            "collected, small enough that a dense evaluation of the counting "
+            "einsum finishes."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_POOL
+
+    @property
+    def cacheable(self) -> bool:
+        # The instances come from the cached shell generator and the counts from
+        # the cached reference generator.
+        return False
+
+    @property
+    def datasets(self) -> list[MCCompPoolDataset]:
+        return MCCOMP_POOL_MODEL_COUNTING_INSTANCES
+
+    def generate(self, dataset: MCCompPoolDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ModelCountingMCCompPoolReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        assert reference.ref_meta is not None
+        problem.meta["expected_result"] = reference.ref_meta["reference_count"]
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MCCompPoolDataset) -> DataInstance:
+        raw = fetch_mccomp_pool_instance(dataset.source_path)
+        num_vars, clauses = parse_dimacs(to_numpy(raw.inputs[0]).tobytes().decode())
+        return DataInstance(
+            inputs=[from_numpy(np.asarray([0, 1], dtype=np.int64))],
+            meta={
+                "expr": clauses_to_einsum(clauses),
+                "num_vars": num_vars,
+                "default_total": 2**num_vars,
+                "source_generator": MCCompPoolInstanceGenerator().name,
+                "source_path": dataset.source_path,
+                "source_num_clauses": len(clauses),
+            },
+        )
+
+
+class ModelCountingMCCompPoolReferenceGenerator(ReferenceGenerator[MCCompPoolDataset]):
+    @property
+    def name(self) -> str:
+        return "model_counting_mccomp_pool_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Model Counting MCComp Pool Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "PySDD model counts for Model Counting MCComp Pool, cached apart from "
+            "its inputs."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return ModelCountingMCCompPoolGenerator().license
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCCompPoolDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in ModelCountingMCCompPoolGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[MCCompPoolDataset]) -> DataInstance:
+        raw = fetch_mccomp_pool_instance(dataset.dataset.source_path)
+        num_vars, clauses = parse_dimacs(to_numpy(raw.inputs[0]).tobytes().decode())
+        count = referenceModelCount(num_vars, clauses)
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=[from_numpy(np.asarray(count, dtype=np.int64))],
+            ref_meta={"reference_count": count},
+        )
+
+
+class ModelCountingMCCompPoolReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ModelCountingMCCompPoolReferenceGenerator()
+
+
 class ModelCountingBenchmark(Benchmark):
     @property
     def name(self):
@@ -610,7 +757,11 @@ class ModelCountingBenchmark(Benchmark):
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [ModelCountingTestGenerator(), ModelCountingMCCompGenerator()]
+        return [
+            ModelCountingTestGenerator(),
+            ModelCountingMCCompGenerator(),
+            ModelCountingMCCompPoolGenerator(),
+        ]
 
     def benchmark(self, xp, meta):
         raise NotImplementedError(
@@ -627,15 +778,15 @@ class ModelCountingBenchmark(Benchmark):
             return
         result = int(to_numpy(self._output[0]))
         expected = int(to_numpy(self._ref_outputs[0]))
-        # The stored count is typed in or parsed from the instance file, so check
-        # it against an independent brute-force count before trusting it.
+        # The stored count may be typed in or parsed from the instance file, so
+        # check it against an independent PySDD count before trusting it.
         assert self._ref_meta is not None, (
-            "No NumPy reference count; regenerate the cached dataset"
+            "No PySDD reference count; regenerate the cached dataset"
         )
         reference = self._ref_meta["reference_count"]
         assert expected == reference, (
             f"Test '{param.dataset.name}' has stored count {expected}, but the "
-            f"NumPy brute-force reference counts {reference}"
+            f"PySDD reference counts {reference}"
         )
         assert result == expected, (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"

@@ -18,6 +18,7 @@ from saps.benchmark import Author, License, Ref
 # Each license below was checked on one of these days.
 _ACCESSED_2026_11_18 = datetime.date(2026, 11, 18)
 _ACCESSED_2026_11_19 = datetime.date(2026, 11, 19)
+_ACCESSED_2026_11_20 = datetime.date(2026, 11, 20)
 
 SAPS = License(
     spdx="MIT",
@@ -435,8 +436,30 @@ NETFLIX_PRIZE: License | None = None
 
 # Brain MRI images from Kaggle
 # (navoneel/brain-mri-images-for-brain-tumor-detection). Checked 2026-11-18:
-# Kaggle lists only "Data files © Original Authors".
+# Kaggle lists only "Data files © Original Authors". Its generators are
+# de-listed.
 KAGGLE_BRAIN_MRI: License | None = None
+
+IXI = License(
+    spdx="CC-BY-SA-3.0",
+    ref=Ref(
+        title="IXI Dataset",
+        authors=[Author("IXI - Information eXtraction from Images")],
+        url="https://brain-development.org/ixi-dataset/",
+    ),
+    date_accessed=_ACCESSED_2026_11_20,
+    redistributable=True,
+    notes=(
+        "The IXI dataset: T1, T2, PD, MRA and diffusion-weighted brain MRI scans "
+        "of nearly 600 healthy subjects, collected at Hammersmith Hospital "
+        "(Philips 3T), Guy's Hospital (Philips 1.5T) and the Institute of "
+        "Psychiatry (GE 1.5T) in London. The page states \"This data is made "
+        'available under the Creative Commons CC BY-SA 3.0 license. If you use '
+        "the IXI data please acknowledge the source of the IXI data, e.g. this "
+        'website." These scans replace the Kaggle brain MRI images, which have no '
+        "license (see KAGGLE_BRAIN_MRI)."
+    ),
+)
 
 # Model counting competition instances from
 # https://github.com/arijitsh/mccomp-test-instances. Checked 2026-11-18 and
@@ -451,10 +474,53 @@ KAGGLE_BRAIN_MRI: License | None = None
 # include these test instances.
 MCCOMP_TEST_INSTANCES: License | None = None
 
-# NEMO archive snapshots (Plummer models and Dubinski's Milky Way/Andromeda
-# initial conditions). Checked 2026-11-18: https://carma.astro.umd.edu/nemo/archive/
-# states no license; NEMO's GPL-2.0 covers its software, not the archive.
-NEMO_ARCHIVE: License | None = None
+MCCOMP_POOL = License(
+    spdx="CC-BY-4.0",
+    ref=Ref(
+        title="Model Counting Competition 2024: Full Instance Set",
+        authors=[
+            Author("Johannes K. Fichte"),
+            Author("Markus Hecher"),
+            Author("Arijit Shaw"),
+        ],
+        publisher="Zenodo",
+        year=2025,
+        url="https://doi.org/10.5281/zenodo.14969231",
+    ),
+    date_accessed=_ACCESSED_2026_11_20,
+    redistributable=True,
+    notes=(
+        "The Track 1, 2 and 4 competition and full instance sets of MC 2020-2024, "
+        "which the organizers published on Zenodo (records 10031810, 10012857, "
+        "10012860, 10012864, 14249068, 10004947, 10006441, 10014715, 10012822 and "
+        "14969231); each record lists CC-BY-4.0. Most benchmark sets in them carry "
+        "no license file of their own; the SATLIB set points to Holger Hoos's "
+        "SATLIB pages. The dfremont set (MC2020_Track1_Set7) ships a CC0-1.0 "
+        "LICENSE, which permits more."
+    ),
+)
+
+SAPS_NEMO = License(
+    spdx="MIT",
+    ref=SAPS.ref,
+    date_accessed=_ACCESSED_2026_11_20,
+    redistributable=True,
+    notes=(
+        "Particle tables that SAPS's scripts/generate_nemo_particles.py made with "
+        "NEMO's mkplummer and mkkd95 (which runs Kuijken and Dubinski's GalactICS) "
+        "from SAPS's own parameters. NEMO's GPL-2.0 covers the software, not its "
+        "output: the GPL FAQ (https://www.gnu.org/licenses/gpl-faq.html#GPLOutput) "
+        'states that copyright law gives a program\'s authors "no say in the use '
+        'of the output people make from their data using your program". The '
+        "tables replace the NEMO archive's snapshots "
+        "(https://carma.astro.umd.edu/nemo/archive/), which state no license "
+        "(checked 2026-11-18): its Plummer tables, which the script reproduces "
+        "byte for byte, and Dubinski's Milky Way/Andromeda initial conditions, "
+        'whose entry says only "Contact John Dubinski ... for more details". The '
+        "script rebuilds that collision from KD95 model B galaxies and the "
+        "orbit, masses and orientations measured from Dubinski's table."
+    ),
+)
 
 # The ETH Walking Pedestrians (EWAP) dataset, fetched from OpenTraj. Checked
 # 2026-11-18: OpenTraj's README for the dataset states no license, and its

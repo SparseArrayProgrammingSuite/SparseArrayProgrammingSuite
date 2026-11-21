@@ -11,7 +11,12 @@ from binsparse.conversions import from_numpy, to_numpy
 
 import saps.benchmarks.particle_simulation as ps
 from frameworks.saps_numpy import NumpyFramework
-from saps.downloaders.nemo import download_nemo_dataset, parse_nemo_snapshot
+from saps.downloaders import nemo
+from saps.downloaders.nemo import (
+    download_nemo_dataset,
+    load_saps_nemo_dataset,
+    parse_nemo_snapshot,
+)
 
 
 def test_parse_nemo_row_table(tmp_path):
@@ -156,7 +161,7 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
             inputs.append(from_numpy(np.ones(n, dtype=np.float64) / n))
         return inputs, {"size": 1.0, "steps": kwargs["num_steps"], "n_particles": n}
 
-    monkeypatch.setattr(ps, "download_nemo_dataset", fake_download)
+    monkeypatch.setattr(ps, "load_saps_nemo_dataset", fake_download)
 
     generator = ps.ParticleSimulationNEMOGenerator()
     datasets = generator.datasets
@@ -164,12 +169,12 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
     assert {dataset.name for dataset in datasets} == {
         "plummer_128",
         "plummer_1024",
-        "dubinski_m31",
+        "mw_m31",
     }
     assert {dataset.name: dataset.suites for dataset in datasets} == {
         "plummer_128": ["standard", "trace"],
         "plummer_1024": ["standard", "trace", "train"],
-        "dubinski_m31": ["standard"],
+        "mw_m31": ["standard"],
     }
     assert all(dataset.n_particles > 0 for dataset in datasets)
     for dataset in datasets:
@@ -184,7 +189,7 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
     assert {dataset.name: dataset.parameters["cutoff"] for dataset in datasets} == {
         "plummer_128": 0.2,
         "plummer_1024": 0.2,
-        "dubinski_m31": 0.1,
+        "mw_m31": 0.1,
     }
     assert all("mass" in dataset.source_columns for dataset in datasets)
 
@@ -193,9 +198,36 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
     assert instance.meta["n_particles"] == 128
     assert instance.meta["parameters"] == datasets[0].parameters
     assert instance.meta["parameters"]["gravitational_constant"] == 1.0
-    assert calls[0][0] == "plummer/tab128.gz"
+    assert calls[0][0] == "plummer_128.tab.gz"
     assert calls[0][1]["columns"] == ("mass", "x", "y", "z", "vx", "vy", "vz")
     assert calls[0][1]["include_mass"] is True
+
+
+@pytest.mark.parametrize(
+    ("table", "n"),
+    [("plummer_128.tab.gz", 128), ("plummer_1024.tab.gz", 1024), ("mw_m31.tab.gz", 81920)],
+)
+def test_saps_nemo_tables_load(table, n):
+    bins, meta = load_saps_nemo_dataset(
+        table,
+        columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
+        expected_particles=n,
+        include_mass=True,
+    )
+    assert meta["n_particles"] == n
+    assert meta["source_path"] == f"src/saps/datafiles/nemo/{table}"
+    # Every table is in N-body units, with total mass 1 for a Plummer sphere.
+    if table.startswith("plummer"):
+        assert meta["source_mass_sum"] == pytest.approx(1.0)
+
+
+def test_saps_nemo_tables_are_checked(monkeypatch, tmp_path):
+    (tmp_path / "plummer_128.tab.gz").write_bytes(gzip.compress(b"1 2 3 4 5 6 7\n"))
+    monkeypatch.setattr(nemo, "SAPS_NEMO_DIR", tmp_path)
+    with pytest.raises(ValueError, match="does not match its MD5"):
+        load_saps_nemo_dataset(
+            "plummer_128.tab.gz", columns=("mass", "x", "y", "z", "vx", "vy", "vz")
+        )
 
 
 def test_particle_sim_benchmark_runs_newtonian_gravity_with_particle_masses():

@@ -96,7 +96,7 @@ def test_mccomp_generator_checks_the_projected_count(monkeypatch, tmp_path):
     source_path = tmp_path / "Track4_PWMC" / "random_pwmc_1.cnf"
     source_path.parent.mkdir()
     # Both values of x1 extend to a model of (x1 or x2), so the count projected
-    # onto x1 is w(-x1) + w(x1) = 1, while the full count is 0.875.
+    # onto x1 is w(-x1) + w(x1) = 1.
     source_path.write_text(
         """\
         p cnf 2 1
@@ -125,8 +125,10 @@ def test_mccomp_generator_checks_the_projected_count(monkeypatch, tmp_path):
     xp = NumpyFramework()
     result = function(xp, problem.meta, *map(xp.from_binsparse, problem.inputs))
     assert float(result) == 1.0
+    # Unprojected, x2 has no weights, so its literals weigh 1:
+    # w(x1) * 2 + w(-x1) * 1 = 1.75.
     num_vars, clauses, weights = parse_format(source_path.read_text())
-    assert referenceWeightedModelCount(num_vars, clauses, weights) == 0.875
+    assert referenceWeightedModelCount(num_vars, clauses, weights) == 1.75
 
 
 def test_error_bound_counts_only_the_projected_models():
@@ -165,7 +167,7 @@ def test_check_tolerates_floating_point_error_within_bound():
 
 
 def test_check_rejects_stored_count_disagreeing_with_reference():
-    with pytest.raises(AssertionError, match="NumPy brute-force reference counts 0.4"):
+    with pytest.raises(AssertionError, match="PySDD reference counts 0.4"):
         _benchmark(0.8, 0.8, 0.4).check(_PARAM)
 
 
@@ -175,7 +177,7 @@ def test_check_rejects_wrong_result():
 
 
 def test_check_requires_reference_count():
-    with pytest.raises(AssertionError, match="No NumPy reference count"):
+    with pytest.raises(AssertionError, match="No PySDD reference count"):
         _benchmark(0.8, 0.8, None).check(_PARAM)
 
 
@@ -185,3 +187,79 @@ def test_check_skips_when_no_reference_outputs():
     benchmark._ref_outputs = None
     benchmark._ref_meta = None
     benchmark.check(_PARAM)
+
+
+def test_parse_format_follows_the_competition_weight_rules():
+    num_vars, clauses, weights = parse_format(
+        "p cnf 3 1\nc p weight 1 0.25 0\nc p weight -2 0.4 0\n1 2 3 0\n"
+    )
+    assert (num_vars, clauses) == (3, [[1, 2, 3]])
+    # One literal's weight in (0, 1) gives its negation the rest; a variable
+    # with no weights weighs 1 both ways.
+    assert weights == {1: 0.25, -1: 0.75, -2: 0.4, 2: 0.6, 3: 1.0, -3: 1.0}
+
+
+@pytest.mark.parametrize("line", ["c p weight 1 0 0", "c p weight -1 1.5 0"])
+def test_parse_format_rejects_a_lone_weight_outside_zero_one(line):
+    with pytest.raises(ValueError, match="needs a weight for literal"):
+        parse_format(f"p cnf 1 1\n{line}\n1 0\n")
+
+
+@pytest.mark.parametrize(
+    "text,shown",
+    [
+        ("p cnf 3 1\nc t pwmc\nc p show 3 1 0\n1 0\n", [3, 1]),
+        ("p cnf 3 1\nc t pwmc\nc p show 0\n1 0\n", []),
+        # A projected instance that shows nothing only asks for satisfiability.
+        ("p cnf 3 1\nc t pwmc\n1 0\n", []),
+        ("p cnf 3 1\nc t wmc\n1 0\n", [1, 2, 3]),
+        ("p cnf 3 1\n1 0\n", [1, 2, 3]),
+    ],
+)
+def test_parse_shown_follows_the_competition_projection_rules(text, shown):
+    assert weighted_model_counting.parse_shown(text, 3) == shown
+
+
+def _loop_projected_weighted_model_count(num_vars, clauses, weights, shown):
+    models = {
+        tuple(bits[var - 1] for var in shown)
+        for bits in itertools.product([False, True], repeat=num_vars)
+        if all(
+            any(bits[abs(lit) - 1] == (lit > 0) for lit in clause) for clause in clauses
+        )
+    }
+    return sum(
+        np.prod(
+            [
+                weights[var] if bit else weights[-var]
+                for var, bit in zip(shown, model, strict=True)
+            ]
+        )
+        for model in models
+    )
+
+
+def test_reference_projected_count_matches_loop_on_random_formulas():
+    rng = np.random.default_rng(1)
+    for _ in range(50):
+        num_vars = int(rng.integers(1, 9))
+        weights = {}
+        for i in range(1, num_vars + 1):
+            weights[i] = float(rng.uniform(-1, 2))
+            weights[-i] = float(rng.uniform(-1, 2))
+        clauses = [
+            [
+                int(rng.integers(1, num_vars + 1)) * int(rng.choice([-1, 1]))
+                for _ in range(int(rng.integers(1, 4)))
+            ]
+            for _ in range(int(rng.integers(0, 12)))
+        ]
+        shown = sorted(
+            int(var)
+            for var in rng.choice(
+                np.arange(1, num_vars + 1), int(rng.integers(0, num_vars + 1)), False
+            )
+        )
+        got = float(referenceWeightedModelCount(num_vars, clauses, weights, shown))
+        want = _loop_projected_weighted_model_count(num_vars, clauses, weights, shown)
+        assert np.isclose(got, want, rtol=0, atol=1e-9)
