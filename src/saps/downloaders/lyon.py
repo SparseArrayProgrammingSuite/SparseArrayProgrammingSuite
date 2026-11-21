@@ -115,7 +115,9 @@ def parse_crowd_snapshot(
         lo = start + np.searchsorted(times, t[i] - half)
         hi = start + np.searchsorted(times, t[i] + half, side="right") - 1
         if hi == lo:
-            raise ValueError(f"Pedestrian {ids[i]:g} has one observation near the snapshot")
+            raise ValueError(
+                f"Pedestrian {ids[i]:g} has one observation near the snapshot"
+            )
         dt = t[hi] - t[lo]
         states.append((x[i], y[i], (x[hi] - x[lo]) / dt, (y[hi] - y[lo]) / dt))
     x0, y0, vx, vy = (np.array(values) for values in zip(*states, strict=True))

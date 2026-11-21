@@ -1097,22 +1097,20 @@ dydt_vector = A @ state + B @ input_array
 
     @property
     def datasets(self) -> list[ODESLICOTDataset]:
-        # De-listed: SLICOT's model reduction examples have no license (see
-        # licenses.SLICOT_MODEL_REDUCTION), so they're in no suite and aren't run
-        # or cached. ODESuiteSparseGenerator replaces them.
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
+        # ODESuiteSparseGenerator's problems train the methods.
         datasets = [
-            ODESLICOTDataset("eady", suites=[]),
-            ODESLICOTDataset("CDplayer", suites=[], step=4e-5),
-            ODESLICOTDataset("fom", suites=[], step=0.001),
-            ODESLICOTDataset("random", suites=[], step=5e-5),
-            ODESLICOTDataset("pde", suites=[], step=0.001),
-            ODESLICOTDataset("heat-cont", suites=[], step=0.001),
-            ODESLICOTDataset("Orr-Som", suites=[]),
-            ODESLICOTDataset("iss", suites=[]),
-            ODESLICOTDataset("build", suites=[]),
-            ODESLICOTDataset("beam", suites=[], step=0.001),
+            ODESLICOTDataset("eady", suites=["standard", "trace"]),
+            ODESLICOTDataset("CDplayer", suites=["standard"], step=4e-5),
+            ODESLICOTDataset("fom", suites=["standard", "trace"], step=0.001),
+            ODESLICOTDataset("random", suites=["standard"], step=5e-5),
+            ODESLICOTDataset("pde", suites=["standard", "trace"], step=0.001),
+            ODESLICOTDataset("heat-cont", suites=["standard", "trace"], step=0.001),
+            ODESLICOTDataset("Orr-Som", suites=["standard", "trace"]),
+            ODESLICOTDataset("iss", suites=["standard", "trace"]),
+            ODESLICOTDataset("build", suites=["standard", "trace"]),
+            ODESLICOTDataset("beam", suites=["standard", "trace"], step=0.001),
         ]
         for dataset in datasets:
             if dataset.name in self.trace_datasets and "trace" not in dataset.suites:

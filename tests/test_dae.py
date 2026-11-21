@@ -105,12 +105,13 @@ def test_invalid_step_count(n):
         DAEBDFBenchmark().benchmark(NumpyFramework(), {**problem.meta, "n": n}, *data)
 
 
-def test_slicot_datasets_are_delisted():
+def test_slicot_datasets_are_listed_but_do_not_train():
     benchmark_generators = DAEBDFBenchmark().generators
     assert any(isinstance(g, DAEBDFSLICOTGenerator) for g in benchmark_generators)
     datasets = DAEBDFSLICOTGenerator().datasets
     assert len(datasets) == 8
-    assert all(dataset.suites == [] for dataset in datasets)
+    # SLICOT's examples are BSD-3-Clause; SuiteSparse's problems train.
+    assert all(dataset.suites == ["standard", "trace"] for dataset in datasets)
 
 
 def test_suitesparse_datasets_exercise_bdf2():

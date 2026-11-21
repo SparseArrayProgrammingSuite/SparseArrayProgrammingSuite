@@ -49,7 +49,7 @@ SUITESPARSE = License(
     notes=(
         "The SuiteSparse Matrix Collection, including the matrices SAPS takes from "
         "its SNAP, GAP, and LPnetlib groups, and the model reduction problems of "
-        "its Oberwolfach, Rommes and Puri groups, which replace SLICOT's (see "
+        "its Oberwolfach, Rommes and Puri groups, which complement SLICOT's (see "
         'SLICOT_MODEL_REDUCTION). The About page states: "The matrices '
         'themselves are under the CC-BY 4.0 License."'
     ),
@@ -187,12 +187,27 @@ PASS = License(
     ),
 )
 
-# SLICOT's "Benchmark Examples for Model Reduction". Checked 2026-11-18: no
-# license on https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction,
-# in its archives, in the SLICOT/Benchmark-ModelReduction GitHub repository, in
-# SLICOT Working Note 2002-2, or on MORwiki ("License: NA"). Its generators
-# are de-listed in favor of SuiteSparse's model reduction problems.
-SLICOT_MODEL_REDUCTION: License | None = None
+SLICOT_MODEL_REDUCTION = License(
+    spdx="BSD-3-Clause",
+    ref=Ref(
+        title="Benchmark-ModelReduction LICENSE",
+        authors=[Author("SLICOT")],
+        year=2020,
+        url="https://github.com/SLICOT/Benchmark-ModelReduction/blob/main/LICENSE",
+    ),
+    date_accessed=_ACCESSED_2026_11_20,
+    redistributable=True,
+    notes=(
+        "SLICOT's \"Benchmark Examples for Model Reduction\". SLICOT's own GitHub "
+        "repository of them, SLICOT/Benchmark-ModelReduction, added a BSD "
+        '3-Clause LICENSE ("Copyright (c) 2020, SLICOT") on 2026-11-20; on '
+        "2026-11-18 neither it, "
+        "https://www.slicot.org/20-site/126-benchmark-examples-for-model-reduction, "
+        "SLICOT Working Note 2002-2 nor MORwiki stated a license. SAPS downloads "
+        "the examples from slicot.org, and on 2026-11-20 each of the 18 .mat files "
+        "it uses was byte-identical to the repository's copy."
+    ),
+)
 
 # FROSTT tensors. Checked 2026-11-18 and 2026-11-20: FROSTT adds no data
 # license of its own (the MIT licenses of
@@ -453,8 +468,8 @@ IXI = License(
         "The IXI dataset: T1, T2, PD, MRA and diffusion-weighted brain MRI scans "
         "of nearly 600 healthy subjects, collected at Hammersmith Hospital "
         "(Philips 3T), Guy's Hospital (Philips 1.5T) and the Institute of "
-        "Psychiatry (GE 1.5T) in London. The page states \"This data is made "
-        'available under the Creative Commons CC BY-SA 3.0 license. If you use '
+        'Psychiatry (GE 1.5T) in London. The page states "This data is made '
+        "available under the Creative Commons CC BY-SA 3.0 license. If you use "
         "the IXI data please acknowledge the source of the IXI data, e.g. this "
         'website." These scans replace the Kaggle brain MRI images, which have no '
         "license (see KAGGLE_BRAIN_MRI)."
@@ -510,7 +525,7 @@ SAPS_NEMO = License(
         "NEMO's mkplummer and mkkd95 (which runs Kuijken and Dubinski's GalactICS) "
         "from SAPS's own parameters. NEMO's GPL-2.0 covers the software, not its "
         "output: the GPL FAQ (https://www.gnu.org/licenses/gpl-faq.html#GPLOutput) "
-        'states that copyright law gives a program\'s authors "no say in the use '
+        "states that copyright law gives a program's authors \"no say in the use "
         'of the output people make from their data using your program". The '
         "tables replace the NEMO archive's snapshots "
         "(https://carma.astro.umd.edu/nemo/archive/), which state no license "

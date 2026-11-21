@@ -17,8 +17,6 @@ CACHED_SUITES = {"standard", "standard-long", "shell", "test"}
 # Generators kept in the code but de-listed for their data's license, so that
 # nothing runs, caches or uploads their datasets.
 DELISTED_GENERATORS = {
-    "dae_bdf_slicot",
-    "ode_slicot",
     "netflix_prize_ratings",
     "jl_kmeans_netflix_prize",
     "jl_kmeans_netflix_prize_reference",

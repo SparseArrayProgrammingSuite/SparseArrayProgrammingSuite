@@ -413,15 +413,13 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
 
     @property
     def datasets(self) -> list[DAEBDFDataset]:
-        # De-listed: SLICOT's model reduction examples have no license (see
-        # licenses.SLICOT_MODEL_REDUCTION), so they're in no suite and aren't run.
-        # DAEBDFSuiteSparseGenerator replaces them.
+        # DAEBDFSuiteSparseGenerator's problems train the solver.
         return [
             DAEBDFDataset(
                 "tline",
                 source_name="tline.mat",
                 description="SLICOT example of a transmission line model.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -429,7 +427,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "peec",
                 source_name="peec.mat",
                 description="SLICOT partial element equivalent circuit model.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -437,7 +435,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "heat-disc",
                 source_name="heat-disc.mat",
                 description="SLICOT discretization of the previous equation.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -445,7 +443,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_1",
                 source_name="MNA_1.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -453,7 +451,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_2",
                 source_name="MNA_2.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -461,7 +459,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_3",
                 source_name="MNA_3.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -469,7 +467,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_4",
                 source_name="MNA_4.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),
@@ -477,7 +475,7 @@ class DAEBDFSLICOTGenerator(_DescriptorDAEGenerator):
                 "MNA_5",
                 source_name="MNA_5.mat",
                 description="SLICOT Modified Nodal Analysis model.",
-                suites=[],
+                suites=["standard", "trace"],
                 t_max=0.02,
                 step=0.01,
             ),

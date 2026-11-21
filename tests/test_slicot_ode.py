@@ -29,12 +29,14 @@ def _source_meta(source_name: str) -> dict:
     }
 
 
-def test_slicot_generator_is_delisted():
+def test_slicot_generator_is_listed_but_does_not_train():
     generators = RK4Benchmark().generators
     assert any(isinstance(generator, ODESLICOTGenerator) for generator in generators)
     datasets = ODESLICOTGenerator().datasets
     assert len(datasets) == 10
-    assert all(dataset.suites == [] for dataset in datasets)
+    # SLICOT's examples are BSD-3-Clause; SuiteSparse's problems train.
+    assert all("standard" in dataset.suites for dataset in datasets)
+    assert not [dataset.name for dataset in datasets if "train" in dataset.suites]
 
 
 def test_slicot_generator_loads_a_and_b_and_ignores_c_d(monkeypatch):

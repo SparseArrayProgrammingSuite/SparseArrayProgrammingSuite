@@ -205,7 +205,11 @@ def test_particle_sim_real_generator_uses_nemo(monkeypatch):
 
 @pytest.mark.parametrize(
     ("table", "n"),
-    [("plummer_128.tab.gz", 128), ("plummer_1024.tab.gz", 1024), ("mw_m31.tab.gz", 81920)],
+    [
+        ("plummer_128.tab.gz", 128),
+        ("plummer_1024.tab.gz", 1024),
+        ("mw_m31.tab.gz", 81920),
+    ],
 )
 def test_saps_nemo_tables_load(table, n):
     bins, meta = load_saps_nemo_dataset(
