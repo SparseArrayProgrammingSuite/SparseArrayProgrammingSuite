@@ -10,9 +10,11 @@ import pytest
 
 import numpy as np
 
+import requests
 from binsparse.conversions import from_scipy
 from filelock import FileLock
 
+from saps import ssgetpy_mirrors
 from saps.downloaders import suitesparse
 
 
@@ -63,6 +65,52 @@ def test_download_and_read_matrix_returns_canonical_coo(monkeypatch, tmp_path):
     assert tensor.values is A.data
 
 
+def test_load_model_reduction_reads_named_matrices_sparse(monkeypatch, tmp_path):
+    import scipy.sparse as sps
+
+    matrix_dir = tmp_path / "problem"
+    matrix_dir.mkdir()
+    header = "%%MatrixMarket matrix coordinate"
+    (matrix_dir / "problem.mtx").write_text(
+        f"{header} real general\n2 2 2\n1 1 -2.0\n2 2 -3.0\n", encoding="utf-8"
+    )
+    (matrix_dir / "problem_E.mtx").write_text(
+        f"{header} real general\n2 2 1\n1 1 4.0\n", encoding="utf-8"
+    )
+    # A pattern file, like many SuiteSparse input matrices, reads as ones.
+    (matrix_dir / "problem_B.mtx").write_text(
+        f"{header} pattern general\n2 1 1\n2 1\n", encoding="utf-8"
+    )
+    # Matrices that aren't named, such as the outputs C, aren't read.
+    (matrix_dir / "problem_C.mtx").write_text("not a matrix", encoding="utf-8")
+    matrix = SimpleNamespace(name="problem", group="test")
+    monkeypatch.setattr(
+        suitesparse,
+        "download_suitesparse_matrix",
+        lambda name, data_dir=None: (matrix_dir, matrix),
+    )
+
+    matrices, meta = suitesparse.load_suitesparse_model_reduction(
+        "test/problem", (suitesparse.SUITESPARSE_PRIMARY, "E", "B")
+    )
+
+    assert set(matrices) == {suitesparse.SUITESPARSE_PRIMARY, "E", "B"}
+    assert all(sps.issparse(value) for value in matrices.values())
+    np.testing.assert_array_equal(
+        matrices[suitesparse.SUITESPARSE_PRIMARY].toarray(), [[-2.0, 0.0], [0.0, -3.0]]
+    )
+    np.testing.assert_array_equal(matrices["E"].toarray(), [[4.0, 0.0], [0.0, 0.0]])
+    np.testing.assert_array_equal(matrices["B"].toarray(), [[0.0], [1.0]])
+    assert meta == {
+        "dataset_name": "test/problem",
+        "matrix_group": "test",
+        "n": 2,
+        "nnz": 2,
+    }
+    with pytest.raises(FileNotFoundError):
+        suitesparse.load_suitesparse_model_reduction("test/problem", ("M",))
+
+
 def test_ssgetpy_index_lives_in_saps_cache(monkeypatch, tmp_path):
     # ssgetpy reads HOME on first import to place its index.
     modules = tmp_path / "modules"
@@ -77,6 +125,54 @@ def test_ssgetpy_index_lives_in_saps_cache(monkeypatch, tmp_path):
 
     assert ssgetpy.home == str((tmp_path / "cache/suitesparse").resolve())
     assert os.environ["HOME"] == str(tmp_path / "home")
+
+
+@pytest.mark.parametrize("tamu_status", [200, 403])
+def test_ssgetpy_index_falls_back_to_uf_mirror(monkeypatch, tmp_path, tamu_status):
+    # Like the real ssgetpy, the fake fetches its index from TAMU on import.
+    modules = tmp_path / "modules"
+    modules.mkdir()
+    (modules / "ssgetpy.py").write_text(
+        "import sqlite3\n"
+        "from types import SimpleNamespace\n"
+        "import requests\n"
+        "index = requests.get('https://sparse.tamu.edu/files/ssstats.csv')\n"
+        "conn = sqlite3.connect(':memory:')\n"
+        "conn.execute('CREATE TABLE update_table (update_date TIMESTAMP)')\n"
+        "conn.execute(\"INSERT INTO update_table VALUES (datetime('now'))\")\n"
+        "dbinstance = SimpleNamespace(\n"
+        "    instance=SimpleNamespace(conn=conn, update_table='update_table')\n"
+        ")\n"
+    )
+    monkeypatch.syspath_prepend(str(modules))
+    monkeypatch.delitem(sys.modules, "ssgetpy", raising=False)
+    monkeypatch.setenv("SAPS_CACHE_DIR", str(tmp_path / "cache"))
+    statuses = {
+        "https://sparse.tamu.edu/files/ssstats.csv": tamu_status,
+        "https://www.cise.ufl.edu/research/sparse/files/ssstats.csv": 200,
+    }
+
+    def fake_get(url, **kwargs):
+        response = SimpleNamespace(url=url, status_code=statuses[url])
+        response.raise_for_status = Mock(
+            side_effect=requests.HTTPError(url) if statuses[url] >= 400 else None
+        )
+        return response
+
+    monkeypatch.setattr(ssgetpy_mirrors, "_requests_get", fake_get)
+
+    ssgetpy = suitesparse._import_ssgetpy()
+
+    fell_back = tamu_status >= 400
+    assert ssgetpy.index.url == (
+        "https://www.cise.ufl.edu/research/sparse/files/ssstats.csv"
+        if fell_back
+        else "https://sparse.tamu.edu/files/ssstats.csv"
+    )
+    # A UF index is the 2015 snapshot, so it is marked stale to retry TAMU next
+    # import; a TAMU index keeps its timestamp.
+    (logged,) = ssgetpy.conn.execute("SELECT COUNT(*) FROM update_table").fetchone()
+    assert logged == (0 if fell_back else 1)
 
 
 def test_download_suitesparse_matrix_requires_group_name(monkeypatch, tmp_path):
@@ -242,6 +338,44 @@ def test_load_suitesparse_matrix_includes_all_rhs(
     np.testing.assert_array_equal(b, rhs[:, 0] if rhs_count == 1 else rhs)
     assert meta["has_b_file"] is True
     assert "ignored_b_file" not in meta
+
+
+def test_input_matrix_B_is_not_mistaken_for_rhs_b(monkeypatch, tmp_path):
+    # Model reduction problems such as Oberwolfach/spiral ship an n x 1 input
+    # matrix spiral_B.mtx and no RHS. On case-insensitive filesystems a
+    # Path.exists() check for spiral_b.mtx found it, and since its shape fits a
+    # RHS it was silently returned as b.
+    from scipy.io import mmwrite
+
+    matrix_dir = tmp_path / "spiral"
+    matrix_dir.mkdir()
+    (matrix_dir / "spiral.mtx").write_text(
+        "%%MatrixMarket matrix coordinate real general\n3 3 1\n1 1 2.0\n",
+        encoding="utf-8",
+    )
+    mmwrite(matrix_dir / "spiral_B.mtx", np.ones((3, 1)))
+
+    matrix = SimpleNamespace(name="spiral", group="Oberwolfach")
+    monkeypatch.setattr(
+        suitesparse,
+        "download_suitesparse_matrix",
+        lambda name, data_dir=None: (matrix_dir, matrix),
+    )
+
+    _, b, meta = suitesparse.load_suitesparse_matrix(
+        "Oberwolfach/spiral", data_dir=tmp_path
+    )
+
+    assert b is None
+    assert meta["has_b_file"] is False
+    assert "ignored_b_file" not in meta
+    assert suitesparse.suitesparse_aux_path(matrix_dir, "spiral", "b") is None
+    assert (
+        suitesparse.suitesparse_aux_path(matrix_dir, "spiral", "B")
+        == matrix_dir / "spiral_B.mtx"
+    )
+    with pytest.raises(FileNotFoundError, match="spiral_b.mtx"):
+        suitesparse.load_suitesparse_rhs(matrix_dir, "spiral")
 
 
 def test_load_suitesparse_matrix_ignores_mismatched_rhs(monkeypatch, tmp_path):

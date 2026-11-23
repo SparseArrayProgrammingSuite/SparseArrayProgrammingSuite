@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import (
@@ -94,8 +96,12 @@ class CGTestGenerator(Generator[CGDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small inlined linear systems to verify solver correctness."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -227,12 +233,16 @@ class CGSuiteSparseGenerator(Generator[CGDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
             " positive definite matrices, particularly those with a low convergence"
             " criteria"
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -1104,7 +1114,12 @@ class CGBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "Solves sparse symmetric positive definite linear systems with CG."
+        return (
+            "Solves sparse symmetric positive definite linear systems with conjugate "
+            "gradients iteration, repeatedly updating the solution vector with guesses "
+            "that are conjugate to each other. Sparse matrix-vector multiplication and "
+            "vector norms."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -1160,11 +1175,19 @@ class CGBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Each iteration of the conjugate gradient requires a SpMV to compute Ap"
-            " which can be done in O(nnz) time rather than O(n^2) time for dense"
-            " matrices."
+            "Solves sparse symmetric positive definite linear systems with CG. Each "
+            "iteration of the conjugate gradient requires a SpMV to compute Ap which "
+            "can be done in O(nnz) time rather than O(n^2) time for dense matrices."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"The solver stops once the residual $\|b - Ax\|$ drops below a tolerance, "
+            "so we check that the result passes the same test under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

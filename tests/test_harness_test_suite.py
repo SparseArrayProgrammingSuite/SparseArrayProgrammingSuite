@@ -85,7 +85,7 @@ def test_harness_test_suite_outputs_pass_for_all_test_datasets(tmp_path):
         "time",
         "--quick",
         "--process-timeout",
-        # lth_conv2 downloads its model and CIFAR-10 into the empty cache.
+        # lth_conv2 downloads its model and PASS photos into the empty cache.
         "120",
         "--remote-storage-backend",
         "local",

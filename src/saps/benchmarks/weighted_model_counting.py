@@ -8,6 +8,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,7 +16,17 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
+    ShellBenchmark,
+)
+from saps.benchmarks.mccomp_pool_instance import (
+    MCCOMP_POOL_WEIGHTED_INSTANCES,
+    MCCompPoolDataset,
+    MCCompPoolInstanceGenerator,
+    fetch_mccomp_pool_instance,
 )
 from saps.codegen import (
     constant_function_source,
@@ -42,6 +53,14 @@ def parse_weight(s):
 
 
 def parse_format(text):
+    """The variable count, clauses and literal weights of a DIMACS CNF in the
+    Model Counting Competition format (version 1.1, June 2024).
+
+    Weights come from "c p weight <literal> <weight> 0" lines. As the format
+    specifies, a weight 0 < w < 1 given for one literal alone gives its negation
+    1 - w, and a variable with no weight for either literal weighs 1 both ways.
+    Any other weight given for one literal alone is a format error.
+    """
     lines = [line.strip() for line in text.strip().split("\n")]
     num_vars, clauses = parse_dimacs(text)
 
@@ -52,30 +71,40 @@ def parse_format(text):
         literal = int(parts[3])
         weights[literal] = parse_weight(parts[4])
 
-    for lit in list(weights.keys()):
-        if -lit not in weights:
-            w = weights[lit]
-            if 0 < w < 1:
-                weights[-lit] = 1 - w
-
-    for lit in range(1, num_vars + 1):
-        if lit not in weights:
-            weights[lit] = 0.5
-            weights[-lit] = 0.5
+    for var in range(1, num_vars + 1):
+        if var not in weights and -var not in weights:
+            weights[var] = 1.0
+            weights[-var] = 1.0
+        elif var not in weights or -var not in weights:
+            literal = var if var in weights else -var
+            if not 0 < weights[literal] < 1:
+                raise ValueError(
+                    f"Literal {literal} has weight {weights[literal]}, which "
+                    f"needs a weight for literal {-literal} too"
+                )
+            weights[-literal] = 1 - weights[literal]
 
     return num_vars, clauses, weights
 
 
 def parse_shown(text, num_vars):
-    """The variables a projected count sums over: those on "c p show" lines, or
-    every variable when the instance has none."""
+    """The variables a projected count sums over: those on "c p show" lines.
+
+    As the competition format specifies, a projected instance ("c t pmc" or
+    "c t pwmc") with no such lines projects onto no variables, which asks only
+    whether the formula is satisfiable. Any other instance without them counts
+    every variable.
+    """
     shown = None
+    projected = False
     for line in text.splitlines():
         parts = line.split()
         if parts[:3] == ["c", "p", "show"]:
             shown = (shown or []) + [int(part) for part in parts[3:] if part != "0"]
+        if parts[:2] == ["c", "t"] and parts[2:3] in (["pmc"], ["pwmc"]):
+            projected = True
     if shown is None:
-        return list(range(1, num_vars + 1))
+        return [] if projected else list(range(1, num_vars + 1))
     return list(dict.fromkeys(shown))
 
 
@@ -116,66 +145,58 @@ def clauses_to_einsums(clauses, num_vars, shown):
     return [f"S[{indices}] or= {mask_str}", f"s[] += {' * '.join(terms)}"]
 
 
-# Brute force enumerates 2**num_vars assignments.
-_MAX_REFERENCE_VARS = 24
+def _projected_counts(num_vars, clauses, weights, shown):
+    """PySDD's count of the projected models of clauses, with their total weight
+    and total absolute weight, in doubles.
 
+    A projected model is an assignment of the shown variables that extends to a
+    model, and it weighs the product of its literals' weights.
+    """
+    from pysdd.sdd import SddManager
 
-def _projected_terms(num_vars, clauses, weights, shown):
-    """The weight of each projected model: for each assignment of the shown
-    variables that extends to a model, the product of their weights."""
-    if num_vars > _MAX_REFERENCE_VARS:
-        raise ValueError(
-            f"Can't brute-force a reference count over {num_vars} variables"
-        )
-    num_rows = 1 << num_vars
-    bit_index = np.arange(num_rows, dtype=np.int64)[:, None]
-    positions = np.arange(num_vars, dtype=np.int64)[None, :]
-    assignments = ((bit_index >> positions) & 1).astype(bool)
-
-    satisfied = np.ones(num_rows, dtype=bool)
+    # A manager needs at least one variable, so declare one that no clause
+    # uses; like the variables not shown, it is quantified away.
+    manager = SddManager(num_vars + 1, False)
+    formula = manager.true()
     for clause in clauses:
-        if not clause:
-            satisfied[:] = False
-            break
-        clause_mask = np.zeros(num_rows, dtype=bool)
-        for lit in clause:
-            column = assignments[:, abs(lit) - 1]
-            clause_mask |= column if lit > 0 else ~column
-        satisfied &= clause_mask
+        disjunction = manager.false()
+        for literal in clause:
+            disjunction = disjunction | manager.literal(literal)
+        formula = formula & disjunction
+    hidden = [var for var in range(1, num_vars + 2) if var not in set(shown)]
+    for var in hidden:
+        formula = manager.exists(var, formula)
+    models = formula.global_model_count() // 2 ** len(hidden)
 
-    columns = [var - 1 for var in shown]
-    models = np.unique(assignments[satisfied][:, columns], axis=0)
-    products = np.ones(len(models), dtype=np.float64)
-    for j, var in enumerate(shown):
-        products *= np.where(
-            models[:, j], np.float64(weights[var]), np.float64(weights[-var])
-        )
-    return products
+    absolute_weights = {literal: abs(weight) for literal, weight in weights.items()}
+    totals = []
+    for literal_weights in (weights, absolute_weights):
+        counter = formula.wmc(log_mode=False)
+        for var in range(1, num_vars + 2):
+            if var in hidden:
+                # The projected formula no longer mentions var, and weights 1
+                # and 0 count each of its models once.
+                positive, negative = 1.0, 0.0
+            else:
+                positive, negative = literal_weights[var], literal_weights[-var]
+            counter.set_literal_weight(manager.literal(var), positive)
+            counter.set_literal_weight(manager.literal(-var), negative)
+        totals.append(counter.propagate())
+    return models, totals[0], totals[1]
 
 
 def referenceWeightedModelCount(num_vars, clauses, weights, shown=None):
     """The weighted model count of clauses, projected onto shown (by default
-    every variable), by brute force."""
+    every variable), from PySDD in doubles."""
     shown = list(range(1, num_vars + 1)) if shown is None else shown
-    return np.float64(np.sum(_projected_terms(num_vars, clauses, weights, shown)))
+    return np.float64(_projected_counts(num_vars, clauses, weights, shown)[1])
 
 
-def _weighted_problem(cnf_text, expected=None):
-    """The inputs, metadata and reference of a projected weighted count.
-
-    The count sums one product of the k shown variables' weights per projected
-    model. Assignments that aren't models contribute exact zeros, which don't
-    round, so whatever the order each term rounds at most
-    (models - 1) + (k - 1) times.
-    """
+def _weighted_inputs(cnf_text):
+    """The inputs and metadata of a projected weighted count, without its
+    reference."""
     num_vars, clauses, weights = parse_format(cnf_text)
     shown = parse_shown(cnf_text, num_vars)
-    terms = _projected_terms(num_vars, clauses, weights, shown)
-    reference = float(np.sum(terms))
-    steps = max(len(terms) - 1, 0) + max(len(shown) - 1, 0)
-    bound = summation_error_bound(
-        np, steps + 1, float(np.sum(np.abs(terms))), np.float64
-    )
     inputs: list[BinsparseTensor] = [from_numpy(np.asarray([0, 1], dtype=np.int64))]
     inputs.extend(
         from_numpy(np.asarray([weights[-var], weights[var]], dtype=np.float64))
@@ -186,16 +207,37 @@ def _weighted_problem(cnf_text, expected=None):
         "num_vars": num_vars,
         "num_clauses": len(clauses),
         "shown": shown,
-        "default_total": reference,
     }
-    return DataInstance(
-        inputs=inputs,
-        meta=meta,
-        ref_outputs=[
-            from_numpy(np.asarray(reference if expected is None else expected))
-        ],
-        ref_meta={"error_bound": float(bound), "reference_count": reference},
-    )
+    return DataInstance(inputs=inputs, meta=meta)
+
+
+def _weighted_reference(cnf_text):
+    """The reference projected weighted count and the error bound to check it
+    with.
+
+    The count sums one product of the k shown variables' weights per projected
+    model. Assignments that aren't models contribute exact zeros, which don't
+    round, so whatever the order each term rounds at most
+    (models - 1) + (k - 1) times.
+    """
+    num_vars, clauses, weights = parse_format(cnf_text)
+    shown = parse_shown(cnf_text, num_vars)
+    models, reference, absolute = _projected_counts(num_vars, clauses, weights, shown)
+    steps = max(models - 1, 0) + max(len(shown) - 1, 0)
+    bound = summation_error_bound(np, steps + 1, absolute, np.float64)
+    return reference, float(bound)
+
+
+def _weighted_problem(cnf_text, expected=None):
+    """The inputs, metadata and reference of a projected weighted count."""
+    problem = _weighted_inputs(cnf_text)
+    reference, bound = _weighted_reference(cnf_text)
+    problem.meta["default_total"] = reference
+    problem.ref_outputs = [
+        from_numpy(np.asarray(reference if expected is None else expected))
+    ]
+    problem.ref_meta = {"error_bound": bound, "reference_count": reference}
+    return problem
 
 
 class WeightedModelCountingTestDataset(Dataset):
@@ -351,8 +393,12 @@ class WeightedModelCountingTestGenerator(
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses a predefined set of formulas to verify correctness."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -417,16 +463,16 @@ class WeightedModelCountingTestGenerator(
             WeightedModelCountingTestDataset(
                 name="default_weights",
                 pretty_name="Default Weights",
-                description="V1 or V2 (default weights)",
+                description="V1 or V2, whose literals weigh 1 by default",
                 suites=["test"],
                 cnf_text=textwrap.dedent(
                     """\
-                    c V1 or V2 (default weights)
+                    c V1 or V2, whose literals weigh 1 by default
                     p cnf 2 1
                     1 2 0
                 """
                 ),
-                expected=0.75,
+                expected=3.0,
             ),
             WeightedModelCountingTestDataset(
                 name="three_var_formula",
@@ -554,45 +600,32 @@ class WeightedModelCountingMCCompGenerator(
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Track4 instances provide weighted CNF formulas from a standard "
             "model-counting corpus."
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_TEST_INSTANCES
+
+    @property
     def datasets(self) -> list[WeightedModelCountingMCCompDataset]:
+        # De-listed: the MC 2025 test instances have no license (see
+        # licenses.MCCOMP_TEST_INSTANCES), so these are in no cached suite, nor
+        # trace or train.
         return [
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_1", suites=["standard", "trace", "train"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_2", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_3", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_4", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_5", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_6", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_7", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_8", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_9", suites=["standard", "trace"]
-            ),
-            WeightedModelCountingMCCompDataset(
-                "Track4_PWMC/random_pwmc_10", suites=["standard", "trace"]
-            ),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_1", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_2", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_3", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_4", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_5", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_6", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_7", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_8", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_9", suites=[]),
+            WeightedModelCountingMCCompDataset("Track4_PWMC/random_pwmc_10", suites=[]),
         ]
 
     def generate(self, dataset: WeightedModelCountingMCCompDataset):
@@ -601,7 +634,7 @@ class WeightedModelCountingMCCompGenerator(
         cnf_text = Path(local_path).read_text(encoding="utf-8")
         exact_type, exact_value = parse_mccomp_exact(cnf_text)
         # The competition's answer is the projected count the benchmark
-        # computes, so check checks it against the brute-force reference too.
+        # computes, so check checks it against the PySDD reference too.
         problem = _weighted_problem(
             cnf_text, None if exact_value is None else float(exact_value)
         )
@@ -621,6 +654,151 @@ class WeightedModelCountingMCCompGenerator(
         return problem
 
 
+class WeightedModelCountingMCCompPoolGenerator(
+    _WMCFunctionGenerator, Generator[MCCompPoolDataset]
+):
+    @property
+    def name(self) -> str:
+        return "weighted_model_counting_mccomp_pool"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Weighted Model Counting MCComp Pool"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Counts the weighted models of the small Track 2 and Track 4 instances "
+            "in the Model Counting Competition 2020-2024 archives."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCCompPoolInstanceGenerator().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def notes(self) -> str:
+        return (
+            "Weighted and projected weighted formulas from the Model Counting "
+            "Competitions, small enough that a dense evaluation of the counting "
+            "einsums finishes."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_POOL
+
+    @property
+    def cacheable(self) -> bool:
+        # The instances come from the cached shell generator and the counts from
+        # the cached reference generator.
+        return False
+
+    @property
+    def datasets(self) -> list[MCCompPoolDataset]:
+        # The largest instance, mc2024_track4_182, traces and trains the
+        # benchmark: 13 variables projected onto 9, so it exercises projection.
+        return [
+            MCCompPoolDataset(
+                dataset.source_path,
+                suites=(
+                    ["trace", "train"]
+                    if dataset.source_path
+                    == "mc2024-track4-pwmc_competition/mc2024_track4_182.cnf.xz"
+                    else []
+                ),
+            )
+            for dataset in MCCOMP_POOL_WEIGHTED_INSTANCES
+        ]
+
+    def generate(self, dataset: MCCompPoolDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = WeightedModelCountingMCCompPoolReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        assert reference.ref_meta is not None
+        problem.meta["default_total"] = reference.ref_meta["reference_count"]
+        problem.meta["expected_result"] = reference.ref_meta["reference_count"]
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MCCompPoolDataset) -> DataInstance:
+        raw = fetch_mccomp_pool_instance(dataset.source_path)
+        problem = _weighted_inputs(to_numpy(raw.inputs[0]).tobytes().decode())
+        problem.meta.update(
+            {
+                "source_generator": MCCompPoolInstanceGenerator().name,
+                "source_path": dataset.source_path,
+            }
+        )
+        return problem
+
+
+class WeightedModelCountingMCCompPoolReferenceGenerator(
+    ReferenceGenerator[MCCompPoolDataset]
+):
+    @property
+    def name(self) -> str:
+        return "weighted_model_counting_mccomp_pool_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Weighted Model Counting MCComp Pool Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "PySDD weighted model counts and their error bounds for Weighted Model "
+            "Counting MCComp Pool, cached apart from its inputs."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return WeightedModelCountingMCCompPoolGenerator().license
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCCompPoolDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in WeightedModelCountingMCCompPoolGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[MCCompPoolDataset]) -> DataInstance:
+        raw = fetch_mccomp_pool_instance(dataset.dataset.source_path)
+        reference, bound = _weighted_reference(
+            to_numpy(raw.inputs[0]).tobytes().decode()
+        )
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=[from_numpy(np.asarray(reference))],
+            ref_meta={"error_bound": bound, "reference_count": reference},
+        )
+
+
+class WeightedModelCountingMCCompPoolReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return WeightedModelCountingMCCompPoolReferenceGenerator()
+
+
 class WeightedModelCountingBenchmark(Benchmark):
     @property
     def name(self):
@@ -631,8 +809,11 @@ class WeightedModelCountingBenchmark(Benchmark):
         return "Weighted Model Counting"
 
     @property
-    def description(self):
-        return "Benchmarks Weighted Model Counting Algorithm using einsum operations."
+    def description(self) -> str:
+        return (
+            "Counts the total weight of the satisfying assignments of a SAT problem, "
+            "given variable weights, typically probabilities."
+        )
 
     @property
     def suites(self):
@@ -658,15 +839,28 @@ class WeightedModelCountingBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return """Weighted Model Counting extends model counting
-                by assigning specific weights to the variables."""
+    def notes(self) -> str:
+        return (
+            "Benchmarks Weighted Model Counting Algorithm using einsum operations. "
+            "Weighted Model Counting extends model counting by assigning specific "
+            "weights to the variables."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Each weighted count sums one product of weights per model, so we check it "
+            "against an independent brute-force count up to the rounding error of that "
+            "sum under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
+        )
 
     @property
     def generators(self) -> list[Generator[Any]]:
         return [
             WeightedModelCountingTestGenerator(),
             WeightedModelCountingMCCompGenerator(),
+            WeightedModelCountingMCCompPoolGenerator(),
         ]
 
     def benchmark(self, xp, meta):
@@ -686,15 +880,15 @@ class WeightedModelCountingBenchmark(Benchmark):
         expected = float(to_numpy(self._ref_outputs[0]))
         assert self._ref_meta is not None, "No error bound; regenerate the dataset"
         bound = self._ref_meta["error_bound"]
-        # The stored answer is typed in or parsed from the instance file, so check
-        # it against an independent brute-force count before trusting it.
+        # The stored answer may be typed in or parsed from the instance file, so
+        # check it against an independent PySDD count before trusting it.
         assert "reference_count" in self._ref_meta, (
-            "No NumPy reference count; regenerate the cached dataset"
+            "No PySDD reference count; regenerate the cached dataset"
         )
         reference = self._ref_meta["reference_count"]
         assert np.isclose(expected, reference, rtol=0, atol=bound), (
             f"Test '{param.dataset.name}' has stored count {expected}, but the "
-            f"NumPy brute-force reference counts {reference}"
+            f"PySDD reference counts {reference}"
         )
         assert np.isclose(result, expected, rtol=0, atol=bound), (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"

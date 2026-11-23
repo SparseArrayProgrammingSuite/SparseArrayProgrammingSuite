@@ -4,6 +4,7 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,6 +12,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 
@@ -151,7 +153,7 @@ class _FiniteDifferenceGeneratorMixin:
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "For linear advection, updates are done using a sparse matrix"
             " representation, to updates the spatial coordinates for time t."
@@ -203,6 +205,10 @@ class FiniteDifference1DBurgersGenerator(
         return "Finite Difference 1D Burgers"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference1DDataset]:
         return [
             FiniteDifference1DDataset(
@@ -240,6 +246,10 @@ class FiniteDifference1DBuckleyLeverettGenerator(
         return "Finite Difference 1D Buckley-Leverett"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference1DDataset]:
         return [
             FiniteDifference1DDataset(
@@ -275,6 +285,10 @@ class FiniteDifference1DLinearAdvectionGenerator(
     @property
     def pretty_name(self) -> str:
         return "Finite Difference 1D Linear Advection"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[FiniteDifference1DDataset]:
@@ -370,22 +384,35 @@ class _FiniteDifferenceBenchmarkMixin:
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Updates are done using a matrix representation, to updates"
-            " the spatial coordinates for time t."
+            "The purpose of this is to analyze the importance of numerical methods for "
+            "PDEs, and applications sparse array theory into these method, through the "
+            "form of benchmarks. This paticular benchmark analyzes the use of the "
+            "Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with "
+            "numerical stability and accuracy not seen in FTCS. This benchmark will "
+            "run a simulation using both Lax–Friedrichs and analyze core concepts such "
+            "as numerical stability, conservation law consistency, etc. Updates are "
+            "done using a matrix representation, to updates the spatial coordinates "
+            "for time t."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Each step adds only a few terms per grid point, so we recompute every "
+            "step's update from the framework's previous state and check that the two "
+            "agree to within $10^{-12}$."
         )
 
     @property
     def description(self) -> str:
         return (
-            "The purpose of this is to analyze the importance of numerical methods for"
-            " PDEs, and applications sparse array theory into these method, through the"
-            " form of benchmarks. This paticular benchmark analyzes the use of the"
-            " Lax–Friedrichs method for solving nonlinear hyberbolic PDEs, with"
-            " numerical stability and accuracy not seen in FTCS. This benchmark will"
-            " run a simulation using both Lax–Friedrichs and analyze core concepts such"
-            " as numerical stability, conservation law consistency, etc."
+            "Integrates nonlinear hyperbolic PDEs with the Lax--Friedrichs method. In "
+            r"one dimension, the update rule is $u_i^{n+1} = \frac{1}{2}(u_{i+1}^n + "
+            r"u_{i-1}^n) - \frac{\Delta t}{2 \Delta x} \left(f(u_{i+1}^n) - "
+            r"f(u_{i-1}^n)\right)$, where $f$ is the flux. The stencil update is stored "
+            "as a banded sparse matrix."
         )
 
 
@@ -628,6 +655,10 @@ class FiniteDifference2DBurgersGenerator(
         return "Finite Difference 2D Burgers"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference2DDataset]:
         return [
             FiniteDifference2DDataset(
@@ -669,6 +700,10 @@ class FiniteDifference2DBuckleyLeverettGenerator(
         return "Finite Difference 2D Buckley-Leverett"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[FiniteDifference2DDataset]:
         return [
             FiniteDifference2DDataset(
@@ -708,6 +743,10 @@ class FiniteDifference2DLinearAdvectionGenerator(
     @property
     def pretty_name(self) -> str:
         return "Finite Difference 2D Linear Advection"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[FiniteDifference2DDataset]:

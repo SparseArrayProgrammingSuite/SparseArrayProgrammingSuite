@@ -3,12 +3,14 @@
 from copy import copy
 from typing import Any
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -473,7 +475,8 @@ class GAPGraphGenerator(Generator[GAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:
@@ -503,8 +506,12 @@ class GAPGraphGenerator(Generator[GAPDataset]):
         return "This shell generator was written with assistance from Claude."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Reuse prepared SuiteSparse GAP matrices across graph benchmarks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[GAPDataset]:

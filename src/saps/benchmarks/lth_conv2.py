@@ -15,6 +15,7 @@ import numpy as np
 from binsparse.conversions import from_numpy, to_numpy
 from filelock import FileLock
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -22,6 +23,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.codegen import define_function
@@ -39,13 +41,13 @@ _MODEL_DATA_URL = (
     "https://zenodo.org/records/22650920/files/conv2_pruned_dense.onnx.data?download=1"
 )
 
-# OpenML's CIFAR-10 lists the 50000 training images before the 10000 test images.
-_CIFAR10_TEST_START = 50_000
-# OpenLTH normalizes CIFAR-10 images with ImageNet's per-channel statistics.
-# These give the model 99.8% training and 67.4% test accuracy, where CIFAR-10's
-# own statistics give 99.6% and 66.8%.
-_CIFAR10_MEAN = (0.485, 0.456, 0.406)
-_CIFAR10_STD = (0.229, 0.224, 0.225)
+# OpenLTH trained the model on CIFAR-10 images normalized with ImageNet's
+# per-channel statistics, which give it 99.8% training and 67.4% test accuracy
+# on CIFAR-10, where CIFAR-10's own statistics give 99.6% and 66.8%. The PASS
+# photos that stand in for CIFAR-10, which has no license, are normalized the
+# same way.
+_IMAGENET_MEAN = (0.485, 0.456, 0.406)
+_IMAGENET_STD = (0.229, 0.224, 0.225)
 
 # The check models each float32 rounding as an independent, mean-zero relative
 # error of at most u, so rounding errors add in quadrature rather than in the
@@ -92,19 +94,35 @@ def _references() -> list[Ref]:
             year=2026,
             url="https://zenodo.org/records/22650920",
         ),
+        Ref(
+            title=(
+                "PASS: An ImageNet replacement for self-supervised pretraining "
+                "without humans"
+            ),
+            authors=[
+                Author("Yuki M. Asano"),
+                Author("Christian Rupprecht"),
+                Author("Andrew Zisserman"),
+                Author("Andrea Vedaldi"),
+            ],
+            conference="NeurIPS Datasets and Benchmarks",
+            year=2021,
+            url="https://arxiv.org/abs/2109.13228",
+        ),
     ]
 
 
-def _cifar10_test_images(count: int) -> np.ndarray:
-    """The first ``count`` CIFAR-10 test images, normalized, as (count, 3, 32, 32)."""
-    from saps.benchmarks.openml import fetch_openml_features
+def _pass_images(count: int) -> np.ndarray:
+    """The first ``count`` 32x32 PASS photos, normalized, as (count, 3, 32, 32)."""
+    from saps.benchmarks.pass_images import fetch_pass_images
 
-    features, _ = fetch_openml_features("cifar10")
-    rows = features[_CIFAR10_TEST_START : _CIFAR10_TEST_START + count]
-    # Each row holds the red, green and blue 32x32 planes, scaled to [0, 1].
-    images = rows.reshape(count, 3, 32, 32)
-    mean = np.asarray(_CIFAR10_MEAN, dtype=np.float32)[:, None, None]
-    std = np.asarray(_CIFAR10_STD, dtype=np.float32)[:, None, None]
+    photos, _ = fetch_pass_images()
+    if count > len(photos):
+        raise ValueError(f"The PASS shell caches {len(photos)} photos, not {count}.")
+    # Move the red, green and blue planes first and scale them to [0, 1].
+    images = photos[:count].transpose(0, 3, 1, 2).astype(np.float32) / 255
+    mean = np.asarray(_IMAGENET_MEAN, dtype=np.float32)[:, None, None]
+    std = np.asarray(_IMAGENET_STD, dtype=np.float32)[:, None, None]
     return (images - mean) / std
 
 
@@ -319,7 +337,7 @@ def _model_path() -> Path:
 
 
 class LTHConv2Dataset(Dataset):
-    """The pruned model classifying the first ``num_images`` CIFAR-10 test images."""
+    """The pruned model classifying the first ``num_images`` 32x32 PASS photos."""
 
     def __init__(self, name: str, num_images: int, suites: list[str]):
         self._name = name
@@ -339,8 +357,8 @@ class LTHConv2Dataset(Dataset):
         return (
             "Pruned CIFAR-10 Conv-2 model with approximately 87.84% zero-valued "
             "parameters, archived with its ONNX external data in Zenodo record "
-            f"22650920, classifying the first {self.num_images} CIFAR-10 test "
-            "images in one batch."
+            f"22650920, classifying the first {self.num_images} PASS photos, "
+            "downsampled to 32x32, in one batch."
         )
 
     @property
@@ -366,7 +384,7 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
         return (
             "Loads the Conv-2 ONNX artifact from the runner's shared SAPS cache, "
             "imports its trained parameters and pruning-induced zeros, widens it "
-            "to a batch of CIFAR-10 test images from the shared OpenML copy, and "
+            "to a batch of 32x32 PASS photos from the shared PASS shell, and "
             "generates an inline NumPy benchmark function with ONNXPY during setup."
         )
 
@@ -399,13 +417,17 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "This generator turns a reproducible lottery-ticket training artifact "
             "into fixed benchmark inputs. The runner-managed shared cache and "
             "locked atomic downloads allow concurrent and chunked SAPS runs to "
             "reuse the same ONNX files safely."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.LTH_CONV2
 
     @property
     def cacheable(self) -> bool:
@@ -446,7 +468,7 @@ class LTHConv2ONNXGenerator(Generator[LTHConv2Dataset]):
             onnx.helper.tensor_dtype_to_np_dtype(input_info.type.tensor_type.elem_type)
         )
 
-        model_input = _cifar10_test_images(dataset.num_images).astype(dtype)
+        model_input = _pass_images(dataset.num_images).astype(dtype)
         if model_input.shape[1:] != tuple(shape[1:]):
             raise ValueError(
                 f"Input {input_info.name!r} of shape {tuple(shape)} doesn't take "
@@ -513,17 +535,10 @@ class LTHConv2Benchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived "
-            "from the Lottery Ticket Hypothesis workflow. Using OpenLTH's training "
-            "and pruning infrastructure, and motivated by the original LTH and "
-            "Uber AI lottery-ticket studies, the CIFAR Conv-2 architecture was "
-            "trained on CIFAR-10 and subjected to 20 levels of iterative global "
-            "magnitude pruning. The selected checkpoint and pruning mask were "
-            "combined and exported as a dense ONNX model whose zero-valued "
-            "parameters preserve approximately 87.84% sparsity. The model and its "
-            "external tensor data are archived in Zenodo record 22650920. ONNXPY "
-            "translates that graph into inline array-based Python during setup, which "
-            "the SAPS runner executes across supported array frameworks."
+            "Runs image classification inference with a convolutional neural network "
+            "(CNN), pruned to sparsify the weights of each layer as in the Lottery "
+            r"Ticket Hypothesis (LTH)~\cite{frankle2018lottery}. The full network is "
+            "translated from ONNX and inlined into a static Python function body."
         )
 
     @property
@@ -555,13 +570,32 @@ class LTHConv2Benchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "This benchmark connects a reproducible lottery-ticket training "
-            "artifact to framework-independent sparse inference measurement. "
-            "The archived ONNX model is the source of truth, ONNXPY preserves "
-            "its graph as array operations, and the SAPS runner supplies framework "
-            "selection, timing, diagnostics, shared caching, and result recording."
+            "Benchmarks inference for a sparse CIFAR-10 Conv-2 network derived from "
+            "the Lottery Ticket Hypothesis workflow. Using OpenLTH's training and "
+            "pruning infrastructure, and motivated by the original LTH and Uber AI "
+            "lottery-ticket studies, the CIFAR Conv-2 architecture was trained on "
+            "CIFAR-10 and subjected to 20 levels of iterative global magnitude "
+            "pruning. The selected checkpoint and pruning mask were combined and "
+            "exported as a dense ONNX model whose zero-valued parameters preserve "
+            "approximately 87.84% sparsity. The model and its external tensor data are "
+            "archived in Zenodo record 22650920. ONNXPY translates that graph into "
+            "inline array-based Python during setup, which the SAPS runner executes "
+            "across supported array frameworks. This benchmark connects a reproducible "
+            "lottery-ticket training artifact to framework-independent sparse "
+            "inference measurement. The archived ONNX model is the source of truth, "
+            "ONNXPY preserves its graph as array operations, and the SAPS runner "
+            "supplies framework selection, timing, diagnostics, shared caching, and "
+            "result recording."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Inference runs in float32, so we check that each output lies within 8 "
+            "standard deviations of its float64 reference, as predicted by "
+            r"probabilistic rounding error analysis~\cite{higham_new_2019}."
         )
 
     @property

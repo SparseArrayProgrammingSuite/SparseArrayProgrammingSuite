@@ -7,16 +7,32 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ShellBenchmark,
 )
 from saps.downloaders.ogb import OGBNodePropData, load_ogb_nodeprop_dataset
+
+# Each OGB dataset's own license; the generators' licenses.OGB_NODEPROP covers
+# them together.
+_OGB_LICENSES = {
+    "ogbn-arxiv": licenses.OGBN_ARXIV,
+    "ogbn-products": licenses.OGBN_PRODUCTS,
+    "ogbn-proteins": licenses.OGBN_PROTEINS,
+}
+
+
+def ogb_license(source_name: str) -> License | None | Inherit:
+    """The license of the OGB dataset ``source_name``."""
+    return _OGB_LICENSES[source_name]
 
 
 class OGBDataset(Dataset):
@@ -58,6 +74,10 @@ class OGBDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
     @property
+    def license(self) -> License | None | Inherit:
+        return ogb_license(self.source_name)
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data["source_name"] = self.source_name
@@ -85,6 +105,9 @@ class OGBGraphGenerator(Generator[OGBDataset]):
 
     @property
     def suites(self) -> list[str]:
+        # --cache-datasets prepares the shell suite, which each redistributable
+        # dataset joins itself. ogbn-products is not redistributable (see
+        # licenses.OGBN_PRODUCTS), so it is de-listed.
         return []
 
     @property
@@ -126,13 +149,17 @@ class OGBGraphGenerator(Generator[OGBDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Large OGB graphs can be reused by several graph-learning benchmarks. "
             "Sharing a cacheable generator for the prepared source graph avoids "
             "redundant downloads while allowing child benchmark generators to keep "
             "their benchmark-specific inputs uncached."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OGB_NODEPROP
 
     @property
     def datasets(self) -> list[OGBDataset]:
@@ -143,6 +170,7 @@ class OGBGraphGenerator(Generator[OGBDataset]):
                     "Citation network of arXiv Computer Science papers for "
                     "node-property prediction."
                 ),
+                suites=["shell"],
             ),
             OGBDataset(
                 "ogbn-products",
@@ -157,6 +185,7 @@ class OGBGraphGenerator(Generator[OGBDataset]):
                     "Protein-protein association network with species labels and "
                     "averaged edge-feature node inputs."
                 ),
+                suites=["shell"],
             ),
         ]
 

@@ -5,6 +5,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -130,8 +132,12 @@ class BellmanFordTestGenerator(Generator[BellmanFordDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for Bellman-Ford correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -426,8 +432,12 @@ class BellmanFordSNAPGenerator(Generator[BellmanFordDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate weighted graph inputs for Bellman-Ford."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -758,6 +768,10 @@ class BellmanFordSNAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         return "Reference outputs for Bellman-Ford SNAP, cached apart from its inputs."
 
     @property
+    def license(self) -> License | None:
+        return BellmanFordSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[BellmanFordDataset]]:
         return [
             ReferenceDataset(dataset) for dataset in BellmanFordSNAPGenerator().datasets
@@ -848,8 +862,12 @@ class BellmanFordGAPGenerator(Generator[BellmanFordDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate weighted GAP graph inputs for Bellman-Ford."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -917,6 +935,10 @@ class BellmanFordGAPReferenceGenerator(ReferenceGenerator[BellmanFordDataset]):
         return "Reference outputs for Bellman-Ford GAP, cached apart from its inputs."
 
     @property
+    def license(self) -> License | None:
+        return BellmanFordGAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[BellmanFordDataset]]:
         return [
             ReferenceDataset(dataset) for dataset in BellmanFordGAPGenerator().datasets
@@ -969,13 +991,11 @@ class BellmanFordBenchmark(Benchmark):
         return "Bellman-Ford"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "This code implements an Array-API compatible version of Bellman Ford"
-            " Algorithm to find the shortest distance from a src node to all edges"
-            " across a graph. It takes in an adjacency matrix as an input and then"
-            " slowly relaxes each vector by broadcasting it and then determining the"
-            " minimum distances iteratively."
+            "Computes single-source shortest paths by repeatedly relaxing a dense "
+            "distance vector. Each relaxation ``multiplies'' the distances by the "
+            r"adjacency matrix of edge lengths in the $(\min,+)$ semiring."
         )
 
     @property
@@ -1039,13 +1059,26 @@ class BellmanFordBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Linear algebraic graph algorithms use sparsity to avoid unnecessary"
-            " computations by focusing only on non-zero elements. Optimizing the use of"
-            " sparse data structures and algorithms is key to achieving high"
-            " performance, as it reduces memory footprint and leads to faster"
-            " traversals."
+            "This code implements an Array-API compatible version of Bellman Ford "
+            "Algorithm to find the shortest distance from a src node to all edges "
+            "across a graph. It takes in an adjacency matrix as an input and then "
+            "slowly relaxes each vector by broadcasting it and then determining the "
+            "minimum distances iteratively. Linear algebraic graph algorithms use "
+            "sparsity to avoid unnecessary computations by focusing only on non-zero "
+            "elements. Optimizing the use of sparse data structures and algorithms is "
+            "key to achieving high performance, as it reduces memory footprint and "
+            "leads to faster traversals."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Weights are random integers from 1 to 255, so float64 path lengths are "
+            "exact in any summation order and we check distances exactly. This allows "
+            "``active set'' optimizations, which relax only the neighbors of vertices "
+            "whose distances changed."
         )
 
     @property

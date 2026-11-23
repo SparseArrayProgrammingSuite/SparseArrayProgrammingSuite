@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import (
@@ -111,8 +113,12 @@ class GMRESTestGenerator(Generator[GMRESDataset]):
         return GMRESBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small inlined linear systems to verify GMRES convergence."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -270,11 +276,15 @@ class GMRESSuiteSparseGenerator(Generator[GMRESDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "GMRES is the most widely used and effective method for solving "
             "linear systems that are indefinite, non-symmetric, and sparse."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -1494,21 +1504,10 @@ class GMRESBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "This code is implements the GMRES algorithm for solving indefinite and"
-            " non-symmetric linear systems. The algorithm follows the Arnoldi iteration"
-            " process where a Krylov matrix is maintained at each iteration. Starting"
-            " with an initial guess and the residual for that guess, the matrix A is"
-            " dot producted with the previous residual to obtain the next basis vector."
-            " This algorithm also uses a similar method to Gram-Schmidt to ensure that"
-            " the Kyrlov matrix is orthogonal. I also maintain an upper Hessenberg"
-            " matrix which keeps track of the dot products between different basis"
-            " vectors and the norm of the new basis vector. The Hessenberg matrix"
-            " follows the property: Q_n * A = Q_(n+1) * H_n where Q is the Krylov"
-            " matrix. This matrix allows for a simplified least squares problem to be"
-            " solved at each iteration so that the residual is minimized at each step."
-            " My implementation restarts the Kyrlov matrix every 50 iterations and will"
-            " end when the current residual / initial residual is less than the"
-            " tolerance level."
+            "Solves sparse non-symmetric linear systems with the Generalized Minimal "
+            "Residual (GMRES) method. It minimizes the residual using dense least "
+            "squares over a basis formed from an iteratively expanding subset of the "
+            "Krylov subspace."
         )
 
     @property
@@ -1554,10 +1553,33 @@ class GMRESBenchmark(Benchmark):
         ]
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "GMRES is the most widely used and effective method for solving linear"
-            " systems that are indefinite, non-symmetric, and are sparse in nature."
+            "This code is implements the GMRES algorithm for solving indefinite and "
+            "non-symmetric linear systems. The algorithm follows the Arnoldi iteration "
+            "process where a Krylov matrix is maintained at each iteration. Starting "
+            "with an initial guess and the residual for that guess, the matrix A is "
+            "dot producted with the previous residual to obtain the next basis vector. "
+            "This algorithm also uses a similar method to Gram-Schmidt to ensure that "
+            "the Kyrlov matrix is orthogonal. I also maintain an upper Hessenberg "
+            "matrix which keeps track of the dot products between different basis "
+            "vectors and the norm of the new basis vector. The Hessenberg matrix "
+            "follows the property: Q_n * A = Q_(n+1) * H_n where Q is the Krylov "
+            "matrix. This matrix allows for a simplified least squares problem to be "
+            "solved at each iteration so that the residual is minimized at each step. "
+            "My implementation restarts the Kyrlov matrix every 50 iterations and will "
+            "end when the current residual / initial residual is less than the "
+            "tolerance level. GMRES is the most widely used and effective method for "
+            "solving linear systems that are indefinite, non-symmetric, and are sparse "
+            "in nature."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"The solver stops once the residual $\|b - Ax\|$ drops below a tolerance, "
+            "so we check that the result passes the same test under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import urllib.request
 from collections.abc import Iterator
 from pathlib import Path
@@ -14,6 +15,16 @@ from binsparse.conversions import from_numpy
 from saps.downloaders.cache import download_lock, source_cache_dir
 
 NEMO_ARCHIVE_BASE_URL = "https://carma.astro.umd.edu/nemo/archive"
+
+# Particle tables that scripts/generate_nemo_particles.py made with NEMO, and
+# their MD5s, so that changing a table changes this module and with it the
+# freshness of the datasets built from it.
+SAPS_NEMO_DIR = Path(__file__).resolve().parents[1] / "datafiles" / "nemo"
+SAPS_NEMO_TABLES = {
+    "plummer_128.tab.gz": "a1d49b7a4e4a9e8193305155739a5813",
+    "plummer_1024.tab.gz": "0ee4ef2d5bdee7a4501258b1bc1dd265",
+    "mw_m31.tab.gz": "1a15a6636661fc83adcc7b21ad3304fc",
+}
 
 
 def download_nemo_dataset(
@@ -36,7 +47,63 @@ def download_nemo_dataset(
     simulation origin. No rescaling is applied: distances and
     velocities remain in the archive's units.
     """
-    local_path = _ensure_downloaded(archive_path, data_dir)
+    return _nemo_dataset(
+        _ensure_downloaded(archive_path, data_dir),
+        {
+            "source_archive": "NEMO",
+            "source_url": f"{NEMO_ARCHIVE_BASE_URL}/{archive_path}",
+            "source_path": archive_path,
+        },
+        columns=columns,
+        wrap=wrap,
+        expected_particles=expected_particles,
+        num_steps=num_steps,
+        box_size=box_size,
+        include_mass=include_mass,
+    )
+
+
+def load_saps_nemo_dataset(
+    table: str,
+    *,
+    columns: tuple[str, ...],
+    wrap: bool = False,
+    expected_particles: int | None = None,
+    num_steps: int = 50,
+    box_size: float | None = None,
+    include_mass: bool = False,
+) -> tuple[list[BinsparseTensor], dict[str, Any]]:
+    """Parse one of SAPS's own NEMO particle tables, like
+    ``download_nemo_dataset``."""
+    if table not in SAPS_NEMO_TABLES:
+        raise ValueError(f"Unknown SAPS NEMO table: {table!r}")
+    path = SAPS_NEMO_DIR / table
+    md5 = hashlib.md5(path.read_bytes(), usedforsecurity=False).hexdigest()
+    if md5 != SAPS_NEMO_TABLES[table]:
+        raise ValueError(f"{path} does not match its MD5 {SAPS_NEMO_TABLES[table]}")
+    return _nemo_dataset(
+        path,
+        {"source_archive": "SAPS", "source_path": f"src/saps/datafiles/nemo/{table}"},
+        columns=columns,
+        wrap=wrap,
+        expected_particles=expected_particles,
+        num_steps=num_steps,
+        box_size=box_size,
+        include_mass=include_mass,
+    )
+
+
+def _nemo_dataset(
+    local_path: Path,
+    source: dict[str, Any],
+    *,
+    columns: tuple[str, ...],
+    wrap: bool,
+    expected_particles: int | None,
+    num_steps: int,
+    box_size: float | None,
+    include_mass: bool,
+) -> tuple[list[BinsparseTensor], dict[str, Any]]:
     rows, column_index = _parse_nemo_rows(
         local_path,
         columns=columns,
@@ -62,9 +129,7 @@ def download_nemo_dataset(
         "size": size,
         "steps": num_steps,
         "n_particles": n_particles,
-        "source_archive": "NEMO",
-        "source_url": f"{NEMO_ARCHIVE_BASE_URL}/{archive_path}",
-        "source_path": archive_path,
+        **source,
         "source_columns": list(columns),
         "source_wrap": wrap,
         "source_x_min": float(x_raw.min()),
@@ -79,7 +144,7 @@ def download_nemo_dataset(
     }
     if include_mass:
         if "mass" not in column_index:
-            raise ValueError(f"NEMO columns for {archive_path} do not include mass")
+            raise ValueError(f"NEMO columns for {local_path} do not include mass")
         mass = rows[:, column_index["mass"]].copy()
         inputs.append(from_numpy(mass))
         meta["source_mass_min"] = float(mass.min())

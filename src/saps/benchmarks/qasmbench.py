@@ -2,12 +2,14 @@
 
 from typing import Any
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -103,7 +105,8 @@ class QASMBenchCircuitGenerator(Generator[QASMBenchDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:
@@ -122,12 +125,16 @@ class QASMBenchCircuitGenerator(Generator[QASMBenchDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "QASMBench collects quantum algorithm circuits, such as state"
             " preparation, arithmetic, and error correction, as standard inputs"
             " for evaluating quantum simulators."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.QASMBENCH
 
     @property
     def datasets(self) -> list[QASMBenchDataset]:

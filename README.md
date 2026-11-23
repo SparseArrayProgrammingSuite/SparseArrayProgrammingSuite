@@ -481,8 +481,8 @@ matrices remain commented out with their original metadata and are not exposed
 by SNAP generators.
 
 The OpenML shell caches the feature matrix together with train/test row indices
-from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and CIFAR-10 uses
-task 167124, both at repeat 0, fold 0, sample 0. ANN generators consume these splits;
+from a pinned task, repeat, fold, and sample. MNIST uses task 3573 and Fashion-MNIST uses
+task 146825, both at repeat 0, fold 0, sample 0. ANN generators consume these splits;
 clustering generators can still consume the complete feature matrix. Refresh old
 OpenML caches that contain only the feature matrix with:
 
@@ -497,6 +497,10 @@ completed files. Source subdirectories are `suitesparse`, `frostt`,
 use `artifacts/lth`. An explicit downloader `data_dir` takes precedence.
 These source caches persist independently of job-local environments and `$TMPDIR`.
 G-CARE records completed extraction so later loads reuse the extracted files.
+So do the Model Counting Competition 2020-2024 archives under `mccomp/zenodo`.
+`--cache-datasets` downloads the eight that the listed instances come from,
+about 2 GB, or 4 GB on disk once unpacked; `scripts/scan_mccomp_pool.py`, which
+lists the instances, reads all 20.
 
 
 Each finishing task refreshes the combined files with the results saved so far.

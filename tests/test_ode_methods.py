@@ -30,6 +30,7 @@ def test_ode_discovery_exposes_one_benchmark_per_method():
         "ode_lotka_volterra": 1,
         "ode_brusselator": 2,
         "ode_slicot": 10,
+        "ode_suitesparse": 1,
     }
     dataset_inventories = []
     for benchmark in benchmarks:
@@ -59,7 +60,7 @@ def test_ode_discovery_exposes_one_benchmark_per_method():
 def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
     data = [np.array([[-1.0]]), np.zeros((1, 1))]
     meta = {
-        "problem_name": "ode_slicot",
+        "problem_name": "ode_suitesparse",
         "span": (0.0, 0.2),
         "y0": [1.0],
         "step": 0.1,
@@ -67,7 +68,7 @@ def test_ode_methods_integrate_exponential_decay(benchmark_cls, expected):
     }
 
     benchmark = benchmark_cls()
-    generator = ode.ODESLICOTGenerator()
+    generator = ode.ODESuiteSparseGenerator()
     problem = DataInstance(inputs=[from_numpy(item) for item in data], meta=meta)
     function = generator.generate_benchmark_function(
         generator.datasets[0], problem, benchmark.benchmark
@@ -107,7 +108,7 @@ def test_ode_setup_preserves_non_slicot_timestep(benchmark_cls):
             "ode_brusselator",
             ["C", "brusselator_cb", "brusselator_a", "brusselator_scatter"],
         ),
-        ("ode_slicot", ["A", "B"]),
+        ("ode_suitesparse", ["A", "B"]),
     ],
 )
 def test_generated_ode_function_is_inline_and_matches_template(
@@ -116,7 +117,7 @@ def test_generated_ode_function_is_inline_and_matches_template(
     benchmark = benchmark_cls()
     generator = next(g for g in benchmark.generators if g.name == generator_name)
     dataset = generator.datasets[0]
-    if generator_name == "ode_slicot":
+    if generator_name == "ode_suitesparse":
         problem = DataInstance(
             inputs=[
                 from_numpy(np.array([[-1 + 0.5j, 0.1], [0, -2 - 0.3j]])),

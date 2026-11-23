@@ -11,6 +11,7 @@ import numpy as np
 
 from filelock import FileLock
 
+from saps import ssgetpy_mirrors
 from saps.downloaders.cache import source_cache_dir
 
 
@@ -46,13 +47,18 @@ def _split_suitesparse_source_name(source_name: str) -> tuple[str, str]:
 
 
 def _import_ssgetpy() -> Any:
-    """Import ssgetpy with its index in the SAPS cache rather than ~/.ssgetpy."""
+    """Import ssgetpy with its index in the SAPS cache rather than ~/.ssgetpy.
+
+    If sparse.tamu.edu is down while ssgetpy refreshes its index, the index is
+    fetched from the University of Florida mirror instead.
+    """
     # Imported lazily: importing ssgetpy fetches the SuiteSparse index into
     # $HOME/.ssgetpy, a path it fixes on first import and offers no override for.
     home = os.environ.get("HOME")
     os.environ["HOME"] = str(source_cache_dir("suitesparse").resolve())
     try:
-        import ssgetpy
+        with ssgetpy_mirrors.index_fallback() as fallback:
+            import ssgetpy
 
         import saps.ssgetpy_patch  # noqa: F401
     finally:
@@ -60,6 +66,8 @@ def _import_ssgetpy() -> Any:
             del os.environ["HOME"]
         else:
             os.environ["HOME"] = home
+    if fallback.used_mirror:
+        ssgetpy_mirrors.expire_index(ssgetpy.dbinstance.instance)
     return ssgetpy
 
 
@@ -91,6 +99,44 @@ def _download_and_read_matrix(
     return matrix_dir, matrix, A
 
 
+# Names a model reduction problem's primary matrix, as opposed to one of its
+# auxiliary <name>_<suffix>.mtx files, which are named by their suffix.
+SUITESPARSE_PRIMARY = "primary"
+
+
+def load_suitesparse_model_reduction(
+    source_name: str,
+    names: tuple[str, ...],
+    *,
+    data_dir: str | Path | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Download (if needed) and read matrices of a SuiteSparse model reduction problem.
+
+    Returns ``(matrices, meta)``. *matrices* holds each matrix in *names* as a
+    SciPy CSR matrix: `SUITESPARSE_PRIMARY` names the primary matrix, and any
+    other name the auxiliary file ``<name>_<suffix>.mtx`` with that suffix,
+    matched case-sensitively (``b`` and ``B`` are different files). Pattern
+    files read as ones.
+    """
+    import scipy.sparse as sps
+    from scipy.io import mmread
+
+    matrix_dir, matrix, primary = _download_and_read_matrix(source_name, data_dir)
+    matrices = {
+        name: primary.tocsr()
+        if name == SUITESPARSE_PRIMARY
+        else sps.csr_matrix(mmread(_require_aux_path(matrix_dir, matrix.name, name)))
+        for name in names
+    }
+    meta = {
+        "dataset_name": source_name,
+        "matrix_group": matrix.group,
+        "n": primary.shape[0],
+        "nnz": primary.nnz,
+    }
+    return matrices, meta
+
+
 def load_suitesparse_matrix(
     source_name: str,
     *,
@@ -105,10 +151,9 @@ def load_suitesparse_matrix(
     requires no additional download.
     """
     matrix_dir, matrix, A = _download_and_read_matrix(source_name, data_dir)
-    rhs_path = matrix_dir / f"{matrix.name}_b.mtx"
     b = None
     rhs_error = None
-    if rhs_path.exists():
+    if suitesparse_aux_path(matrix_dir, matrix.name, "b") is not None:
         try:
             b = load_suitesparse_rhs(
                 matrix_dir,
@@ -140,9 +185,7 @@ def load_suitesparse_rhs(
     """Load all RHS vectors, orienting multiple RHSs as columns when length is known."""
     from scipy.io import mmread
 
-    rhs_path = Path(matrix_dir) / f"{matrix_name}_b.mtx"
-    if not rhs_path.exists():
-        raise FileNotFoundError(f"Matrix file not found at {rhs_path}")
+    rhs_path = _require_aux_path(matrix_dir, matrix_name, "b")
     b = mmread(rhs_path)
     if not isinstance(b, np.ndarray):
         b = b.toarray() if hasattr(b, "toarray") else np.asarray(b)
@@ -164,6 +207,32 @@ def load_suitesparse_rhs(
     ):
         return b.flatten()
     return b
+
+
+def suitesparse_aux_path(
+    matrix_dir: str | Path, matrix_name: str, suffix: str
+) -> Path | None:
+    """Return ``<matrix_name>_<suffix>.mtx`` in *matrix_dir*, or ``None`` if absent.
+
+    The name is matched case-sensitively. SuiteSparse names some auxiliary files
+    apart only by case: ``_b`` is a right-hand side, while ``_B`` is the input
+    matrix of a model reduction problem (e.g. ``Oberwolfach/spiral``). On
+    case-insensitive filesystems (macOS and Windows by default),
+    ``Path.exists()`` would find ``spiral_B.mtx`` when asked for
+    ``spiral_b.mtx``.
+    """
+    filename = f"{matrix_name}_{suffix}.mtx"
+    if filename in os.listdir(matrix_dir):
+        return Path(matrix_dir) / filename
+    return None
+
+
+def _require_aux_path(matrix_dir: str | Path, matrix_name: str, suffix: str) -> Path:
+    path = suitesparse_aux_path(matrix_dir, matrix_name, suffix)
+    if path is None:
+        missing = Path(matrix_dir) / f"{matrix_name}_{suffix}.mtx"
+        raise FileNotFoundError(f"Matrix file not found at {missing}")
+    return path
 
 
 def read_vector(path: Path) -> np.ndarray:
@@ -199,19 +268,19 @@ def load_lpnetlib_problem(
         )
 
     rows, cols = A.shape
-    c = read_vector(matrix_dir / f"{matrix.name}_c.mtx")
-    b = read_vector(matrix_dir / f"{matrix.name}_b.mtx")
+    c = read_vector(_require_aux_path(matrix_dir, matrix.name, "c"))
+    b = read_vector(_require_aux_path(matrix_dir, matrix.name, "b"))
 
     infinite_bound = 1e30
-    lo_path = matrix_dir / f"{matrix.name}_lo.mtx"
-    hi_path = matrix_dir / f"{matrix.name}_hi.mtx"
-    lo = read_vector(lo_path) if lo_path.exists() else np.zeros(cols)
-    hi = read_vector(hi_path) if hi_path.exists() else np.full(cols, np.inf)
+    lo_path = suitesparse_aux_path(matrix_dir, matrix.name, "lo")
+    hi_path = suitesparse_aux_path(matrix_dir, matrix.name, "hi")
+    lo = read_vector(lo_path) if lo_path is not None else np.zeros(cols)
+    hi = read_vector(hi_path) if hi_path is not None else np.full(cols, np.inf)
     lo = np.where(lo <= -infinite_bound, -np.inf, lo)
     hi = np.where(hi >= infinite_bound, np.inf, hi)
 
-    z0_path = matrix_dir / f"{matrix.name}_z0.mtx"
-    z0 = float(read_vector(z0_path)[0]) if z0_path.exists() else 0.0
+    z0_path = suitesparse_aux_path(matrix_dir, matrix.name, "z0")
+    z0 = float(read_vector(z0_path)[0]) if z0_path is not None else 0.0
 
     for label, vector, expected in (
         ("b", b, rows),
@@ -231,8 +300,8 @@ def load_lpnetlib_problem(
         "shape": A.shape,
         "nnz": A.nnz,
         "z0": z0,
-        "has_lo_file": lo_path.exists(),
-        "has_hi_file": hi_path.exists(),
+        "has_lo_file": lo_path is not None,
+        "has_hi_file": hi_path is not None,
     }
     return A, b, c, lo, hi, meta
 

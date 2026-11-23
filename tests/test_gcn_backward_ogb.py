@@ -73,7 +73,8 @@ def test_ogb_gcn_backward_generator_includes_supported_workloads():
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
     assert datasets["ogbn-arxiv"].suites == ["standard", "trace", "train"]
-    assert datasets["ogbn-products"].suites == ["standard"]
+    # De-listed: ogbn-products is not redistributable.
+    assert datasets["ogbn-products"].suites == []
     assert datasets["ogbn-proteins"].suites == ["standard"]
     assert datasets["ogbn-products"].hidden_dim == 64
 

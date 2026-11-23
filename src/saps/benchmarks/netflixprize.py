@@ -6,12 +6,14 @@ import numpy as np
 
 from binsparse.conversions import from_scipy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -71,6 +73,8 @@ class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
 
     @property
     def suites(self) -> list[str]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so this isn't in the cached shell suite.
         return []
 
     @property
@@ -97,7 +101,7 @@ class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Multiple benchmarks reuse the Netflix Prize ratings matrix. Sharing a "
             "cacheable generator for the parsed matrix avoids redundant downloads, "
@@ -105,7 +109,14 @@ class NetflixPrizeRatingsGenerator(Generator[NetflixPrizeDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
+
+    @property
     def datasets(self) -> list[NetflixPrizeDataset]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so its shell isn't in the cached shell suite.
+        # GoodbooksRatingsGenerator replaces it.
         return [NetflixPrizeDataset()]
 
     def generate(self, dataset: NetflixPrizeDataset) -> DataInstance:
@@ -184,7 +195,15 @@ class NetflixPrizeRatingsShellBenchmark(ShellBenchmark):
 def fetch_netflixprize_dataset() -> DataInstance:
     """Fetch (and cache) the prepared Netflix Prize ratings matrix."""
     raw_generator = NetflixPrizeRatingsGenerator()
-    return raw_generator.cached_generate(raw_generator.datasets[0])
+    raw_dataset = next(
+        (dataset for dataset in raw_generator.datasets if dataset.name == "netflix"),
+        None,
+    )
+    if raw_dataset is None:
+        raise ValueError(
+            "Dataset 'netflix' is not listed in NetflixPrizeRatingsGenerator.datasets."
+        )
+    return raw_generator.cached_generate(raw_dataset)
 
 
 def fetch_netflixprize_matrix():

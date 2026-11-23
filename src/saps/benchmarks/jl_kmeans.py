@@ -7,18 +7,23 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.goodbooks import fetch_goodbooks_matrix
 from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
 from saps.benchmarks.openml import fetch_openml_features
 
@@ -164,8 +169,12 @@ class JLKMeansTestGenerator(Generator[JLKMeansTestDataset]):
         return JLKMeansBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return JLKMeansBenchmark().motivation
+    def notes(self) -> str:
+        return JLKMeansBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -258,6 +267,7 @@ class JLKMeansDataset(Dataset):
         max_iter=100,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
+        license: License | None | Inherit = INHERIT,
     ):
         self._source_name = source_name
         self._pretty_name = pretty_name or source_name
@@ -266,10 +276,15 @@ class JLKMeansDataset(Dataset):
         self.c = c
         self.max_iter = max_iter
         self._suites = suites or []
+        self._license = license
 
     @property
     def name(self) -> str:
         return self._source_name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def pretty_name(self) -> str:
@@ -342,10 +357,19 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 doi="10.1109/5.726791",
             ),
             Ref(
-                title="Learning Multiple Layers of Features from Tiny Images",
-                authors=[Author("Alex Krizhevsky")],
-                year=2009,
-                url="https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf",
+                title=(
+                    "Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine "
+                    "Learning Algorithms"
+                ),
+                authors=[
+                    Author("Han Xiao"),
+                    Author("Kashif Rasul"),
+                    Author("Roland Vollgraf"),
+                ],
+                journal="Arxiv",
+                volume="arXiv:1708.07747",
+                year=2017,
+                url="https://arxiv.org/abs/1708.07747",
             ),
             Ref(
                 title=(
@@ -363,11 +387,15 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML. "
+            "MNIST and Fashion-MNIST provide dense image feature matrices from OpenML. "
             "k = 10 aligns with the ten classes in each dataset."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OPENML
 
     @property
     def cacheable(self) -> bool:
@@ -382,14 +410,26 @@ class JLKMeansOpenMLGenerator(Generator[JLKMeansDataset]):
                 eps=0.3,
                 suites=["standard", "trace"],
                 pretty_name="MNIST",
+                license=licenses.MNIST,
             ),
             JLKMeansDataset(
-                "cifar10",
+                "fashion_mnist",
                 k=10,
                 eps=0.3,
                 suites=["standard", "trace", "train"],
-                pretty_name="CIFAR-10",
+                pretty_name="Fashion-MNIST",
+                license=licenses.FASHION_MNIST,
             ),
+            # De-listed: CIFAR-10 has no license (see licenses.OPENML). It stays
+            # commented out because its reference would join the cached shell
+            # suite through JLKMeansOpenMLReferenceShellBenchmark.
+            # JLKMeansDataset(
+            #     "cifar10",
+            #     k=10,
+            #     eps=0.3,
+            #     suites=["standard", "trace", "train"],
+            #     pretty_name="CIFAR-10",
+            # ),
         ]
 
     def generate(self, dataset: JLKMeansDataset) -> DataInstance:
@@ -444,6 +484,10 @@ class JLKMeansOpenMLReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
             "Reference outputs for Johnson-Lindenstrauss (JL) k-Means OpenML, cached"
             " apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return JLKMeansOpenMLGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
@@ -505,20 +549,27 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
         return "No generative AI was used to implement benchmark functions."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
             "ratings matrix."
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
+
+    @property
     def datasets(self) -> list[JLKMeansDataset]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so it's in no suite and isn't run or cached.
+        # JLKMeansGoodbooksGenerator replaces it.
         return [
             JLKMeansDataset(
                 "netflix",
                 k=10,
                 eps=0.3,
-                suites=["standard"],
+                suites=[],
                 pretty_name="Netflix Prize",
             ),
         ]
@@ -565,6 +616,12 @@ class JLKMeansNetflixPrizeGenerator(Generator[JLKMeansDataset]):
 
 class JLKMeansNetflixPrizeReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
     @property
+    def suites(self) -> list[str]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so this isn't in the cached shell suite.
+        return []
+
+    @property
     def name(self) -> str:
         return "jl_kmeans_netflix_prize_reference"
 
@@ -578,6 +635,10 @@ class JLKMeansNetflixPrizeReferenceGenerator(ReferenceGenerator[JLKMeansDataset]
             "Reference outputs for Johnson-Lindenstrauss (JL) k-Means Netflix Prize,"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return JLKMeansNetflixPrizeGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
@@ -602,6 +663,152 @@ class JLKMeansNetflixPrizeReferenceShellBenchmark(ShellBenchmark):
         return JLKMeansNetflixPrizeReferenceGenerator()
 
 
+class JLKMeansGoodbooksGenerator(Generator[JLKMeansDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_kmeans_goodbooks"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Johnson-Lindenstrauss (JL) k-Means goodbooks-10k"
+
+    @property
+    def description(self) -> str:
+        return "Loads goodbooks-10k ratings for RP k-means clustering."
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Maksim Krylykov", "mkrylykov3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="goodbooks-10k",
+                authors=[Author("Zygmunt Zając")],
+                year=2017,
+                url="https://github.com/zygmuntz/goodbooks-10k",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "No generative AI was used to implement benchmark functions."
+
+    @property
+    def notes(self) -> str:
+        return (
+            "goodbooks-10k provides a 53,424 users × 10,000 books sparse matrix of "
+            "one-to-five star ratings."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.GOODBOOKS
+
+    @property
+    def datasets(self) -> list[JLKMeansDataset]:
+        return [
+            JLKMeansDataset(
+                "goodbooks",
+                k=10,
+                eps=0.3,
+                suites=["standard"],
+                pretty_name="goodbooks-10k",
+            ),
+        ]
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    def generate(self, dataset: JLKMeansDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = JLKMeansGoodbooksReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: JLKMeansDataset) -> DataInstance:
+        data, source_meta = fetch_goodbooks_matrix()
+
+        training = from_scipy(data.tocoo())
+
+        d = data.shape[1]
+        t = int(dataset.c * math.ceil(dataset.k / dataset.eps**2))
+        value = 1 / (t**0.5)
+        rng = np.random.default_rng(0)
+        R = np.where(rng.random((d, t)) < 0.5, value, -value).astype(np.float32)
+
+        return DataInstance(
+            inputs=[training, from_numpy(R)],
+            meta={
+                "k": dataset.k,
+                "eps": dataset.eps,
+                "c": dataset.c,
+                "max_iter": dataset.max_iter,
+                "num_rows": source_meta["num_users"],
+                "num_features": source_meta["num_books"],
+                "source_num_users": source_meta["num_users"],
+                "source_num_books": source_meta["num_books"],
+                "source_num_ratings": source_meta["num_ratings"],
+            },
+        )
+
+
+class JLKMeansGoodbooksReferenceGenerator(ReferenceGenerator[JLKMeansDataset]):
+    @property
+    def name(self) -> str:
+        return "jl_kmeans_goodbooks_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Johnson-Lindenstrauss (JL) k-Means goodbooks-10k Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for Johnson-Lindenstrauss (JL) k-Means goodbooks-10k,"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return JLKMeansGoodbooksGenerator().license
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[JLKMeansDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in JLKMeansGoodbooksGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[JLKMeansDataset]) -> DataInstance:
+        training, R = (
+            JLKMeansGoodbooksGenerator().generate_inputs(dataset.dataset).inputs
+        )
+        ref_meta = _cost_ref_meta(
+            to_scipy(training).tocsr(), to_numpy(R), dataset.dataset
+        )
+        return DataInstance(inputs=[], meta={}, ref_meta=ref_meta)
+
+
+class JLKMeansGoodbooksReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return JLKMeansGoodbooksReferenceGenerator()
+
+
 class JLKMeansBenchmark(Benchmark):
     @property
     def name(self) -> str:
@@ -617,14 +824,27 @@ class JLKMeansBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "Labels points into k clusters."
+        return (
+            "Uses a sparse Johnson-Lindenstrauss (JL) random projection to reduce the "
+            "dimensionality of the data before applying k-means clustering. The "
+            "k-means clustering step involves a standard iterative assignment and "
+            "centroid update procedure, but the selection of cluster centers involves "
+            "sparse mask operations and one-hot vectors."
+        )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Random Projections reduce dimensionality for k-means clustering. Input"
-            " points can be high-dimensional and sparse, which are then projected on a"
-            " random matrix."
+            "Labels points into k clusters. Random Projections reduce dimensionality "
+            "for k-means clustering. Input points can be high-dimensional and sparse, "
+            "which are then projected on a random matrix."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "$k$-means has many local optima, so we check that the clustering costs at "
+            r"most 1\% more than the reference clustering."
         )
 
     @property
@@ -696,6 +916,7 @@ Dimensionality reduction</concept_desc>
         return [
             JLKMeansTestGenerator(),
             JLKMeansOpenMLGenerator(),
+            JLKMeansGoodbooksGenerator(),
             JLKMeansNetflixPrizeGenerator(),
         ]
 

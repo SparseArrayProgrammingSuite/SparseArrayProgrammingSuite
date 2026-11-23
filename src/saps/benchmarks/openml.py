@@ -13,12 +13,16 @@ import numpy as np
 from binsparse.conversions import from_numpy, to_numpy
 from filelock import FileLock
 
+from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -47,6 +51,7 @@ class OpenMLDataset(Dataset):
         description: str | None = None,
         suites: list[str] | None = None,
         scale: float = 1.0,
+        license: License | None | Inherit = INHERIT,
     ):
         self._name = name
         self.data_id = data_id
@@ -60,10 +65,15 @@ class OpenMLDataset(Dataset):
         self._description = description
         self._suites = suites or []
         self.scale = scale
+        self._license = license
 
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def pretty_name(self) -> str:
@@ -120,7 +130,8 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:
@@ -156,12 +167,16 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Several benchmarks use the same OpenML image datasets. Sharing a "
             "cacheable generator for the prepared feature matrix avoids redundant "
             "downloads and redundant cached copies."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OPENML
 
     @property
     def datasets(self) -> list[OpenMLDataset]:
@@ -177,17 +192,36 @@ class OpenMLDatasetGenerator(Generator[OpenMLDataset]):
                     "OpenML copy of the MNIST 28x28 handwritten digit image dataset."
                 ),
                 scale=255.0,
+                license=licenses.MNIST,
             ),
             OpenMLDataset(
-                "cifar10",
-                data_id=40927,
-                openml_name="CIFAR_10",
+                "fashion_mnist",
+                data_id=40996,
+                openml_name="Fashion-MNIST",
                 version=1,
-                task_id=167124,
-                pretty_name="CIFAR-10",
-                description=("OpenML copy of the CIFAR-10 32x32 color image dataset."),
+                task_id=146825,
+                pretty_name="Fashion-MNIST",
+                description=(
+                    "OpenML copy of the Fashion-MNIST 28x28 grayscale clothing image "
+                    "dataset."
+                ),
                 scale=255.0,
+                license=licenses.FASHION_MNIST,
             ),
+            # De-listed: CIFAR-10 has no license (see licenses.OPENML). It stays
+            # commented out because this shell is in the cached shell suite.
+            # OpenMLDataset(
+            #     "cifar10",
+            #     data_id=40927,
+            #     openml_name="CIFAR_10",
+            #     version=1,
+            #     task_id=167124,
+            #     pretty_name="CIFAR-10",
+            #     description=(
+            #         "OpenML copy of the CIFAR-10 32x32 color image dataset."
+            #     ),
+            #     scale=255.0,
+            # ),
         ]
 
     def generate(self, dataset: OpenMLDataset) -> DataInstance:

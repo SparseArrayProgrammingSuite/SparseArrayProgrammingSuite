@@ -6,6 +6,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,8 +14,10 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
+from saps.downloaders.ixi import IXI_REF, load_ixi_scan
 
 
 class MRIMaskedEdgeDetectionDataset(Dataset):
@@ -23,14 +26,16 @@ class MRIMaskedEdgeDetectionDataset(Dataset):
         name: str,
         category: str,
         filename: str,
-        t1_val: float = 191.25,
-        t2_val: float = 204.0,
+        t1_val: float | None = 191.25,
+        t2_val: float | None = 204.0,
         image: np.ndarray | None = None,
         roi: np.ndarray | None = None,
         suites: list[str] | None = None,
         ref_meta: dict[str, Any] | None = None,
         pretty_name: str | None = None,
     ):
+        """``t1_val=t2_val=None`` thresholds at 75% and 80% of the image's 99th
+        percentile."""
         self._suites = suites or []
         self.source_name = name
         self._pretty_name = pretty_name or name
@@ -52,6 +57,11 @@ class MRIMaskedEdgeDetectionDataset(Dataset):
 
     @property
     def description(self) -> str:
+        if self.t1_val is None or self.t2_val is None:
+            return (
+                f"MRI image {self.filename} with thresholds at 75% and 80% of its "
+                "99th-percentile voxel value."
+            )
         return (
             f"MRI image {self.filename} with thresholds {self.t1_val} and "
             f"{self.t2_val}."
@@ -83,11 +93,41 @@ def reference_masked_mri_edge(image, roi, t1, t2):
 
 
 def default_masked_mri_roi(image):
+    """The middle half of the image along each axis."""
     expected_roi = np.zeros_like(image, dtype=bool)
-    height, width = image.shape
-    h_val, w_val = height // 4, width // 4
-    expected_roi[h_val : height - h_val, w_val : width - w_val] = True
+    expected_roi[tuple(slice(n // 4, n - n // 4) for n in image.shape)] = True
     return expected_roi
+
+
+def masked_edge_instance(
+    dataset: MRIMaskedEdgeDetectionDataset, img_array
+) -> DataInstance:
+    """The thresholds take the image's dtype, so int16 images compare with
+    int16 thresholds."""
+    if dataset.roi is None:
+        roi_array = default_masked_mri_roi(img_array)
+    else:
+        roi_array = np.array(dataset.roi, dtype=bool)
+    t1_val: float
+    t2_val: float
+    if dataset.t1_val is None or dataset.t2_val is None:
+        p99 = float(np.percentile(img_array, 99))
+        t1_val, t2_val = round(0.75 * p99), round(0.8 * p99)
+    else:
+        t1_val, t2_val = dataset.t1_val, dataset.t2_val
+
+    image_bin = from_numpy(img_array)
+    roi_bin = from_numpy(roi_array)
+    t1_bin = from_numpy(np.array(t1_val, dtype=img_array.dtype))
+    t2_bin = from_numpy(np.array(t2_val, dtype=img_array.dtype))
+
+    # Computed here so it is cached with the dataset; check only compares.
+    expected = reference_masked_mri_edge(img_array, roi_array, t1_val, t2_val)
+    return DataInstance(
+        inputs=[image_bin, roi_bin, t1_bin, t2_bin],
+        meta={},
+        ref_outputs=[from_numpy(expected)],
+    )
 
 
 class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDataset]):
@@ -124,8 +164,12 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
         return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small masked MRI examples for correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -185,16 +229,114 @@ class MRIMaskedEdgeDetectionTestGenerator(Generator[MRIMaskedEdgeDetectionDatase
                 suites=["test"],
                 ref_meta={"default_roi": True},
             ),
+            MRIMaskedEdgeDetectionDataset(
+                "int16_volume",
+                "local",
+                "int16_volume",
+                pretty_name="Int16 Volume",
+                # The default ROI holds 5000-10000 and 21000-26000.
+                t1_val=5000,
+                t2_val=21000,
+                image=(1000 * np.arange(32, dtype=np.int16)).reshape(2, 4, 4),
+                suites=["test"],
+            ),
         ]
 
     def generate(self, dataset: MRIMaskedEdgeDetectionDataset) -> DataInstance:
-        problem = MRIMaskedEdgeDetectionKaggleGenerator().generate(dataset)
+        problem = masked_edge_instance(dataset, np.asarray(dataset.image))
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
             ref_outputs=problem.ref_outputs,
             ref_meta=dataset.ref_meta,
         )
+
+
+class MRIMaskedEdgeDetectionIXIGenerator(Generator[MRIMaskedEdgeDetectionDataset]):
+    @property
+    def name(self) -> str:
+        return "mri_masked_edge_detection_ixi"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Magnetic Resonance Imaging (MRI) Masked Edge Detection IXI"
+
+    @property
+    def description(self) -> str:
+        return (
+            "3D brain MRI scans from the IXI dataset, one T1, T2 or PD scan per"
+            " dataset, as their stored int16 voxels, with thresholds at 75% and"
+            " 80% of the scan's 99th-percentile voxel value and a region of"
+            " interest covering the middle half of each axis."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MRIMaskedEdgeDetectionBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return [*MRIMaskedEdgeDetectionBenchmark().references, IXI_REF]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def notes(self) -> str:
+        return MRIMaskedEdgeDetectionBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.IXI
+
+    @property
+    def datasets(self) -> list[MRIMaskedEdgeDetectionDataset]:
+        return [
+            MRIMaskedEdgeDetectionDataset(
+                "IXI002-Guys-0828-T1",
+                "T1",
+                "IXI002-Guys-0828-T1.nii.gz",
+                t1_val=None,
+                t2_val=None,
+                suites=["trace", "train"],
+            ),
+            MRIMaskedEdgeDetectionDataset(
+                "IXI012-HH-1211-T2",
+                "T2",
+                "IXI012-HH-1211-T2.nii.gz",
+                t1_val=None,
+                t2_val=None,
+                suites=["trace"],
+            ),
+            MRIMaskedEdgeDetectionDataset(
+                "IXI035-IOP-0873-PD",
+                "PD",
+                "IXI035-IOP-0873-PD.nii.gz",
+                t1_val=None,
+                t2_val=None,
+                suites=["trace"],
+            ),
+            MRIMaskedEdgeDetectionDataset(
+                "IXI035-IOP-0873-T1",
+                "T1",
+                "IXI035-IOP-0873-T1.nii.gz",
+                t1_val=None,
+                t2_val=None,
+                suites=["trace"],
+            ),
+        ]
+
+    def generate(self, dataset: MRIMaskedEdgeDetectionDataset) -> DataInstance:
+        return masked_edge_instance(dataset, load_ixi_scan(dataset.name))
 
 
 class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionDataset]):
@@ -216,7 +358,7 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -244,63 +386,40 @@ class MRIMaskedEdgeDetectionKaggleGenerator(Generator[MRIMaskedEdgeDetectionData
         return MRIMaskedEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MRIMaskedEdgeDetectionBenchmark().motivation
+    def notes(self) -> str:
+        return MRIMaskedEdgeDetectionBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.KAGGLE_BRAIN_MRI
 
     @property
     def datasets(self) -> list[MRIMaskedEdgeDetectionDataset]:
+        # De-listed: the Kaggle images have no license (see
+        # licenses.KAGGLE_BRAIN_MRI), so they're in no suite and aren't run or
+        # cached. MRIMaskedEdgeDetectionIXIGenerator replaces them.
         return [
-            MRIMaskedEdgeDetectionDataset(
-                "yes/Y157", "yes", "Y157.JPG", suites=["trace"]
-            ),
-            MRIMaskedEdgeDetectionDataset(
-                "yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]
-            ),
-            MRIMaskedEdgeDetectionDataset(
-                "yes/Y194", "yes", "Y194.jpg", suites=["trace"]
-            ),
-            MRIMaskedEdgeDetectionDataset(
-                "yes/Y180", "yes", "Y180.jpg", suites=["trace"]
-            ),
+            MRIMaskedEdgeDetectionDataset("yes/Y157", "yes", "Y157.JPG"),
+            MRIMaskedEdgeDetectionDataset("yes/Y6", "yes", "Y6.jpg"),
+            MRIMaskedEdgeDetectionDataset("yes/Y194", "yes", "Y194.jpg"),
+            MRIMaskedEdgeDetectionDataset("yes/Y180", "yes", "Y180.jpg"),
         ]
 
     def generate(self, dataset: MRIMaskedEdgeDetectionDataset) -> DataInstance:
-        if dataset.image is None:
-            from PIL import Image
+        from PIL import Image
 
-            from saps.downloaders.kaggle import download_kaggle_dataset
+        from saps.downloaders.kaggle import download_kaggle_dataset
 
-            path = download_kaggle_dataset(
-                "navoneel/brain-mri-images-for-brain-tumor-detection"
-            )
-            img_path = os.path.join(path, dataset.category, dataset.filename)
-            if not os.path.exists(img_path):
-                raise FileNotFoundError(f"Image not found at {img_path}")
-
-            img = Image.open(img_path).convert("L")
-            img_array = np.array(img, dtype=np.float32)
-        else:
-            img_array = np.array(dataset.image, dtype=np.float32)
-
-        if dataset.roi is None:
-            roi_array = default_masked_mri_roi(img_array)
-        else:
-            roi_array = np.array(dataset.roi, dtype=bool)
-
-        image_bin = from_numpy(img_array)
-        roi_bin = from_numpy(roi_array)
-        t1_bin = from_numpy(np.array(dataset.t1_val, dtype=np.float32))
-        t2_bin = from_numpy(np.array(dataset.t2_val, dtype=np.float32))
-
-        # Computed here so it is cached with the dataset; check only compares.
-        expected = reference_masked_mri_edge(
-            img_array, roi_array, dataset.t1_val, dataset.t2_val
+        path = download_kaggle_dataset(
+            "navoneel/brain-mri-images-for-brain-tumor-detection"
         )
-        return DataInstance(
-            inputs=[image_bin, roi_bin, t1_bin, t2_bin],
-            meta={},
-            ref_outputs=[from_numpy(expected)],
-        )
+        img_path = os.path.join(path, dataset.category, dataset.filename)
+        if not os.path.exists(img_path):
+            raise FileNotFoundError(f"Image not found at {img_path}")
+
+        img = Image.open(img_path).convert("L")
+        img_array = np.array(img, dtype=np.float32)
+        return masked_edge_instance(dataset, img_array)
 
 
 class MRIMaskedEdgeDetectionBenchmark(Benchmark):
@@ -315,10 +434,11 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: This code implements a masked edge detection"
-            " algorithm on a 2D MRI image. The benchmark performs boolean threshold"
-            " mask operations using t1=75% and t2=80% thresholds and a"
-            " Region-of-Interest (ROI) mask."
+            "Extracts edge pixels from a 2D brain MRI image. The algorithm compares "
+            "the image with lower and upper thresholds, intersects each resulting "
+            "Boolean mask with a region of interest mask, and combines the two "
+            "intersected masks with an XOR. This is done so that only pixels in the "
+            "region of interest that fall between the thresholds are kept."
         )
 
     @property
@@ -352,15 +472,26 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
         return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Motivation: Edge detection is a crucial task that is a part of image"
-            " processing pipelines. It is often the case that images and scans in the"
-            " medical field rquire post-processing to extract useful information. In"
-            " this case, we are using a 2D MRI image to produce thresholded edge maps."
-            " Since medical images are large and often contain redundant information,"
-            " it is important to process them efficiently. The redundancy of MRI makes"
-            " them a good candidate for sparse processing."
+            "What does this code do: This code implements a masked edge detection "
+            "algorithm on a 2D MRI image. The benchmark performs boolean threshold "
+            "mask operations using t1=75% and t2=80% thresholds and a "
+            "Region-of-Interest (ROI) mask. Motivation: Edge detection is a crucial "
+            "task that is a part of image processing pipelines. It is often the case "
+            "that images and scans in the medical field rquire post-processing to "
+            "extract useful information. In this case, we are using a 2D MRI image to "
+            "produce thresholded edge maps. Since medical images are large and often "
+            "contain redundant information, it is important to process them "
+            "efficiently. The redundancy of MRI makes them a good candidate for sparse "
+            "processing."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Thresholds and masks are Boolean maps, so we check the edge mask exactly "
+            "against a NumPy reference."
         )
 
     @property
@@ -428,6 +559,7 @@ class MRIMaskedEdgeDetectionBenchmark(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [
             MRIMaskedEdgeDetectionTestGenerator(),
+            MRIMaskedEdgeDetectionIXIGenerator(),
             MRIMaskedEdgeDetectionKaggleGenerator(),
         ]
 

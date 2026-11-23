@@ -6,6 +6,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -95,8 +97,12 @@ class FastSVTestGenerator(Generator[FastSVDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for FastSV correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -235,8 +241,12 @@ class FastSVSNAPGenerator(Generator[FastSVDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse graph inputs for FastSV."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -349,6 +359,10 @@ class FastSVSNAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
         return "Reference outputs for FastSV SNAP, cached apart from its inputs."
 
     @property
+    def license(self) -> License | None:
+        return FastSVSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[FastSVDataset]]:
         return [ReferenceDataset(dataset) for dataset in FastSVSNAPGenerator().datasets]
 
@@ -436,8 +450,12 @@ class FastSVGAPGenerator(Generator[FastSVDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP graph inputs for FastSV."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -486,6 +504,10 @@ class FastSVGAPReferenceGenerator(ReferenceGenerator[FastSVDataset]):
         return "Reference outputs for FastSV GAP, cached apart from its inputs."
 
     @property
+    def license(self) -> License | None:
+        return FastSVGAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[FastSVDataset]]:
         return [ReferenceDataset(dataset) for dataset in FastSVGAPGenerator().datasets]
 
@@ -532,13 +554,11 @@ class FastSVBenchmark(Benchmark):
         return "FastSV"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "The FastSV algorithm is a graph algorithm used to find the connected"
-            " components for a simple graph. This algorithm introduces several"
-            " optimizations that allow for faster convergence to a solution compared to"
-            " the SV algorithm it is based on, specifically through modifications to"
-            " the tree hooking and termination condition."
+            "Computes connected components with FastSV, which improves on the "
+            "Shiloach-Vishkin algorithm by tracking parents and adding heuristics, "
+            "such as fast-forwarding labels to those of grandparents."
         )
 
     @property
@@ -609,8 +629,18 @@ class FastSVBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def notes(self) -> str:
+        return (
+            "The FastSV algorithm is a graph algorithm used to find the connected "
+            "components for a simple graph. This algorithm introduces several "
+            "optimizations that allow for faster convergence to a solution compared to "
+            "the SV algorithm it is based on, specifically through modifications to "
+            "the tree hooking and termination condition."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return "Component labels are deterministic, so we check them exactly."
 
     @property
     def generators(self) -> list[Generator]:

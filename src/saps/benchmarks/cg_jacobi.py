@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import (
@@ -117,8 +119,12 @@ class CGJacobiSuiteSparseGenerator(Generator[CGJacobiDataset]):
         return CGJacobiBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return CGJacobiBenchmark().motivation
+    def notes(self) -> str:
+        return CGJacobiBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -961,6 +967,10 @@ class CGJacobiTestGenerator(CGJacobiSuiteSparseGenerator):
         return "Small inlined symmetric positive definite systems."
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[CGJacobiDataset]:
         return [
             CGJacobiDataset(
@@ -1033,24 +1043,35 @@ class CGJacobiBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Hand-written code modelling the algorithm structure outlined in "
-            "https://www.netlib.org/templates/templates.pdf Page 13."
+            "Solves sparse symmetric positive definite linear systems with conjugate "
+            "gradient, preconditioned by a block-diagonal jacobi update, where "
+            "Cholesky factors of each block are given as benchmark inputs, and "
+            "triangular solves are used for each block."
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            '"The preconditioned conjugate gradient method is well established '
-            "for solving linear systems of equations that arise from the "
-            "discretization of partial differential equations. Point and block "
-            'Jacobi preconditioning are both common preconditioning techniques." '
-            "Sparsity enhances the functionality of both the solver and the "
-            "preconditioner. Similar to normal conjugate gradient, the SpMV "
-            "done once per iteration reduces complexity from O(n^2) to O(nnz). "
-            "Furthermore, the sparse block Jacobi preconditioner avoids filling "
-            "in all the 0s around the blocks, which prevents memory overhead "
-            "and keeps the per-iteration block solve cost proportional to the "
-            "block size instead of the full matrix dimension."
+            "Hand-written code modelling the algorithm structure outlined in "
+            'https://www.netlib.org/templates/templates.pdf Page 13. "The '
+            "preconditioned conjugate gradient method is well established for solving "
+            "linear systems of equations that arise from the discretization of partial "
+            "differential equations. Point and block Jacobi preconditioning are both "
+            'common preconditioning techniques." Sparsity enhances the functionality '
+            "of both the solver and the preconditioner. Similar to normal conjugate "
+            "gradient, the SpMV done once per iteration reduces complexity from O(n^2) "
+            "to O(nnz). Furthermore, the sparse block Jacobi preconditioner avoids "
+            "filling in all the 0s around the blocks, which prevents memory overhead "
+            "and keeps the per-iteration block solve cost proportional to the block "
+            "size instead of the full matrix dimension."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"The solver stops once the residual $\|b - Ax\|$ drops below a tolerance, "
+            "so we check that the result passes the same test under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

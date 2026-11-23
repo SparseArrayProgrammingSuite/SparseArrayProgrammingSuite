@@ -114,6 +114,7 @@ def test_particle_sim_benchmark_registers_synthetic_generator():
     ] == [
         "particle_simulation_test",
         "particle_simulation_cs267",
+        "particle_simulation_lyon",
         "particle_simulation_ewap",
         "particle_simulation_nemo",
     ]

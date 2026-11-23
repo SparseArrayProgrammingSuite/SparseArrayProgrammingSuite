@@ -7,6 +7,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,8 +15,17 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
+    ReferenceDataset,
+    ReferenceGenerator,
     ShellBenchmark,
+)
+from saps.benchmarks.mccomp_pool_instance import (
+    MCCOMP_POOL_MODEL_COUNTING_INSTANCES,
+    MCCompPoolDataset,
+    MCCompPoolInstanceGenerator,
+    fetch_mccomp_pool_instance,
 )
 from saps.codegen import (
     constant_function_source,
@@ -60,18 +70,25 @@ def clauses_to_einsum(clauses):
 
 
 def referenceModelCount(num_vars: int, clauses: list[list[int]]) -> int:
-    """Count satisfying assignments by enumerating all ``2**num_vars`` of them.
+    """Count the assignments of ``num_vars`` variables that satisfy ``clauses``.
 
-    Row ``i`` of ``assignments`` sets variable ``v`` to bit ``v - 1`` of ``i``.
-    An empty clause is unsatisfiable, and no clauses leaves every row satisfied.
+    PySDD compiles the conjunction of clauses into a sentential decision diagram
+    and counts its models exactly, over every variable its manager declares. An
+    empty clause is unsatisfiable, and no clauses leaves every assignment
+    satisfied.
     """
-    assignments = (np.arange(2**num_vars)[:, None] >> np.arange(num_vars)) & 1
-    satisfied = np.ones(2**num_vars, dtype=bool)
+    from pysdd.sdd import SddManager
+
+    # A manager needs at least one variable, so declare one that no clause
+    # uses; it doubles the count.
+    manager = SddManager(num_vars + 1, False)
+    formula = manager.true()
     for clause in clauses:
-        literals = np.asarray(clause, dtype=np.int64)
-        values = assignments[:, np.abs(literals) - 1].astype(bool) ^ (literals < 0)
-        satisfied &= values.any(axis=1)
-    return int(satisfied.sum())
+        disjunction = manager.false()
+        for literal in clause:
+            disjunction = disjunction | manager.literal(literal)
+        formula = formula & disjunction
+    return formula.global_model_count() // 2
 
 
 class ModelCountingTestDataset(Dataset):
@@ -167,8 +184,12 @@ class ModelCountingTestGenerator(
         Generative AI was used to debug code. This statement was written by hand."""
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses a predefined set of formulas to verify correctness."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -311,6 +332,8 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
 
     @property
     def suites(self) -> list[str]:
+        # De-listed: the MC 2025 test instances have no license (see
+        # licenses.MCCOMP_TEST_INSTANCES), so this isn't in the cached shell suite.
         return []
 
     @property
@@ -337,12 +360,16 @@ class MCCompInstanceGenerator(Generator[MCCompDataset]):
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Model counting competition instances provide standard CNF inputs "
             "for evaluating exact, projected, weighted, and algebraic counting "
             "workloads."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_TEST_INSTANCES
 
     @property
     def datasets(self) -> list[MCCompDataset]:
@@ -443,27 +470,32 @@ class ModelCountingMCCompGenerator(_MCFunctionGenerator, Generator[MCCompDataset
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Track1 instances have exact integer model counts, so they can be "
             "run by the existing unweighted model-counting einsum benchmark."
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_TEST_INSTANCES
+
+    @property
     def datasets(self) -> list[MCCompDataset]:
+        # De-listed: the MC 2025 test instances have no license (see
+        # licenses.MCCOMP_TEST_INSTANCES), so these are in no cached suite, nor
+        # trace or train.
         return [
-            MCCompDataset("Track1_MC/random_mc_1", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_2", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_3", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_4", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_5", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_6", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_7", suites=["standard", "trace"]),
-            MCCompDataset("Track1_MC/random_mc_8", suites=["standard", "trace"]),
-            MCCompDataset(
-                "Track1_MC/random_mc_9", suites=["standard", "trace", "train"]
-            ),
-            MCCompDataset("Track1_MC/random_mc_10", suites=["standard", "trace"]),
+            MCCompDataset("Track1_MC/random_mc_1", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_2", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_3", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_4", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_5", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_6", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_7", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_8", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_9", suites=[]),
+            MCCompDataset("Track1_MC/random_mc_10", suites=[]),
         ]
 
     def generate(self, dataset: MCCompDataset):
@@ -534,6 +566,153 @@ def parse_mccomp_exact(cnf_text: str) -> tuple[str | None, str | None]:
     return None, None
 
 
+class ModelCountingMCCompPoolGenerator(
+    _MCFunctionGenerator, Generator[MCCompPoolDataset]
+):
+    @property
+    def name(self) -> str:
+        return "model_counting_mccomp_pool"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Model Counting MCComp Pool"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Counts the models of the small Track 1 instances in the Model "
+            "Counting Competition 2020-2024 archives."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return MCCompPoolInstanceGenerator().references
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def notes(self) -> str:
+        return (
+            "Formulas from the applications that the Model Counting Competitions "
+            "collected, small enough that a dense evaluation of the counting "
+            "einsum finishes."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.MCCOMP_POOL
+
+    @property
+    def cacheable(self) -> bool:
+        # The instances come from the cached shell generator and the counts from
+        # the cached reference generator.
+        return False
+
+    @property
+    def datasets(self) -> list[MCCompPoolDataset]:
+        # m3_d5_n24_jdp_0 traces and trains the benchmark: 24 variables, 39
+        # clauses and 682,889 models, from the MC 2024 submission that the
+        # competition's mc2024_track1_186 to mc2024_track1_190 come from.
+        return [
+            MCCompPoolDataset(
+                dataset.source_path,
+                suites=(
+                    ["trace", "train"]
+                    if dataset.source_path
+                    == "mc2024-track1-mc_collected/MC2024_Track1_Set6_Pehousek_"
+                    "2024-02-16/plain/m3_d5_n24_jdp_0.cnf.xz"
+                    else []
+                ),
+            )
+            for dataset in MCCOMP_POOL_MODEL_COUNTING_INSTANCES
+        ]
+
+    def generate(self, dataset: MCCompPoolDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = ModelCountingMCCompPoolReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        assert reference.ref_meta is not None
+        problem.meta["expected_result"] = reference.ref_meta["reference_count"]
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+    def generate_inputs(self, dataset: MCCompPoolDataset) -> DataInstance:
+        raw = fetch_mccomp_pool_instance(dataset.source_path)
+        num_vars, clauses = parse_dimacs(to_numpy(raw.inputs[0]).tobytes().decode())
+        return DataInstance(
+            inputs=[from_numpy(np.asarray([0, 1], dtype=np.int64))],
+            meta={
+                "expr": clauses_to_einsum(clauses),
+                "num_vars": num_vars,
+                "default_total": 2**num_vars,
+                "source_generator": MCCompPoolInstanceGenerator().name,
+                "source_path": dataset.source_path,
+                "source_num_clauses": len(clauses),
+            },
+        )
+
+
+class ModelCountingMCCompPoolReferenceGenerator(ReferenceGenerator[MCCompPoolDataset]):
+    @property
+    def name(self) -> str:
+        return "model_counting_mccomp_pool_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Model Counting MCComp Pool Reference"
+
+    @property
+    def description(self) -> str:
+        return (
+            "PySDD model counts for Model Counting MCComp Pool, cached apart from "
+            "its inputs."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return ModelCountingMCCompPoolGenerator().license
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[MCCompPoolDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in ModelCountingMCCompPoolGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[MCCompPoolDataset]) -> DataInstance:
+        raw = fetch_mccomp_pool_instance(dataset.dataset.source_path)
+        num_vars, clauses = parse_dimacs(to_numpy(raw.inputs[0]).tobytes().decode())
+        count = referenceModelCount(num_vars, clauses)
+        return DataInstance(
+            inputs=[],
+            meta={},
+            ref_outputs=[from_numpy(np.asarray(count, dtype=np.int64))],
+            ref_meta={"reference_count": count},
+        )
+
+
+class ModelCountingMCCompPoolReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return ModelCountingMCCompPoolReferenceGenerator()
+
+
 class ModelCountingBenchmark(Benchmark):
     @property
     def name(self):
@@ -544,8 +723,12 @@ class ModelCountingBenchmark(Benchmark):
         return "Model Counting"
 
     @property
-    def description(self):
-        return "Benchmarks Model Counting Algorithm using einsum operations."
+    def description(self) -> str:
+        return (
+            "Counts the satisfying assignments of a SAT problem with a straightforward "
+            "brute-force reduction to an einsum over the clauses, in which each "
+            r"variable is an index into a 0-1 vector~\cite{dudek_efficient_2020}."
+        )
 
     @property
     def suites(self):
@@ -587,15 +770,28 @@ class ModelCountingBenchmark(Benchmark):
             Generative AI was used to debug code. This statement was written by hand."""
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Model Counting is used to determine the total number of satisfying"
-            " assignments for a SAT problem."
+            "Benchmarks Model Counting Algorithm using einsum operations. Model "
+            "Counting is used to determine the total number of satisfying assignments "
+            "for a SAT problem."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Counts are integers, so we check them exactly against each instance's "
+            "stored count, which we first check against an independent brute-force "
+            "count."
         )
 
     @property
     def generators(self) -> list[Generator[Any]]:
-        return [ModelCountingTestGenerator(), ModelCountingMCCompGenerator()]
+        return [
+            ModelCountingTestGenerator(),
+            ModelCountingMCCompGenerator(),
+            ModelCountingMCCompPoolGenerator(),
+        ]
 
     def benchmark(self, xp, meta):
         raise NotImplementedError(
@@ -612,15 +808,15 @@ class ModelCountingBenchmark(Benchmark):
             return
         result = int(to_numpy(self._output[0]))
         expected = int(to_numpy(self._ref_outputs[0]))
-        # The stored count is typed in or parsed from the instance file, so check
-        # it against an independent brute-force count before trusting it.
+        # The stored count may be typed in or parsed from the instance file, so
+        # check it against an independent PySDD count before trusting it.
         assert self._ref_meta is not None, (
-            "No NumPy reference count; regenerate the cached dataset"
+            "No PySDD reference count; regenerate the cached dataset"
         )
         reference = self._ref_meta["reference_count"]
         assert expected == reference, (
             f"Test '{param.dataset.name}' has stored count {expected}, but the "
-            f"NumPy brute-force reference counts {reference}"
+            f"PySDD reference counts {reference}"
         )
         assert result == expected, (
             f"Test '{param.dataset.name}' failed: expected {expected}, got {result}"

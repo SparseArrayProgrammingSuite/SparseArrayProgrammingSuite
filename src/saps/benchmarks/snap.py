@@ -10,11 +10,13 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -471,7 +473,8 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return []
+        # --cache-datasets prepares the shell suite.
+        return ["shell"]
 
     @property
     def concepts(self) -> str:
@@ -490,8 +493,12 @@ class SNAPGraphGenerator(Generator[SNAPDataset]):
         return "This shell generator was written with assistance from OpenAI Codex."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Reuse prepared SuiteSparse SNAP matrices across graph benchmarks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[SNAPDataset]:

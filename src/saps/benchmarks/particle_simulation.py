@@ -8,6 +8,7 @@ from scipy.sparse import csr_array
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,13 +16,15 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
 from saps.downloaders.ewap import download_ewap_dataset
-from saps.downloaders.nemo import download_nemo_dataset
+from saps.downloaders.lyon import download_lyon_dataset
+from saps.downloaders.nemo import load_saps_nemo_dataset
 from saps.util.interval import Interval, add, maximum, minimum
 
 
@@ -301,13 +304,17 @@ class ParticleSimulationTestGenerator(Generator[ParticleSimulationDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "Provide small particle examples for benchmark correctness checks while "
             "exercising the same CS267-derived cutoff, minimum-radius softening, "
             "time step, and unit gravitational constant used by the synthetic and "
-            "EWAP repulsive-force datasets."
+            "pedestrian repulsive-force datasets."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -528,7 +535,7 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "The CS267 homework initializes particles on a shuffled regular grid "
             "with random velocities so baseline implementations can focus on the "
@@ -537,6 +544,10 @@ class ParticleSimulationCS267Generator(Generator[ParticleSimulationCS267Dataset]
             "so the benchmark can share one radius-regularization parameter across "
             "repulsive and gravitational datasets."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[ParticleSimulationCS267Dataset]:
@@ -649,6 +660,10 @@ class ParticleSimulationCS267ReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return ParticleSimulationCS267Generator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[ParticleSimulationCS267Dataset]]:
         return [
             ReferenceDataset(dataset)
@@ -758,7 +773,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "Pedestrian trajectories provide real-world 2D interaction data that can "
             "exercise the particle simulation benchmark without changing the source "
@@ -769,7 +784,14 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.EWAP
+
+    @property
     def datasets(self) -> list[ParticleSimulationEWAPDataset]:
+        # De-listed: the EWAP data has no license (see licenses.EWAP), so it's in
+        # no suite and isn't run or cached. ParticleSimulationLyonGenerator
+        # replaces it.
         return [
             ParticleSimulationEWAPDataset(
                 name="seq_eth",
@@ -790,7 +812,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
                     "The force parameters are the CS267-style repulsive benchmark "
                     "constants because EWAP does not provide simulation constants."
                 ),
-                suites=["standard", "trace"],
+                suites=[],
             ),
             ParticleSimulationEWAPDataset(
                 name="seq_hotel",
@@ -811,7 +833,7 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
                     "The force parameters are the CS267-style repulsive benchmark "
                     "constants because EWAP does not provide simulation constants."
                 ),
-                suites=["standard", "trace"],
+                suites=[],
             ),
         ]
 
@@ -820,18 +842,167 @@ class ParticleSimulationEWAPGenerator(Generator[ParticleSimulationEWAPDataset]):
             dataset.scene,
             num_steps=dataset.num_steps,
         )
-        meta["parameters"] = dataset.parameters
-        x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
-        bounds = particle_sim_bounds(
-            x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], dataset.parameters
+        return _pedestrian_instance(inputs, meta, dataset.parameters)
+
+
+def _pedestrian_instance(inputs, meta, parameters) -> DataInstance:
+    meta["parameters"] = parameters
+    x, y, z, vx, vy, vz, mass = (to_numpy(a) for a in inputs)
+    bounds = particle_sim_bounds(
+        x, y, z, vx, vy, vz, mass, meta["size"], meta["steps"], parameters
+    )
+    return DataInstance(
+        inputs=inputs,
+        meta=meta,
+        # Every output's lower bound, then every output's upper bound.
+        ref_outputs=[from_numpy(bound.lo) for bound in bounds]
+        + [from_numpy(bound.hi) for bound in bounds],
+    )
+
+
+class ParticleSimulationLyonDataset(ParticleSimulationDataset):
+    def __init__(
+        self,
+        sequence: str,
+        num_steps: int,
+        description: str,
+        parameters: dict[str, Any],
+        suites: list[str],
+    ):
+        super().__init__(
+            name=sequence,
+            num_steps=num_steps,
+            pretty_name=sequence.replace("_", " "),
+            description=description,
+            suites=suites,
+            tags=["physics", "simulation", "sparse", "pedestrian", "lyon"],
+            parameters=parameters,
         )
-        return DataInstance(
-            inputs=inputs,
-            meta=meta,
-            # Every output's lower bound, then every output's upper bound.
-            ref_outputs=[from_numpy(bound.lo) for bound in bounds]
-            + [from_numpy(bound.hi) for bound in bounds],
+        self._sequence = sequence
+
+    @property
+    def sequence(self) -> str:
+        return self._sequence
+
+    @property
+    def metadata(self) -> dict[str, Any]:
+        data = super().metadata
+        data["source_sequence"] = self.sequence
+        return data
+
+
+class ParticleSimulationLyonGenerator(Generator[ParticleSimulationLyonDataset]):
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    @property
+    def name(self) -> str:
+        return "particle_simulation_lyon"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Particle Simulation Lyon"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Loads pedestrian trajectories from the 2022 Festival of Lights in Lyon "
+            "as particle initial conditions: the crowd at a sequence's most "
+            "crowded frame, with each pedestrian's velocity over the 0.4 s around "
+            "it. The data supplies positions only, so this generator uses the same "
+            "CS267-style "
+            "repulsive parameters as the synthetic dataset: cutoff 0.01, softening "
+            "0.0001, dt 0.0005, G 1.0, and scalar mass tensor 0.01."
         )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def tags(self) -> list[str]:
+        return ["physics", "particle-simulation", "sparse", "pedestrian", "lyon"]
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            licenses.LYON_FESTIVAL_OF_LIGHTS.ref,
+            Ref(
+                title=(
+                    "Dense Crowd Dynamics and Pedestrian Trajectories: A Multiscale "
+                    "Field Dataset from the Festival of Lights in Lyon"
+                ),
+                authors=licenses.LYON_FESTIVAL_OF_LIGHTS.ref.authors,
+                journal="Scientific Data",
+                volume=12,
+                pages="718",
+                year=2025,
+                doi="10.1038/s41597-025-04732-3",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def notes(self):
+        return (
+            "Dense crowd trajectories provide real-world 2D interaction data that "
+            "can exercise the particle simulation benchmark without changing the "
+            "source coordinate scale. Because the source data is not a physical "
+            "N-body snapshot, the interaction parameters mirror the CS267-derived "
+            "repulsive-force setup rather than being inferred from the trajectories."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.LYON_FESTIVAL_OF_LIGHTS
+
+    @property
+    def datasets(self) -> list[ParticleSimulationLyonDataset]:
+        parameters = {
+            "force_model": "cs267_repulsive",
+            "boundary_model": "periodic_box",
+            "cutoff": 0.01,
+            "softening": 0.0001,
+            "dt": 0.0005,
+            "gravitational_constant": 1.0,
+        }
+        return [
+            ParticleSimulationLyonDataset(
+                sequence=sequence,
+                num_steps=50,
+                description=(
+                    f"The {n} pedestrians in the most crowded frame of the Lyon "
+                    f"Festival of Lights {view}, in source coordinates, with z "
+                    "and vz set to 0. The force parameters are the CS267-style "
+                    "repulsive benchmark constants because the data does not "
+                    "provide simulation constants."
+                ),
+                parameters=parameters,
+                suites=["standard", "trace"],
+            )
+            for sequence, n, view in (
+                ("LargeView_zoom_O", 595, "wide CCTV view LargeView_zoom_O"),
+                ("TopView_2B", 122, "top-view sequence TopView_2B"),
+            )
+        ]
+
+    def generate(self, dataset: ParticleSimulationLyonDataset):
+        inputs, meta = download_lyon_dataset(
+            dataset.sequence, num_steps=dataset.num_steps
+        )
+        return _pedestrian_instance(inputs, meta, dataset.parameters)
 
 
 class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
@@ -850,8 +1021,10 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
     @property
     def description(self) -> str:
         return (
-            "Loads real-world initial conditions for particle simulation benchmarks. "
-            "NEMO datasets use source mass columns, unscaled archive coordinates, "
+            "Loads initial conditions that SAPS generated with NEMO "
+            "(scripts/generate_nemo_particles.py): Plummer spheres and a Milky "
+            "Way/M31 collision of Kuijken-Dubinski disk-bulge-halo galaxies. "
+            "NEMO datasets use source mass columns, unscaled source coordinates, "
             "Newtonian gravity with G 1.0 in N-body units, dt 1/32, softening 0.05, "
             "and short interaction bucket widths chosen to exercise sparse workloads "
             "rather than accurately approximate full gravitational forces."
@@ -897,7 +1070,17 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 year=1911,
             ),
             Ref(
-                title="The return of the tidal tails in NGC 7252",
+                title="Nearly self-consistent disc-bulge-halo models for galaxies",
+                authors=[Author("Konrad Kuijken"), Author("John Dubinski")],
+                journal="Monthly Notices of the Royal Astronomical Society",
+                volume=277,
+                number=4,
+                pages="1341-1353",
+                year=1995,
+                doi="10.1093/mnras/277.4.1341",
+            ),
+            Ref(
+                title="Using Tidal Tails to Probe Dark Matter Halos",
                 authors=[
                     Author("John Dubinski"),
                     Author("J. Christopher Mihos"),
@@ -907,6 +1090,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 volume=462,
                 pages="576",
                 year=1996,
+                doi="10.1086/177174",
             ),
         ]
 
@@ -918,7 +1102,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
         )
 
     @property
-    def motivation(self):
+    def notes(self):
         return (
             "The particle simulation is used to model particle interaction present in"
             " mechanics, biology, astronomy, and other fields on a simplitic level. "
@@ -929,6 +1113,10 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
             "preserved source coordinates; they do not meet a physical "
             "force-error target."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS_NEMO
 
     @property
     def datasets(self) -> list[ParticleSimulationDataset]:
@@ -947,15 +1135,16 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 },
                 pretty_name="Plummer (N=128)",
                 description=(
-                    "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
-                    " using mass, position, and velocity columns. The dataset uses "
+                    "Plummer-model equilibrium snapshot generated with NEMO's "
+                    "mkplummer (seed 123), using mass, position, and velocity "
+                    "columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
                     "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
-                source_path="plummer/tab128.gz",
+                source_path="plummer_128.tab.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimulationDataset(
@@ -972,19 +1161,20 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 },
                 pretty_name="Plummer (N=1024)",
                 description=(
-                    "NEMO Plummer-model equilibrium snapshot generated with mkplummer,"
-                    " using mass, position, and velocity columns. The dataset uses "
+                    "Plummer-model equilibrium snapshot generated with NEMO's "
+                    "mkplummer (seed 123), using mass, position, and velocity "
+                    "columns. The dataset uses "
                     "source masses, G 1.0 N-body units, dt 1/32, softening 0.05, "
                     "and bucket width 0.2 to create a sparse gravity workload. "
                     "This cutoff is not a physically validated approximation."
                 ),
                 suites=["standard", "trace", "train"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
-                source_path="plummer/tab1024.gz",
+                source_path="plummer_1024.tab.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
             ParticleSimulationDataset(
-                name="dubinski_m31",
+                name="mw_m31",
                 n_particles=81920,
                 num_steps=10,
                 parameters={
@@ -995,10 +1185,12 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                     "softening": 0.05,
                     "gravitational_constant": 1.0,
                 },
-                pretty_name="Dubinski Milky Way/M31",
+                pretty_name="Milky Way/M31 Collision",
                 description=(
-                    "Dubinski Milky Way/Andromeda collision initial conditions from the"
-                    " NEMO archive, stored as mass and six phase-space coordinates. "
+                    "Milky Way/Andromeda collision initial conditions, set up like "
+                    "Dubinski, Mihos and Hernquist's (1996) model B from two "
+                    "Kuijken-Dubinski model B galaxies made with NEMO's mkkd95, "
+                    "stored as mass and six phase-space coordinates. "
                     "The dataset uses source masses, G 1.0 N-body units, dt 1/32, "
                     "softening 0.05, and bucket width 0.1 to create a sparse "
                     "gravity workload. This width is not a physically "
@@ -1006,7 +1198,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
                 ),
                 suites=["standard"],
                 tags=["physics", "simulation", "sparse", "astronomy", "n-body"],
-                source_path="dubinski/dubinski.tab.gz",
+                source_path="mw_m31.tab.gz",
                 source_columns=("mass", "x", "y", "z", "vx", "vy", "vz"),
             ),
         ]
@@ -1022,7 +1214,7 @@ class ParticleSimulationNEMOGenerator(Generator[ParticleSimulationDataset]):
     def generate_inputs(self, dataset: ParticleSimulationDataset) -> DataInstance:
         if dataset.source_path is None or dataset.source_columns is None:
             raise ValueError(f"Particle dataset {dataset.name} has no NEMO source")
-        inputs, meta = download_nemo_dataset(
+        inputs, meta = load_saps_nemo_dataset(
             dataset.source_path,
             columns=dataset.source_columns,
             wrap=dataset.source_wrap,
@@ -1054,6 +1246,10 @@ class ParticleSimulationNEMOReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return ParticleSimulationNEMOGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[ParticleSimulationDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -1083,16 +1279,14 @@ class ParticleSimulationBenchmark(Benchmark):
         return "Particle Simulation"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Benchmark implementation for Particule_Simulation_Algorithm using sparse"
-            " array operations. The cutoff parameter is the interaction radius and"
-            " the smallest cell width: forces ramp linearly to zero over the last 5%"
-            " of the cutoff radius, and only pairs whose cell indices differ by at"
-            " most one on every axis are evaluated. A periodic box wraps its cells"
-            " and pairs interact through their nearest periodic image. This"
-            " benchmark evaluates performance characteristics and numerical"
-            " properties."
+            "Simulates the behavior of particles in a system, integrating their "
+            "positions and velocities over time based on the forces acting on them. We "
+            "use a simple gravitational force model with a cutoff range and softening "
+            "factor. The cutoff makes the interaction between particles sparse. We "
+            "scatter particles into buckets, then interact only with particles in "
+            "neighboring buckets using a sparse stencil."
         )
 
     @property
@@ -1146,10 +1340,27 @@ class ParticleSimulationBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "The particle simulation is used to model particle interaction present in"
-            " mechanics, biology, astronomy, and other fields on a simplitic level."
+            "Benchmark implementation for Particule_Simulation_Algorithm using sparse "
+            "array operations. The cutoff parameter is the interaction radius and the "
+            "smallest cell width: forces ramp linearly to zero over the last 5% of the "
+            "cutoff radius, and only pairs whose cell indices differ by at most one on "
+            "every axis are evaluated. A periodic box wraps its cells and pairs "
+            "interact through their nearest periodic image. This benchmark evaluates "
+            "performance characteristics and numerical properties. The particle "
+            "simulation is used to model particle interaction present in mechanics, "
+            "biology, astronomy, and other fields on a simplitic level."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"Forces ramp linearly to zero over the last 5\% of the cutoff radius, so "
+            "they stay continuous as pairs move out of range, and we check that every "
+            "position and velocity lies within interval bounds that contain every "
+            "float64 evaluation of the simulation under any floating-point "
+            r"reassociation or fused multiply-add~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property
@@ -1157,6 +1368,7 @@ class ParticleSimulationBenchmark(Benchmark):
         return [
             ParticleSimulationTestGenerator(),
             ParticleSimulationCS267Generator(),
+            ParticleSimulationLyonGenerator(),
             ParticleSimulationEWAPGenerator(),
             ParticleSimulationNEMOGenerator(),
         ]

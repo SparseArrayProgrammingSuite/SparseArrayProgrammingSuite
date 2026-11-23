@@ -1,8 +1,9 @@
 import os
 
-import requests  # type: ignore[import-untyped]
 import ssgetpy.matrix as ssm
 from ssgetpy import bundle
+
+from saps import ssgetpy_mirrors
 
 _CHUNK_SIZE = 16 * 1024
 
@@ -25,9 +26,9 @@ def _patched_ssget_download(self, format="MM", destpath=None, extract=False):
         # Create the destination path if necessary
         os.makedirs(destpath, exist_ok=True)
 
-        response = requests.get(self.url(format), stream=True)
-        # Otherwise an error page is saved as the archive and fails to extract.
-        response.raise_for_status()
+        # Raises on an error status from every mirror; otherwise an error page
+        # would be saved as the archive and fail to extract.
+        response = ssgetpy_mirrors.get(self.url(format), stream=True)
 
         with open(localdest, "wb") as outfile:
             for chunk in response.iter_content(chunk_size=_CHUNK_SIZE):

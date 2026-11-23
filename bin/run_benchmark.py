@@ -43,6 +43,15 @@ logging.basicConfig(level=logging.INFO)
 # freshness covers.)
 EXIT_STATUS_PREFIX = "saps: exit status "
 
+# --cache-datasets prepares only datasets in these suites, by their own tag or
+# one inherited from their generator or benchmark. Shell benchmarks are in the
+# shell suite, so the shared data that other datasets read is prepared too. A
+# dataset in none of them, such as one de-listed for its license, is never
+# cached or uploaded. standard-long stays out unless selected with --tag.
+CACHED_SUITE_TAGS = frozenset(
+    {"suite-standard", "suite-standard-long", "suite-shell", "suite-test"}
+)
+
 
 def report_exit_statuses(spawner):
     """Make an ASV spawner append each failing process's exit status to its output.
@@ -905,6 +914,8 @@ def main() -> int:
             _benchmark: dict, generator: dict, dataset: dict, _dataset_number: int
         ) -> bool:
             if not generator["cacheable"]:
+                return False
+            if CACHED_SUITE_TAGS.isdisjoint(dataset["tags"]):
                 return False
             manifest_key = dataset["asv_param"]
             record = manifest.get(manifest_key)

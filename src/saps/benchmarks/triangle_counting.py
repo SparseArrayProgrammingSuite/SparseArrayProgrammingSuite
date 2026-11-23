@@ -5,6 +5,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -12,6 +13,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.gap import fetch_gap_graph
@@ -98,8 +100,12 @@ class TriangleCountingTestGenerator(Generator[TriangleCountingDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for triangle-count correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -266,8 +272,12 @@ class TriangleCountingSNAPGenerator(Generator[TriangleCountingDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse graph inputs for triangle counting."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -472,8 +482,12 @@ class TriangleCountingGAPGenerator(Generator[TriangleCountingDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP graph inputs for triangle counting."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -521,30 +535,38 @@ class TriangleCountingBenchmark(Benchmark):
         return "Triangle Counting"
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Adjacency matrices are often sparse, and are used as input in this"
-            " problem."
-            "'It is generally known that counting the exact number of"
-            "triangles in a graph G can be described using the language of"
-            "linear algebra as 1/6 Γ(A3),"
-            "where A is the adjacency matrix of the graph G, and Γ(X)"
-            "is the trace of the square matrix X [1]. Other linear algebra"
-            "approaches [2], [3] also require a sparse-matrix multiplication"
-            "of A or parts of A as part of their computation. Alternative"
-            "approaches that are not based on linear algebra leverage other"
-            "formats for describing graphs such as the adjacency list to"
-            "design their algorithms [4], [5].'"
-            "'...the shortcut method of computing a power of a [adjacency] matrix,"
-            "is isomorphic to a similar shortcut for ﬁnding all shortest paths.'"
+            "Triangle Counting: Given the strict upper triangle A of a simple "
+            "undirected adjacency matrix, sum A[i,j] A[j,k] A[i,k]. Each triangle has "
+            "exactly one ordering i < j < k, so it is counted once. Adjacency matrices "
+            "are often sparse, and are used as input in this problem.'It is generally "
+            "known that counting the exact number oftriangles in a graph G can be "
+            "described using the language oflinear algebra as 1/6 Γ(A3),where A is the "
+            "adjacency matrix of the graph G, and Γ(X)is the trace of the square "
+            "matrix X [1]. Other linear algebraapproaches [2], [3] also require a "
+            "sparse-matrix multiplicationof A or parts of A as part of their "
+            "computation. Alternativeapproaches that are not based on linear algebra "
+            "leverage otherformats for describing graphs such as the adjacency list "
+            "todesign their algorithms [4], [5].''...the shortcut method of computing "
+            "a power of a [adjacency] matrix,is isomorphic to a similar shortcut for "
+            "ﬁnding all shortest paths.'"
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Counts are integers, so we check them exactly. This allows filtering and "
+            "iteration strategies such as worst-case optimal joins."
         )
 
     @property
     def description(self) -> str:
         return (
-            "Triangle Counting: Given the strict upper triangle A of a simple"
-            " undirected adjacency matrix, sum A[i,j] A[j,k] A[i,k]. Each triangle"
-            " has exactly one ordering i < j < k, so it is counted once."
+            r"Counts triangles as $\sum_{ijk} A_{ij}A_{jk}A_{ik}$ for a strictly "
+            "upper-triangular adjacency matrix $A$. This is a cyclic query, so there "
+            "is no easy way to factor or reorder it without substantially increasing "
+            "intermediate memory."
         )
 
     @property

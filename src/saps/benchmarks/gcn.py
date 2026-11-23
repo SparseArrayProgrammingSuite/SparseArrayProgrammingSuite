@@ -6,6 +6,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,12 +14,14 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
-from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
+from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset, ogb_license
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps.downloaders.ogb import normalized_undirected_adjacency
 
@@ -105,6 +108,10 @@ class GCNOGBDataset(Dataset):
     @property
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return ogb_license(self.source_name)
 
     @property
     def metadata(self) -> dict[str, Any]:
@@ -206,8 +213,12 @@ class GCNTestGenerator(Generator[GCNDataset]):
         return GCNBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small graph examples to verify the GCN forward pass."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -363,7 +374,7 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Graphs are widely used for abstracting systems of interacting objects,"
             " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
@@ -375,6 +386,10 @@ class GCNSuiteSparseGenerator(Generator[GCNDataset]):
             " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
             " matrix is used, which is inherently sparse."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -498,6 +513,10 @@ class GCNSuiteSparseReferenceGenerator(ReferenceGenerator[GCNDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return GCNSuiteSparseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[GCNDataset]]:
         return [
             ReferenceDataset(dataset) for dataset in GCNSuiteSparseGenerator().datasets
@@ -562,13 +581,17 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Uses complete real-world node features and graph structure from the "
             "Open Graph Benchmark instead of synthesized GCN inputs. SAPS caches the "
             "exact float64 reference output, which is costly to compute on these "
             "large graphs, apart from the inputs the OGB shell already caches."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OGB_NODEPROP
 
     @property
     def cacheable(self) -> bool:
@@ -593,7 +616,9 @@ class GCNOGBGenerator(Generator[GCNOGBDataset]):
                     "Amazon product co-purchasing network for large-scale "
                     "node-property prediction."
                 ),
-                suites=["standard", "trace", "train"],
+                # De-listed: ogbn-products is not redistributable (see
+                # licenses.OGBN_PRODUCTS).
+                suites=[],
             ),
             GCNOGBDataset(
                 "ogbn-proteins",
@@ -661,8 +686,17 @@ class GCNOGBReferenceGenerator(ReferenceGenerator[GCNOGBDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return GCNOGBGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[GCNOGBDataset]]:
-        return [ReferenceDataset(dataset) for dataset in GCNOGBGenerator().datasets]
+        # ogbn-products is de-listed, so its reference isn't cached either.
+        return [
+            ReferenceDataset(dataset)
+            for dataset in GCNOGBGenerator().datasets
+            if dataset.name != "ogbn-products"
+        ]
 
     def generate(self, dataset: ReferenceDataset[GCNOGBDataset]) -> DataInstance:
         adjacency, *dense = GCNOGBGenerator().generate_inputs(dataset.dataset).inputs
@@ -695,10 +729,10 @@ class GCNBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Computes a 2-layer Graph Convolutional Network forward pass: "
-            "h1 = ReLU(adjacency @ features @ weights1 + bias1) "
-            "output = adjacency @ h1 @ weights2 + bias2 "
-            "Implementation based on Scorch (Yan et al., 2024)."
+            "Computes the forward pass of a two-layer graph convolutional network, $H "
+            r"= \mathrm{ReLU}(\hat{A} X W_1 + b_1)$ and $Y = \hat{A} H W_2 + b_2$, "
+            r"where $\hat{A}$ is the normalized adjacency matrix, $X$ holds the node "
+            "features, and $W_i$ and $b_i$ are weights and biases."
         )
 
     @property
@@ -784,17 +818,28 @@ class GCNBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Graphs are widely used for abstracting systems of interacting objects,"
-            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
-            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
-            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
-            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
-            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
-            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
-            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
-            " matrix is used, which is inherently sparse."
+            "Computes a 2-layer Graph Convolutional Network forward pass: h1 = "
+            "ReLU(adjacency @ features @ weights1 + bias1) output = adjacency @ h1 @ "
+            "weights2 + bias2 Implementation based on Scorch (Yan et al., 2024). "
+            "Graphs are widely used for abstracting systems of interacting objects, "
+            "such as social networks (Easley et al., 2010), knowledge graphs (Nickel "
+            "et al., 2015), molecular graphs (Wu et al., 2018), and biological "
+            "networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects "
+            "(Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and "
+            "source code (Allamanis et al., 2017). Machine learning (ML), especially "
+            "deep learning, on graphs is an emerging field (Hamilton et al., 2017b; "
+            "Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny "
+            "matrix is used, which is inherently sparse."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Inference runs in float32, so we check that each output lies within 8 "
+            "standard deviations of its float64 reference, as predicted by "
+            r"probabilistic rounding error analysis~\cite{higham_new_2019}."
         )
 
     @property

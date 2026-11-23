@@ -7,12 +7,14 @@ import sparse as pydata_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import (
@@ -94,8 +96,12 @@ class JacobiTestGenerator(Generator[JacobiDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small inlined linear systems to verify solver correctness."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -193,12 +199,16 @@ class JacobiSuiteSparseGenerator(Generator[JacobiDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Data collected from SuiteSparse Matrix Collection consisting of symmetric"
             " positive definite matrices whose Jacobi iteration matrices have spectral"
             " radius < 1."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -727,7 +737,12 @@ class JacobiBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return "Solves linear systems using the Jacobi iterative method."
+        return (
+            "Solves diagonally dominant linear systems with the Jacobi iterative "
+            "method. Repeatedly updates x with the residual divided by the diagonal of "
+            "A. Jacobi steps are typically cheap, and have less dependencies between "
+            "iterations than CG."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -790,10 +805,19 @@ class JacobiBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Sparsity makes the Jacobi method efficient because each update only needs "
-            "to access the nonzero entries, reducing complexity from O(mn) to O(nnz)"
+            "Solves linear systems using the Jacobi iterative method. Sparsity makes "
+            "the Jacobi method efficient because each update only needs to access the "
+            "nonzero entries, reducing complexity from O(mn) to O(nnz)"
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"The solver stops once the residual $\|b - Ax\|$ drops below a tolerance, "
+            "so we check that the result passes the same test under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

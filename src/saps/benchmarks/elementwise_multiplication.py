@@ -3,6 +3,7 @@ import numpy as np
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -10,6 +11,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.benchmarks.suitesparse import fetch_suitesparse_matrix
@@ -94,8 +96,12 @@ class ElementwiseMultiplicationDenseGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate dense matrices for elementwise multiplication."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -277,7 +283,7 @@ class ElementwiseMultiplicationSuiteSparseGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate real sparse matrices for elementwise multiplication, each "
             "paired with a matrix sharing a controlled fraction of its nonzero "
@@ -285,6 +291,10 @@ class ElementwiseMultiplicationSuiteSparseGenerator(Generator):
             "size unpredictable; the matrices themselves are not from PASTA, "
             "whose datasets are sparse tensors."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -437,7 +447,7 @@ class ElementwiseMultiplicationUniformRandomGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate uniform random element-wise inputs whose nonzero patterns "
             "overlap by a controlled fraction, spanning PASTA's two cases: "
@@ -445,6 +455,10 @@ class ElementwiseMultiplicationUniformRandomGenerator(Generator):
             "advance, and operands whose patterns differ, where it is not. The "
             "overlap parameterisation follows PASTA; the inputs are synthetic."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -499,16 +513,24 @@ class ElementwiseMultiplicationBenchmark(Benchmark):
         return "Elementwise Multiplication"
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Elementwise multiplication is a fundamental operator in array "
-            "programming and it is widely used in almost every sparse array "
-            "application. "
+            "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij "
+            "Elementwise multiplication is a fundamental operator in array programming "
+            "and it is widely used in almost every sparse array application."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Each output entry is one rounded product, so we check entries to an "
+            r"absolute error of $\gamma_1 \max_{ij} |A_{ij} B_{ij}|$, where $\gamma_n = "
+            r"n\epsilon/(1 - n\epsilon)$ for machine epsilon $\epsilon$."
         )
 
     @property
     def description(self) -> str:
-        return "The elementwise multiplication of two matrices. C_ij = A_ij * B_ij"
+        return "Multiplies two matrices elementwise, $C_{ij} = A_{ij} B_{ij}$."
 
     @property
     def suites(self) -> list[str]:

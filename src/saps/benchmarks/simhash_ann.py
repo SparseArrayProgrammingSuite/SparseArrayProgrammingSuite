@@ -8,18 +8,23 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy, to_sparse
 
+from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Benchmark,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
+from saps.benchmarks.goodbooks import fetch_goodbooks_matrix
 from saps.benchmarks.netflixprize import fetch_netflixprize_matrix
 from saps.benchmarks.openml import fetch_openml_train_test_features
 
@@ -343,7 +348,7 @@ class _SimHashANNRandomGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Random hyperplane hashing (SimHash) is a fundamental primitive "
             "in locality-sensitive hashing and randomized numerical linear "
@@ -375,7 +380,7 @@ class _SimHashANNTestGeneratorMixin(_SimHashANNRandomGeneratorMixin):
         return "<ccs2012></ccs2012>"
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide a small SimHash ANN example for benchmark correctness checks."
 
     @property
@@ -396,6 +401,7 @@ class SimHashANNDataset(Dataset):
         candidate_target: int,
         target_probability: float,
         pretty_name: str | None = None,
+        license: License | None | Inherit = INHERIT,
     ):
         self._source_name = source_name
         self._pretty_name = pretty_name or source_name
@@ -407,10 +413,15 @@ class SimHashANNDataset(Dataset):
         self.max_projections = max_projections
         self.candidate_target = candidate_target
         self.target_probability = target_probability
+        self._license = license
 
     @property
     def name(self) -> str:
         return self._source_name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def pretty_name(self) -> str:
@@ -597,10 +608,19 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
                 doi="10.1109/5.726791",
             ),
             Ref(
-                title="Learning Multiple Layers of Features from Tiny Images",
-                authors=[Author("Alex Krizhevsky")],
-                year=2009,
-                url="https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf",
+                title=(
+                    "Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine "
+                    "Learning Algorithms"
+                ),
+                authors=[
+                    Author("Han Xiao"),
+                    Author("Kashif Rasul"),
+                    Author("Roland Vollgraf"),
+                ],
+                journal="Arxiv",
+                volume="arXiv:1708.07747",
+                year=2017,
+                url="https://arxiv.org/abs/1708.07747",
             ),
         ]
 
@@ -615,9 +635,9 @@ class _SimHashANNOpenMLGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "MNIST and CIFAR-10 provide dense image feature matrices from OpenML "
+            "MNIST and Fashion-MNIST provide dense image feature matrices from OpenML "
             "for approximate nearest-neighbor search."
         )
 
@@ -695,7 +715,7 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The Netflix Prize dataset provides a ~480K users × 17,770 movies sparse "
             f"ratings matrix, tested with {self.projection_kind} projections."
@@ -723,6 +743,78 @@ class _SimHashANNNetflixPrizeGeneratorMixin(SimHashANNGeneratorMixin):
         )
 
 
+class _SimHashANNGoodbooksGeneratorMixin(SimHashANNGeneratorMixin):
+    @property
+    def description(self) -> str:
+        return (
+            "Loads goodbooks-10k ratings for SimHash approximate nearest-neighbor. "
+            f"{self.projection_description} {self.tuning_description}"
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return [Contributor("Vilohith Gokarakonda", "vgokarakonda3@gatech.edu")]
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            *self.projection_references,
+            Ref(
+                title="goodbooks-10k",
+                authors=[Author("Zygmunt Zając")],
+                year=2017,
+                url="https://github.com/zygmuntz/goodbooks-10k",
+            ),
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return (
+            "The benchmark algorithm was supplied by its human authors, who "
+            "directed switching it from E2LSH bucketing to SimHash. "
+            "Generative AI implemented the SimHash redesign and assisted "
+            "with debugging array dimensions, generator refactoring, "
+            "parameter calibration, and tests."
+        )
+
+    @property
+    def notes(self) -> str:
+        return (
+            "goodbooks-10k provides a 53,424 users × 10,000 books sparse matrix of "
+            "one-to-five star ratings, tested with "
+            f"{self.projection_kind} projections."
+        )
+
+    @property
+    def cacheable(self) -> bool:
+        return False
+
+    def generate_inputs(self, dataset: SimHashANNDataset) -> DataInstance:
+        data, source_meta = fetch_goodbooks_matrix()
+
+        return self._inputs(
+            dataset,
+            data,
+            data,
+            source_meta={
+                "num_train": int(data.shape[0]),
+                "num_query": int(data.shape[0]),
+                "num_features": int(data.shape[1]),
+                "source_num_users": source_meta["num_users"],
+                "source_num_books": source_meta["num_books"],
+                "source_num_ratings": source_meta["num_ratings"],
+            },
+        )
+
+
 class SimHashANNTestDenseGenerator(
     _DenseProjectionMixin,
     _SimHashANNTestGeneratorMixin,
@@ -735,6 +827,10 @@ class SimHashANNTestDenseGenerator(
     @property
     def pretty_name(self) -> str:
         return "SimHash Approximate Nearest Neighbor (ANN) Test (Dense Projection)"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
@@ -774,6 +870,10 @@ class SimHashANNTestSparseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) Test (Sparse Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
             SimHashANNRandomDataset(
@@ -809,6 +909,10 @@ class SimHashANNRandomDenseGenerator(
     @property
     def pretty_name(self) -> str:
         return "SimHash Approximate Nearest Neighbor (ANN) Random (Dense Projection)"
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
@@ -885,6 +989,10 @@ class SimHashANNRandomSparseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) Random (Sparse Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.SAPS
+
+    @property
     def datasets(self) -> list[SimHashANNRandomDataset]:
         return [
             SimHashANNRandomDataset(
@@ -959,6 +1067,10 @@ class SimHashANNOpenMLDenseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Dense Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.OPENML
+
+    @property
     def datasets(self) -> list[SimHashANNDataset]:
         return [
             SimHashANNDataset(
@@ -972,19 +1084,36 @@ class SimHashANNOpenMLDenseGenerator(
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.MNIST,
             ),
             SimHashANNDataset(
-                "cifar10",
+                "fashion_mnist",
                 k=5,
                 eps=0.3,
                 seed=0,
                 suites=["standard"],
-                pretty_name="CIFAR-10",
+                pretty_name="Fashion-MNIST",
                 max_tables=64,
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.FASHION_MNIST,
             ),
+            # De-listed: CIFAR-10 has no license (see licenses.OPENML). It stays
+            # commented out because its reference would join the cached shell
+            # suite through this generator's reference shell.
+            # SimHashANNDataset(
+            #     "cifar10",
+            #     k=5,
+            #     eps=0.3,
+            #     seed=0,
+            #     suites=["standard"],
+            #     pretty_name="CIFAR-10",
+            #     max_tables=64,
+            #     max_projections=32,
+            #     candidate_target=100,
+            #     target_probability=0.9,
+            # ),
         ]
 
     def generate(self, dataset: SimHashANNDataset) -> DataInstance:
@@ -1011,6 +1140,10 @@ class SimHashANNOpenMLSparseGenerator(
         return "SimHash Approximate Nearest Neighbor (ANN) OpenML (Sparse Projection)"
 
     @property
+    def license(self) -> License | None:
+        return licenses.OPENML
+
+    @property
     def datasets(self) -> list[SimHashANNDataset]:
         return [
             SimHashANNDataset(
@@ -1024,19 +1157,36 @@ class SimHashANNOpenMLSparseGenerator(
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.MNIST,
             ),
             SimHashANNDataset(
-                "cifar10",
+                "fashion_mnist",
                 k=5,
                 eps=0.3,
                 seed=0,
                 suites=["standard"],
-                pretty_name="CIFAR-10",
+                pretty_name="Fashion-MNIST",
                 max_tables=64,
                 max_projections=32,
                 candidate_target=100,
                 target_probability=0.9,
+                license=licenses.FASHION_MNIST,
             ),
+            # De-listed: CIFAR-10 has no license (see licenses.OPENML). It stays
+            # commented out because its reference would join the cached shell
+            # suite through this generator's reference shell.
+            # SimHashANNDataset(
+            #     "cifar10",
+            #     k=5,
+            #     eps=0.3,
+            #     seed=0,
+            #     suites=["standard"],
+            #     pretty_name="CIFAR-10",
+            #     max_tables=64,
+            #     max_projections=32,
+            #     candidate_target=100,
+            #     target_probability=0.9,
+            # ),
         ]
 
     def generate(self, dataset: SimHashANNDataset) -> DataInstance:
@@ -1066,14 +1216,21 @@ class SimHashANNNetflixPrizeDenseGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
+
+    @property
     def datasets(self) -> list[SimHashANNDataset]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so it's in no suite and isn't run or cached.
+        # SimHashANNGoodbooksDenseGenerator replaces it.
         return [
             SimHashANNDataset(
                 "netflix",
                 k=5,
                 eps=0.3,
                 seed=0,
-                suites=["standard"],
+                suites=[],
                 pretty_name="Netflix Prize",
                 max_tables=64,
                 max_projections=32,
@@ -1109,14 +1266,21 @@ class SimHashANNNetflixPrizeSparseGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.NETFLIX_PRIZE
+
+    @property
     def datasets(self) -> list[SimHashANNDataset]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so it's in no suite and isn't run or cached.
+        # SimHashANNGoodbooksSparseGenerator replaces it.
         return [
             SimHashANNDataset(
                 "netflix",
                 k=5,
                 eps=0.3,
                 seed=0,
-                suites=["standard-long"],
+                suites=[],
                 pretty_name="Netflix Prize",
                 max_tables=64,
                 max_projections=32,
@@ -1128,6 +1292,100 @@ class SimHashANNNetflixPrizeSparseGenerator(
     def generate(self, dataset: SimHashANNDataset) -> DataInstance:
         problem = self.generate_inputs(dataset)
         reference = SimHashANNNetflixPrizeSparseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+
+class SimHashANNGoodbooksDenseGenerator(
+    _DenseProjectionMixin,
+    _SimHashANNGoodbooksGeneratorMixin,
+    Generator[SimHashANNDataset],
+):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_goodbooks_dense"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) goodbooks-10k (Dense"
+            " Projection)"
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.GOODBOOKS
+
+    @property
+    def datasets(self) -> list[SimHashANNDataset]:
+        return [
+            SimHashANNDataset(
+                "goodbooks",
+                k=5,
+                eps=0.3,
+                seed=0,
+                suites=["standard"],
+                pretty_name="goodbooks-10k",
+                max_tables=64,
+                max_projections=32,
+                candidate_target=100,
+                target_probability=0.9,
+            )
+        ]
+
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = SimHashANNGoodbooksDenseReferenceGenerator().cached_generate(
+            ReferenceDataset(dataset)
+        )
+        problem.ref_outputs = reference.ref_outputs
+        problem.ref_meta = reference.ref_meta
+        return problem
+
+
+class SimHashANNGoodbooksSparseGenerator(
+    _SparseProjectionMixin,
+    _SimHashANNGoodbooksGeneratorMixin,
+    Generator[SimHashANNDataset],
+):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_goodbooks_sparse"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) goodbooks-10k (Sparse"
+            " Projection)"
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.GOODBOOKS
+
+    @property
+    def datasets(self) -> list[SimHashANNDataset]:
+        return [
+            SimHashANNDataset(
+                "goodbooks",
+                k=5,
+                eps=0.3,
+                seed=0,
+                suites=["standard"],
+                pretty_name="goodbooks-10k",
+                max_tables=64,
+                max_projections=32,
+                candidate_target=100,
+                target_probability=0.9,
+            )
+        ]
+
+    def generate(self, dataset: SimHashANNDataset) -> DataInstance:
+        problem = self.generate_inputs(dataset)
+        reference = SimHashANNGoodbooksSparseReferenceGenerator().cached_generate(
             ReferenceDataset(dataset)
         )
         problem.ref_outputs = reference.ref_outputs
@@ -1154,6 +1412,10 @@ class SimHashANNOpenMLDenseReferenceGenerator(ReferenceGenerator[SimHashANNDatas
             " (Dense Projection),"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return SimHashANNOpenMLDenseGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
@@ -1194,6 +1456,10 @@ class SimHashANNOpenMLSparseReferenceGenerator(ReferenceGenerator[SimHashANNData
         )
 
     @property
+    def license(self) -> License | None:
+        return SimHashANNOpenMLSparseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -1215,6 +1481,12 @@ class SimHashANNNetflixPrizeDenseReferenceGenerator(
     ReferenceGenerator[SimHashANNDataset]
 ):
     @property
+    def suites(self) -> list[str]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so this isn't in the cached shell suite.
+        return []
+
+    @property
     def name(self) -> str:
         return "simhash_ann_netflix_prize_dense_reference"
 
@@ -1233,6 +1505,10 @@ class SimHashANNNetflixPrizeDenseReferenceGenerator(
             " Prize (Dense Projection),"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return SimHashANNNetflixPrizeDenseGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
@@ -1258,6 +1534,12 @@ class SimHashANNNetflixPrizeSparseReferenceGenerator(
     ReferenceGenerator[SimHashANNDataset]
 ):
     @property
+    def suites(self) -> list[str]:
+        # De-listed: the Netflix Prize data has no license (see
+        # licenses.NETFLIX_PRIZE), so this isn't in the cached shell suite.
+        return []
+
+    @property
     def name(self) -> str:
         return "simhash_ann_netflix_prize_sparse_reference"
 
@@ -1276,6 +1558,10 @@ class SimHashANNNetflixPrizeSparseReferenceGenerator(
             " Prize (Sparse Projection),"
             " cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return SimHashANNNetflixPrizeSparseGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
@@ -1297,6 +1583,94 @@ class SimHashANNNetflixPrizeSparseReferenceShellBenchmark(ShellBenchmark):
         return SimHashANNNetflixPrizeSparseReferenceGenerator()
 
 
+class SimHashANNGoodbooksDenseReferenceGenerator(ReferenceGenerator[SimHashANNDataset]):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_goodbooks_dense_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) goodbooks-10k (Dense"
+            " Projection)"
+            " Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for SimHash Approximate Nearest Neighbor (ANN)"
+            " goodbooks-10k (Dense Projection),"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return SimHashANNGoodbooksDenseGenerator().license
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in SimHashANNGoodbooksDenseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[SimHashANNDataset]) -> DataInstance:
+        problem = SimHashANNGoodbooksDenseGenerator().generate_inputs(dataset.dataset)
+        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
+
+
+class SimHashANNGoodbooksDenseReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return SimHashANNGoodbooksDenseReferenceGenerator()
+
+
+class SimHashANNGoodbooksSparseReferenceGenerator(
+    ReferenceGenerator[SimHashANNDataset]
+):
+    @property
+    def name(self) -> str:
+        return "simhash_ann_goodbooks_sparse_reference"
+
+    @property
+    def pretty_name(self) -> str:
+        return (
+            "SimHash Approximate Nearest Neighbor (ANN) goodbooks-10k (Sparse"
+            " Projection)"
+            " Reference"
+        )
+
+    @property
+    def description(self) -> str:
+        return (
+            "Reference outputs for SimHash Approximate Nearest Neighbor (ANN)"
+            " goodbooks-10k (Sparse Projection),"
+            " cached apart from its inputs."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return SimHashANNGoodbooksSparseGenerator().license
+
+    @property
+    def datasets(self) -> list[ReferenceDataset[SimHashANNDataset]]:
+        return [
+            ReferenceDataset(dataset)
+            for dataset in SimHashANNGoodbooksSparseGenerator().datasets
+        ]
+
+    def generate(self, dataset: ReferenceDataset[SimHashANNDataset]) -> DataInstance:
+        problem = SimHashANNGoodbooksSparseGenerator().generate_inputs(dataset.dataset)
+        return DataInstance(inputs=[], meta={}, ref_outputs=_reference_outputs(problem))
+
+
+class SimHashANNGoodbooksSparseReferenceShellBenchmark(ShellBenchmark):
+    @property
+    def generator(self) -> Generator:
+        return SimHashANNGoodbooksSparseReferenceGenerator()
+
+
 class SimHashANNBenchmark(Benchmark):
     @property
     def name(self):
@@ -1307,11 +1681,16 @@ class SimHashANNBenchmark(Benchmark):
         return "SimHash Approximate Nearest Neighbor (ANN)"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Matches SimHash signatures across LSH tables on a shrinking "
-            "prefix of signs until enough candidates are found, then ranks "
-            "them by cosine distance in the original space."
+            "Matches SimHash signatures across LSH tables on a shrinking prefix of "
+            "signs until enough candidates are found, then ranks them by cosine "
+            "distance in the original space. Similar to an LSH forest approach, "
+            "candidates are collected from decreasing distance scales. Each step "
+            "scatters query data points into different array positions, and intersects "
+            "array positions with sparse-sparse multiplication. A sparse array of "
+            "candidate pairs masks a dense distance computation to compute true "
+            "candidates."
         )
 
     @property
@@ -1450,13 +1829,23 @@ Nearest neighbor algorithms</concept_desc>
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "The purpose of this is to create python tests that are for RLA methods. "
-            "Specifically, I will first show the application of random hyperplane "
-            "hashing (SimHash) for NN. My goal is to write benchmarks on "
-            "applications of RNLA, for graph algorithms, PDEs, and Scientific "
-            "Machine Learning"
+            "Matches SimHash signatures across LSH tables on a shrinking prefix of "
+            "signs until enough candidates are found, then ranks them by cosine "
+            "distance in the original space. The purpose of this is to create python "
+            "tests that are for RLA methods. Specifically, I will first show the "
+            "application of random hyperplane hashing (SimHash) for NN. My goal is to "
+            "write benchmarks on applications of RNLA, for graph algorithms, PDEs, and "
+            "Scientific Machine Learning"
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            r"SimHash search is approximate, so we check that at least 90\% of the "
+            "returned neighbors are no farther than the reference search's $k$-th "
+            "nearest neighbor."
         )
 
     @property
@@ -1468,6 +1857,8 @@ Nearest neighbor algorithms</concept_desc>
             SimHashANNRandomSparseGenerator(),
             SimHashANNOpenMLDenseGenerator(),
             SimHashANNOpenMLSparseGenerator(),
+            SimHashANNGoodbooksDenseGenerator(),
+            SimHashANNGoodbooksSparseGenerator(),
             SimHashANNNetflixPrizeDenseGenerator(),
             SimHashANNNetflixPrizeSparseGenerator(),
         ]

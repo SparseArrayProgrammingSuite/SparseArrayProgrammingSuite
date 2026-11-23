@@ -7,6 +7,7 @@ from binsparse import CustomTensor, ElementLevel, SparseLevel
 from binsparse.conversions import from_numpy, to_numpy
 from numba import njit, prange
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,9 +15,15 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
 )
-from saps.benchmarks.frostt import fetch_frostt_tensor, frostt_tensor_shape
+from saps.benchmarks.frostt import (
+    fetch_frostt_tensor,
+    frostt_tensor_license,
+    frostt_tensor_shape,
+)
 from saps.util.tensor_checks import (
     assert_residual,
     decomposition_outputs,
@@ -153,12 +160,16 @@ class HOSVDDenseGenerator(Generator[HOSVDDataset]):
         return HOSVD3DBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The data for this benchmark was created by randomly generating "
             "factor matrices that were both sparse and dense. These factor "
             "matrices were used to construct a factorizable matrix."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[HOSVDDataset]:
@@ -285,12 +296,16 @@ class HOSVDSparseGenerator(Generator[HOSVDDataset]):
         return HOSVD3DBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "The data for this benchmark was created by randomly generating "
             "factor matrices that were both sparse and dense. These factor "
             "matrices were used to construct a factorizable matrix."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[HOSVDDataset]:
@@ -448,6 +463,10 @@ class HOSVDFROSTTDataset(Dataset):
     def concepts(self) -> str:
         return "<ccs2012></ccs2012>"
 
+    @property
+    def license(self) -> License | None | Inherit:
+        return frostt_tensor_license(self.tensor_name)
+
 
 def _hosvd_frostt_dataset(tensor_name, ranks, suites):
     shape = frostt_tensor_shape(tensor_name)
@@ -494,7 +513,8 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        # Only datasets whose tensors are licensed are standard.
+        return []
 
     @property
     def concepts(self) -> str:
@@ -535,7 +555,7 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Real sparse tensors from FROSTT exercise Tucker decomposition against"
             " irregular sparsity patterns. Random orthonormal factors avoid SVDs of"
@@ -545,39 +565,44 @@ class HOSVDFROSTTGenerator(Generator[HOSVDFROSTTDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.FROSTT
+
+    @property
     def datasets(self) -> list[HOSVDFROSTTDataset]:
         datasets = [
             _hosvd_frostt_dataset(tensor_name, ranks, suites)
+            # Unlicensed tensors are in no cached suite, nor trace or train.
             for (tensor_name, ranks, suites) in [
-                ("matmul_2_2_2", (2, 2, 2), ["trace"]),
-                ("matmul_3_3_3", (2, 2, 2), ["trace"]),
-                ("matmul_4_3_2", (2, 2, 2), ["trace"]),
-                ("matmul_4_4_3", (2, 2, 2), ["trace"]),
-                ("matmul_4_4_4", (2, 2, 2), ["trace"]),
-                ("matmul_5_5_5", (2, 2, 2), ["trace", "train"]),
-                ("matmul_6_3_3", (2, 2, 2), ["trace"]),
+                ("matmul_2_2_2", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_3_3_3", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_4_3_2", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_4_4_3", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_4_4_4", (2, 2, 2), ["standard", "trace"]),
+                ("matmul_5_5_5", (2, 2, 2), ["standard", "trace", "train"]),
+                ("matmul_6_3_3", (2, 2, 2), ["standard", "trace"]),
                 ("nell_2", (5, 5, 5), []),
                 ("vast_2015_mc1_3d", (5, 5, 2), []),
                 ("nell_1", (5, 5, 5), []),
                 ("flickr_3d", (5, 5, 5), []),
                 ("delicious_3d", (5, 5, 5), []),
                 ("amazon_reviews", (5, 5, 5), []),
-                ("patents", (5, 5, 5), []),
+                ("patents", (5, 5, 5), ["standard"]),
                 ("reddit_2015", (5, 5, 5), []),
-                ("fb_m", (5, 5, 5), []),
+                ("fb_m", (5, 5, 5), ["standard"]),
                 ("darpa", (5, 5, 5), []),
-                ("toy", (2, 2, 2, 2), ["trace", "train"]),
+                ("toy", (2, 2, 2, 2), []),
                 ("nips", (5, 5, 5, 5), []),
-                ("uber_pickups", (5, 5, 5, 5), []),
-                ("chicago_crime_comm", (5, 5, 5, 5), []),
+                ("uber_pickups", (5, 5, 5, 5), ["standard"]),
+                ("chicago_crime_comm", (5, 5, 5, 5), ["standard"]),
                 ("enron", (5, 5, 5, 5), []),
                 ("flickr_4d", (5, 5, 5, 5), []),
                 ("delicious_4d", (5, 5, 5, 5), []),
                 ("lbnl_network", (5, 5, 5, 5, 5), []),
-                ("chicago_crime_geo", (5, 5, 5, 5, 5), []),
+                ("chicago_crime_geo", (5, 5, 5, 5, 5), ["standard"]),
                 # vast_2015_mc1_5d's 3rd mode has only 2 entries, so its rank is capped.
                 ("vast_2015_mc1_5d", (5, 5, 2, 5, 5), []),
-                ("lanl2", (5, 5, 5, 5, 5), []),
+                ("lanl2", (5, 5, 5, 5, 5), ["standard"]),
             ]
         ]
 
@@ -618,29 +643,43 @@ class HOSVDBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "This code implements the Tucker Decomposition or HOSVD algorithm for"
-            " decomposing high-order tensors into a core-tensor that can be projected"
-            " onto factor matrices along each mode. A typical 3D tensor will have 3"
-            " modes (row, column, and frontal) and thus 3 factor matrices. The"
-            " algorithm starts from reproducible random orthonormal factor matrices"
-            " with column counts given by the ranks parameter. Then, HOOI"
-            " iteratively updates each factor matrix by projecting the original tensor"
-            " onto other factor matrices. The iteration continues until max iterations"
-            " is reached or the change in factor matrices becomes insignificant. The"
-            " resulting factor matrices and the core tensor are returned by the"
-            " benchmark function."
+            "Computes the Higher-Order Singular Value Decomposition (HOSVD) of an "
+            "$N$-dimensional tensor $X$, factorizing it into a core tensor $G$ and "
+            r"factor matrices such that, in 3D, $X_{ijk} \approx \sum_{pqr} G_{pqr} "
+            "A_{ip} B_{jq} C_{kr}$. Uses the HOOI (Higher-Order Orthogonal Iteration) "
+            "algorithm, repeatedly projecting the tensor onto the current factor "
+            "matrices and updating them with the resulting SVDs."
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Tensor decomposition are essential for efficiently analyzing"
-            " multi-dimensional data and can cut out noise during preprocessing. Tensor"
-            " decomposition has applications in signal processing, computer vision,"
-            " numerical linear algebra, and many other fields. HOSVD or Tucker"
-            " Decomposition is one of the most widely used methods for tensor"
-            " decomposition on high-level tensors, which are tensors with 3 or more"
-            " dimensions."
+            "This code implements the Tucker Decomposition or HOSVD algorithm for "
+            "decomposing high-order tensors into a core-tensor that can be projected "
+            "onto factor matrices along each mode. A typical 3D tensor will have 3 "
+            "modes (row, column, and frontal) and thus 3 factor matrices. The "
+            "algorithm starts from reproducible random orthonormal factor matrices "
+            "with column counts given by the ranks parameter. Then, HOOI iteratively "
+            "updates each factor matrix by projecting the original tensor onto other "
+            "factor matrices. The iteration continues until max iterations is reached "
+            "or the change in factor matrices becomes insignificant. The resulting "
+            "factor matrices and the core tensor are returned by the benchmark "
+            "function. Tensor decomposition are essential for efficiently analyzing "
+            "multi-dimensional data and can cut out noise during preprocessing. Tensor "
+            "decomposition has applications in signal processing, computer vision, "
+            "numerical linear algebra, and many other fields. HOSVD or Tucker "
+            "Decomposition is one of the most widely used methods for tensor "
+            "decomposition on high-level tensors, which are tensors with 3 or more "
+            "dimensions."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Decompositions are not unique, so we check that the reconstruction error "
+            r"$\|X - Y\|$ is below a tolerance relative to $\|X\|$, without expanding "
+            "the model $Y$, under any floating-point "
+            r"reassociation~\cite[(2.6)]{higham_accuracy_1993}."
         )
 
     @property

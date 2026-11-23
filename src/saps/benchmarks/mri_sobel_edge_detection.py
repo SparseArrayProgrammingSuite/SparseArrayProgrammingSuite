@@ -8,6 +8,7 @@ from scipy import ndimage
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -15,27 +16,29 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
+from saps.downloaders.ixi import IXI_REF, load_ixi_scan
 
 
-def _stencil(n, rows, cols, values):
+def _stencil(n, rows, cols, values, dtype):
     """An n-by-n stencil matrix as Binsparse COOR, which requires row-major
     sorted, duplicate-free coordinates. The wrap-around stencils list their
     entries diagonal by diagonal, and repeat coordinates when n <= 2, so SciPy
     sorts them and sums the repeats."""
-    matrix = sps.coo_array((values.astype(np.float32), (rows, cols)), shape=(n, n))
+    matrix = sps.coo_array((values.astype(dtype), (rows, cols)), shape=(n, n))
     return from_scipy(matrix)
 
 
-def generate_1d_sobel_matrices(Nx, Ny):
+def generate_1d_sobel_matrices(Nx, Ny, dtype=np.float32):
     rows = np.arange(Nx)
     cols1 = (rows + 1) % Nx
     cols2 = (rows - 1) % Nx
     D_x_R = np.concatenate([rows, rows])
     D_x_C = np.concatenate([cols1, cols2])
     D_x_V = np.concatenate([np.ones(Nx), -np.ones(Nx)])
-    dx_bin = _stencil(Nx, D_x_R, D_x_C, D_x_V)
+    dx_bin = _stencil(Nx, D_x_R, D_x_C, D_x_V, dtype)
 
     rows = np.arange(Ny)
     cols1 = (rows - 1) % Ny
@@ -44,7 +47,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_y_R = np.concatenate([rows, rows, rows])
     S_y_C = np.concatenate([cols1, cols2, cols3])
     S_y_V = np.concatenate([np.ones(Ny), 2.0 * np.ones(Ny), np.ones(Ny)])
-    sy_bin = _stencil(Ny, S_y_R, S_y_C, S_y_V)
+    sy_bin = _stencil(Ny, S_y_R, S_y_C, S_y_V, dtype)
 
     rows = np.arange(Nx)
     cols1 = (rows - 1) % Nx
@@ -53,7 +56,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     S_x_R = np.concatenate([rows, rows, rows])
     S_x_C = np.concatenate([cols1, cols2, cols3])
     S_x_V = np.concatenate([np.ones(Nx), 2.0 * np.ones(Nx), np.ones(Nx)])
-    sx_bin = _stencil(Nx, S_x_R, S_x_C, S_x_V)
+    sx_bin = _stencil(Nx, S_x_R, S_x_C, S_x_V, dtype)
 
     rows = np.arange(Ny)
     cols1 = (rows + 1) % Ny
@@ -61,7 +64,7 @@ def generate_1d_sobel_matrices(Nx, Ny):
     D_y_R = np.concatenate([rows, rows])
     D_y_C = np.concatenate([cols1, cols2])
     D_y_V = np.concatenate([np.ones(Ny), -np.ones(Ny)])
-    dy_bin = _stencil(Ny, D_y_R, D_y_C, D_y_V)
+    dy_bin = _stencil(Ny, D_y_R, D_y_C, D_y_V, dtype)
 
     return dx_bin, sy_bin, sx_bin, dy_bin
 
@@ -72,12 +75,13 @@ class MRISobelEdgeDetectionDataset(Dataset):
         name: str,
         category: str,
         filename: str,
-        threshold_val: float = 150.0,
+        threshold_val: float | None = 150.0,
         image: np.ndarray | None = None,
         ref_meta: dict[str, Any] | None = None,
         suites: list[str] | None = None,
         pretty_name: str | None = None,
     ):
+        """``threshold_val=None`` thresholds at the image's 99th percentile."""
         self._suites = suites or []
         self.source_name = name
         self._pretty_name = pretty_name or name
@@ -97,6 +101,11 @@ class MRISobelEdgeDetectionDataset(Dataset):
 
     @property
     def description(self) -> str:
+        if self.threshold_val is None:
+            return (
+                f"MRI image {self.filename} with edge threshold at its "
+                "99th-percentile voxel value."
+            )
         return f"MRI image {self.filename} with edge threshold {self.threshold_val}."
 
     @property
@@ -117,14 +126,42 @@ class MRISobelEdgeDetectionDataset(Dataset):
 
 
 def reference_sobel_edge(image, threshold):
-    """Threshold the Sobel gradient magnitude computed by scipy.ndimage.
+    """Threshold the Sobel gradient magnitude of each 2D slice (the last two
+    axes), computed by scipy.ndimage.
 
-    Pixels are 8-bit integers, so float64 gradients are exact.
+    Pixels are integers, so float64 gradients are exact. ndimage.sobel smooths
+    along every other axis, so each slice goes through it separately.
     """
     image = np.asarray(image, dtype=np.float64)
-    gx = ndimage.sobel(image, axis=0, mode="wrap")
-    gy = ndimage.sobel(image, axis=1, mode="wrap")
-    return np.abs(gx) + np.abs(gy) > np.float32(threshold)
+    magnitude = np.empty_like(image)
+    for index in np.ndindex(image.shape[:-2]):
+        gx = ndimage.sobel(image[index], axis=0, mode="wrap")
+        gy = ndimage.sobel(image[index], axis=1, mode="wrap")
+        magnitude[index] = np.abs(gx) + np.abs(gy)
+    return magnitude > np.float32(threshold)
+
+
+def sobel_edge_instance(img_array, threshold_val) -> DataInstance:
+    """Integer images get int32 stencils and threshold, which int16 pixels
+    promote to without overflowing; others get float32."""
+    if np.issubdtype(img_array.dtype, np.integer):
+        dtype: type = np.int32
+    else:
+        dtype = np.float32
+    if threshold_val is None:
+        threshold_val = round(float(np.percentile(img_array, 99)))
+    image_bin = from_numpy(img_array)
+    threshold_bin = from_numpy(np.array(threshold_val, dtype=dtype))
+
+    Nx, Ny = img_array.shape[-2:]
+    dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny, dtype)
+    # Computed here so it is cached with the dataset; check only compares.
+    expected = reference_sobel_edge(img_array, threshold_val)
+    return DataInstance(
+        inputs=[image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin],
+        meta={},
+        ref_outputs=[from_numpy(expected)],
+    )
 
 
 class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]):
@@ -161,8 +198,12 @@ class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]
         return MRISobelEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small Sobel edge examples for benchmark correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -226,16 +267,113 @@ class MRISobelEdgeDetectionTestGenerator(Generator[MRISobelEdgeDetectionDataset]
                     "threshold": 7.0,
                 },
             ),
+            MRISobelEdgeDetectionDataset(
+                "int16_volume",
+                "local",
+                "int16_volume",
+                pretty_name="Int16 Volume",
+                # Gradients reach 4 * 20000, which overflows int16.
+                threshold_val=50000,
+                image=np.array(
+                    [
+                        [[0, 0, 20000, 20000, 0]] * 4,
+                        [[0] * 5, [0] * 5, [20000] * 5, [0] * 5],
+                    ],
+                    dtype=np.int16,
+                ),
+            ),
         ]
 
     def generate(self, dataset: MRISobelEdgeDetectionDataset) -> DataInstance:
-        problem = MRISobelEdgeDetectionKaggleGenerator().generate(dataset)
+        problem = sobel_edge_instance(np.asarray(dataset.image), dataset.threshold_val)
         return DataInstance(
             inputs=problem.inputs,
             meta=problem.meta,
             ref_outputs=problem.ref_outputs,
             ref_meta=dataset.ref_meta,
         )
+
+
+class MRISobelEdgeDetectionIXIGenerator(Generator[MRISobelEdgeDetectionDataset]):
+    @property
+    def name(self) -> str:
+        return "mri_sobel_edge_detection_ixi"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Magnetic Resonance Imaging (MRI) Sobel Edge Detection IXI"
+
+    @property
+    def description(self) -> str:
+        return (
+            "3D brain MRI scans from the IXI dataset, one T1, T2 or PD scan per"
+            " dataset, as their stored int16 voxels. Each 2D slice gets a Sobel"
+            " edge map, thresholded at the scan's 99th-percentile voxel value."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return ["standard"]
+
+    @property
+    def concepts(self) -> str:
+        return MRISobelEdgeDetectionKaggleGenerator().concepts
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return MRISobelEdgeDetectionBenchmark().authors
+
+    @property
+    def references(self) -> list[Ref]:
+        return [*MRISobelEdgeDetectionBenchmark().references, IXI_REF]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def notes(self) -> str:
+        return MRISobelEdgeDetectionBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.IXI
+
+    @property
+    def datasets(self) -> list[MRISobelEdgeDetectionDataset]:
+        return [
+            MRISobelEdgeDetectionDataset(
+                "IXI002-Guys-0828-T1",
+                "T1",
+                "IXI002-Guys-0828-T1.nii.gz",
+                threshold_val=None,
+                suites=["trace", "train"],
+            ),
+            MRISobelEdgeDetectionDataset(
+                "IXI012-HH-1211-T2",
+                "T2",
+                "IXI012-HH-1211-T2.nii.gz",
+                threshold_val=None,
+                suites=["trace"],
+            ),
+            MRISobelEdgeDetectionDataset(
+                "IXI035-IOP-0873-PD",
+                "PD",
+                "IXI035-IOP-0873-PD.nii.gz",
+                threshold_val=None,
+                suites=["trace"],
+            ),
+            MRISobelEdgeDetectionDataset(
+                "IXI035-IOP-0873-T1",
+                "T1",
+                "IXI035-IOP-0873-T1.nii.gz",
+                threshold_val=None,
+                suites=["trace"],
+            ),
+        ]
+
+    def generate(self, dataset: MRISobelEdgeDetectionDataset) -> DataInstance:
+        return sobel_edge_instance(load_ixi_scan(dataset.name), dataset.threshold_val)
 
 
 class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDataset]):
@@ -257,7 +395,7 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
 
     @property
     def suites(self) -> list[str]:
-        return ["standard"]
+        return []
 
     @property
     def concepts(self) -> str:
@@ -303,56 +441,40 @@ class MRISobelEdgeDetectionKaggleGenerator(Generator[MRISobelEdgeDetectionDatase
         return MRISobelEdgeDetectionBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MRISobelEdgeDetectionBenchmark().motivation
+    def notes(self) -> str:
+        return MRISobelEdgeDetectionBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.KAGGLE_BRAIN_MRI
 
     @property
     def datasets(self) -> list[MRISobelEdgeDetectionDataset]:
+        # De-listed: the Kaggle images have no license (see
+        # licenses.KAGGLE_BRAIN_MRI), so they're in no suite and aren't run or
+        # cached. MRISobelEdgeDetectionIXIGenerator replaces them.
         return [
-            MRISobelEdgeDetectionDataset(
-                "yes/Y157", "yes", "Y157.JPG", suites=["trace"]
-            ),
-            MRISobelEdgeDetectionDataset(
-                "yes/Y6", "yes", "Y6.jpg", suites=["trace", "train"]
-            ),
-            MRISobelEdgeDetectionDataset(
-                "yes/Y194", "yes", "Y194.jpg", suites=["trace"]
-            ),
-            MRISobelEdgeDetectionDataset(
-                "yes/Y180", "yes", "Y180.jpg", suites=["trace"]
-            ),
+            MRISobelEdgeDetectionDataset("yes/Y157", "yes", "Y157.JPG"),
+            MRISobelEdgeDetectionDataset("yes/Y6", "yes", "Y6.jpg"),
+            MRISobelEdgeDetectionDataset("yes/Y194", "yes", "Y194.jpg"),
+            MRISobelEdgeDetectionDataset("yes/Y180", "yes", "Y180.jpg"),
         ]
 
     def generate(self, dataset: MRISobelEdgeDetectionDataset) -> DataInstance:
-        if dataset.image is None:
-            from PIL import Image
+        from PIL import Image
 
-            from saps.downloaders.kaggle import download_kaggle_dataset
+        from saps.downloaders.kaggle import download_kaggle_dataset
 
-            path = download_kaggle_dataset(
-                "navoneel/brain-mri-images-for-brain-tumor-detection"
-            )
-            img_path = os.path.join(path, dataset.category, dataset.filename)
-            if not os.path.exists(img_path):
-                raise FileNotFoundError(f"Image not found at {img_path}")
-
-            img = Image.open(img_path).convert("L")
-            img_array = np.array(img, dtype=np.float32)
-        else:
-            img_array = np.array(dataset.image, dtype=np.float32)
-
-        image_bin = from_numpy(img_array)
-        threshold_bin = from_numpy(np.array(dataset.threshold_val, dtype=np.float32))
-
-        Nx, Ny = img_array.shape
-        dx_bin, sy_bin, sx_bin, dy_bin = generate_1d_sobel_matrices(Nx, Ny)
-        # Computed here so it is cached with the dataset; check only compares.
-        expected = reference_sobel_edge(img_array, dataset.threshold_val)
-        return DataInstance(
-            inputs=[image_bin, dx_bin, sy_bin, sx_bin, dy_bin, threshold_bin],
-            meta={},
-            ref_outputs=[from_numpy(expected)],
+        path = download_kaggle_dataset(
+            "navoneel/brain-mri-images-for-brain-tumor-detection"
         )
+        img_path = os.path.join(path, dataset.category, dataset.filename)
+        if not os.path.exists(img_path):
+            raise FileNotFoundError(f"Image not found at {img_path}")
+
+        img = Image.open(img_path).convert("L")
+        img_array = np.array(img, dtype=np.float32)
+        return sobel_edge_instance(img_array, dataset.threshold_val)
 
 
 class MRISobelEdgeDetectionBenchmark(Benchmark):
@@ -367,13 +489,10 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "What does this code do: This code implements a simple edge detection"
-            " algorithm on a 2D MRI image. The algorithm computes the gradients in the"
-            " X and Y directions using the concept of a Sobel operator, which is a"
-            " common method for edge detection. The sobel operator was recreated using"
-            " array shifts that account for sparse patterns. The magnitude of the"
-            " gradients is computed and then masked with a threshold to produce a"
-            " binary edge map."
+            "In SAPS, the Sobel operator is the product of the image with a "
+            "central-difference matrix that acts on one dimension and a smoothing "
+            "matrix that acts on the other. We compare each pixel's gradient magnitude "
+            "with a threshold to create a binary edge map."
         )
 
     @property
@@ -389,15 +508,28 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
         return [Contributor("Aadharsh Rajkumar", "arajkumar34@gatech.edu")]
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Motivation: Edge detection is a crucial task that is a part of image"
-            " processing pipelines. It is often the case that images and scans in the"
-            " medical field rquire post-processing to extract useful information. In"
-            " this case, we are using a 2D MRI image to produce thresholded edge maps."
-            " Since medical images are large and often contain redundant information,"
-            " it is important to process them efficiently. The redundancy of MRI makes"
-            " them a good candidate for sparse processing."
+            "What does this code do: This code implements a simple edge detection "
+            "algorithm on a 2D MRI image. The algorithm computes the gradients in the "
+            "X and Y directions using the concept of a Sobel operator, which is a "
+            "common method for edge detection. The sobel operator was recreated using "
+            "array shifts that account for sparse patterns. The magnitude of the "
+            "gradients is computed and then masked with a threshold to produce a "
+            "binary edge map. Motivation: Edge detection is a crucial task that is a "
+            "part of image processing pipelines. It is often the case that images and "
+            "scans in the medical field rquire post-processing to extract useful "
+            "information. In this case, we are using a 2D MRI image to produce "
+            "thresholded edge maps. Since medical images are large and often contain "
+            "redundant information, it is important to process them efficiently. The "
+            "redundancy of MRI makes them a good candidate for sparse processing."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "The edge map is binary, so we check it exactly against a "
+            r"\texttt{scipy.ndimage} Sobel reference."
         )
 
     @property
@@ -465,6 +597,7 @@ class MRISobelEdgeDetectionBenchmark(Benchmark):
     def generators(self) -> list[Generator[Any]]:
         return [
             MRISobelEdgeDetectionTestGenerator(),
+            MRISobelEdgeDetectionIXIGenerator(),
             MRISobelEdgeDetectionKaggleGenerator(),
         ]
 

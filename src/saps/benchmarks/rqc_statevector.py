@@ -6,7 +6,16 @@ import sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_sparse, to_numpy, to_sparse
 
-from saps.benchmark import Benchmark, Contributor, DataInstance, Dataset, Generator, Ref
+from saps import licenses
+from saps.benchmark import (
+    Benchmark,
+    Contributor,
+    DataInstance,
+    Dataset,
+    Generator,
+    License,
+    Ref,
+)
 from saps.benchmarks.qasmbench import QASMBENCH_REFERENCES, fetch_qasmbench_circuit
 from saps.util.error_bounds import summation_error_bound
 
@@ -90,8 +99,12 @@ class RQCStatevectorSyntheticGenerator(Generator[RQCStatevectorDataset]):
         return RQCStatevectorBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return RQCStatevectorBenchmark().motivation
+    def notes(self) -> str:
+        return RQCStatevectorBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[RQCStatevectorDataset]:
@@ -356,8 +369,12 @@ class RQCStatevectorTestGenerator(Generator[RQCStatevectorDataset]):
         return RQCStatevectorBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return RQCStatevectorBenchmark().motivation
+    def notes(self) -> str:
+        return RQCStatevectorBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[RQCStatevectorDataset]:
@@ -677,12 +694,16 @@ class RQCStatevectorQASMBenchGenerator(Generator[RQCStatevectorQASMBenchDataset]
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Many quantum algorithms, such as state preparation, reversible"
             " arithmetic, and error correction, keep their statevectors sparse,"
             " which sparse array frameworks can exploit."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.QASMBENCH
 
     @property
     def datasets(self) -> list[RQCStatevectorQASMBenchDataset]:
@@ -715,8 +736,8 @@ class RQCStatevectorBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Simulates a specified quantum circuit on an n-qubit state vector, "
-            "using the standard reshape + einsum gate application pattern."
+            "Simulates a quantum circuit on an $n$-qubit state vector, applying each "
+            "gate with the standard reshape and einsum pattern."
         )
 
     @property
@@ -753,8 +774,20 @@ class RQCStatevectorBenchmark(Benchmark):
         return ""
 
     @property
-    def motivation(self) -> str:
-        return self.description
+    def notes(self) -> str:
+        return (
+            "Simulates a specified quantum circuit on an n-qubit state vector, using "
+            "the standard reshape + einsum gate application pattern."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Gates are unitary, so rounding errors never compound, and we check that "
+            "the state vector lies within a 2-norm bound of the reference that holds "
+            "under any floating-point reassociation within each "
+            r"gate~\cite[(2.6)]{higham_accuracy_1993}."
+        )
 
     @property
     def generators(self):

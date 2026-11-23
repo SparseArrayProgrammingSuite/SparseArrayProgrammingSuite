@@ -7,6 +7,7 @@ import scipy.sparse as scipy_sparse
 from binsparse import BinsparseTensor, COORMatrix
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -14,6 +15,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -252,8 +254,12 @@ class MCLTestGenerator(Generator[MCLDataset]):
         return MCLBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MCLBenchmark().motivation
+    def notes(self) -> str:
+        return MCLBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[MCLDataset]:
@@ -376,8 +382,12 @@ class MCLSNAPGenerator(Generator[MCLDataset]):
         return MCLBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MCLBenchmark().motivation
+    def notes(self) -> str:
+        return MCLBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -490,6 +500,10 @@ class MCLSNAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
         )
 
     @property
+    def license(self) -> License | None:
+        return MCLSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
         return [ReferenceDataset(dataset) for dataset in MCLSNAPGenerator().datasets]
 
@@ -560,8 +574,12 @@ class MCLGAPGenerator(Generator[MCLDataset]):
         return MCLBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
-        return MCLBenchmark().motivation
+    def notes(self) -> str:
+        return MCLBenchmark().notes
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -610,6 +628,10 @@ class MCLGAPReferenceGenerator(ReferenceGenerator[MCLDataset]):
             "Reference outputs for Markov Clustering (MCL) GAP, cached apart from its"
             " inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return MCLGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[MCLDataset]]:
@@ -662,22 +684,33 @@ class MCLBenchmark(Benchmark):
     @property
     def description(self) -> str:
         return (
-            "Computes Markov Clustering on a given sparse adjacency matrix. "
-            "Handwritten code based on the implementation from GuyAllard on github"
+            "Clusters a graph by simulating random walks that distribute probability "
+            "mass across vertices. Repeated squaring spreads probability faster but "
+            "densifies the matrix, so matrices are pruned after each product and "
+            "probabilities are renormalized."
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            '"The Markov Clustering (MCL) algorithm relies heavily on repeated '
-            "matrix operations, particularly matrix multiplication during the "
-            "expansion step. Since the efficient execution of matrix-based "
-            "kernels has been extensively studied in linear algebra, MCL "
-            "serves as an effective benchmark for evaluating the performance "
-            'of iterative numerical methods." The input is a sparse adjacency '
-            "matrix. The algorithm uses sparse matrix multiplication and element-wise"
-            " operations repeatedly, so it depends heavily on efficient sparse matrix"
-            " functions."
+            "Computes Markov Clustering on a given sparse adjacency matrix. "
+            "Handwritten code based on the implementation from GuyAllard on github "
+            '"The Markov Clustering (MCL) algorithm relies heavily on repeated matrix '
+            "operations, particularly matrix multiplication during the expansion step. "
+            "Since the efficient execution of matrix-based kernels has been "
+            "extensively studied in linear algebra, MCL serves as an effective "
+            'benchmark for evaluating the performance of iterative numerical methods." '
+            "The input is a sparse adjacency matrix. The algorithm uses sparse matrix "
+            "multiplication and element-wise operations repeatedly, so it depends "
+            "heavily on efficient sparse matrix functions."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Inputs are rounded to multiples of $2^{-26}$ and re-rounded after each "
+            "product, so sums of probabilities are exact in any order for graphs of up "
+            "to $2^{26}$ vertices, and we check the clusters exactly."
         )
 
     @property

@@ -4,6 +4,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -11,6 +12,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -166,7 +168,7 @@ class SDDMMSuiteSparseGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate real sparse matrices for SDDMM, sampling the dense "
             "product at the nonzero pattern of a graph. Bharadwaj et al. name "
@@ -175,6 +177,10 @@ class SDDMMSuiteSparseGenerator(Generator):
             "the value used here; their own matrices hold hundreds of millions "
             "of nonzeros, so the graphs themselves are selected here."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[SDDMMSuiteSparseDataset]:
@@ -226,6 +232,10 @@ class SDDMMSuiteSparseReferenceGenerator(ReferenceGenerator[SDDMMSuiteSparseData
             "Reference outputs for Sampled Dense-Dense Matrix Multiplication (SDDMM)"
             " SuiteSparse, cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return SDDMMSuiteSparseGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[SDDMMSuiteSparseDataset]]:
@@ -374,12 +384,16 @@ class SDDMMUniformRandomGenerator(Generator):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate Erdos-Renyi sampling matrices for SDDMM, the synthetic "
             "workload Bharadwaj et al. use, swept over their range of nonzeros "
             "per row so that row occupancy rather than matrix size varies."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[Dataset]:
@@ -444,16 +458,30 @@ class SDDMMBenchmark(Benchmark):
         return "Sampled Dense-Dense Matrix Multiplication (SDDMM)"
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Sampled matrix multiplication is a performant core primitive"
-            "for machine learning algorithms like ALS, Sparse Factor Analysis,"
-            " and Graph Neural Networks."
+            r"The multiplication of two matrices.C_ik = \sum_k A_ij B_jk Sampled matrix "
+            "multiplication is a performant core primitivefor machine learning "
+            "algorithms like ALS, Sparse Factor Analysis, and Graph Neural Networks."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Sums may be computed in any order, so for inner dimension $n$ we check "
+            r"entries to an absolute error of $\gamma_n \max (|S| \circ (|A||B|))$, "
+            "Higham's bound on the error of summation in any order, plus one rounding "
+            r"of the final product with $S$, where $\gamma_n = n\epsilon/(1 - "
+            r"n\epsilon)$ for machine epsilon $\epsilon$."
         )
 
     @property
     def description(self) -> str:
-        return "The multiplication of two matrices.C_ik = \\sum_k A_ij B_jk"
+        return (
+            r"Computes a sampled dense-dense matrix product, $C = S \circ (AB)$, which "
+            "scales each entry of the sparse matrix $S$ by the matching entry of the "
+            "dense product $AB$."
+        )
 
     @property
     def suites(self) -> list[str]:

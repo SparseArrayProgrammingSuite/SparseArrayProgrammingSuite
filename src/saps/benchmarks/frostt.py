@@ -1,11 +1,15 @@
 from binsparse import CustomTensor, ElementLevel, SparseLevel
 
+from saps import licenses
 from saps.benchmark import (
+    INHERIT,
     Author,
     Contributor,
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ShellBenchmark,
 )
@@ -27,6 +31,7 @@ class FROSTTDataset(Dataset):
         pretty_name: str | None = None,
         description: str | None = None,
         suites: list[str] | None = None,
+        license: License | None | Inherit = INHERIT,
     ):
         self._name = name
         self.path = path
@@ -36,6 +41,7 @@ class FROSTTDataset(Dataset):
         self._pretty_name = pretty_name
         self._description = description
         self._suites = suites or []
+        self._license = license
 
     @property
     def name(self) -> str:
@@ -44,6 +50,10 @@ class FROSTTDataset(Dataset):
     @property
     def pretty_name(self) -> str:
         return self._pretty_name or self._name
+
+    @property
+    def license(self) -> License | None | Inherit:
+        return self._license
 
     @property
     def description(self) -> str:
@@ -87,6 +97,8 @@ _TENSORS: list[FROSTTDataset] = [
         order=3,
         # Tensor order via real downloads: (k*n, m*n, m*k).
         shape=(k * n, m * n, m * k),
+        license=licenses.FROSTT_MATMUL,
+        suites=["shell"],
         description=(
             f"FROSTT matrix-multiplication tensor for a ({m}x{k}) * ({k}x{n}) product."
         ),
@@ -108,6 +120,8 @@ _TENSORS: list[FROSTTDataset] = [
         path="chicago-crime/comm/chicago-crime-comm.tns.gz",
         order=4,
         shape=(6186, 24, 77, 32),
+        license=licenses.FROSTT_CHICAGO_CRIME,
+        suites=["shell"],
         description=(
             "Chicago crime reports (2001-2017): day x hour x community-area x"
             " crime-type, non-zeros are counts."
@@ -146,6 +160,8 @@ _TENSORS: list[FROSTTDataset] = [
         path="uber-pickups/uber.tns.gz",
         order=4,
         shape=(183, 24, 1140, 1717),
+        license=licenses.FROSTT_UBER_PICKUPS,
+        suites=["shell"],
         description=(
             "Uber pickups in New York City: date x hour x latitude x"
             " longitude, non-zeros are pickup counts."
@@ -156,6 +172,8 @@ _TENSORS: list[FROSTTDataset] = [
         path="chicago-crime/geo/chicago-crime-geo.tns.gz",
         order=5,
         shape=(6185, 24, 380, 395, 32),
+        license=licenses.FROSTT_CHICAGO_CRIME,
+        suites=["shell"],
         description=(
             "Chicago crime reports (2001-2017): day x hour x latitude x"
             " longitude x crime-type, non-zeros are counts. Companion to"
@@ -252,6 +270,7 @@ _TENSORS: list[FROSTTDataset] = [
         path="amazon/amazon-reviews.tns.gz",
         order=3,
         shape=(4821207, 1774269, 1805187),
+        license=licenses.FROSTT_AMAZON_REVIEWS,
         description=(
             "Amazon product reviews (from SNAP): user x product x word,"
             " after stopword removal and stemming."
@@ -262,12 +281,13 @@ _TENSORS: list[FROSTTDataset] = [
         path="patents/patents.tns.gz",
         order=3,
         shape=(46, 239172, 239172),
+        license=licenses.FROSTT_PATENTS,
         description=(
             "US utility patents: year x term x term, pairwise co-occurrence"
             " of terms within a 7-word window; each yearly slice is"
             " symmetric."
         ),
-        suites=["standard-long"],
+        suites=["shell", "standard-long"],
     ),
     FROSTTDataset(
         "reddit_2015",
@@ -280,7 +300,6 @@ _TENSORS: list[FROSTTDataset] = [
             " subreddits, and words appearing fewer than 5 times are"
             " excluded."
         ),
-        suites=["standard-long"],
     ),
     FROSTTDataset(
         "fb_m",
@@ -288,6 +307,8 @@ _TENSORS: list[FROSTTDataset] = [
         url="https://frostt-tensors.s3.us-east-2.amazonaws.com/FB-M/fb-m.tns.gz",
         order=3,
         shape=(23343790, 23344784, 166),
+        license=licenses.FROSTT_FB_M,
+        suites=["shell"],
         description=(
             "Freebase Music knowledge base: entity x entity x relation,"
             " non-zeros are binary."
@@ -313,6 +334,8 @@ _TENSORS: list[FROSTTDataset] = [
         url="https://frostt-tensors.s3.us-east-2.amazonaws.com/LANL2/lanl2.tns.gz",
         order=5,
         shape=(3760, 11153, 8710, 75146, 8),
+        license=licenses.FROSTT_LANL2,
+        suites=["shell"],
         description=(
             "Anonymized LANL NetFlow data (58 days): 10-minute time bin x"
             " source device x destination device x destination port x"
@@ -346,6 +369,9 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
 
     @property
     def suites(self) -> list[str]:
+        # --cache-datasets prepares the shell suite, which each tensor with a
+        # license joins itself. Tensors with no license (see licenses.FROSTT)
+        # are de-listed.
         return []
 
     @property
@@ -385,12 +411,16 @@ class FROSTTTensorGenerator(Generator[FROSTTDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Many tensor-decomposition benchmarks reuse the same FROSTT tensors."
             " Sharing a single cacheable generator for the raw download avoids"
             " redundant downloads and redundant cached copies of the same tensor."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.FROSTT
 
     @property
     def datasets(self) -> list[FROSTTDataset]:
@@ -427,6 +457,11 @@ def fetch_frostt_tensor(name: str) -> DataInstance:
             f"Dataset {name!r} is not listed in FROSTTTensorGenerator.datasets."
         )
     return raw_generator.cached_generate(raw_dataset)
+
+
+def frostt_tensor_license(name: str) -> License | None | Inherit:
+    """A raw FROSTT tensor's own license, for datasets built from that tensor."""
+    return next(d for d in _TENSORS if d.name == name).license
 
 
 def frostt_tensor_shape(name: str) -> tuple[int, ...]:

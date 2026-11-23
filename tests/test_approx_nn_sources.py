@@ -9,7 +9,8 @@ from saps.benchmark import DataInstance
 from saps.benchmarks.openml import OpenMLDatasetGenerator
 from saps.benchmarks.simhash_ann import (
     SimHashANNBenchmark,
-    SimHashANNNetflixPrizeDenseGenerator,
+    SimHashANNGoodbooksDenseGenerator,
+    SimHashANNGoodbooksSparseGenerator,
     SimHashANNOpenMLDenseGenerator,
     SimHashANNOpenMLSparseGenerator,
     SimHashANNRandomDataset,
@@ -27,7 +28,10 @@ pytestmark = pytest.mark.usefixtures("uncached_references")
 )
 @pytest.mark.parametrize(
     "source_name,data_id,openml_name,task_id",
-    [("mnist", 554, "mnist_784", 3573), ("cifar10", 40927, "CIFAR_10", 167124)],
+    [
+        ("mnist", 554, "mnist_784", 3573),
+        ("fashion_mnist", 40996, "Fashion-MNIST", 146825),
+    ],
 )
 def test_simhash_ann_openml_generator_uses_cached_task_split(
     monkeypatch, generator_cls, source_name, data_id, openml_name, task_id
@@ -81,20 +85,23 @@ def test_simhash_ann_openml_generator_uses_cached_task_split(
     assert instance.meta["openml_task_sample"] == 0
 
 
-@pytest.mark.parametrize("generator_cls", [SimHashANNNetflixPrizeDenseGenerator])
-def test_simhash_ann_netflix_generator_uses_shared_shell(monkeypatch, generator_cls):
+@pytest.mark.parametrize(
+    "generator_cls",
+    [SimHashANNGoodbooksDenseGenerator, SimHashANNGoodbooksSparseGenerator],
+)
+def test_simhash_ann_goodbooks_generator_uses_shared_shell(monkeypatch, generator_cls):
     source = scipy.sparse.csr_matrix(np.arange(30, dtype=np.float32).reshape(6, 5))
 
-    def fake_fetch_netflixprize_matrix():
+    def fake_fetch_goodbooks_matrix():
         return source, {
             "num_users": source.shape[0],
-            "num_movies": source.shape[1],
+            "num_books": source.shape[1],
             "num_ratings": source.nnz,
         }
 
     monkeypatch.setattr(
-        "saps.benchmarks.simhash_ann.fetch_netflixprize_matrix",
-        fake_fetch_netflixprize_matrix,
+        "saps.benchmarks.simhash_ann.fetch_goodbooks_matrix",
+        fake_fetch_goodbooks_matrix,
     )
     generator = generator_cls()
     dataset = generator.datasets[0]
@@ -116,7 +123,7 @@ def test_simhash_ann_netflix_generator_uses_shared_shell(monkeypatch, generator_
     assert instance.meta["source_num_ratings"] == source.nnz
 
 
-def test_simhash_ann_benchmark_uses_openml_and_netflix_shell_generators():
+def test_simhash_ann_benchmark_uses_openml_and_goodbooks_shell_generators():
     generators = SimHashANNBenchmark().generators
     generator_names = {generator.name for generator in generators}
     for kind in ("dense", "sparse"):
@@ -127,7 +134,7 @@ def test_simhash_ann_benchmark_uses_openml_and_netflix_shell_generators():
         )
         assert [dataset.name for dataset in openml_generator.datasets] == [
             "mnist",
-            "cifar10",
+            "fashion_mnist",
         ]
         assert {
             dataset.name: dataset.suites for dataset in openml_generator.datasets
@@ -135,12 +142,19 @@ def test_simhash_ann_benchmark_uses_openml_and_netflix_shell_generators():
             "mnist": ["standard", "trace", "train"]
             if kind == "sparse"
             else ["standard", "trace"],
-            "cifar10": ["standard"],
+            "fashion_mnist": ["standard"],
         }
-        assert f"simhash_ann_netflix_prize_{kind}" in generator_names
+        assert f"simhash_ann_goodbooks_{kind}" in generator_names
         assert f"simhash_ann_random_{kind}" in generator_names
         assert f"simhash_ann_test_{kind}" in generator_names
-    assert len(generator_names) == len(generators) == 8
+        # The Netflix Prize generators stay, but de-listed.
+        netflix_generator = next(
+            generator
+            for generator in generators
+            if generator.name == f"simhash_ann_netflix_prize_{kind}"
+        )
+        assert [dataset.suites for dataset in netflix_generator.datasets] == [[]]
+    assert len(generator_names) == len(generators) == 10
 
 
 def test_simhash_projection_variants_share_random_inputs_and_are_reproducible():

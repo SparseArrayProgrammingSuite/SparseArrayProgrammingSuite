@@ -29,22 +29,14 @@ def _source_meta(source_name: str) -> dict:
     }
 
 
-def test_slicot_generator_uses_all_identity_e_problems():
-    generator = ODESLICOTGenerator()
-
-    assert [dataset.source_name for dataset in generator.datasets] == [
-        "eady.mat",
-        "CDplayer.mat",
-        "fom.mat",
-        "random.mat",
-        "pde.mat",
-        "heat-cont.mat",
-        "Orr-Som.mat",
-        "iss.mat",
-        "build.mat",
-        "beam.mat",
-    ]
-    assert all("standard" in dataset.suites for dataset in generator.datasets)
+def test_slicot_generator_is_listed_but_does_not_train():
+    generators = RK4Benchmark().generators
+    assert any(isinstance(generator, ODESLICOTGenerator) for generator in generators)
+    datasets = ODESLICOTGenerator().datasets
+    assert len(datasets) == 10
+    # SLICOT's examples are BSD-3-Clause; SuiteSparse's problems train.
+    assert all("standard" in dataset.suites for dataset in datasets)
+    assert not [dataset.name for dataset in datasets if "train" in dataset.suites]
 
 
 def test_slicot_generator_loads_a_and_b_and_ignores_c_d(monkeypatch):
@@ -165,7 +157,7 @@ def _run_slicot(benchmark, meta, *data):
     generator = ODESLICOTGenerator()
     problem = DataInstance(inputs=[from_numpy(item) for item in data], meta=meta)
     function = generator.generate_benchmark_function(
-        generator.datasets[0], problem, benchmark.benchmark
+        ODESLICOTDataset("eady"), problem, benchmark.benchmark
     )
     return function(NumpyFramework(), meta, *data)
 

@@ -6,6 +6,7 @@ import scipy.sparse as scipy_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,6 +14,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -102,8 +104,12 @@ class TransitiveClosureTestGenerator(Generator[TransitiveClosureDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small reachability examples for correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -257,8 +263,12 @@ class TransitiveClosureSNAPGenerator(Generator[TransitiveClosureDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate sparse directed graph inputs for transitive closure."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[TransitiveClosureDataset]:
@@ -378,6 +388,10 @@ class TransitiveClosureSNAPReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return TransitiveClosureSNAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[TransitiveClosureDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -468,8 +482,12 @@ class TransitiveClosureGAPGenerator(Generator[TransitiveClosureDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Generate GAP directed graph inputs for transitive closure."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def cacheable(self) -> bool:
@@ -530,6 +548,10 @@ class TransitiveClosureGAPReferenceGenerator(
         )
 
     @property
+    def license(self) -> License | None:
+        return TransitiveClosureGAPGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[TransitiveClosureDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -582,14 +604,10 @@ class TransitiveClosureBenchmark(Benchmark):
         return "Transitive Closure"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Computes bounded-hop reachability by Boolean matrix squaring, starting"
-            " with the adjacency matrix and identity. A maximum-degree bound limits"
-            " the squaring count to keep output density at most 1% by default."
-            " Stops earlier at a fixed point; a density-limited result may be a"
-            " partial transitive closure. Inputs already above the bound receive"
-            " no squarings."
+            "Computes bounded-hop reachability by squaring the adjacency matrix in the "
+            r"$(\lor,\land)$ semiring."
         )
 
     @property
@@ -653,8 +671,18 @@ class TransitiveClosureBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
-        return ""
+    def notes(self) -> str:
+        return (
+            "Computes bounded-hop reachability by Boolean matrix squaring, starting "
+            "with the adjacency matrix and identity. A maximum-degree bound limits the "
+            "squaring count to keep output density at most 1% by default. Stops "
+            "earlier at a fixed point; a density-limited result may be a partial "
+            "transitive closure. Inputs already above the bound receive no squarings."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return "Reachability is deterministic, so we check it exactly."
 
     @property
     def generators(self) -> list[Generator]:

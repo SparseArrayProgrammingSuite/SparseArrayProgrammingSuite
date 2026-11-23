@@ -72,7 +72,8 @@ def test_ogb_gcn_generator_includes_supported_homogeneous_ogb_workloads():
 
     assert set(datasets) == {"ogbn-arxiv", "ogbn-products", "ogbn-proteins"}
     assert datasets["ogbn-arxiv"].suites == ["standard", "trace"]
-    assert datasets["ogbn-products"].suites == ["standard", "trace", "train"]
+    # De-listed: ogbn-products is not redistributable.
+    assert datasets["ogbn-products"].suites == []
     assert datasets["ogbn-proteins"].suites == ["standard", "trace"]
 
 
@@ -195,7 +196,7 @@ def test_ogb_shell_generator_round_trips_prepared_nodeprop_data(monkeypatch):
     raw = generator.generate(dataset)
 
     assert generator.cacheable
-    assert dataset.suites == []
+    assert dataset.suites == ["shell"]
     assert dataset.metadata["source_name"] == "ogbn-arxiv"
     assert "num_nodes" not in dataset.metadata
     assert raw.meta["num_nodes"] == 3

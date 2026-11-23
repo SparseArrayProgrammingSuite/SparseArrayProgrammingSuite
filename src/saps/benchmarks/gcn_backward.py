@@ -6,6 +6,7 @@ import scipy.sparse as sps
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -13,13 +14,15 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    Inherit,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
     ShellBenchmark,
 )
 from saps.benchmarks.gcn import _SIGMAS, _UNIT_ROUNDOFF, gcn_reference
-from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset
+from saps.benchmarks.ogb import fetch_ogb_nodeprop_dataset, ogb_license
 from saps.benchmarks.suitesparse import SuiteSparseDataset, fetch_suitesparse_matrix
 from saps.downloaders.ogb import normalized_undirected_adjacency
 
@@ -223,6 +226,10 @@ class GCNBackwardOGBDataset(Dataset):
         return "<ccs2012></ccs2012>"
 
     @property
+    def license(self) -> License | None | Inherit:
+        return ogb_license(self.source_name)
+
+    @property
     def metadata(self) -> dict[str, Any]:
         data = super().metadata
         data.update(
@@ -270,8 +277,12 @@ class GCNBackwardTestGenerator(Generator[GCNBackwardDataset]):
         return GCNBackwardBenchmark().ai_disclosure
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Uses small graph examples to verify the GCN training loop."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -522,7 +533,7 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Graphs are widely used for abstracting systems of interacting objects,"
             " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
@@ -534,6 +545,10 @@ class GCNBackwardSuiteSparseGenerator(Generator[GCNBackwardDataset]):
             " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
             " matrix is used, which is inherently sparse."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[GCNBackwardDataset]:
@@ -660,6 +675,10 @@ class GCNBackwardSuiteSparseReferenceGenerator(ReferenceGenerator[GCNBackwardDat
         )
 
     @property
+    def license(self) -> License | None:
+        return GCNBackwardSuiteSparseGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[GCNBackwardDataset]]:
         return [
             ReferenceDataset(dataset)
@@ -730,13 +749,17 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Uses complete real-world node features, graph structure, and labels "
             "from the Open Graph Benchmark for the GCN training loop. SAPS caches "
             "the training target, which takes a float64 run of the training loop "
             "to find, apart from the inputs the OGB shell already caches."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.OGB_NODEPROP
 
     @property
     def cacheable(self) -> bool:
@@ -759,7 +782,9 @@ class GCNBackwardOGBGenerator(Generator[GCNBackwardOGBDataset]):
                     "Amazon product co-purchasing network for large-scale "
                     "node-property prediction."
                 ),
-                suites=["standard"],
+                # De-listed: ogbn-products is not redistributable (see
+                # licenses.OGBN_PRODUCTS).
+                suites=[],
             ),
             GCNBackwardOGBDataset(
                 "ogbn-proteins",
@@ -829,9 +854,16 @@ class GCNBackwardOGBReferenceGenerator(ReferenceGenerator[GCNBackwardOGBDataset]
         )
 
     @property
+    def license(self) -> License | None:
+        return GCNBackwardOGBGenerator().license
+
+    @property
     def datasets(self) -> list[ReferenceDataset[GCNBackwardOGBDataset]]:
+        # ogbn-products is de-listed, so its reference isn't cached either.
         return [
-            ReferenceDataset(dataset) for dataset in GCNBackwardOGBGenerator().datasets
+            ReferenceDataset(dataset)
+            for dataset in GCNBackwardOGBGenerator().datasets
+            if dataset.name != "ogbn-products"
         ]
 
     def generate(
@@ -873,33 +905,13 @@ class GCNBackwardBenchmark(Benchmark):
 
     @property
     def description(self) -> str:
-        return """
-Benchmarks 2-layer GCN training loop (forward, backward, weight updates).
-
-Each iteration:
-    Forward pass:
-        Z1 = A @ X
-        H1_pre = Z1 @ W1 + b1
-        H1 = ReLU(H1_pre)
-        Z2 = A @ H1
-        Y = Z2 @ W2 + b2
-
-    Backward pass (MSE loss):
-        dY = (2/N) * (Y - T)
-        dW2 = Z2.T @ dY
-        db2 = sum(dY, axis=0)
-        dZ2 = dY @ W2.T
-        dH1 = A.T @ dZ2
-        dH1_pre = dH1 * (H1_pre > 0)
-        dW1 = Z1.T @ dH1_pre
-        db1 = sum(dH1_pre, axis=0)
-
-    Weight updates:
-        W1 = W1 - lr * dW1
-        b1 = b1 - lr * db1
-        W2 = W2 - lr * dW2
-        b2 = b2 - lr * db2
-        """
+        return (
+            "Trains the same two-layer GCN by gradient descent on a mean squared error "
+            "loss, with hand-written derivatives for the backward pass. Each iteration "
+            "runs the forward pass, propagates the gradient back through the graph by "
+            r"multiplying with $\hat{A}^\top$, masks it by the ReLU, and updates the "
+            "weights and biases."
+        )
 
     @property
     def suites(self) -> list[str]:
@@ -971,17 +983,32 @@ Each iteration:
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
-            "Graphs are widely used for abstracting systems of interacting objects,"
-            " such as social networks (Easley et al., 2010), knowledge graphs (Nickel"
-            " et al., 2015), molecular graphs (Wu et al., 2018), and biological"
-            " networks (Barabasi & Oltvai, 2004), as well as for modeling 3D objects"
-            " (Simonovsky & Komodakis, 2017), manifolds (Bronstein et al., 2017), and"
-            " source code (Allamanis et al., 2017). Machine learning (ML), especially"
-            " deep learning, on graphs is an emerging field (Hamilton et al., 2017b;"
-            " Bronstein et al., 2017). W. Hu et al. To represent a graph, an adjaceny"
-            " matrix is used, which is inherently sparse."
+            "Benchmarks 2-layer GCN training loop (forward, backward, weight updates). "
+            "Each iteration: Forward pass: Z1 = A @ X H1_pre = Z1 @ W1 + b1 H1 = "
+            "ReLU(H1_pre) Z2 = A @ H1 Y = Z2 @ W2 + b2 Backward pass (MSE loss): dY = "
+            "(2/N) * (Y - T) dW2 = Z2.T @ dY db2 = sum(dY, axis=0) dZ2 = dY @ W2.T dH1 "
+            "= A.T @ dZ2 dH1_pre = dH1 * (H1_pre > 0) dW1 = Z1.T @ dH1_pre db1 = "
+            "sum(dH1_pre, axis=0) Weight updates: W1 = W1 - lr * dW1 b1 = b1 - lr * "
+            "db1 W2 = W2 - lr * dW2 b2 = b2 - lr * db2 Graphs are widely used for "
+            "abstracting systems of interacting objects, such as social networks "
+            "(Easley et al., 2010), knowledge graphs (Nickel et al., 2015), molecular "
+            "graphs (Wu et al., 2018), and biological networks (Barabasi & Oltvai, "
+            "2004), as well as for modeling 3D objects (Simonovsky & Komodakis, 2017), "
+            "manifolds (Bronstein et al., 2017), and source code (Allamanis et al., "
+            "2017). Machine learning (ML), especially deep learning, on graphs is an "
+            "emerging field (Hamilton et al., 2017b; Bronstein et al., 2017). W. Hu et "
+            "al. To represent a graph, an adjaceny matrix is used, which is inherently "
+            "sparse."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Training stops once the loss falls below a fraction of its initial value, "
+            "so we check that the final loss passes the same test, allowing 8 standard "
+            r"deviations of float32 rounding error~\cite{higham_new_2019}."
         )
 
     @property

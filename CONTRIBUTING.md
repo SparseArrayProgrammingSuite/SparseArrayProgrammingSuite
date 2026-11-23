@@ -38,7 +38,7 @@ A complete benchmark contribution includes:
 - A benchmark function: the sparse array program being measured.
 - One or more generators: deterministic ways to produce inputs for that benchmark.
 - Datasets: named generator configurations representing specific benchmark runs.
-- Metadata: authors, references, motivation, concepts, suites, and AI disclosure.
+- Metadata: authors, references, a description, implementation notes, concepts, suites, AI disclosure, and the data license of each generator, or of a dataset that overrides it. Each benchmark also states its correctness check: how its output is verified, and the optimizations that allows.
 - Correctness tests: evidence that the benchmark computes the intended result.
 - A rationale: evidence that the problem and selected data are representative or useful.
 
@@ -87,7 +87,9 @@ A `Generator` owns the logic for producing related datasets. A `Dataset` is one 
 
 Generators should be deterministic. If random data is needed, use fixed seeds and record enough metadata to reproduce the dataset. Large generated datasets should be cacheable through the storage backend unless there is a specific reason to opt out.
 
-Concrete generators must be reachable from a benchmark so metadata, freshness checks, and dataset caching can discover them. If a generator is intentionally standalone data plumbing rather than part of a runnable benchmark, wrap it in a small `ShellBenchmark`: implement only the `generator` property and let the shell expose the generator under a `{generator.name}_shell` benchmark record.
+Every generator declares the license of its data in a `license` property, returning a constant from `saps/licenses.py`. A `License` holds an SPDX expression, a `Ref` to where the license was found, the `date_accessed` on which it was read there, whether the terms make the data `redistributable`, and `notes` recording what the source says and any caveats. Data synthesized by SAPS code uses `licenses.SAPS`. For a new external source, find its license on the source's own pages and add a constant; use `AND` when one dataset combines data under several licenses, and `LicenseRef-<name>` for terms with no SPDX identifier. If no license can be found, make the constant `None` and say in a comment where you looked and when. A license file on a repository that only redistributes someone else's data does not count. When some of a generator's datasets come from a differently licensed source, those datasets override the dataset `license` property; it defaults to `INHERIT`, which takes the generator's license, and `Generator.dataset_license(dataset)` gives the license that applies. A `ReferenceGenerator` returns its source generator's license, and a `ReferenceDataset` its wrapped dataset's.
+
+Concrete generators must be reachable from a benchmark so metadata, freshness checks, and dataset caching can discover them. If a generator is intentionally standalone data plumbing rather than part of a runnable benchmark, wrap it in a small `ShellBenchmark`: implement only the `generator` property and let the shell expose the generator under a `{generator.name}_shell` benchmark record. Put the generator in the `shell` suite so `--cache-datasets` prepares its data; reference generators are in it already.
 
 A generator whose inputs come from a cached shell generator stays uncached, so each shared input is stored once. Put its expensive parts, such as reference outputs or a factored preconditioner, in a sibling `ReferenceGenerator` subclass: its `datasets` wrap the generator's own in `ReferenceDataset`, its `generate` returns a `DataInstance` holding only those parts, and the generator's `generate` merges in `XReferenceGenerator().cached_generate(ReferenceDataset(dataset))`. Give the reference generator its own `ShellBenchmark` so dataset caching prepares it.
 
@@ -151,7 +153,10 @@ Suites are listed by name in `suites`, and each one becomes a `suite-<name>` tag
 - `test`: datasets that run in CI and cover dense/sparse cases, different sizes, and code paths.
 - `standard`: canonical datasets in the suite.
 - `standard-long`: canonical datasets that take hours each to prepare, such as the GAP graphs. They stay out of `standard`, and `--cache-datasets` skips them unless selected with `--tag suite-standard-long`; references of these datasets join this suite too.
+- `shell`: shell and reference generators, whose data other datasets read.
 - `trace`: datasets whose operation behavior should be traced into `statistics.json`.
+
+`--cache-datasets` caches and uploads only datasets in `standard`, `standard-long`, `shell` or `test`, counting suites inherited from their generator or benchmark. Tracing and training read cached data, so a dataset in `trace` or `train` must also be in `standard`. To de-list a dataset, for example because its data has no license that allows redistribution, keep it in the code but in none of these suites; a de-listed shell or reference generator returns `[]` from `suites`.
 
 Each benchmark also lists two suites that classify it, one by application and one by computational character:
 

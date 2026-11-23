@@ -9,6 +9,7 @@ import sparse as sp
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_sparse, to_numpy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -16,6 +17,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
     ReferenceDataset,
     ReferenceGenerator,
@@ -135,8 +137,12 @@ class FloydWarshallTestGenerator(Generator[FloydWarshallDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return "Provide small graph examples for shortest-path correctness checks."
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def cacheable(self) -> bool:
@@ -390,10 +396,14 @@ class FloydWarshallSNAPGenerator(Generator[FloydWarshallDataset]):
         return "Generative AI was used to construct this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "Generate unit-length shortest-path inputs with the stored edge directions."
         )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[FloydWarshallDataset]:
@@ -513,6 +523,10 @@ class FloydWarshallSNAPReferenceGenerator(ReferenceGenerator[FloydWarshallDatase
         return (
             "Reference outputs for Floyd-Warshall SNAP, cached apart from its inputs."
         )
+
+    @property
+    def license(self) -> License | None:
+        return FloydWarshallSNAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[FloydWarshallDataset]]:
@@ -690,8 +704,12 @@ class FloydWarshallGAPGenerator(Generator[FloydWarshallDataset]):
         )
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
 
     @property
     def datasets(self) -> list[FloydWarshallDataset]:
@@ -747,6 +765,10 @@ class FloydWarshallGAPReferenceGenerator(ReferenceGenerator[FloydWarshallDataset
     @property
     def description(self) -> str:
         return "Reference outputs for Floyd-Warshall GAP, cached apart from its inputs."
+
+    @property
+    def license(self) -> License | None:
+        return FloydWarshallGAPGenerator().license
 
     @property
     def datasets(self) -> list[ReferenceDataset[FloydWarshallDataset]]:
@@ -865,13 +887,10 @@ class FloydWarshallBenchmark(Benchmark):
         return "Floyd-Warshall"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
-            "Computes bounded-hop all-pairs shortest paths by min-plus matrix"
-            " squaring. A maximum-degree bound limits the squaring count to keep"
-            " finite-entry density at most 1% by default. Stops earlier at a fixed"
-            " point; a density-limited result may omit longer paths. Inputs already"
-            " above the bound receive no squarings."
+            "Computes bounded-hop all-pairs shortest paths by squaring the distance "
+            r"matrix in the $(\min,+)$ semiring."
         )
 
     @property
@@ -936,12 +955,24 @@ class FloydWarshallBenchmark(Benchmark):
         )
 
     @property
-    def motivation(self):
+    def notes(self) -> str:
         return (
-            "Sparse graphs reduce unnecessary computation, as most entries in the"
-            " adjacency matrix represent non-edges and begin as inifinity. Efficient"
-            " sparse representations allow the backend framework to skip work and"
-            " minimize memory movement during the relaxation steps of the algorithm."
+            "Computes bounded-hop all-pairs shortest paths by min-plus matrix "
+            "squaring. A maximum-degree bound limits the squaring count to keep "
+            "finite-entry density at most 1% by default. Stops earlier at a fixed "
+            "point; a density-limited result may omit longer paths. Inputs already "
+            "above the bound receive no squarings. Sparse graphs reduce unnecessary "
+            "computation, as most entries in the adjacency matrix represent non-edges "
+            "and begin as inifinity. Efficient sparse representations allow the "
+            "backend framework to skip work and minimize memory movement during the "
+            "relaxation steps of the algorithm."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Weights are random integers from 1 to 255, so float64 path lengths are "
+            "exact in any summation order and we check distances exactly."
         )
 
     @property

@@ -11,6 +11,7 @@ import scipy.sparse as scipy_sparse
 from binsparse import BinsparseTensor
 from binsparse.conversions import from_numpy, from_scipy, to_numpy, to_scipy
 
+from saps import licenses
 from saps.benchmark import (
     Author,
     Benchmark,
@@ -18,6 +19,7 @@ from saps.benchmark import (
     DataInstance,
     Dataset,
     Generator,
+    License,
     Ref,
 )
 from saps.codegen import define_function
@@ -26,6 +28,10 @@ from saps.downloaders.slicot import (
     load_slicot_problem,
     slicot_problem_metadata,
     slicot_source_url,
+)
+from saps.downloaders.suitesparse import (
+    SUITESPARSE_PRIMARY,
+    load_suitesparse_model_reduction,
 )
 
 
@@ -171,7 +177,7 @@ def _resolve_derivatives(problem_name):
             return _lotka_volterra_derivatives
         case "ode_brusselator":
             return _brusselator_derivatives
-        case "ode_slicot":
+        case "ode_slicot" | "ode_suitesparse":
             return _linear_system_derivatives
         case _:
             raise NotImplementedError(f"Unknown ODE problem: {problem_name!r}")
@@ -311,7 +317,7 @@ def _step_model(meta, data) -> _StepModel:
                 lambda t, x, e: abs_c @ e + reaction(x, e),
                 _row_counts(c) + 5,
             )
-        case "ode_slicot":
+        case "ode_slicot" | "ode_suitesparse":
             A, B = data
             u = np.full(B.shape[1], meta["input_value"], dtype=np.float64)
             abs_a, forcing = abs(A), abs(B) @ np.abs(u)
@@ -531,6 +537,70 @@ class ODESLICOTDataset(Dataset):
         return data
 
 
+class ODESuiteSparseDataset(Dataset):
+    """A SuiteSparse model reduction problem without E, as the ODE x' = A x + B u.
+
+    SuiteSparse's Rommes group states that E = I when a problem omits E. A and B
+    are named by the suffix of their auxiliary file, or by SUITESPARSE_PRIMARY.
+    """
+
+    def __init__(
+        self,
+        source_name: str,
+        *,
+        A: str,
+        B: str,
+        suites: list[str] | None = None,
+        t_max: float,
+        step: float,
+        input_value: float = 1.0,
+    ):
+        self._name = source_name.partition("/")[2]
+        self.source_name = source_name
+        self.matrix_names = {"A": A, "B": B}
+        self._suites = suites or []
+        self.t_max = t_max
+        self.step = step
+        self.input_value = input_value
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pretty_name(self) -> str:
+        return self._name
+
+    @property
+    def description(self) -> str:
+        return (
+            f"SuiteSparse model reduction problem {self.source_name} as an ODE, "
+            "with E = I."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return self._suites
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def metadata(self) -> dict[str, object]:
+        data = super().metadata
+        data.update(
+            {
+                "source_name": self.source_name,
+                "system": self.matrix_names,
+                "assumed_E": "identity",
+                "t_max": self.t_max,
+                "step": self.step,
+            }
+        )
+        return data
+
+
 # ---------------------------------------------------------------------------
 # Generators
 # ---------------------------------------------------------------------------
@@ -614,8 +684,12 @@ dydt_vector = (Vs - state) / tau
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[ODERCDataset]:
@@ -695,8 +769,12 @@ dydt_vector = xp.stack([dVc, d2Vc])
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[ODERLCDataset]:
@@ -775,8 +853,12 @@ dydt_vector = xp.stack([dxdt, dydt])
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[ODELotkaVolterraDataset]:
@@ -863,8 +945,12 @@ dydt_vector = lin + non_lin
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return ""
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SAPS
 
     @property
     def datasets(self) -> list[ODEBrusselatorDataset]:
@@ -999,35 +1085,28 @@ dydt_vector = A @ state + B @ input_array
         return "Generative AI was used to implement this generator."
 
     @property
-    def motivation(self) -> str:
+    def notes(self) -> str:
         return (
             "SLICOT model-reduction examples provide realistic linear dynamical "
             "systems for ODE integration benchmarks."
         )
 
     @property
+    def license(self) -> License | None:
+        return licenses.SLICOT_MODEL_REDUCTION
+
+    @property
     def datasets(self) -> list[ODESLICOTDataset]:
         # Base timesteps, scaled by each method's step_multiplier at setup.
         # Validated over t_max=0.1 at the 0.05 absolute-error tolerance.
+        # ODESuiteSparseGenerator's problems train the methods.
         datasets = [
             ODESLICOTDataset("eady", suites=["standard", "trace"]),
             ODESLICOTDataset("CDplayer", suites=["standard"], step=4e-5),
-            ODESLICOTDataset(
-                "fom",
-                suites=["standard", "trace", "train"]
-                if self.train_dataset == "fom"
-                else ["standard", "trace"],
-                step=0.001,
-            ),
+            ODESLICOTDataset("fom", suites=["standard", "trace"], step=0.001),
             ODESLICOTDataset("random", suites=["standard"], step=5e-5),
             ODESLICOTDataset("pde", suites=["standard", "trace"], step=0.001),
-            ODESLICOTDataset(
-                "heat-cont",
-                suites=["standard", "trace", "train"]
-                if self.train_dataset == "heat-cont"
-                else ["standard", "trace"],
-                step=0.001,
-            ),
+            ODESLICOTDataset("heat-cont", suites=["standard", "trace"], step=0.001),
             ODESLICOTDataset("Orr-Som", suites=["standard", "trace"]),
             ODESLICOTDataset("iss", suites=["standard", "trace"]),
             ODESLICOTDataset("build", suites=["standard", "trace"]),
@@ -1113,6 +1192,133 @@ dydt_vector = A @ state + B @ input_array
         )
 
 
+class ODESuiteSparseGenerator(_ODEGenerator[ODESuiteSparseDataset]):
+    array_parameters = ("A", "B")
+    derivative_source = """\
+input_value = meta["input_value"]
+input_dtype = xp.result_type(B.dtype, xp.float64)
+input_array = xp.asarray([input_value] * B.shape[1], dtype=input_dtype)
+dydt_vector = A @ state + B @ input_array
+"""
+
+    def __init__(
+        self,
+        trace_datasets: tuple[str, ...] = (),
+        train_dataset: str | None = None,
+    ):
+        self.trace_datasets = trace_datasets
+        self.train_dataset = train_dataset
+
+    @property
+    def name(self) -> str:
+        return "ode_suitesparse"
+
+    @property
+    def pretty_name(self) -> str:
+        return "Ordinary Differential Equation (ODE) SuiteSparse"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Loads SuiteSparse model reduction problems whose E is the identity, "
+            "keeping A and B sparse."
+        )
+
+    @property
+    def suites(self) -> list[str]:
+        return []
+
+    @property
+    def concepts(self) -> str:
+        return "<ccs2012></ccs2012>"
+
+    @property
+    def authors(self) -> list[Contributor]:
+        return []
+
+    @property
+    def references(self) -> list[Ref]:
+        return [
+            Ref(
+                title="The university of Florida sparse matrix collection",
+                authors=[
+                    Author("Timothy A. Davis"),
+                    Author("Yifan Hu"),
+                ],
+                journal="ACM Transactions on Mathematical Software",
+                publisher="Association for Computing Machinery (ACM)",
+                volume="38",
+                number="1",
+                pages="1-25",
+                year=2011,
+                url="https://doi.org/10.1145/2049662.2049663",
+                doi="10.1145/2049662.2049663",
+            )
+        ]
+
+    @property
+    def ai_disclosure(self) -> str:
+        return "Generative AI was used to implement this generator."
+
+    @property
+    def notes(self) -> str:
+        return (
+            "SuiteSparse model reduction problems provide realistic linear dynamical "
+            "systems for ODE integration benchmarks. Steps come from "
+            "scripts/scrape_matrices.py, which picks about 10 seconds of steps on "
+            "the SciPy framework."
+        )
+
+    @property
+    def license(self) -> License | None:
+        return licenses.SUITESPARSE
+
+    @property
+    def datasets(self) -> list[ODESuiteSparseDataset]:
+        # Base timesteps, scaled by each method's step_multiplier at setup.
+        datasets = [
+            ODESuiteSparseDataset(
+                "Rommes/ww_36_pmec_36",
+                A=SUITESPARSE_PRIMARY,
+                B="B",
+                suites=["standard", "trace", "train"]
+                if self.train_dataset == "ww_36_pmec_36"
+                else ["standard", "trace"],
+                t_max=25.6,
+                step=0.01,
+            ),
+        ]
+        for dataset in datasets:
+            if dataset.name in self.trace_datasets and "trace" not in dataset.suites:
+                dataset.suites.append("trace")
+        return datasets
+
+    def generate(self, dataset: ODESuiteSparseDataset):
+        names = dataset.matrix_names
+        matrices, _ = load_suitesparse_model_reduction(
+            dataset.source_name, (names["A"], names["B"])
+        )
+        A, B = matrices[names["A"]], matrices[names["B"]]
+        if A.shape[0] != A.shape[1] or B.shape[0] != A.shape[0]:
+            raise ValueError(
+                f"{dataset.source_name} needs a square A and a B with as many rows"
+            )
+        meta = {
+            "problem_name": self.name,
+            "span": (0, dataset.t_max),
+            "y0": [0.0] * A.shape[0],
+            "step": dataset.step,
+            "input_value": dataset.input_value,
+            "source_name": dataset.source_name,
+            "num_states": A.shape[0],
+            "input_dimension": B.shape[1],
+            "assumed_E": "identity",
+        }
+        return DataInstance(
+            inputs=[from_scipy(A.tocoo()), from_scipy(B.tocoo())], meta=meta
+        )
+
+
 # ---------------------------------------------------------------------------
 # Integration-method benchmarks
 # ---------------------------------------------------------------------------
@@ -1122,6 +1328,8 @@ class _ODEBenchmarkBase(Benchmark, ABC):
     step_multiplier = 1.0
     slicot_trace_datasets: tuple[str, ...] = ()
     slicot_train_dataset: str | None = None
+    suitesparse_trace_datasets: tuple[str, ...] = ()
+    suitesparse_train_dataset: str | None = None
     brusselator_train = False
 
     def benchmark(self, xp, meta, *data_args):
@@ -1147,6 +1355,10 @@ class _ODEBenchmarkBase(Benchmark, ABC):
                 trace_datasets=self.slicot_trace_datasets,
                 train_dataset=self.slicot_train_dataset,
             ),
+            ODESuiteSparseGenerator(
+                trace_datasets=self.suitesparse_trace_datasets,
+                train_dataset=self.suitesparse_train_dataset,
+            ),
         ]
 
     @property
@@ -1161,7 +1373,7 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         # Older cached inputs do not identify their problem. Use the selected
         # generator and preserve the cached matrices without modifying its metadata.
         self._meta = {"problem_name": param.generator.name, **self._meta}
-        if isinstance(param.dataset, ODESLICOTDataset):
+        if isinstance(param.dataset, ODESLICOTDataset | ODESuiteSparseDataset):
             # Apply current method settings even when the cached timestep is stale.
             self._meta["step"] = param.dataset.step * self.step_multiplier
 
@@ -1182,8 +1394,20 @@ class _ODEBenchmarkBase(Benchmark, ABC):
         return _AI_DISCLOSURE
 
     @property
-    def motivation(self):
-        return ""
+    def description(self) -> str:
+        return (
+            "Integrates ordinary differential equations (ODEs) with Forward Euler, "
+            "Backward Euler, and fourth-order Runge-Kutta (RK4) updates, using sparse "
+            "operations."
+        )
+
+    @property
+    def correctness(self) -> str:
+        return (
+            "Each step depends only on the previous state, so we recompute every step "
+            "from the framework's previous state and check that the two agree under "
+            r"any floating-point reassociation~\cite[(2.6)]{higham_accuracy_1993}."
+        )
 
     @abstractmethod
     def _step(self, model: _StepModel, t: float, step: float, y):
@@ -1226,8 +1450,7 @@ class ForwardEulerBenchmark(_ODEBenchmarkBase):
         k, k_error = model.evaluate(t, y, 0)
         return _axpy(y, step, k, k_error)
 
-    slicot_trace_datasets = ("beam", "fom", "heat-cont")
-    slicot_train_dataset = "fom"
+    suitesparse_train_dataset = "ww_36_pmec_36"
 
     @property
     def name(self):
@@ -1238,7 +1461,7 @@ class ForwardEulerBenchmark(_ODEBenchmarkBase):
         return "Forward Euler"
 
     @property
-    def description(self):
+    def notes(self) -> str:
         return "Integrates ODE initial-value problems with the forward Euler method."
 
     def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
@@ -1276,7 +1499,7 @@ class BackwardEulerBenchmark(_ODEBenchmarkBase):
             guess, error = _axpy(y, step, k, k_error)
         return guess, error
 
-    slicot_train_dataset = "heat-cont"
+    suitesparse_train_dataset = "ww_36_pmec_36"
 
     @property
     def name(self):
@@ -1287,10 +1510,10 @@ class BackwardEulerBenchmark(_ODEBenchmarkBase):
         return "Backward Euler"
 
     @property
-    def description(self):
+    def notes(self) -> str:
         return (
-            "Integrates ODE initial-value problems with backward Euler, "
-            "using ten fixed-point iterations per step."
+            "Integrates ODE initial-value problems with backward Euler, using ten "
+            "fixed-point iterations per step."
         )
 
     def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
@@ -1335,13 +1558,6 @@ class RK4Benchmark(_ODEBenchmarkBase):
         return _axpy(y, step / 6, total, total_error)
 
     brusselator_train = True
-    slicot_trace_datasets = (
-        "CDplayer",
-        "random",
-        "beam",
-        "fom",
-        "heat-cont",
-    )
 
     @property
     def name(self):
@@ -1352,10 +1568,10 @@ class RK4Benchmark(_ODEBenchmarkBase):
         return "Fourth-Order Runge-Kutta (RK4)"
 
     @property
-    def description(self):
+    def notes(self) -> str:
         return (
-            "Integrates ODE initial-value problems with the classical "
-            "fourth-order Runge-Kutta method."
+            "Integrates ODE initial-value problems with the classical fourth-order "
+            "Runge-Kutta method."
         )
 
     def benchmark_source(self, parameters: tuple[str, ...], dydt: str) -> str:
